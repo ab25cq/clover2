@@ -1,4 +1,10 @@
 English page is here [>> English page](changelog-en)
+    
+version 5.9.9
+
+    GCのアルゴリズムの修正。かなり速くなりました。Clover.compaction()を追加。エディッタなどずっと走っているプログラムではClover.compaction()をメインループに入れてください。メモリの消費量を抑えられます。
+    新しいGCのアルゴリズムにはJITは対応していません。JITは6.0.0で実装します。とりあえずリリース。
+    クラスファイルの仕様が変わっています。既存のソースの再コンパイルをお願いします。
 
 version 5.0.9
 

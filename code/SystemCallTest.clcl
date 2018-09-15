@@ -57,7 +57,7 @@ class SystemCallTest
 
         Clover.test("system call test8", j->byte == 'A' && (j+1)->byte == 'A' && (j+2)->byte == 'A' && (j+3)->byte == '\0');
 
-        strncat(j, b"B".buffer, 10);
+        strncat(j, b"B\0".buffer, 10);
 
         Clover.test("system call test9", j->byte == 'A' && (j+1)->byte == 'A' && (j+2)->byte == 'A' && (j+3)->byte == 'B' && (j+4)->byte == '\0');
 

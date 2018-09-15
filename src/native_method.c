@@ -370,6 +370,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.isascii(char)", "System_isascii", System_isascii },
     { "System.isblank(char)", "System_isblank", System_isblank },
     { "Clover.gc()", "Clover_gc", Clover_gc },
+    { "Clover.compaction()", "Clover_compaction", Clover_compaction },
 
     { "", "", 0 }  // sentinel
 };

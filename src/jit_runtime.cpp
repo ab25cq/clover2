@@ -230,6 +230,8 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
 
         CLObject carray = create_carray_object_with_elements(num_params, elements ,info);
 
+        inc_refference_count(carray, 0, FALSE);
+
         CLVALUE cl_value;
         cl_value.mObjectValue = carray;
         push_value_to_global_stack(cl_value, info);
@@ -237,6 +239,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         (*stack_ptr)-=num_params;
 
         (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
+        inc_refference_count((*stack_ptr)->mObjectValue, 0, FALSE);
         (*stack_ptr)++;
         (*stack_ptr)->mObjectValue = carray;
         (*stack_ptr)++;
@@ -280,6 +283,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         }
 
         CLObject carray = create_carray_object_with_elements(num_params, elements, info);
+        inc_refference_count(carray, 0, FALSE);
 
         CLVALUE cl_value;
         cl_value.mObjectValue = carray;
@@ -289,6 +293,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         (*stack_ptr)-=num_params;
 
         (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
+        inc_refference_count((*stack_ptr)->mObjectValue, 0, FALSE);
         (*stack_ptr)++;
         (*stack_ptr)->mObjectValue = carray;
         (*stack_ptr)++;
@@ -328,7 +333,7 @@ BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** 
     return TRUE;
 }
 
-struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)
+struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index, int field_class_name_offset, sConst* constant)
 {
     struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
 
@@ -356,9 +361,24 @@ struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, i
         return result;
     }
 
+    char* field_class_name = CONS_str(constant, field_class_name_offset);
+
+    sCLClass* field_class = get_class(field_class_name);
+
+    if(field_class == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(39)");
+        result->result1 = value;
+        result->result2 = FALSE;
+        return result;
+    }
+
+    BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+    CLObject prev_obj = object_pointer->mFields[field_index].mObjectValue;
+
     object_pointer->mFields[field_index] = value;
 
-    inc_refference_count(value.mObjectValue);
+    inc_refference_count(value.mObjectValue, prev_obj, value_is_object);
 
     result->result1 = value;
     result->result2 = TRUE;
@@ -453,7 +473,7 @@ BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
         return FALSE;
     }
 
-    mark_and_store_class_field(klass, field_index, value.mObjectValue);
+    mark_and_store_class_field(klass, field_index, value);
 
     return TRUE;
 }
@@ -506,7 +526,14 @@ BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
         return FALSE;
     }
 
+    sCLClass* klass = object_pointer->mClass;
+
+    BOOL value_is_object = klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+    CLObject prev_obj = object_pointer->mFields[element_num].mObjectValue;
+
     object_pointer->mFields[element_num] = value;
+    inc_refference_count(value.mObjectValue, prev_obj, value_is_object);
 
     return TRUE;
 }
@@ -663,7 +690,12 @@ struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* sta
 
     int i;
     for(i=0; i<num_elements; i++) {
-        object_data->mFields[i] = *((*stack_ptr)-1-num_elements+i);
+//        CLObject prev_obj = object_data->mFields[i].mObjectValue;
+
+        CLVALUE cl_value = *((*stack_ptr)-1-num_elements+i);
+        object_data->mFields[i] = cl_value;
+
+//        inc_refference_count(cl_value.mObjectValue, prev_obj);
     }
 
     (*stack_ptr)--; // pop_object
@@ -863,6 +895,8 @@ struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* st
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -908,6 +942,7 @@ struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, C
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_equalable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -953,6 +988,7 @@ struct sCLVALUEAndBoolResult* run_create_sortable_carray(CLVALUE** stack_ptr, CL
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_sortable_carray_object(array_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -997,7 +1033,10 @@ struct sCLVALUEAndBoolResult* run_create_list(CLVALUE** stack_ptr, CLVALUE* stac
 
     int i;
     for(i=0; i<num_elements; i++) {
-        items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+        CLObject object = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+        items[i] = object;
+
+        inc_refference_count(object, 0, FALSE);
     }
 
     if(!initialize_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -1043,6 +1082,8 @@ struct sCLVALUEAndBoolResult* run_create_sortable_list(CLVALUE** stack_ptr, CLVA
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_sortable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -1088,6 +1129,8 @@ struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLV
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_equalable_list_object(list_object, num_elements, items, stack, var_num, stack_ptr, info, klass))
@@ -1121,6 +1164,8 @@ struct sCLVALUEAndBoolResult* run_create_tuple(CLVALUE** stack_ptr, CLVALUE* sta
     int i;
     for(i=0; i<num_elements; i++) {
         items[i] = (*((*stack_ptr)-1-num_elements+i)).mObjectValue;
+
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     if(!initialize_tuple_object(tuple_object, num_elements, items, stack, var_num, stack_ptr, info))
@@ -1171,12 +1216,16 @@ struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stac
     int i;
     for(i=0; i<num_elements; i++) {
         keys[i] = ((*stack_ptr) - num_elements * 2 + i * 2)->mObjectValue;
+
+        inc_refference_count(keys[i], 0, FALSE);
     }
 
     CLObject items[HASH_VALUE_ELEMENT_MAX];
 
     for(i=0; i<num_elements; i++) {
         items[i] = ((*stack_ptr) - num_elements * 2 + i * 2 + 1)->mObjectValue;
+
+        inc_refference_count(items[i], 0, FALSE);
     }
 
     CLObject hash_object = create_hash_object(type_name, info);
@@ -1558,6 +1607,8 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
         new_primitive_array = create_array_object(klass, array_num, info);
     }
 
+    inc_refference_count(new_primitive_array, 0, FALSE);
+
     sCLObject* new_array_data = CLOBJECT(new_array);
 
     new_array_data->mFields[0].mObjectValue = new_primitive_array;
@@ -1572,6 +1623,8 @@ struct sCLVALUEAndBoolResult* run_array_to_carray_cast(CLVALUE** stack_ptr, CLVA
 
         sCLObject* new_primitive_array_data = CLOBJECT(new_primitive_array);
         new_primitive_array_data->mFields[i] = element;
+
+        inc_refference_count(element.mObjectValue, 0, FALSE);
     }
 
     pop_global_stack(info);
@@ -1774,7 +1827,6 @@ BOOL run_store_to_buffer(CLObject object, char* pointer, CLVALUE** stack_ptr, CL
     sCLObject* object_data = CLOBJECT(object);
 
     if(pointer < object_data->mFields[0].mPointerValue || pointer >= object_data->mFields[0].mPointerValue + object_data->mFields[2].mULongValue) {
-printf("pointer %p object_data->mFields[0].mPointerValue %p object_data->mFields[2].mULongValue %u\n", pointer, object_data->mFields[0].mPointerValue, object_data->mFields[2].mULongValue);
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer(4)");
         return FALSE;
     }

@@ -314,20 +314,6 @@ call_show_inst_in_jit(inst);
             case OP_RETURN: {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-/*
-                Function* fun = TheModule->getFunction("inc_refference_count");
-
-                std::vector<Value*> params2;
-
-                LVALUE llvm_value_32;
-                llvm_value_32 = trunc_value(llvm_value, 32);
-
-                Value* param1 = llvm_value_32.value;
-                params2.push_back(param1);
-
-                Builder.CreateCall(fun, params2);
-*/
-
                 LVALUE llvm_value2;
                 llvm_value2 = trunc_value(llvm_value, 64);
 
@@ -823,10 +809,14 @@ call_show_inst_in_jit(inst);
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
+                BOOL value_is_object = *(int*)pc;
+                pc += sizeof(int);
+
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value, FALSE);
 
+/*
                 Function* fun = TheModule->getFunction("inc_refference_count");
 
                 std::vector<Value*> params2;
@@ -837,7 +827,20 @@ call_show_inst_in_jit(inst);
                 Value* param1 = llvm_value_32.value;
                 params2.push_back(param1);
 
+                LVALUE llvm_value2;
+                get_llvm_value_from_lvar_with_offset(&llvm_value2, llvm_stack, index);
+
+                LVALUE llvm_value2_32;
+                llvm_value2_32 = trunc_value(&llvm_value2, 32);
+
+                Value* param2 = llvm_value2_32.value;
+                params2.push_back(param2);
+
+                Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, value_is_object, true));
+                params2.push_back(param3);
+
                 Builder.CreateCall(fun, params2);
+*/
                 }
                 break;
 

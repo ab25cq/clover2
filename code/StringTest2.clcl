@@ -59,6 +59,7 @@ class StringTest2 {
         Clover.test("string2 test30", "0xFF".hex() == 255);
         Clover.test("string2 test31", "010".oct() == 8);
 
+"abcabc".indexOf(/c/).toString().println();
         Clover.test("string2 test33", "abcabc".indexOf(/c/) == 2);
         Clover.test("string2 test34", "abcabc".indexOf(/c/, 2) == 5);
         Clover.test("String2 test35", "abc".insert(1,"A").equals("aAbc"));

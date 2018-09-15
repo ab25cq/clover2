@@ -764,11 +764,11 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
                 }
             }
         }
-        else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
+        else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0 || strcmp(op_string, "<") == 0 || strcmp(op_string, ">") == 0 || strcmp(op_string, "<=") == 0 || strcmp(op_string, ">=") == 0) {
             append_opecode_to_code(info->code, pointer_operand, info->no_output);
             info->stack_num--;
 
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("bool");
         }
         else {
             sNodeType* ulong_type = create_node_type_with_class_name("ulong");
@@ -2579,6 +2579,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
+        append_int_value_to_code(info->code, left_type2->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
 
         info->type = left_type2;
     }
@@ -5942,6 +5943,14 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         append_int_value_to_code(info->code, field_index, info->no_output);
 
         info->type = solved_field_type;
+
+        sCLClass* info_class = info->type->mClass;
+
+        char class_name[CLASS_NAME_MAX+1];
+        xstrncpy(class_name, CLASS_NAME(info_class), CLASS_NAME_MAX);
+
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
     }
 
     int size = get_var_size(info->type);
@@ -6369,6 +6378,7 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
+        append_int_value_to_code(info->code, left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
 
         info->type = left_type;
     }
@@ -6448,6 +6458,13 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
         append_int_value_to_code(info->code, field_index, info->no_output);
 
         info->type = field_type;
+
+        sCLClass* info_class = info->type->mClass;
+
+        char class_name[CLASS_NAME_MAX+1];
+        xstrncpy(class_name, CLASS_NAME(info_class), CLASS_NAME_MAX);
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
     }
 
     int size = get_var_size(info->type);
@@ -6585,6 +6602,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
+        append_int_value_to_code(info->code, left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
 
         info->type = left_type;
     }
@@ -6664,6 +6682,13 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
         append_int_value_to_code(info->code, field_index, info->no_output);
 
         info->type = field_type;
+
+        sCLClass* info_class = info->type->mClass;
+
+        char class_name[CLASS_NAME_MAX+1];
+        xstrncpy(class_name, CLASS_NAME(info_class), CLASS_NAME_MAX);
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
     }
 
     int size = get_var_size(info->type);
@@ -8828,6 +8853,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
             else {
                 append_opecode_to_code(info->code, OP_STORE, info->no_output);
                 append_int_value_to_code(info->code, var_index, info->no_output);
+                append_int_value_to_code(info->code, left_element_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
 
                 info->type = left_element_type;
             }
@@ -8915,6 +8941,13 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 append_int_value_to_code(info->code, field_index, info->no_output);
 
                 info->type = solved_field_type;
+
+                sCLClass* info_class = info->type->mClass;
+
+                char class_name[CLASS_NAME_MAX+1];
+                xstrncpy(class_name, CLASS_NAME(info_class), CLASS_NAME_MAX);
+
+                append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
             }
 
 
@@ -9449,6 +9482,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     else {
         info->type = expresson_type_in_block;
     }
+    append_int_value_to_code(info->code, info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
 
     return TRUE;
 }

@@ -21,6 +21,15 @@ void free_array(CLObject self)
     sCLClass* klass = object_data->mClass;
 
     MFREE(object_data->mType);
+
+    BOOL value_is_object = klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+    int i=0;
+    for(i=0; i<object_data->mArrayNum; i++) {
+        CLObject obj = object_data->mFields[i].mObjectValue;
+
+        dec_refference_count(obj, value_is_object);
+    }
 }
 
 static unsigned int object_size(sCLClass* klass, int array_num)
@@ -49,7 +58,7 @@ CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-    push_object_to_global_stack(obj, info);
+    //push_object_to_global_stack(obj, info);
 
     return obj;
 }

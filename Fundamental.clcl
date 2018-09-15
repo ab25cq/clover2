@@ -300,6 +300,7 @@ class Clover
     }
 
     def gc():static native;
+    def compaction():static native;
 
 #    def load(file_name:String): native throws Exception;
 }

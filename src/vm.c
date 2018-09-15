@@ -556,7 +556,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         int k;
         for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue);
+            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
         }
 
         if(method->mCFunctionPointer == NULL) {
@@ -841,7 +841,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         int k;
         for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue);
+            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
         }
 
         if(method->mNativeMethod == NULL) {
@@ -903,7 +903,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         int k;
         for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue);
+            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
         }
 
         sByteCode code;
@@ -1181,6 +1181,10 @@ void set_free_fun_to_classes()
 
     klass = get_class("regex");
     klass->mFreeFun = regex_free_fun;
+
+    klass = get_class("lambda");
+
+    klass->mFreeFun = free_block;
 }
 
 BOOL call_all_class_initializer()
@@ -1854,9 +1858,14 @@ show_inst(inst);
                     int index = *(int*)pc;
                     pc += sizeof(int);
 
+                    BOOL value_is_object = *(int*)pc;
+                    pc += sizeof(int);
+
+                    CLObject prev_obj = lvar[index].mObjectValue;
+
                     lvar[index] = *(stack_ptr-1);
 
-                    inc_refference_count(lvar[index].mObjectValue);
+                    inc_refference_count(lvar[index].mObjectValue, prev_obj, value_is_object);
                 }
                 break;
 
@@ -5630,6 +5639,9 @@ show_inst(inst);
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
+                    int class_name_offset = *(int*)pc;
+                    pc += sizeof(int);
+
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
@@ -5654,7 +5666,7 @@ show_inst(inst);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-1)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5681,12 +5693,36 @@ show_inst(inst);
                         }
                     }
 
+                    sCLClass* obj_klass = object_pointer->mClass;
+
+                    char* field_class_name = CONS_str(constant, class_name_offset);
+
+                    sCLClass* field_class = get_class_with_load_and_initialize(field_class_name);
+
+                    if(field_class == NULL) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-2)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
+                    BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+                    CLObject prev_obj = object_pointer->mFields[field_index].mObjectValue;
+
                     object_pointer->mFields[field_index] = value;
                     stack_ptr-=2;
                     *stack_ptr = value;
                     stack_ptr++;
 
-                    inc_refference_count(value.mObjectValue);
+                    inc_refference_count(value.mObjectValue, prev_obj, value_is_object);
                 }
                 break;
 
@@ -5719,7 +5755,7 @@ show_inst(inst);
                     sCLClass* klass = object_pointer->mClass;
 
                     if(klass == NULL) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-3)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5935,7 +5971,7 @@ show_inst(inst);
 
                     CLVALUE value = *(stack_ptr-1);
 
-                    mark_and_store_class_field(klass, field_index, value.mObjectValue);
+                    mark_and_store_class_field(klass, field_index, value);
                 }
                 break;
 
@@ -6022,7 +6058,7 @@ show_inst(inst);
 
                     object_data->mFields[3].mPointerValue = value.mPointerValue;
 
-                    gc(info, TRUE);
+                    //gc(info);
                 }
                 break;
 
@@ -6079,7 +6115,6 @@ show_inst(inst);
                     CLVALUE value = *(stack_ptr-1);
 
                     if(array == 0) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(8)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
@@ -6110,7 +6145,16 @@ show_inst(inst);
                         }
                     }
 
+                    sCLClass* klass = object_pointer->mClass;
+
+                    BOOL value_is_object = klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+                    CLObject prev_obj = object_pointer->mFields[element_num].mObjectValue;
+
                     object_pointer->mFields[element_num] = value;
+
+                    inc_refference_count(value.mObjectValue, prev_obj, value_is_object);
+
                     stack_ptr-=3;
                     *stack_ptr = value;
                     stack_ptr++;
@@ -6493,9 +6537,12 @@ show_inst(inst);
                     pointer->mLongValue = 0;              // zero clear for jit
 #endif
 */
+
+                    CLObject prev_obj = pointer->mObjectValue;
+
                     pointer->mObjectValue = value.mObjectValue;
 
-                    inc_refference_count(value.mObjectValue);
+                    inc_refference_count(value.mObjectValue, prev_obj, TRUE);
 
                     stack_ptr-=2;
 

@@ -23,6 +23,21 @@ BOOL free_object(CLObject self)
     object_data = CLOBJECT(self);
     MFREE(object_data->mType);
 
+    int i=0;
+    for(i=0; i<object_data->mNumFields; i++) {
+        CLObject obj = object_data->mFields[i].mObjectValue;
+
+        sCLType* field_type = klass->mFields[i].mResultType;
+
+        char* field_class_name = CONS_str(&klass->mConst, field_type->mClassNameOffset);
+
+        sCLClass* field_class = get_class(field_class_name);
+
+        BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+
+        dec_refference_count(obj, value_is_object);
+    }
+
     return TRUE;
 }
 
@@ -62,7 +77,7 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-    push_object_to_global_stack(obj, info);
+    //push_object_to_global_stack(obj, info);
 
     return obj;
 }

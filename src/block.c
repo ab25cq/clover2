@@ -51,7 +51,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mBlockVarNum = block_var_num;
     object_data->mLambda = lambda;
 
-    push_object_to_global_stack(obj, info);
+    //push_object_to_global_stack(obj, info);
 
     return obj;
 }

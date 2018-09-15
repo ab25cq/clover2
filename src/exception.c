@@ -38,13 +38,13 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
     }
     else {
         CLObject object = create_object(klass, class_name, info);
-        inc_refference_count(object);
+        inc_refference_count(object, 0, FALSE);
         (*stack_ptr) = stack + var_num;
         (*stack_ptr)->mObjectValue = object;
         (*stack_ptr)++;
 
         CLObject str = create_string_object(info->exception_message, info);
-        inc_refference_count(str);
+        inc_refference_count(str, 0, FALSE);
 
         sCLObject* object_data = CLOBJECT(object);
         object_data->mFields[0].mObjectValue = str;
@@ -83,13 +83,13 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
     }
     else {
         CLObject object = create_object(klass, class_name, info);
-        inc_refference_count(object);
+        inc_refference_count(object, 0, FALSE);
         (*stack_ptr) = stack + var_num;
         (*stack_ptr)->mObjectValue = object;
         (*stack_ptr)++;
 
         CLObject str = create_string_object(info->exception_message, info);
-        inc_refference_count(str);
+        inc_refference_count(str, 0, FALSE);
 
         sCLObject* object_data = CLOBJECT(object);
         object_data->mFields[0].mObjectValue = str;
@@ -125,7 +125,7 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
     MFREE(str);
 
     CLObject new_message = create_string_object(info->exception_message, info);
-    inc_refference_count(new_message);
+    inc_refference_count(new_message, 0, FALSE);
 
     CLVALUE cvalue;
     cvalue.mObjectValue = new_message;

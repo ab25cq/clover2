@@ -1,0 +1,4 @@
+class AAAA 
+{
+    var a:int;
+}

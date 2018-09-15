@@ -943,7 +943,7 @@ class String
                         utf32_offset:int = 0;
 
                         p:pointer = buffer.buffer;
-                        while(p < p + buffer.len) {
+                        while(p < buffer.buffer + buffer.len) {
                             c:ubyte = p->ubyte;
 
                             # utf8 character

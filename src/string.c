@@ -29,7 +29,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
     MASSERT(char_class != NULL);
 
     CLObject buffer = create_array_object(char_class, wlen+1, info);
-    inc_refference_count(buffer);
+    inc_refference_count(buffer, 0, FALSE);
     sCLObject* buffer_data = CLOBJECT(buffer);
 
     int i;
@@ -83,7 +83,7 @@ CLObject create_path_object(char* path, sVMInfo* info)
     MASSERT(path_class != NULL);
 
     CLObject str_object = create_string_object(path, info);
-    inc_refference_count(str_object);
+    inc_refference_count(str_object, 0, FALSE);
 
     CLVALUE cl_value;
     cl_value.mLongValue = 0;

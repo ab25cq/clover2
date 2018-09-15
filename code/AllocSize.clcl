@@ -13,8 +13,12 @@ class AllocSizeClass
 
         Clover.test("alloc size class", a.allocatedSize() == (128 + Clover.CLOVER2_OBJECT_HEADER_SIZE));
 
-        memcpy(a.headOfMemory(), B"ABC\0".buffer, 4);
+        b:pointer = a.headOfMemory();
 
-        Clover.test("alloc size class2", memcmp(a.headOfMemory(), B"ABC".buffer, 4) == 0);
+        b->byte = 'A';
+        (b+1)->byte = 'B';
+        (b+2)->byte = 'C';
+
+        Clover.test("alloc size class2", a.headOfMemory()->byte == 'A' && (a.headOfMemory()+1)->byte == 'B' && (a.headOfMemory()+2)->byte == 'C');
     }
 }

@@ -949,8 +949,8 @@ void class_init()
     alloc_class("char", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
     alloc_class("bool", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
 
-    alloc_class("lambda", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, TRUE, NULL);
-    alloc_class("regex", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
+    alloc_class("lambda", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, TRUE, NULL);
+    alloc_class("regex", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
 
     alloc_class("Null", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
     alloc_class("WildCard", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);

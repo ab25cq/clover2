@@ -1,4 +1,8 @@
 
+version 5.9.9
+
+    Modification of GC algorithm. It got fairly fast. Added Clover.compaction (). For a program running all the time, such as editor please put Clover.compaction () in the main loop. It can reduce memory consumption. JIT does not correspond to the new GC algorithm. JIT is implemented at 6.0.0. For the time being released. The specification of the class file has changed. Please recompile the existing source
+
 version 5.0.9
 
     Fixed a bug in JIT. I think that this time it was stable.

@@ -52,7 +52,7 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
     object_data->mDollarEndOnly = dollar_endonly;
     object_data->mUngreedy = ungreedy;
 
-    push_object_to_global_stack(obj, info);
+    //push_object_to_global_stack(obj, info);
 
     return obj;
 }

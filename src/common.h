@@ -1912,10 +1912,10 @@ ALLOC char* cl_type_to_string(sCLType* cl_type, sCLClass* klass);;
 
 /// heap.c ///
 struct sCLHeapMemStruct {
-    int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    int mArrayNum;
+    short mSize;
+    short mArrayNum;
     void* mMem;
 };
 
@@ -1923,7 +1923,7 @@ typedef struct sCLHeapMemStruct sCLHeapMem;
 
 #define CLHEAPMEM(obj) (get_object_pointer((obj)))
 
-void heap_init(int heap_size, int size_hadles);
+void heap_init(int heap_size, int size_handles);
 void heap_final();
 
 CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMInfo* info);
@@ -1931,14 +1931,16 @@ sCLHeapMem* get_object_pointer(CLObject obj);
 void show_heap(sVMInfo* info);
 void mark_object(CLObject obj, unsigned char* mark_flg);
 BOOL is_valid_object(CLObject obj);
-void gc(sVMInfo* info, BOOL massive);
+void gc(sVMInfo* info);
+void compaction();
 void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_global_stack_ptr, CLVALUE* lvar, int num_params);
 
 ALLOC unsigned char* get_mark_flg(CLObject obj);
 
-void mark_and_store_class_field(sCLClass* klass, int field_index, CLObject obj);
+void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_value);
 void mark_singal_handler_object(CLObject obj);
-void inc_refference_count(CLObject obj);
+void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object);
+void dec_refference_count(CLObject obj, BOOL value_is_object);
 
 /// module.c ///
 struct sCLModuleStruct {
@@ -1969,12 +1971,12 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name);
 #define OBJECT_TYPE_NAME_MAX 128
 
 struct sCLObjectStruct {
-    int mSize;
     sCLClass* mClass;
     char* mType;
+    short mSize;
     union {
-        int mArrayNum;
-        int mNumFields;
+        short mArrayNum;
+        short mNumFields;
     };
     union {
         int mHeadOfMemory;
@@ -2003,10 +2005,10 @@ BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* ke
 /// block.c ///
 struct sBlockObjectStruct
 {
-    int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    int mArrayNum;
+    short mSize;
+    short mArrayNum;
     sByteCode mCodes;
     sConst mConstant;
     CLVALUE* mParentStack;
@@ -2025,10 +2027,10 @@ void block_mark_fun(CLObject self, unsigned char* mark_flg);
 /// regex.c ///
 struct sRegexObjectStruct
 {
-    int mSize;
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    int mArrayNum;
+    short mSize;
+    short mArrayNum;
     pcre* mRegex;
     char* mRegexString;
     BOOL mGlobal;
@@ -2413,6 +2415,7 @@ BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_gc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL Clover_compaction(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);

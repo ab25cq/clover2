@@ -42,6 +42,17 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
 
             address->value = Builder.CreateCast(Instruction::BitCast, address->value, PointerType::get(IntegerType::get(TheContext, 32), 0));
 
+/*
+            LVALUE obj;
+            obj.value = Builder.CreateAlignedLoad(address->value, 4);
+            obj.lvar_address_index = -1;
+            obj.lvar_stored = FALSE;
+            obj.kind = kLVKindInt32;
+            obj.parent_var_num = 0;
+            obj.parent_stack = NULL;
+            obj.parent_llvm_stack = NULL;
+*/
+
             LVALUE value2 = trunc_value(value, 32);
 
             Builder.CreateAlignedStore(value2.value, address->value, 4);
@@ -53,17 +64,22 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             /// lvar of vm stack to lvar of llvm stack ///
             lvar_of_vm_to_lvar_of_llvm(params, *current_block, llvm_stack, var_num);
 
+/*
             Function* fun = TheModule->getFunction("inc_refference_count");
 
             std::vector<Value*> params2;
 
-            LVALUE llvm_value_32;
-            llvm_value_32 = trunc_value(value, 32);
-
-            Value* param1 = llvm_value_32.value;
+            Value* param1 = value2.value;
             params2.push_back(param1);
 
+            Value* param2 = obj.value;
+            params2.push_back(param2);
+
+            Value* param3 = ConstantInt::get(TheContext, llvm::APInt(32, TRUE, true));
+            params2.push_back(param3);
+
             Builder.CreateCall(fun, params2);
+*/
             }
             break;
 
