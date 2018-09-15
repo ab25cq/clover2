@@ -171,6 +171,10 @@ In the case of such a code, compilation of both Class A.clcl and Class B.clcl do
 ```
 Include in both the circular reference source. Compiling either source goes through compilation.
 
+# Memory management
+
+About GC, GC of Clover 2 uses both reference count and mark and sweep. With various improvements, It is considerably faster than version 5.9.9. However, since compaction is not performed, it is necessary for the user to call it yourself. It is not necessary for ordinary scripts, but for applications that are always running, such as editors, you have to call Clover.compaction () on the main loop only once in several times. If you do not do this, memory consumption will increase steadily. Also, when compaction is performed, the address of the object changes, so the address obtained by headOfMememory () becomes invalid. Please be aware of that. Conversely, if you do not call Clover.compaction, the start address of the object. It does not change.
+
 ----
 
 [<< Previous Home](Home-en) [>> next main function](feature-en)
