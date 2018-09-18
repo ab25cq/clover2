@@ -522,7 +522,6 @@ BOOL run_store_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
     sCLObject* object_pointer = CLOBJECT(array);
 
     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-printf("array %d\n", array);
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"element index is invalid(1-2)");
         return FALSE;
     }
