@@ -1530,15 +1530,18 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             llvm_value.value = Builder.CreateCall(fun, params2);
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.kind = kLVKindInt32;
+            llvm_value.kind = kLVKindPointer8;
             llvm_value.parent_var_num = 0;
             llvm_value.parent_stack = NULL;
 
+/*
             LVALUE llvm_value3;
             llvm_value3 = trunc_value(&llvm_value, 64);
+*/
 
             dec_stack_ptr(llvm_stack_ptr, 1);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            //push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value3);
             }
             break;
 

@@ -17,6 +17,14 @@ static BOOL compile_jit_methods(sCLClass* klass)
     TheModule = new Module(module_name, TheContext);
 
     TheFPM = llvm::make_unique<legacy::FunctionPassManager>(TheModule);
+
+/*
+    //TheFPM->add(createInstructionCombiningPass());
+    TheFPM->add(createReassociatePass());
+    //TheFPM->add(createGVNPass());
+    TheFPM->add(createCFGSimplificationPass());
+    TheFPM->doInitialization();
+*/
     
     //TheFPM->add(createInstructionCombiningPass());
     TheFPM->add(createReassociatePass());

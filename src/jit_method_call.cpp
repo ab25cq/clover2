@@ -554,7 +554,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             int field_index = *(int*)(*pc);
             (*pc) += sizeof(int);
 
-            int offset = *(int*)(*pc);
+            int class_name_offset = *(int*)(*pc);
             (*pc) += sizeof(int);
 
             int size = *(int*)(*pc);
@@ -597,7 +597,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* param7 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
             params2.push_back(param7);
 
-            Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+            Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_name_offset);
             params2.push_back(param8);
 
             std::string constant_value_name("constant");

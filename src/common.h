@@ -229,7 +229,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_C_FUNCTION 0x20
 
 #define EXCEPTION_MESSAGE_MAX 1024
-#define STACK_TRACE_MAX 32
+#define STACK_TRACE_MAX 64
 
 struct sVMInfoStruct {
     CLVALUE* mGlobalStack;
@@ -1914,8 +1914,8 @@ ALLOC char* cl_type_to_string(sCLType* cl_type, sCLClass* klass);;
 struct sCLHeapMemStruct {
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    short mSize;
-    short mArrayNum;
+    int mSize;
+    int mArrayNum;
     void* mMem;
 };
 
@@ -1973,10 +1973,10 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name);
 struct sCLObjectStruct {
     sCLClass* mClass;
     char* mType;
-    short mSize;
+    int mSize;
     union {
-        short mArrayNum;
-        short mNumFields;
+        int mArrayNum;
+        int mNumFields;
     };
     union {
         int mHeadOfMemory;
@@ -2007,8 +2007,8 @@ struct sBlockObjectStruct
 {
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    short mSize;
-    short mArrayNum;
+    int mSize;
+    int mArrayNum;
     sByteCode mCodes;
     sConst mConstant;
     CLVALUE* mParentStack;
@@ -2029,8 +2029,8 @@ struct sRegexObjectStruct
 {
     sCLClass* mClass;       // NULL --> no class only memory
     char* mType;
-    short mSize;
-    short mArrayNum;
+    int mSize;
+    int mArrayNum;
     pcre* mRegex;
     char* mRegexString;
     BOOL mGlobal;

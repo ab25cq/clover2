@@ -601,7 +601,7 @@ void create_internal_functions()
     /// get_head_of_memory ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 64);
+    result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
 
     param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
@@ -752,7 +752,7 @@ void create_internal_functions()
     type_params.push_back(param8_type);
 
     param9_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
-    type_params.push_back(param8_type);
+    type_params.push_back(param9_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "store_field", TheModule);

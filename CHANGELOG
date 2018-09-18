@@ -1,4 +1,12 @@
 
+version 6.0.0
+
+    JITに対応。raspberry pi 3でもClover2で作ったエディッタ(vicl)が実用的な速度で動きます。かなりClover2自体を高速化できました。ただし、JITではGCは自動的には行いません。ユーザーがClover.gc()を呼ぶ必要があります。メインループに入れてください。
+
+version 6.0.0
+
+    It corresponds to JIT. The raspberry pi 3 editor (vicl) made with Clover 2 moves at a practical speed. It was able to speed up Clover 2 itself considerably. However, in JIT, GC will not do it automatically. Users need to call Clover.gc (). Please put it in the main loop.
+
 version 5.9.9
     
     GCのアルゴリズムの修正。かなり速くなりました。Clover.compaction()を追加。エディッタなどずっと走っているプログラムではClover.compaction()をメインループに入れてください。メモリの消費量を抑えられます。

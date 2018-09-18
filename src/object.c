@@ -77,7 +77,9 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-    //push_object_to_global_stack(obj, info);
+#ifdef ENABLE_JIT
+    push_object_to_global_stack(obj, info);
+#endif
 
     return obj;
 }

@@ -703,6 +703,12 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             }
         }
 
+/*
+        for(k=0; k<num_params; k++) {
+            dec_refference_count(lvar[k].mObjectValue, TRUE);
+        }
+*/
+
         if(result_class == int_class || result_class == bool_class) {
             av_call(alist);
             CLVALUE result = *(*stack_ptr - 1);
@@ -880,6 +886,12 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             return FALSE;
         }
 
+/*
+        for(k=0; k<num_params; k++) {
+            dec_refference_count(lvar[k].mObjectValue, TRUE);
+        }
+*/
+
         if(is_void_type(method->mResultType, klass)) {
             *stack_ptr = lvar;
             (*stack_ptr)->mLongValue = 0;    // zero clear for jit
@@ -953,6 +965,12 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         (*stack_ptr)++;
 
         result_object = (new_stack+new_var_num)->mObjectValue;
+
+/*
+        for(k=0; k<new_var_num; k++) {
+            dec_refference_count(lvar[k].mObjectValue, TRUE);
+        }
+*/
 
         sConst_free(&constant);
         sByteCode_free(&code);
@@ -5680,7 +5698,7 @@ show_inst(inst);
                     }
 
                     if(field_index < 0 || field_index >= klass->mNumFields) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Object ID is %d. Field index is %d", obj, field_index);
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(3). Object ID is %d. Field index is %d at %s.%s", obj, field_index, info->running_class_name, info->running_method_name);
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6131,7 +6149,6 @@ show_inst(inst);
                     sCLObject* object_pointer = CLOBJECT(array);
 
                     if(element_num < 0 || element_num >= object_pointer->mArrayNum) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "element index is invalid(2)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
@@ -6587,8 +6604,6 @@ show_inst(inst);
 
             case OP_LOAD_VALUE_FROM_BYTE_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
@@ -6597,8 +6612,6 @@ show_inst(inst);
                     stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mByteValue = value;
                     stack_ptr++;
-
-                    
                 }
                 break;
 

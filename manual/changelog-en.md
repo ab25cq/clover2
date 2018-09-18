@@ -1,4 +1,8 @@
 
+version 6.0.0
+
+    It corresponds to JIT. The raspberry pi 3 editor (vicl) made with Clover 2 moves at a practical speed. It was able to speed up Clover 2 itself considerably. However, in JIT, GC will not do it automatically. Users need to call Clover.gc (). Please put it in the main loop.
+
 version 5.9.9
 
     Modification of GC algorithm. It got fairly fast. Added Clover.compaction (). For a program running all the time, such as editor please put Clover.compaction () in the main loop. It can reduce memory consumption. JIT does not correspond to the new GC algorithm. JIT is implemented at 6.0.0. For the time being released. The specification of the class file has changed. Please recompile the existing source

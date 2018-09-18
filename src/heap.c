@@ -168,36 +168,6 @@ void compaction()
     gNumHeapPages = num_heap_pages;
 
     MFREE(pages);
-
-/*
-FILE* f = fopen("ABC", "a");
-fprintf(f, "compaction end\n");
-fclose(f);
-
-int n = 0;
-int h = gCLHeap.mFreeMemHandles;
-while(h != -1) {
-    n++;
-    h = gCLHeap.mHandles[h].mNextFreeMemHandle;
-}
-int m = 0;
-h = gCLHeap.mFreeHandles;
-while(h != -1) {
-    m++;
-    h = gCLHeap.mHandles[h].mNextFreeHandle;
-}
-
-int l = 0;
-for(i=0; i<gCLHeap.mSizeHandles; i++) {
-    if(gCLHeap.mHandles[i].mNoneFreeHandle) {
-        l++;
-    }
-}
-
-f = fopen("ABC", "a");
-fprintf(f, "gSizeHeapPages %d gNumHeapPages %d mSizeHandles %d free mem handle %d free handle %d num object %d\n", gSizeHeapPages, gNumHeapPages, gCLHeap.mSizeHandles, n, m, l);
-fclose(f);
-*/
 }
 
 void heap_init(int heap_size, int size_handles)
@@ -318,15 +288,17 @@ static void free_handle(unsigned int handle_num)
 
 void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 {
-    if(is_valid_object(obj)) {
-        gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
-    }
-    if(value_is_object && is_valid_object(prev_obj)) {
-        int handle_num = prev_obj - FIRST_OBJ;
-        gCLHeap.mHandles[handle_num].mRefferenceCount--;
+    if(obj != prev_obj) {
+        if(is_valid_object(obj)) {
+            gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
+        }
+        if(value_is_object && is_valid_object(prev_obj)) {
+            int handle_num = prev_obj - FIRST_OBJ;
+            gCLHeap.mHandles[handle_num].mRefferenceCount--;
 
-        if(gCLHeap.mHandles[handle_num].mRefferenceCount == 0) {
-            free_handle(handle_num);
+            if(gCLHeap.mHandles[handle_num].mRefferenceCount == 0) {
+                free_handle(handle_num);
+            }
         }
     }
 }
@@ -468,7 +440,7 @@ void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_gl
             if(is_valid_object(obj)) {
                 int handle_num = obj - FIRST_OBJ;
 
-                if(gCLHeap.mHandles[handle_num].mRefferenceCount == 0 && obj != result_object) {
+                if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0 && obj != result_object) {
                     free_handle(handle_num);
                 }
             }
@@ -480,7 +452,9 @@ void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_gl
 
     info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
 
-//    push_object_to_global_stack(result_object, info);
+#ifdef ENABLE_JIT
+    push_object_to_global_stack(result_object, info);
+#endif
 }
 
 void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_value)
@@ -515,36 +489,6 @@ void gc(sVMInfo* info)
     mark(gCLHeap.mMarkFlags);
 
     free_objects(gCLHeap.mMarkFlags);
-/*
-FILE* f = fopen("ABC", "a");
-fprintf(f, "gc end\n");
-fclose(f);
-
-int n = 0;
-int h = gCLHeap.mFreeMemHandles;
-while(h != -1) {
-    n++;
-    h = gCLHeap.mHandles[h].mNextFreeMemHandle;
-}
-int m = 0;
-h = gCLHeap.mFreeHandles;
-while(h != -1) {
-    m++;
-    h = gCLHeap.mHandles[h].mNextFreeHandle;
-}
-
-int l = 0;
-int i;
-for(i=0; i<gCLHeap.mSizeHandles; i++) {
-    if(gCLHeap.mHandles[i].mNoneFreeHandle) {
-        l++;
-    }
-}
-
-f = fopen("ABC", "a");
-fprintf(f, "gSizeHeapPages %d gNumHeapPages %d mSizeHandles %d free mem handle %d free handle %d num object %d\n", gSizeHeapPages, gNumHeapPages, gCLHeap.mSizeHandles, n, m, l);
-fclose(f);
-*/
 }
 
 #define GC_TIMING 1024
@@ -557,6 +501,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
     alignment(&size);
 
+#ifndef ENABLE_JIT
     static int gc_timing = 0;
 
     if(gCLHeap.mFreeMemHandles == -1) {
@@ -566,42 +511,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
         gc_timing++;
     }
-
-/*
-    static long long compaction_time = 0;
-    compaction_time++;
-
-    if((compaction_time % COMPACTION_TIMING) == 0) {
-        compaction();
-    }
-*/
-
-/*
-int n = 0;
-int h = gCLHeap.mFreeMemHandles;
-while(h != -1) {
-    n++;
-    h = gCLHeap.mHandles[h].mNextFreeMemHandle;
-}
-int m = 0;
-h = gCLHeap.mFreeHandles;
-while(h != -1) {
-    m++;
-    h = gCLHeap.mHandles[h].mNextFreeHandle;
-}
-
-int l = 0;
-int i;
-for(i=0; i<gCLHeap.mSizeHandles; i++) {
-    if(gCLHeap.mHandles[i].mNoneFreeHandle) {
-        l++;
-    }
-}
-
-FILE* f = fopen("ABC", "a");
-fprintf(f, "heap_page %d num_page %d size handle %d free mem %d free %d num object %d\n", gSizeHeapPages, gNumHeapPages, gCLHeap.mSizeHandles, n, m, l);
-fclose(f);
-*/
+#endif
 
     /// get a free handle from linked list ///
     handle = gCLHeap.mFreeMemHandles;

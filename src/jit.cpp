@@ -816,7 +816,6 @@ call_show_inst_in_jit(inst);
 
                 store_llvm_value_to_lvar_with_offset(llvm_stack, index, llvm_value, FALSE);
 
-/*
                 Function* fun = TheModule->getFunction("inc_refference_count");
 
                 std::vector<Value*> params2;
@@ -840,7 +839,6 @@ call_show_inst_in_jit(inst);
                 params2.push_back(param3);
 
                 Builder.CreateCall(fun, params2);
-*/
                 }
                 break;
 

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
-    
+
+version 6.0.0
+
+    JITに対応。raspberry pi 3でもClover2で作ったエディッタ(vicl)が実用的な速度で動きます。かなりClover2自体を高速化できました。ただし、JITではGCは自動的には行いません。ユーザーがClover.gc()を呼ぶ必要があります。メインループに入れてください。
+
 version 5.9.9
 
     GCのアルゴリズムの修正。かなり速くなりました。Clover.compaction()を追加。エディッタなどずっと走っているプログラムではClover.compaction()をメインループに入れてください。メモリの消費量を抑えられます。
