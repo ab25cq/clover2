@@ -1,4 +1,12 @@
 
+version 6.0.1
+
+    ./configure --with-optmizeがシェルモードで実行されないバグを修正。
+
+version 6.0.1
+
+    Fixed bug of shellmode which is unable to run ./configure --with-optimize etc.
+
 version 6.0.0
 
     JITに対応。raspberry pi 3でもClover2で作ったエディッタ(vicl)が実用的な速度で動きます。かなりClover2自体を高速化できました。ただし、JITではGCは自動的には行いません。ユーザーがClover.gc()を呼ぶ必要があります。メインループに入れてください。

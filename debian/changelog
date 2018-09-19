@@ -1,4 +1,8 @@
 
+clover2 (6.0.1-1) unstable; urgency=medium
+
+    Fixed bug of shellmode which is unable to run ./configure --with-optimize etc.
+
 clover2 (6.0.0-1) unstable; urgency=medium
 
     * It corresponds to JIT. The raspberry pi 3 editor (vicl) made with Clover 2 moves at a practical speed. It was able to speed up Clover 2 itself considerably. However, in JIT, GC will not do it automatically. Users need to call Clover.gc (). Please put it in the main loop.

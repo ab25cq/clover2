@@ -2406,7 +2406,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
             *node = sNodeTree_create_range(*node, tail, info);
         }
         /// call method or access field ///
-        else if(*info->p == '.' && *(info->p+1) != '.') {
+        else if(*info->p == '.' && *(info->p+1) != '.' && *(info->p+1) != '/') {
             info->p++;
             skip_spaces_and_lf(info);
 
@@ -4172,7 +4172,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         }
 
         /// local variable ////
-        else if(*info->p == ':') {
+        else if(!including_slash && *info->p == ':') {
             skip_spaces_and_lf(info);
 
             info->p++;
@@ -4227,7 +4227,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         /// assignment for variable ///
-        else if(*info->p == '=' && *(info->p+1) != '=') {
+        else if(!including_slash && *info->p == '=' && *(info->p+1) != '=') {
             /// local variable ///
             if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
                 skip_spaces_and_lf(info);
@@ -4318,7 +4318,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             }
         }
         /// -=, +=, etc ///
-        else if(is_assign_operator(info)) {
+        else if(!including_slash && is_assign_operator(info)) {
             /// local variable ///
             if(get_variable_from_table(info->lv_table, buf) || is_method_param_name(buf)) {
                 skip_spaces_and_lf(info);
