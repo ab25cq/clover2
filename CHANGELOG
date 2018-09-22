@@ -1,4 +1,12 @@
 
+version 6.0.2
+
+    シェルモードでロングオプションに対応していない問題に対応。
+
+version 6.0.2
+
+    Corresponds to problems not supporting long options in shell mode.
+
 version 6.0.1
 
     ./configure --with-optmizeがシェルモードで実行されないバグを修正。

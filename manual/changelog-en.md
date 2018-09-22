@@ -1,4 +1,8 @@
 
+version 6.0.2
+
+    Corresponds to problems not supporting long options in shell mode.
+
 version 6.0.1
 
     Fixed bug of shellmode which is unable to run ./configure --with-optimize etc.

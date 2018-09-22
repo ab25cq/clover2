@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.0.2
+
+    Corresponds to problems not supporting long options in shell mode.
+
 version 6.0.1
 
     ./configure --with-optmizeがシェルモードで実行されないバグを修正。

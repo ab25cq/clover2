@@ -2171,7 +2171,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 static BOOL is_assign_operator(sParserInfo* info) 
 {
     return (*info->p == '+' && *(info->p+1) == '+')
-        || (*info->p == '-' && *(info->p+1) == '-')
+        || (*info->p == '-' && *(info->p+1) == '-' && !isalnum(*(info->p+2)))
         || (*info->p == '+' && *(info->p+1) == '=')
         || (*info->p == '-' && *(info->p+1) == '=')
         || (*info->p == '*' && *(info->p+1) == '=')

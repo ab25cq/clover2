@@ -1,7 +1,11 @@
 
+clover2 (6.0.2-1) unstable; urgency=medium
+
+    * Corresponds to problems not supporting long options in shell mode.
+
 clover2 (6.0.1-1) unstable; urgency=medium
 
-    Fixed bug of shellmode which is unable to run ./configure --with-optimize etc.
+    * Fixed bug of shellmode which is unable to run ./configure --with-optimize etc.
 
 clover2 (6.0.0-1) unstable; urgency=medium
 
