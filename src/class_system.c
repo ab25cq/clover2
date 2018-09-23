@@ -939,7 +939,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(1)");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -956,7 +956,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(2)");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -972,7 +972,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 *p2++ = *p++;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(3)");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -983,7 +983,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                         *p2++ = *p++;
 
                         if(p2 - format2 >= 128) {
-                            entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                            entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(4)");
                             MFREE(buf.mBuf);
                             MFREE(format_string);
                             return FALSE;
@@ -1002,7 +1002,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(5)");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -1013,7 +1013,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     *p2++ = *p++;
 
                     if(p2 - format2 >= 128) {
-                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(6)");
                         MFREE(buf.mBuf);
                         MFREE(format_string);
                         return FALSE;
@@ -1030,7 +1030,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 *p2++ = *p++;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(7)");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -1042,14 +1042,14 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 no_conversion = TRUE;
 
                 if(p2 - format2 >= 128) {
-                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(8)");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
                 }
             }
             else {
-                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(9)");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;
@@ -1058,7 +1058,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
             *p2++ = 0;
 
             if(p2 - format2 >= 128) {
-                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(10)");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;
@@ -1131,7 +1131,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                     (void)asprintf(ALLOC &str, format2, str2);
                 }
                 else {
-                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(11)");
                     MFREE(buf.mBuf);
                     MFREE(format_string);
                     return FALSE;
@@ -1144,7 +1144,7 @@ BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
                 param_num++;
             }
             else {
-                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string");
+                entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "invalid format string(12)");
                 MFREE(buf.mBuf);
                 MFREE(format_string);
                 return FALSE;

@@ -1,4 +1,8 @@
 
+version 6.0.3
+
+    Fixed the bug of GC. Stop to use Refference Count GC algorithm. I'm sorry. From version 6.0.0, there is the bug.
+
 version 6.0.2
 
     Corresponds to problems not supporting long options in shell mode.

@@ -28,7 +28,7 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
 
     MASSERT(klass != NULL);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+    CLObject obj = alloc_heap_mem(size, klass, -2, info);
 
     sRegexObject* object_data = CLREGEX(obj);
 

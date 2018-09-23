@@ -1,4 +1,8 @@
 
+clover2 (6.0.3-1) unstable; urgency=medium
+
+    * Fixed the bug of GC. Stop to use Refference Count GC algorithm. I'm sorry. From version 6.0.0, there is the bug.
+
 clover2 (6.0.2-1) unstable; urgency=medium
 
     * Corresponds to problems not supporting long options in shell mode.

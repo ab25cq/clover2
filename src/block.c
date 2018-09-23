@@ -39,7 +39,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
 
     MASSERT(klass != NULL);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+    CLObject obj = alloc_heap_mem(size, klass, -2, info);
 
     sBlockObject* object_data = CLBLOCK(obj);
 

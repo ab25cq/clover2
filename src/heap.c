@@ -250,7 +250,9 @@ static void free_handle(unsigned int handle_num)
             klass->mFreeFun(obj);
         }
 
-        if(array_num == -1) {
+        if(array_num == -2) {   // block, regex
+        }
+        else if(array_num == -1) {
             (void)free_object(obj);
         }
         else {
@@ -288,9 +290,36 @@ static void free_handle(unsigned int handle_num)
 
 void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 {
+/*
     if(obj != prev_obj) {
         if(is_valid_object(obj)) {
             gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
+
+            sCLObject* object_data = CLOBJECT(obj);
+            sCLClass* klass = object_data->mClass;
+
+            int array_num = object_data->mArrayNum;
+
+            if(array_num == -2) {
+            }
+            else if(array_num == -1) {
+                int i;
+                for(i=0; i<klass->mNumFields; i++) {
+                    CLObject obj2 = object_data->mFields[i].mObjectValue;
+                    if(obj != obj2) {
+                        inc_refference_count(obj2, 0, FALSE);
+                    }
+                }
+            }
+            else {
+                int i;
+                for(i=0; i<array_num; i++) {
+                    CLObject obj2 = object_data->mFields[i].mObjectValue;
+                    if(obj != obj2) {
+                        inc_refference_count(obj2, 0, FALSE);
+                    }
+                }
+            }
         }
         if(value_is_object && is_valid_object(prev_obj)) {
             int handle_num = prev_obj - FIRST_OBJ;
@@ -301,10 +330,12 @@ void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
             }
         }
     }
+*/
 }
 
 void dec_refference_count(CLObject obj, BOOL value_is_object)
 {
+/*
     if(is_valid_object(obj)) {
         int handle_num = obj - FIRST_OBJ;
         gCLHeap.mHandles[handle_num].mRefferenceCount--;
@@ -313,6 +344,7 @@ void dec_refference_count(CLObject obj, BOOL value_is_object)
             free_handle(handle_num);
         }
     }
+*/
 }
 
 void mark_object(CLObject obj, unsigned char* mark_flg)

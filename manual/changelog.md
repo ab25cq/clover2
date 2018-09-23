@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.0.3
+
+    GCにバグがありました。リファレンスカウントの廃止。すみません。version 6.0.0からエンバグしてる様子です。
+
 version 6.0.2
 
     Corresponds to problems not supporting long options in shell mode.
