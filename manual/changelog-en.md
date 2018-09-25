@@ -1,4 +1,10 @@
 
+version 6.5.1
+
+    The return value of the block was boxing and casting automatically as necessary, but it makes it a more flexible mechanism. The return value of the if statement is also the same.
+
+    We have added a filter method to various basic classes. Below you will find: a: int = -1.filter {if (== - 1) {0} els e {2}}. We added the map because it needs the .cast ("Integer") method. In the case of filter, in this case it returns Integer type, so it will be unboxing when assigning to a and I think that it can be used conveniently.
+
 version 6.5.0
 
     Fixed an issue where IIteratorble was not installed. Excuse me. It was a big bug. The program using Range should have not worked. And JIT became stable. However, although it measured by the sensory speed of Clover 2's editor, there is not much difference in processing speed between JIT and VM. (JIT consumes more memory). JIT has little meaning, is not it? It is the perceived speed of the console editor created with Clover 2, but if editing small texts it does not change much like vim written in C language. However, if you edit more than ten thousand lines of text with Clover 2, moving the cursor is fine, but if you try to undo, the processing speed drops a lot. But, well, as it is, the practical speed has come out. for your information.

@@ -4,6 +4,9 @@ module MObjectBase
     def map(block_:lambda(SELF):Anonymous?): Anonymous? {
         return block_(self);
     }
+    def filter(block_:lambda(SELF):SELF): SELF {
+        return block_(self);
+    }
 
     def nothing(): SELF {
         return self;

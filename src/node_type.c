@@ -753,7 +753,8 @@ BOOL boxing_posibility(sNodeType* left_type, sNodeType* right_type)
             return TRUE;
         }
 
-        if(class_identify_with_class_name(left_class, "Anonymous")) {
+        if(class_identify_with_class_name(left_class, "Anonymous") || left_class->mGenericsParamClassNum != -1 || left_class->mMethodGenericsParamClassNum != -1) 
+        {
             return TRUE;
         }
     }

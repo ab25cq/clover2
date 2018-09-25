@@ -315,7 +315,7 @@ class SortableArray <T:ISortable>
         return result;
     }
 
-    def quickSort(left:int, right:int):SortableArray<T> {
+    def quickSort(left:int, right:int, fun:lambda(T, T):int):SortableArray<T> {
         l_hold:int = left;
         r_hold:int = right;
 
@@ -323,7 +323,7 @@ class SortableArray <T:ISortable>
         pivot_num:int = left;
 
         while(left < right) {
-            while((self.items[right].compare(pivot) >= 0) && (left < right)) {
+            while((fun(self.items[right], pivot) >= 0) && (left < right)) {
                 right--;
             }
 
@@ -332,7 +332,7 @@ class SortableArray <T:ISortable>
                 left++;
             }
 
-            while((self.items[left].compare(pivot) <= 0) && (left < right)) {
+            while((fun(self.items[left], pivot) <= 0) && (left < right)) {
                 left++;
             }
 
@@ -350,18 +350,21 @@ class SortableArray <T:ISortable>
         right2:int = r_hold;
 
         if(left2 < pivot_num) {
-            self.quickSort(left2, pivot_num-1);
+            self.quickSort(left2, pivot_num-1, fun);
         }
 
         if(right2 > pivot_num) {
-            self.quickSort(pivot_num+1, right2);
+            self.quickSort(pivot_num+1, right2, fun);
         }
 
         return self;
     }
 
     def sort():SortableArray<T>  {
-        return self.quickSort(0, self.length()-1);
+        return self.quickSort(0, self.length()-1, lambda(left:T, right:T):int { left.compare(right) });
+    }
+    def sort(fun:lambda(T,T):int):SortableArray<T>  {
+        return self.quickSort(0, self.length()-1, fun);
     }
 
     def toString():String {
@@ -1327,7 +1330,7 @@ class SortableList<T:ISortable>
         return result;
     }
 
-    def quickSort(list:SortableList<T>, left:int, right:int) {
+    def quickSort(list:SortableList<T>, left:int, right:int, fun:lambda(T, T):int) {
         l_hold:int = left;
         r_hold:int = right;
 
@@ -1335,7 +1338,7 @@ class SortableList<T:ISortable>
         pivot_num:int = left;
 
         while(left < right) {
-            while((list.items(right).compare(pivot) >= 0) && (left < right)) {
+            while((fun(list.items(right), pivot) >= 0) && (left < right)) {
                 right--;
             }
 
@@ -1344,7 +1347,7 @@ class SortableList<T:ISortable>
                 left++;
             }
 
-            while((list.items(left).compare(pivot) <= 0) && (left < right)) {
+            while((fun(list.items(left), pivot) <= 0) && (left < right)) {
                 left++;
             }
 
@@ -1361,15 +1364,15 @@ class SortableList<T:ISortable>
         left = l_hold;
         right = r_hold;
         if(left < pivot_num) {
-            self.quickSort(list, left, pivot_num-1);
+            self.quickSort(list, left, pivot_num-1, fun);
         }
 
         if(right > pivot_num) {
-            self.quickSort(list, pivot_num+1, right);
+            self.quickSort(list, pivot_num+1, right, fun);
         }
     }
 
-    def mergeList(left:SortableList<T>, right:SortableList<T>):static SortableList<T> {
+    def mergeList(left:SortableList<T>, right:SortableList<T>, fun:lambda(T,T):int):static SortableList<T> {
         list: SortableList<T> = SortableList<T>();
 
         it:ListItem<T>? = left.head;
@@ -1377,7 +1380,7 @@ class SortableList<T:ISortable>
         it2:ListItem<T>? = right.head;
 
         while(true) {
-            if(it.item.compare(it2.item) <= 0) {
+            if(fun(it.item, it2.item) <= 0) {
                 list.add(it.item);
 
                 it = it.next;
@@ -1413,7 +1416,7 @@ class SortableList<T:ISortable>
         return list;
     }
 
-    def mergeSort():SortableList<T> {
+    def mergeSort(fun:lambda(T,T):int):SortableList<T> {
         if(self.head.identifyWith(null)) {
             return self;
         }
@@ -1442,11 +1445,15 @@ class SortableList<T:ISortable>
             }
         }
 
-        return SortableList<T>.mergeList(list1.mergeSort(), list2.mergeSort());
+        return SortableList<T>.mergeList(list1.mergeSort(fun), list2.mergeSort(fun), fun);
     }
 
-    def sort(): SortableList<T> {
-        list:SortableList<T> = self.mergeSort();
+    def sort():SortableList<T> {
+        return sort(lambda(left:T, right:T):int { left.compare(right) });
+    }
+
+    def sort(fun:lambda(T, T):int): SortableList<T> {
+        list:SortableList<T> = self.mergeSort(fun);
         self.setValue(list);
         return self;
     }

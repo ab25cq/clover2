@@ -2820,14 +2820,19 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             restore_var_table(info->lv_table, lv_table);
 
-            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-            info->stack_num--;
-
             sNodeType* elif_result_type = info->type;
 
             if(!type_identify(if_result_type, elif_result_type)) {
-                if_result_type = create_node_type_with_class_name("Anonymous");
+                if(cast_posibility(if_result_type, elif_result_type)) {
+                    cast_right_type_to_left_type(if_result_type, &elif_result_type, info);
+                }
+                else {
+                    if_result_type = create_node_type_with_class_name("Anonymous");
+                }
             }
+
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+            info->stack_num--;
 
             append_opecode_to_code(info->code, OP_GOTO, info->no_output);
             end_points[num_end_points] = info->code->mLen;
@@ -2856,14 +2861,19 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
-        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-        info->stack_num--;
-
         sNodeType* else_result_type = info->type;
 
         if(!type_identify(if_result_type, else_result_type)) {
-            if_result_type = create_node_type_with_class_name("Anonymous");
+            if(cast_posibility(if_result_type, else_result_type)) {
+                cast_right_type_to_left_type(if_result_type, &else_result_type, info);
+            }
+            else {
+                if_result_type = create_node_type_with_class_name("Anonymous");
+            }
         }
+
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        info->stack_num--;
 
         append_opecode_to_code(info->code, OP_GOTO, info->no_output);
         end_points[num_end_points] = info->code->mLen;
@@ -3647,7 +3657,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
     sNodeType* block_last_type = NULL;
-    if(!compile_block(while_block, info, FALSE, &block_last_type)) {
+    if(!compile_block(while_block, info, NULL, &block_last_type)) {
         return FALSE;
     }
 
@@ -3770,7 +3780,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
     sNodeType* block_last_type = NULL;
-    if(!compile_block(for_block, info, FALSE, &block_last_type)) {
+    if(!compile_block(for_block, info, NULL, &block_last_type)) {
         return FALSE;
     }
 
@@ -4179,7 +4189,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
     sNodeType* result_type;
     sNodeType* result_method_generics_types = NULL;
-    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, NULL, right_method_generics_types, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+    int method_index = search_for_method(klass, method_name, param_types, num_params, TRUE, klass->mNumMethods-1, generics_types, generics_types, right_method_generics_types, &result_type, FALSE, &result_method_generics_types, info->pinfo);
 
     if(method_index != -1) {
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
@@ -5518,7 +5528,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 
     sNodeBlock* try_node_block = gNodes[node].uValue.sTry.mTryNodeBlock;
     sNodeType* block_last_type = NULL;
-    if(!compile_block(try_node_block, info, FALSE, &block_last_type)) {
+    if(!compile_block(try_node_block, info, NULL, &block_last_type)) {
         return FALSE;
     }
 
@@ -5553,7 +5563,7 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_CATCH_POP, info->no_output); // for none JIT code
 
         sNodeType* block_last_type = NULL;
-        if(!compile_block(catch_node_block, info, FALSE, &block_last_type)) {
+        if(!compile_block(catch_node_block, info, NULL, &block_last_type)) {
             return FALSE;
         }
 
@@ -9182,14 +9192,8 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
 
-    BOOL result_type_boxing = FALSE;
-    if(result_type && result_type->mClass && !(result_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE))
-    {
-        result_type_boxing = TRUE;
-    }
-
     sNodeType* block_last_type = NULL;
-    if(!compile_block(node_block, info, result_type_boxing, &block_last_type)) {
+    if(!compile_block(node_block, info, result_type, &block_last_type)) {
         sByteCode_free(&codes);
         sConst_free(&constant);
         info->code = codes_before;
@@ -9380,14 +9384,8 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sNodeType* block_result_type_before = info->block_result_type;
     info->block_result_type = result_type;
 
-    BOOL result_type_boxing = FALSE;
-    if(result_type && result_type->mClass && !(result_type->mClass->mFlags & CLASS_FLAGS_PRIMITIVE))
-    {
-        result_type_boxing = TRUE;
-    }
-
     sNodeType* block_last_type = NULL;
-    if(!compile_block(node_block, info, result_type_boxing, &block_last_type)) {
+    if(!compile_block(node_block, info, result_type, &block_last_type)) {
         sByteCode_free(&codes);
         sConst_free(&constant);
         info->code = codes_before;

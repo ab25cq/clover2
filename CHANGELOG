@@ -1,4 +1,16 @@
 
+version 6.5.1
+
+    ブロックの戻り値は必要に応じて自動的にboxingやcastされていましたが、もう少し柔軟な仕組みにしています。if文の戻り値も同様です。
+
+    filterメソッドを各種基礎クラスに追加しています。以下は通ります。a:int = -1.filter { if(it == -1) { 0 } else { 2 } }。mapだと.cast("Integer")メソッドが必要となるため、追加しました。filterの場合はこの場合Integer型を返すため、aに代入されるときにunboxingされるため便利に使えると思います。
+
+version 6.5.1
+
+    The return value of the block was boxing and casting automatically as necessary, but it makes it a more flexible mechanism. The return value of the if statement is also the same.
+
+    We have added a filter method to various basic classes. Below you will find: a: int = -1.filter {if (== - 1) {0} els e {2}}. We added the map because it needs the .cast ("Integer") method. In the case of filter, in this case it returns Integer type, so it will be unboxing when assigning to a and I think that it can be used conveniently.
+
 version 6.5.0
 
     IIteratorbleがインストールされていない問題を修正。すみません。大きなバグでした。Rangeを使うプログラムは動かなかったはずです。あとJITが安定しました。しかし、Clover2のエディッタの体感速度で測りましたが、JITとVMとの処理速度の差はあまりありません。(JITの方がメモリの消費量は多い)。あまりJITは意味がありませんね、、、うーん。あとClover2で作ったコンソールエディッタの体感速度ですが、小さなテキストの編集ならC言語で書いたvimとそんなに変わりません。ただし、1万行を超えるテキストをClover2で編集した場合、カーソル移動は問題ないんですが、undoしようとすると、やはり処理速度がだいぶ落ちます。でも、まあ、それなりに実用的な速度は出ていますね。参考まで。

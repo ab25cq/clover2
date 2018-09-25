@@ -944,7 +944,7 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 void arrange_stack(sCompileInfo* cinfo);
 
 /// node_block.c ///
-BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing, sNodeType** block_last_type);
+BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, sNodeType** block_last_type);
 BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info);
 
 /// script_ctime.c ///
