@@ -22,7 +22,7 @@ void free_array(CLObject self)
 
     MFREE(object_data->mType);
 
-    BOOL value_is_object = klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+    BOOL value_is_object = !(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
     int i=0;
     for(i=0; i<object_data->mArrayNum; i++) {
@@ -58,9 +58,7 @@ CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-#ifdef ENABLE_JIT
     push_object_to_global_stack(obj, info);
-#endif
 
     return obj;
 }

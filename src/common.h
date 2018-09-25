@@ -152,7 +152,6 @@ void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, cha
 
 /// stack.c ///
 struct sCLStackStruct {
-    int mStackID;
     CLVALUE* mStack;
     CLVALUE** mStackPtr;
 

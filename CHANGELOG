@@ -1,4 +1,12 @@
 
+version 6.5.0
+
+    IIteratorbleがインストールされていない問題を修正。すみません。大きなバグでした。Rangeを使うプログラムは動かなかったはずです。あとJITが安定しました。しかし、Clover2のエディッタの体感速度で測りましたが、JITとVMとの処理速度の差はあまりありません。(JITの方がメモリの消費量は多い)。あまりJITは意味がありませんね、、、うーん。あとClover2で作ったコンソールエディッタの体感速度ですが、小さなテキストの編集ならC言語で書いたvimとそんなに変わりません。ただし、1万行を超えるテキストをClover2で編集した場合、カーソル移動は問題ないんですが、undoしようとすると、やはり処理速度がだいぶ落ちます。でも、まあ、それなりに実用的な速度は出ていますね。参考まで。
+
+version 6.5.0
+
+    Fixed an issue where IIteratorble was not installed. Excuse me. It was a big bug. The program using Range should have not worked. And JIT became stable. However, although it measured by the sensory speed of Clover 2's editor, there is not much difference in processing speed between JIT and VM. (JIT consumes more memory). JIT has little meaning, is not it? It is the perceived speed of the console editor created with Clover 2, but if editing small texts it does not change much like vim written in C language. However, if you edit more than ten thousand lines of text with Clover 2, moving the cursor is fine, but if you try to undo, the processing speed drops a lot. But, well, as it is, the practical speed has come out. for your information.
+
 version 6.0.3
 
     GCにバグがありました。リファレンスカウントの廃止。すみません。version 6.0.0からエンバグしてる様子です。

@@ -290,9 +290,8 @@ static void free_handle(unsigned int handle_num)
 
 void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 {
-/*
     if(obj != prev_obj) {
-        if(is_valid_object(obj)) {
+        if(is_valid_object(obj) && gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount == 0) {
             gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
 
             sCLObject* object_data = CLOBJECT(obj);
@@ -300,51 +299,76 @@ void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 
             int array_num = object_data->mArrayNum;
 
-            if(array_num == -2) {
+            if(array_num == -2) { // block, regex
             }
             else if(array_num == -1) {
                 int i;
                 for(i=0; i<klass->mNumFields; i++) {
                     CLObject obj2 = object_data->mFields[i].mObjectValue;
-                    if(obj != obj2) {
-                        inc_refference_count(obj2, 0, FALSE);
-                    }
+                    inc_refference_count(obj2, 0, FALSE);
                 }
             }
             else {
                 int i;
                 for(i=0; i<array_num; i++) {
                     CLObject obj2 = object_data->mFields[i].mObjectValue;
-                    if(obj != obj2) {
-                        inc_refference_count(obj2, 0, FALSE);
-                    }
+                    inc_refference_count(obj2, 0, FALSE);
                 }
             }
         }
+/*
         if(value_is_object && is_valid_object(prev_obj)) {
             int handle_num = prev_obj - FIRST_OBJ;
             gCLHeap.mHandles[handle_num].mRefferenceCount--;
 
-            if(gCLHeap.mHandles[handle_num].mRefferenceCount == 0) {
+            if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0) {
                 free_handle(handle_num);
             }
         }
-    }
 */
+    }
 }
 
 void dec_refference_count(CLObject obj, BOOL value_is_object)
 {
 /*
-    if(is_valid_object(obj)) {
+    if(value_is_object && is_valid_object(obj)) {
         int handle_num = obj - FIRST_OBJ;
         gCLHeap.mHandles[handle_num].mRefferenceCount--;
 
-        if(gCLHeap.mHandles[handle_num].mRefferenceCount == 0) {
+        if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0) {
             free_handle(handle_num);
         }
     }
 */
+}
+
+void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_global_stack_ptr, CLVALUE* lvar, int num_params)
+{
+    if(!info->prohibit_delete_global_stack) {
+        inc_refference_count(result_object, 0, FALSE);
+
+        CLVALUE* p = info->mGlobalStack + num_global_stack_ptr;
+
+        while(p < info->mGlobalStackPtr) {
+            CLObject obj = p->mObjectValue;
+
+            if(is_valid_object(obj)) {
+                int handle_num = obj - FIRST_OBJ;
+
+                if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0 && obj != result_object) {
+                    free_handle(handle_num);
+                }
+            }
+
+            p++;
+
+        }
+    }
+
+    info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
+
+    push_object_to_global_stack(result_object, info);
 }
 
 void mark_object(CLObject obj, unsigned char* mark_flg)
@@ -361,7 +385,7 @@ void mark_object(CLObject obj, unsigned char* mark_flg)
 
                 /// mark objects which is contained in ///
                 if(array_num == -1) {
-                    if(klass && !(klass->mFlags & CLASS_FLAGS_PRIMITIVE)) {
+                    if(klass && !(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT)) {
                         object_mark_fun(obj, mark_flg);
                     }
                 }
@@ -461,34 +485,6 @@ static void delete_all_object()
     free_malloced_memory();
 }
 
-void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_global_stack_ptr, CLVALUE* lvar, int num_params)
-{
-    if(!info->prohibit_delete_global_stack) {
-        CLVALUE* p = info->mGlobalStack + num_global_stack_ptr;
-
-        while(p < info->mGlobalStackPtr) {
-            CLObject obj = p->mObjectValue;
-
-            if(is_valid_object(obj)) {
-                int handle_num = obj - FIRST_OBJ;
-
-                if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0 && obj != result_object) {
-                    free_handle(handle_num);
-                }
-            }
-
-            p++;
-
-        }
-    }
-
-    info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
-
-#ifdef ENABLE_JIT
-    push_object_to_global_stack(result_object, info);
-#endif
-}
-
 void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_value)
 {
     sCLField* field = klass->mClassFields + field_index;
@@ -501,7 +497,7 @@ void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_val
 
     sCLClass* field_class = get_class(field_class_name);
 
-    BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+    BOOL value_is_object = !(field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
     inc_refference_count(cl_value.mObjectValue, prev_obj, value_is_object);
 }

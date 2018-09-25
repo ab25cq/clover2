@@ -37,7 +37,7 @@ void push_value_to_global_stack(CLVALUE value, sVMInfo* info)
 
         sCLStack* it = gHeadStack;
         while(it) {
-            if(it->mStackID == info->mTmpGlobalStackID->mStackID) {
+            if(it == info->mTmpGlobalStackID) {
                 it->mStack = info->mTmpGlobalStack;
                 it->mStackPtr = &info->mTmpGlobalStackPtr;
                 break;
@@ -64,7 +64,7 @@ void push_object_to_global_stack(CLObject obj, struct sVMInfoStruct* info)
 
         sCLStack* it = gHeadStack;
         while(it) {
-            if(it->mStackID == info->mGlobalStackID->mStackID) {
+            if(it == info->mGlobalStackID) {
                 it->mStack = info->mGlobalStack;
                 it->mStackPtr = &info->mGlobalStackPtr;
                 break;
@@ -93,9 +93,15 @@ CLVALUE pop_global_stack(sVMInfo* info)
     return value;
 }
 
+#define NUM_STACK_MAX 256
+
+static sCLStack gCLStacks[NUM_STACK_MAX];
+
 void stack_init()
 {
     gHeadStack = NULL;
+
+    memset(gCLStacks, 0, sizeof(sCLStack)*NUM_STACK_MAX);
 }
 
 void stack_final()
@@ -111,25 +117,25 @@ void stack_final()
 
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
 {
-    sCLStack* stack = MCALLOC(1, sizeof(sCLStack));
+    sCLStack* stack = NULL;
+
+    int i;
+    for(i=0; i<NUM_STACK_MAX; i++) {
+        if(gCLStacks[i].mStack == NULL) {
+            stack = gCLStacks + i;
+        }
+    }
+
+    if(stack == NULL) {
+        fprintf(stderr, "overflow stack number\n");
+        exit(2);
+    }
 
     stack->mStack = stack_mem;
     stack->mStackPtr = stack_ptr;
-
     stack->mNextStack = gHeadStack;
+
     gHeadStack = stack;
-
-    sCLStack* it = gHeadStack;
-    int max = 0;
-
-    while(it) {
-        if(max < it->mStackID) {
-            max = it->mStackID;
-        }
-        it = it->mNextStack;
-    }
-
-    stack->mStackID = max + 1;
 
     return stack;
 }
@@ -140,7 +146,47 @@ BOOL remove_stack_to_stack_list(sCLStack* stack)
     sCLStack* it_before = gHeadStack;
 
     while(it) {
-        if(it->mStackID == stack->mStackID) {
+        if(it == stack) {
+            if(it == gHeadStack) {
+                gHeadStack = gHeadStack->mNextStack;
+                memset(it, 0, sizeof(sCLStack));
+            }
+            else {
+                it_before->mNextStack = it->mNextStack;
+                memset(it, 0, sizeof(sCLStack));
+            }
+
+            return TRUE;
+        }
+
+        it_before = it;
+        it = it->mNextStack;
+    }
+
+    return FALSE;
+}
+
+/*
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
+{
+    sCLStack* stack = MCALLOC(1, sizeof(sCLStack));
+
+    stack->mStack = stack_mem;
+    stack->mStackPtr = stack_ptr;
+
+    stack->mNextStack = gHeadStack;
+    gHeadStack = stack;
+
+    return stack;
+}
+
+BOOL remove_stack_to_stack_list(sCLStack* stack)
+{
+    sCLStack* it = gHeadStack;
+    sCLStack* it_before = gHeadStack;
+
+    while(it) {
+        if(it == stack) {
             if(it == gHeadStack) {
                 gHeadStack = it->mNextStack;
                 MFREE(it);
@@ -159,6 +205,7 @@ BOOL remove_stack_to_stack_list(sCLStack* stack)
 
     return FALSE;
 }
+*/
 
 BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr)
 {

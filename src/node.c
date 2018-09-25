@@ -2579,7 +2579,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
-        append_int_value_to_code(info->code, left_type2->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
+        append_int_value_to_code(info->code, !(left_type2->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
         info->type = left_type2;
     }
@@ -6378,7 +6378,7 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
-        append_int_value_to_code(info->code, left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
+        append_int_value_to_code(info->code, !(left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
         info->type = left_type;
     }
@@ -6602,7 +6602,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
-        append_int_value_to_code(info->code, left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
+        append_int_value_to_code(info->code, !(left_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
         info->type = left_type;
     }
@@ -8853,7 +8853,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
             else {
                 append_opecode_to_code(info->code, OP_STORE, info->no_output);
                 append_int_value_to_code(info->code, var_index, info->no_output);
-                append_int_value_to_code(info->code, left_element_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
+                append_int_value_to_code(info->code, !(left_element_type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
                 info->type = left_element_type;
             }
@@ -9482,7 +9482,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     else {
         info->type = expresson_type_in_block;
     }
-    append_int_value_to_code(info->code, info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT, info->no_output);
+    append_int_value_to_code(info->code, !(info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
     return TRUE;
 }

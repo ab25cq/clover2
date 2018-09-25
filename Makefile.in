@@ -97,6 +97,7 @@ jit-compile:
 	if test -e IHashKey.bc; then ./bclover2 IHashKey.bc; fi
 	if test -e IEqualable.bc; then ./bclover2 IEqualable.bc; fi
 	if test -e ISortable.bc; then ./bclover2 ISortable.bc; fi
+	if test -e IIteratorable.bc; then ./bclover2 IIteratorable.bc; fi
 	if test -e HashItem.bc; then ./bclover2 HashItem.bc; fi
 	if test -e Hash.bc; then ./bclover2 Hash.bc; fi
 	if test -e ListItem.bc; then ./bclover2 ListItem.bc; fi
@@ -242,6 +243,9 @@ install:
 
 	$(INSTALL) -m 644 ./ISortable.oclcl $(DESTDIR)/share/clover2
 	if test -e libISortable.so; then $(INSTALL) -m 755 ./libISortable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libISortable.so $(DESTDIR)/share/clover2; fi
+
+	$(INSTALL) -m 644 ./IIteratorable.oclcl $(DESTDIR)/share/clover2
+	if test -e libIIteratorable.so; then $(INSTALL) -m 755 ./libIIteratorable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libIIteratorable.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./HashItem.oclcl $(DESTDIR)/share/clover2
 	if test -e libHashItem.so; then $(INSTALL) -m 755 ./libHashItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libHashItem.so $(DESTDIR)/share/clover2; fi
@@ -550,17 +554,15 @@ test:
 	PWD=`pwd` ./cclover2 code/OmitBlockParamTest.clcl
 	PWD=`pwd` ./cclover2 code/ObjectCast.clcl
 
-	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./cclover2 code/CharTest.clcl; PWD=`pwd` ./clover2 code/char.cl; fi
+	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./cclover2 code/CharTest.clcl; if test $(JIT) = 1; then bclover2 CharTest.oclcl; fi; PWD=`pwd` ./clover2 code/char.cl; fi
 
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; PWD=`pwd` ./cclover2 ext.clcl && PWD=`pwd` ./clover2 ext.cl; fi
 
-	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtensionTest.so.1 -o libExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs libExtensionTest.so.1.0.0 libExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl && PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
+	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtensionTest.so.1 -o libExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs libExtensionTest.so.1.0.0 libExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
 
 	PWD=`pwd` ./cclover2 code/getopt.cl && ./clover2 code/getopt.cl -a -b -c aaa xxxx gggg
 	PWD=`pwd` ./cclover2 code/getopt_long.cl && ./clover2 code/getopt_long.cl -a --break --clear aaa --delete=ggg xxx yyy zzz
 	PWD=`pwd` ./cclover2 code/getopt_long_only.cl && ./clover2 code/getopt_long_only.cl -add --break --clear aaa --delete=ggg xxx yyy zzz
-
-	if test $(JIT) = 1; then PWD=`pwd`; ./compile-test-code.sh; fi
 
 	PWD=`pwd` ./cclover2 code/reflection.cl
 	PWD=`pwd` ./cclover2 code/MultiLineString.cl
@@ -571,6 +573,7 @@ test:
 	PWD=`pwd` ./cclover2 code/PointerTest3.clcl
 	PWD=`pwd` ./cclover2 code/BoolTest.clcl
 
+	if test $(JIT) = 1; then PWD=`pwd`; ./compile-test-code.sh; fi
 
 	PWD=`pwd` ./clover2 code/reflection.cl
 	PWD=`pwd` ./clover2 code/MultiLineString.cl

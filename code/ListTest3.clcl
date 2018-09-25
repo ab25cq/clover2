@@ -15,5 +15,9 @@ class ListTest3 {
         Clover.test("list delete test", b.deleteWithRange(1,3).equals( slist { 0, 3,4,5 }));
 
         Clover.test("list sum test", slist { 1, 2, 3 }.sum() == 6);
+
+        var dirPaneLength = 8;
+        var dirName = "/home/ab25cq/repo/clover2/src/";
+        var fileNames = dirName.toPath().entries().map { it.toPath().basename().toString().subString(0, dirPaneLength-1) }.sort();
     }
 }

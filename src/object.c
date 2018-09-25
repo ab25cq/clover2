@@ -33,7 +33,7 @@ BOOL free_object(CLObject self)
 
         sCLClass* field_class = get_class(field_class_name);
 
-        BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+        BOOL value_is_object = !(field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
         dec_refference_count(obj, value_is_object);
     }
@@ -77,9 +77,7 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-#ifdef ENABLE_JIT
     push_object_to_global_stack(obj, info);
-#endif
 
     return obj;
 }

@@ -1377,6 +1377,31 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_buffer_to_pointer_cast", TheModule);
 
+    /// push_value_to_global_stack ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "push_value_to_global_stack", TheModule);
+
+    /// pop_global_stack ///
+    type_params.clear();
+    
+    result_type = IntegerType::get(TheContext, 64);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param1_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "pop_global_stack", TheModule);
+
     /// gSigInt ///
     Type* variable_type = IntegerType::get(TheContext, 32);
     gSigIntValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, nullptr, "gSigInt");

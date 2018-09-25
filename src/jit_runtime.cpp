@@ -796,6 +796,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
 
         if(klass->mDynamicLibrary && method->mJITDynamicSym == NULL) {
             char method_path2[METHOD_NAME_MAX + 128];
+
             create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
             method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
@@ -831,11 +832,19 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             remove_stack_to_stack_list(stack_id);
         }
         else {
+            char method_path2[METHOD_NAME_MAX + 128];
+
+            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
+
+            fprintf(stderr, "Not found Symbol(%s)\n", method_path2);
+            exit(2);
+            /*
             BOOL result = vm(code, constant, stack, var_num, klass, info);
 
             if(!result) {
                 return FALSE;
             }
+            */
         }
     }
 
@@ -849,6 +858,12 @@ void jit_init_on_runtime()
 
     gCLPointerAndBoolStructMemory.result1 = NULL;
     gCLPointerAndBoolStructMemory.result2 = FALSE;
+
+    char* env = getenv("LD_LIBRARY_PATH");
+    char buf[1024*2*2];
+    snprintf(buf, 1024*2*2, "%s/share/clover2:%s", PREFIX, env);
+
+    setenv("LD_LIBRARY_PATH", buf, 1);
 }
 
 void jit_final_on_runtime()

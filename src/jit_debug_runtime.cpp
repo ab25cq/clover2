@@ -25,6 +25,7 @@ void show_int32(int number)
 void show_int64(clint64 number)
 {
     printf("int64 %lld\n", number);
+    printf("pointer %p\n", (char*)number);
 }
 
 void show_float(float number)

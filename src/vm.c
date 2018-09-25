@@ -512,6 +512,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     CLObject result_object = 0;
 
     int num_global_strck_ptr = info->mGlobalStackPtr - info->mGlobalStack;
+    int num_tmp_global_stack_ptr = info->mTmpGlobalStackPtr - info->mTmpGlobalStack;
 
     info->running_class = klass;
     info->running_method = method;
@@ -567,6 +568,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 
@@ -648,6 +650,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 
@@ -699,6 +702,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_method_name = running_method_name;
 
                 info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+                info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
                 return FALSE;
             }
         }
@@ -827,6 +831,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 #else
@@ -837,6 +842,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         info->running_method_name = running_method_name;
 
         info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+        info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
         return FALSE;
 #endif
     }
@@ -863,6 +869,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
                 info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+                info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
                 return FALSE;
             }
 
@@ -883,6 +890,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 
@@ -942,6 +950,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class = running_class;
             info->running_method = running_method;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 #else
@@ -956,6 +965,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class = running_class;
             info->running_method = running_method;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
+            info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
             return FALSE;
         }
 #endif
@@ -987,6 +997,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_method_name = running_method_name;
 
     free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
+    info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
 
     return TRUE;
 }
@@ -5718,7 +5729,7 @@ show_inst(inst);
                     sCLClass* field_class = get_class_with_load_and_initialize(field_class_name);
 
                     if(field_class == NULL) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-2)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-2) %s", field_class_name);
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5731,7 +5742,7 @@ show_inst(inst);
                         }
                     }
 
-                    BOOL value_is_object = field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+                    BOOL value_is_object = !(field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
                     CLObject prev_obj = object_pointer->mFields[field_index].mObjectValue;
 
@@ -6164,7 +6175,7 @@ show_inst(inst);
 
                     sCLClass* klass = object_pointer->mClass;
 
-                    BOOL value_is_object = klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT;
+                    BOOL value_is_object = !(klass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
                     CLObject prev_obj = object_pointer->mFields[element_num].mObjectValue;
 
@@ -16741,4 +16752,3 @@ show_inst(inst);
 
     return TRUE;
 }
-

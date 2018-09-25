@@ -190,21 +190,27 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
 
-            *lvalue = trunc_value_to_pointer(lvalue);
+            LVALUE lvalue2;
+            lvalue2 = trunc_value(lvalue, 64);
 
             LVALUE rvalue2;
             rvalue2 = trunc_value(rvalue, 64);
 
+            Value* value = Builder.CreateAdd(lvalue2.value, rvalue2.value, "padd", true, true);
+
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateGEP(lvalue->value, rvalue2.value, "addtmp");
+            llvm_value.value = value;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.kind = kLVKindPointer8;
+            llvm_value.kind = kLVKindUInt64;
             llvm_value.parent_var_num = 0;
             llvm_value.parent_llvm_stack = NULL;
 
+            LVALUE llvm_value2;
+            llvm_value2 = trunc_value_to_pointer(&llvm_value);
+
             dec_stack_ptr(llvm_stack_ptr, 2);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
             }
             break;
 
