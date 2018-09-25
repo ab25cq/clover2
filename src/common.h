@@ -155,6 +155,8 @@ struct sCLStackStruct {
     CLVALUE* mStack;
     CLVALUE** mStackPtr;
 
+    int mStackID;
+
     struct sCLStackStruct* mNextStack;
 };
 

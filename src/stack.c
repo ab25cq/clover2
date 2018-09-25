@@ -19,11 +19,11 @@ void create_global_stack_and_append_it_to_stack_list(sVMInfo* info)
 
 void free_global_stack(sVMInfo* info)
 {
-    remove_stack_to_stack_list(info->mGlobalStackID);
     MFREE(info->mGlobalStack);
+    remove_stack_to_stack_list(info->mGlobalStackID);
 
-    remove_stack_to_stack_list(info->mTmpGlobalStackID);
     MFREE(info->mTmpGlobalStack);
+    remove_stack_to_stack_list(info->mTmpGlobalStackID);
 }
 
 void push_value_to_global_stack(CLVALUE value, sVMInfo* info)
@@ -117,25 +117,25 @@ void stack_final()
 
 sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
 {
-    sCLStack* stack = NULL;
-
-    int i;
-    for(i=0; i<NUM_STACK_MAX; i++) {
-        if(gCLStacks[i].mStack == NULL) {
-            stack = gCLStacks + i;
-        }
-    }
-
-    if(stack == NULL) {
-        fprintf(stderr, "overflow stack number\n");
-        exit(2);
-    }
+    sCLStack* stack = MCALLOC(1, sizeof(sCLStack));
 
     stack->mStack = stack_mem;
     stack->mStackPtr = stack_ptr;
-    stack->mNextStack = gHeadStack;
 
+    stack->mNextStack = gHeadStack;
     gHeadStack = stack;
+
+    sCLStack* it = gHeadStack;
+    int max = 0;
+
+    while(it) {
+        if(max < it->mStackID) {
+            max = it->mStackID;
+        }
+        it = it->mNextStack;
+    }
+
+    stack->mStackID = max + 1;
 
     return stack;
 }
@@ -146,14 +146,14 @@ BOOL remove_stack_to_stack_list(sCLStack* stack)
     sCLStack* it_before = gHeadStack;
 
     while(it) {
-        if(it == stack) {
+        if(it->mStackID == stack->mStackID) {
             if(it == gHeadStack) {
-                gHeadStack = gHeadStack->mNextStack;
-                memset(it, 0, sizeof(sCLStack));
+                gHeadStack = it->mNextStack;
+                MFREE(it);
             }
             else {
                 it_before->mNextStack = it->mNextStack;
-                memset(it, 0, sizeof(sCLStack));
+                MFREE(it);
             }
 
             return TRUE;
