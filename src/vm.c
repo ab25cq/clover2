@@ -528,19 +528,19 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
     if(sname2) {
         if(info->num_stack_trace < STACK_TRACE_MAX-1) {
-            info->stack_trace_sname[info->num_stack_trace] = sname2;
+            xstrncpy(info->stack_trace_sname[info->num_stack_trace], sname2, 128);
             info->stack_trace_sline[info->num_stack_trace] = sline2;
             info->num_stack_trace++;
         }
         else {
             int i;
             for(i=0; i<info->num_stack_trace-1; i++) {
-                info->stack_trace_sname[i] = info->stack_trace_sname[i+1];
+                xstrncpy(info->stack_trace_sname[i], info->stack_trace_sname[i+1], 128);
                 info->stack_trace_sline[i] = info->stack_trace_sline[i+1];
             }
             info->num_stack_trace--;
 
-            info->stack_trace_sname[info->num_stack_trace] = sname2;
+            xstrncpy(info->stack_trace_sname[info->num_stack_trace], sname2, 128);
             info->stack_trace_sline[info->num_stack_trace] = sline2;
             info->num_stack_trace++;
         }
@@ -1906,7 +1906,7 @@ show_inst(inst);
                     CLObject obj = lvar[index].mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5200,7 +5200,7 @@ show_inst(inst);
                     CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
                     if(object == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-2)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5289,7 +5289,7 @@ show_inst(inst);
                         CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
                         if(object == 0) {
-                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-3)");
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
                                 info->try_offset = 0;
@@ -5552,7 +5552,7 @@ show_inst(inst);
                     stack_ptr--;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-4)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -5814,7 +5814,7 @@ show_inst(inst);
                     CLObject obj2 = object_pointer->mFields[field_index].mObjectValue;
 
                     if(obj2 == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-5)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6053,7 +6053,7 @@ show_inst(inst);
                     CLObject object = field->mValue.mObjectValue;
 
                     if(object == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-6)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6231,7 +6231,7 @@ show_inst(inst);
                     CLObject object = object_pointer->mFields[element_num].mObjectValue;
 
                     if(object == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-7)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6958,7 +6958,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-8)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -6987,7 +6987,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-9)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7018,7 +7018,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-10)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7049,7 +7049,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-11)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7080,7 +7080,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-12)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7111,7 +7111,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-13)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7142,7 +7142,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-14)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7173,7 +7173,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-15)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7204,7 +7204,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-16)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7235,7 +7235,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-17)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7266,7 +7266,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-18)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7297,7 +7297,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-19)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7328,7 +7328,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-20)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7504,7 +7504,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-21)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7535,7 +7535,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-22)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7566,7 +7566,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-23)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7597,7 +7597,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-24)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7628,7 +7628,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-25)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7659,7 +7659,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-26)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7690,7 +7690,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-27)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7721,7 +7721,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-28)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7752,7 +7752,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-29)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7783,7 +7783,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-30)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7812,7 +7812,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-31)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7843,7 +7843,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-32)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -7874,7 +7874,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-33)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8045,7 +8045,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-34)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8076,7 +8076,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-35)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8107,7 +8107,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-36)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8138,7 +8138,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-37)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8167,7 +8167,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-38)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8194,7 +8194,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-39)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8223,7 +8223,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-40)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8252,7 +8252,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-41)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8281,7 +8281,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-42)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8312,7 +8312,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-43)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8343,7 +8343,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-44)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8374,7 +8374,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-45)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8405,7 +8405,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-46)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8568,7 +8568,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-47)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8598,7 +8598,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-48)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8628,7 +8628,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-49)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8658,7 +8658,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-50)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8688,7 +8688,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-51)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8718,7 +8718,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-52)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8748,7 +8748,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-53)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8778,7 +8778,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-54)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8808,7 +8808,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-55)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8838,7 +8838,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-56)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8868,7 +8868,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-57)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8898,7 +8898,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-58)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -8928,7 +8928,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-59)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9100,7 +9100,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-60)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9131,7 +9131,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-61)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9162,7 +9162,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-62)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9193,7 +9193,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-63)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9224,7 +9224,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-64)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9255,7 +9255,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-65)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9286,7 +9286,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-66)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9317,7 +9317,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-67)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9348,7 +9348,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-68)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9379,7 +9379,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-69)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9410,7 +9410,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-70)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9441,7 +9441,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-71)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9472,7 +9472,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-72)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9646,7 +9646,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-73)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9677,7 +9677,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-74)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9708,7 +9708,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-75)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9739,7 +9739,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-76)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9770,7 +9770,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-77)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9801,7 +9801,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-78)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9832,7 +9832,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-78)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9863,7 +9863,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-79)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9894,7 +9894,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-80)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9925,7 +9925,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-81)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9956,7 +9956,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-82)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -9987,7 +9987,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-83)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10018,7 +10018,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-84)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10194,7 +10194,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-85)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10225,7 +10225,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-86)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10256,7 +10256,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-87)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10287,7 +10287,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-88)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10318,7 +10318,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-89)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10349,7 +10349,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-90)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10380,7 +10380,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-91)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10411,7 +10411,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-92)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10442,7 +10442,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-93)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10473,7 +10473,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-94)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10504,7 +10504,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-95)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10535,7 +10535,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-96)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10566,7 +10566,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-97)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10732,7 +10732,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-98)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10762,7 +10762,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-99)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10792,7 +10792,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-100)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10822,7 +10822,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-101)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10852,7 +10852,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-102)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10882,7 +10882,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-103)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10912,7 +10912,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-104)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10942,7 +10942,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-105)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -10972,7 +10972,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-106)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11002,7 +11002,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-107)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11032,7 +11032,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-108)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11062,7 +11062,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-109)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11092,7 +11092,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-110)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11254,7 +11254,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-111)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11285,7 +11285,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-112)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11316,7 +11316,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-113)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11347,7 +11347,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-114)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11378,7 +11378,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-115)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11409,7 +11409,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-116)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11440,7 +11440,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-117)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11471,7 +11471,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-118)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11502,7 +11502,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-119)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11533,7 +11533,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-120)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11565,7 +11565,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-121)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11596,7 +11596,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-122)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11750,7 +11750,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-123)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11780,7 +11780,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-124)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11810,7 +11810,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-125)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11840,7 +11840,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-126)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11870,7 +11870,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-128)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11900,7 +11900,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-129)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11930,7 +11930,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-130)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11960,7 +11960,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-131)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -11990,7 +11990,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-132)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12020,7 +12020,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-133)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12050,7 +12050,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-134)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12080,7 +12080,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-135)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12223,7 +12223,7 @@ show_inst(inst);
                     CLObject object = (stack_ptr-1)->mObjectValue;
 
                     if(object == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-136)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12401,7 +12401,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-137)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12432,7 +12432,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-138)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12463,7 +12463,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-139)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12494,7 +12494,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-140)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12525,7 +12525,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-141)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12556,7 +12556,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-142)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12587,7 +12587,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-143)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12618,7 +12618,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-144)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12649,7 +12649,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-145)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12680,7 +12680,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-146)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12711,7 +12711,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-147)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12740,7 +12740,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-148)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
@@ -12771,7 +12771,7 @@ show_inst(inst);
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3)");
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-149)");
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;

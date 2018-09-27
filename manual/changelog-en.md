@@ -1,4 +1,8 @@
 
+version 6.5.2
+
+    Fixed the bug that which is the message of Exception.
+
 version 6.5.1
 
     The return value of the block was boxing and casting automatically as necessary, but it makes it a more flexible mechanism. The return value of the if statement is also the same.

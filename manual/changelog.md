@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.2
+
+    例外のメッセージのバグを修正しました。
+
 version 6.5.1
 
     ブロックの戻り値は必要に応じて自動的にboxingやcastされていましたが、もう少し柔軟な仕組みにしています。if文の戻り値も同様です。

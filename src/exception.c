@@ -20,10 +20,19 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
             xstrncat(msg3, buf, 1024);
         }
 
-        info->num_stack_trace = 0;
+        //info->num_stack_trace = 0;
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg2);
+
+        int i;
+        for(i=0; i<info->num_stack_trace; i++) {
+            char buf[1024];
+            snprintf(buf, 1024, "(%s %d)", info->stack_trace_sname[i], info->stack_trace_sline[i]);
+            xstrncat(msg3, buf, 1024);
+        }
+
+        //info->num_stack_trace = 0;
     }
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
@@ -66,10 +75,19 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
             xstrncat(msg3, buf, 1024);
         }
 
-        info->num_stack_trace = 0;
+        //info->num_stack_trace = 0;
     }
     else {
         snprintf(msg3, 1024, "%s %d: %s", info->sname, info->sline, msg);
+
+        int i;
+        for(i=0; i<info->num_stack_trace; i++) {
+            char buf[1024];
+            snprintf(buf, 1024, "(%s %d)", info->stack_trace_sname[i], info->stack_trace_sline[i]);
+            xstrncat(msg3, buf, 1024);
+        }
+
+        //info->num_stack_trace = 0;
     }
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
@@ -116,10 +134,20 @@ void entry_exception_object(CLObject exception, sVMInfo* info)
         }
         xstrncat(info->exception_message, "\n", EXCEPTION_MESSAGE_MAX);
 
-        info->num_stack_trace = 0;
+        //info->num_stack_trace = 0;
     }
     else {
         snprintf(info->exception_message, EXCEPTION_MESSAGE_MAX, "%s %d: %s\n", info->sname, info->sline, str);
+
+        int i;
+        for(i=0; i<info->num_stack_trace; i++) {
+            char buf[1024];
+            snprintf(buf, 1024, "(%s %d)", info->stack_trace_sname[i], info->stack_trace_sline[i]);
+            xstrncat(info->exception_message, buf, EXCEPTION_MESSAGE_MAX);
+        }
+        xstrncat(info->exception_message, "\n", EXCEPTION_MESSAGE_MAX);
+
+        //info->num_stack_trace = 0;
     }
 
     MFREE(str);

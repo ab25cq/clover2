@@ -1,4 +1,8 @@
 
+clover2 (6.5.2-1) unstable; urgency=medium
+
+    * Fixed the bug that which is the message of Exception.
+
 clover2 (6.5.1-1) unstable; urgency=medium
 
     * The return value of the block was boxing and casting automatically as necessary, but it makes it a more flexible mechanism. The return value of the if statement is also the same. We have added a filter method to various basic classes. Below you will find: a: int = -1.filter {if (== - 1) {0} els e {2}}. We added the map because it needs the .cast ("Integer") method. In the case of filter, in this case it returns Integer type, so it will be unboxing when assigning to a and I think that it can be used conveniently.

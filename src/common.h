@@ -268,7 +268,7 @@ struct sVMInfoStruct {
     sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
 
-    char* stack_trace_sname[STACK_TRACE_MAX];
+    char stack_trace_sname[STACK_TRACE_MAX][128];
     int stack_trace_sline[STACK_TRACE_MAX];
 
     int num_stack_trace;
