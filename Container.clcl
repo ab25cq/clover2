@@ -1018,6 +1018,19 @@ module MList
         self.setValue(result);
         return self;
     }
+
+    def find(item:T): bool {
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item == item) {
+                return true;
+            }
+            it = it.next;
+        }
+
+        return false;
+    }
 }
 
 module MEqualableList
@@ -1178,6 +1191,21 @@ module MEqualableList
 
         return -1;
     }
+
+    def uniq():SELF<T> {
+        result := SELF<T>();
+
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(count(it.item) == 1) {
+                result.add(it.item);
+            }
+            it = it.next;
+        }
+
+        return result;
+    }
 }
 
 class List <T:Object>
@@ -1281,6 +1309,22 @@ class EqualableList<T:IEqualable>
             if(item implements ISortable) {
                 result.add(item);
             }
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
+    def toList():List<T> throws Exception {
+        result:List<T> = List<T>();
+
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            item :T = it.item;
+
+            result.add(item);
 
             it = it.next;
         }
@@ -1524,6 +1568,38 @@ class SortableList<T:ISortable>
                 return litem.compare(ritem);
             }
         }
+    }
+
+    def toList():List<T> throws Exception {
+        result:List<T> = List<T>();
+
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            item :T = it.item;
+
+            result.add(item);
+
+            it = it.next;
+        }
+
+        return result;
+    }
+
+    def toEqualableList():EqualableList<T> {
+        result := EqualableList<T>();
+
+        it :ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            item :T = it.item;
+
+            result.add(item);
+
+            it = it.next;
+        }
+
+        return result;
     }
 }
 

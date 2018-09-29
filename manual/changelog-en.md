@@ -1,4 +1,10 @@
 
+clover2 (6.5.3-1) unstable; urgency=medium
+
+	* Appended EqualableList.toList, SortableList.toList,
+	SortableList.toEqualableList method.
+	* Appended EqualableList.uniq, SortableList.uniq method
+
 version 6.5.2
 
     Fixed the bug that which is the message of Exception.

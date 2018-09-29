@@ -230,6 +230,10 @@ class String
             index2 = 0;
         }
 
+        if(index2 >= self.len) {
+            index2 = self.len;
+        }
+
         if(index < index2 && index < self.len && index2 <= self.len) {
             for(i:= index; i<self.len-(index2-index); i++) {
                 self.buffer[i] = self.buffer[i+index2-index];
