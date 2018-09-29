@@ -1196,11 +1196,18 @@ module MEqualableList
         result := SELF<T>();
 
         it :ListItem<T>? = self.head;
+        item_before :T = self.head.item;
 
         while(!it.identifyWith(null)) {
-            if(count(it.item) == 1) {
+            if(it == self.head) {
                 result.add(it.item);
             }
+            else {
+                if(!it.item.equals(item_before)) {
+                    result.add(it.item);
+                }
+            }
+            item_before = it.item;
             it = it.next;
         }
 
