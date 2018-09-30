@@ -617,7 +617,7 @@ dynamic_class Command
                 System.write(2, buffer, buffer.len);
                 exit(64);
             }
-        };
+        }
 
         close(parent2child_read_fd);
         close(child2parent_write_fd);
@@ -676,7 +676,7 @@ dynamic_class Command
         pipe(&parent2child_read_fd, &parent2child_write_fd);
         pipe(&child2parent_read_fd_err, &child2parent_write_fd_err);
 
-        pid:pid_t = fork(closure() {
+        pid:pid_t = fork() {
             close(parent2child_write_fd);
             close(child2parent_read_fd);
             close(child2parent_read_fd_err);
@@ -702,7 +702,7 @@ dynamic_class Command
                 exit(2);
             }
             exit(2);
-        });
+        }
 
         close(parent2child_read_fd);
         close(child2parent_write_fd);
@@ -748,7 +748,7 @@ dynamic_class Command
 
     def executeCommandWithControllingTerminal(method_name:String, params:List<String>) : static Command throws Exception
     {
-        pid:pid_t = fork(closure() {
+        pid:pid_t = fork() {
             pid:pid_t = getpid();
 
             setpgid(0, 0);
@@ -766,7 +766,7 @@ dynamic_class Command
                 System.write(2, buffer, buffer.len);
                 exit(64);
             }
-        });
+        }
 
         setpgid(pid, pid);
         tcsetpgrp(0, pid);
@@ -809,7 +809,7 @@ dynamic_class Command
 
         pipe(&parent2child_read_fd, &parent2child_write_fd);
 
-        pid:pid_t = fork(closure() {
+        pid:pid_t = fork() {
             close(parent2child_write_fd);
 
             pid:pid_t = getpid();
@@ -830,9 +830,9 @@ dynamic_class Command
             } catch(e:Exception) {
                 buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
-                exit(64);
+#                exit(64);
             }
-        });
+        }
 
         setpgid(pid, pid);
         tcsetpgrp(0, pid);

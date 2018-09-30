@@ -27,7 +27,6 @@ class PointerTest3
         c -=2;
         Clover.test("Memory safe pointer test2.7", c->byte == 'B');
 
-/*
         print("Memory safe pointer test3...");
         try {
             c+=1000;
@@ -137,6 +136,5 @@ class PointerTest3
         p++;
 
         Clover.test("Memory safe pointer test17", p->byte == 'B');
-*/
     }
 }

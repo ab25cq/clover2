@@ -1,12 +1,11 @@
-多次元配列
+mupliple array
 
-hex用のS, USなど。
-
-AndAndOrOrテストを通すかコンパイルエラーとする。
-
+hex 1S, 2US
 
 JIT
 AndAndOrOr test
 ListTest2.clcl test
 PointerTest3.clcl test
 
+
+ls | l ga otiru

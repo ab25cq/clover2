@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.4
+
+    インタプリタでls | lなどとするとインタプリタ自体が落ちるバグを修正。
+
 clover2 (6.5.3-1) unstable; urgency=medium
 
 	* Appended EqualableList.toList, SortableList.toList,
