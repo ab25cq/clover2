@@ -1,4 +1,8 @@
 
+version 6.5.5
+
+    Fixed a bug with JIT
+
 version 6.5.4
 
     Fixed a bug in which the interpreter itself drops if ls | l, etc. in the interpreter.

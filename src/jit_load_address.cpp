@@ -390,7 +390,8 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
-            if_value_is_zero_ret_zero(result2, params, *function, current_block);
+            //if_value_is_zero_ret_zero(result2, params, *function, current_block);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
 
             dec_stack_ptr(llvm_stack_ptr, 2);
 
@@ -449,7 +450,8 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            //if_value_is_zero_ret_zero(result, params, *function, current_block);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
 
             LVALUE llvm_value = *value;
 
@@ -499,7 +501,8 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            if_value_is_zero_ret_zero(result, params, *function, current_block);
+            //if_value_is_zero_ret_zero(result, params, *function, current_block);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name);
 
             LVALUE llvm_value = *value;
 

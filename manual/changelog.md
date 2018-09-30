@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.5
+
+    JITのバグを修正。
+
 version 6.5.4
 
     インタプリタでls | lなどとするとインタプリタ自体が落ちるバグを修正。

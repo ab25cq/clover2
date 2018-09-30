@@ -1,4 +1,8 @@
 
+clover2 (6.5.5-1) unstable; urgency=medium
+
+    * Fixed a bug with JIT
+
 clover2 (6.5.4-1) unstable; urgency=medium
 
     * Fixed a bug in which the interpreter itself drops if ls | l, etc. in the interpreter.

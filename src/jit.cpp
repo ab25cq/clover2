@@ -871,7 +871,7 @@ call_show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                if_value_is_zero_ret_zero(result, params, function, &current_block);
+                finish_method_call(result, params, &current_block, function, &try_catch_label_name);
                 }
                 break;
 

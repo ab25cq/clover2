@@ -339,7 +339,7 @@ struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, i
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(5)");
-        result->result1 = value;
+        result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
     }
@@ -349,14 +349,14 @@ struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, i
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(39)");
-        result->result1 = value;
+        result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"field index is invalid(2)");
-        result->result1 = value;
+        result->result1.mLongValue = 0;
         result->result2 = FALSE;
         return result;
     }
@@ -392,7 +392,9 @@ struct sCLVALUEAndBoolResult* store_field_of_buffer(CLVALUE** stack_ptr, CLVALUE
 
     if(obj == 0) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(5)");
-        return FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
+        return result;
     }
 
     sCLObject* object_pointer = CLOBJECT(obj);
@@ -400,12 +402,16 @@ struct sCLVALUEAndBoolResult* store_field_of_buffer(CLVALUE** stack_ptr, CLVALUE
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(39)");
-        return FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
+        return result;
     }
 
     if(field_index < 0 || field_index >= klass->mNumFields) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"field index is invalid(2)");
-        return FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
+        return result;
     }
 
     CLObject object2 = object_pointer->mFields[field_index].mObjectValue;
@@ -416,7 +422,9 @@ struct sCLVALUEAndBoolResult* store_field_of_buffer(CLVALUE** stack_ptr, CLVALUE
 
     if(pointer < object_data2->mFields[0].mPointerValue || pointer >= object_data2->mFields[0].mPointerValue + object_data2->mFields[2].mULongValue) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Out of range on memory safe pointer(1)");
-        return FALSE;
+        result->result1.mLongValue = 0;
+        result->result2 = FALSE;
+        return result;
     }
 
     object_data2->mFields[3].mPointerValue = value.mPointerValue;
