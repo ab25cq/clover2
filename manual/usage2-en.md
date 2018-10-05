@@ -139,6 +139,8 @@ When you press the TAB key, you can supplement (supplement) input depending on t
 ```
 I think that it can be used conveniently because it can be used interactively and external commands can be easily executed.
 
+The option is iclover2 - s "string" initial input string, - p "numeric value" with cursor position, executes the command once with - c, then exits REPL.
+
 # Shell mode
 
 Although it is a later addition, it can also be described like a shell for convenience when running an interactive program.

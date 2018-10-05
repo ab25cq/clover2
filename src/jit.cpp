@@ -740,6 +740,75 @@ call_show_inst_in_jit(inst);
             case OP_STORE_VALUE_TO_GLOBAL: {
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
+                /// trunc ///
+                LVALUE llvm_value;
+                llvm_value = trunc_value(value, 64);
+
+                std::string global_stack_ptr_address_name("global_stack_ptr_address");
+                Value* global_stack_ptr_address_value = params[global_stack_ptr_address_name];
+
+                Value* loaded_global_stack_ptr_address_value = Builder.CreateAlignedLoad(global_stack_ptr_address_value, 8, "loaded_global_stack_ptr_address");
+
+                /// zero clear///
+                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+                Builder.CreateAlignedStore(zero, loaded_global_stack_ptr_address_value, 8);
+
+                /// store ///
+                Builder.CreateAlignedStore(llvm_value.value, loaded_global_stack_ptr_address_value, 8);
+
+                /// inc pointer ///
+                Value* lvalue = loaded_global_stack_ptr_address_value;
+                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
+                Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value");
+
+                Builder.CreateStore(inc_ptr_value, global_stack_ptr_address_value);
+
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_POP_VALUE_FROM_GLOBAL: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                /// load from global stack ptr ///
+                std::string global_stack_ptr_address_name("global_stack_ptr_address");
+                Value* global_stack_ptr_address_value = params[global_stack_ptr_address_name];
+
+                Value* loaded_global_stack_ptr_address_value = Builder.CreateAlignedLoad(global_stack_ptr_address_value, 8, "loaded_global_stack_ptr_address");
+
+                int index = 1;
+
+                Value* lvalue = loaded_global_stack_ptr_address_value;
+                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, -index, true));
+                Value* dec_ptr_value = Builder.CreateGEP(lvalue, rvalue, "dec_ptr_value");
+
+                //Value* dec_ptr_value2 = Builder.CreateCast(Instruction::IntToPtr, dec_ptr_value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+
+    
+                LVALUE llvm_value;
+                llvm_value.value = Builder.CreateAlignedLoad(dec_ptr_value, 8, "value");
+                llvm_value.lvar_address_index = -1;
+                llvm_value.lvar_stored = FALSE;
+                llvm_value.kind = kLVKindInt64;
+                llvm_value.parent_var_num = 0;
+                llvm_value.parent_stack = NULL;
+                llvm_value.parent_llvm_stack = NULL;
+
+                trunc_variable(&llvm_value, size);
+
+                /// dec global stack ptr ///
+                Builder.CreateAlignedStore(dec_ptr_value, global_stack_ptr_address_value, 8);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
+                break;
+
+/*
+            case OP_STORE_VALUE_TO_GLOBAL: {
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
                 Function* fun = TheModule->getFunction("push_value_to_global_stack");
 
                 std::vector<Value*> params2;
@@ -788,6 +857,7 @@ call_show_inst_in_jit(inst);
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
                 }
                 break;
+*/
 
             case OP_STORE: {
                 int index = *(int*)pc;

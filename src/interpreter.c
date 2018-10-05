@@ -2454,11 +2454,38 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.5.5";
+char* gVersion = "6.5.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
 BOOL gCompilingCore = FALSE;
+
+static char gInitInputString[1024];
+static int gInitInputCursorPosition;
+static BOOL gOntTimeCommand;
+
+static void readline_insert_text(char* cmdline, int cursor_point)
+{
+    (void)rl_replace_line(cmdline, 0);
+    int n = cursor_point;
+
+    if(n < 0) { n += strlen(rl_line_buffer) + 1; }
+    if(n < 0) { n = 0; }
+    if(n > strlen(rl_line_buffer)) { n = strlen(rl_line_buffer); }
+    rl_point = n;
+}
+
+int readline_init_text()
+{
+    if(gInitInputString[0] != '\0' && gInitInputCursorPosition != -1) {
+        readline_insert_text(gInitInputString, gInitInputCursorPosition);
+    }
+    else if(gInitInputString[0] != '\0') {
+        readline_insert_text(gInitInputString, -1);
+    }
+
+    return 0;
+}
 
 int main(int argc, char** argv)
 {
@@ -2466,12 +2493,27 @@ int main(int argc, char** argv)
 
     xstrncpy(gScriptDirPath, "", PATH_MAX);
 
+    gInitInputString[0] = '\0';
+    gInitInputCursorPosition = -1;
+    gOntTimeCommand = FALSE;;
+
     int i;
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
         {
             printf("clover2 version %s\n", gVersion);
             exit(0);
+        }
+        else if(strcmp(argv[i], "-s") == 0 && i + 1 < argc) {
+            xstrncpy(gInitInputString, argv[i+1], 1024);
+            i++;
+        }
+        else if(strcmp(argv[i], "-p") == 0 && i + 1 <argc) {
+            gInitInputCursorPosition = atoi(argv[i+1]);
+            i++;
+        }
+        else if(strcmp(argv[i], "-c") == 0) {
+            gOntTimeCommand = TRUE;
         }
     }
 
@@ -2517,7 +2559,48 @@ int main(int argc, char** argv)
     while(1) {
         compiler_init(FALSE);
 
-        char* line = readline("> ");
+        rl_startup_hook = readline_init_text;
+
+        char prompt[1024];
+
+        prompt[0] = '\0';
+
+        char* user_name = getenv("USER");
+
+        if(user_name) {
+            xstrncat(prompt, user_name, 1024);
+        }
+
+        char host_name[128];
+        if(gethostname(host_name, 128) == 0) {
+            xstrncat(prompt, "@", 1024);
+            xstrncat(prompt, host_name, 1024);
+        }
+
+        char* pwd = getenv("PWD");
+
+        if(pwd) {
+            xstrncat(prompt, ":", 1024);
+
+            char* home = getenv("HOME");
+
+            if(home) {
+                if(strstr(pwd, home) == pwd) {
+                    xstrncat(prompt, "~", 1024);
+                    xstrncpy(prompt + strlen(prompt), pwd + strlen(home), 1024-strlen(prompt));
+                }
+                else {
+                    xstrncat(prompt, pwd, 1024);
+                }
+            }
+            else {
+                xstrncat(prompt, pwd, 1024);
+            }
+        }
+
+        xstrncat(prompt, "> ", 1024);
+
+        char* line = readline(prompt);
 
         if(line == NULL) {
             compiler_final();
@@ -2549,6 +2632,10 @@ int main(int argc, char** argv)
         add_history(line);
 
         free(line);
+
+        if(gOntTimeCommand) {
+            break;
+        }
     }
 
     parser_final();

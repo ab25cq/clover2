@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.6
+
+    JITのバグを修正。
+
+    iclover2のプロンプトの修正。iclover2の初期の文字列とカーソル位置を-s, -pオプションで指定できるようになりました。-cで一度コマンドを実行したら、プログラムを終了します。
+
 version 6.5.5
 
     JITのバグを修正。

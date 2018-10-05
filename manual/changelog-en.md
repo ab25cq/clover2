@@ -1,4 +1,10 @@
 
+version 6.5.6
+
+    Fixed a bug with JIT
+
+    Fixed iclover 2 prompt. The initial character string and cursor position of iclover 2 can now be specified with the -s and -p options. Once the command is executed with -c, the program is terminated.
+
 version 6.5.5
 
     Fixed a bug with JIT
