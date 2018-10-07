@@ -578,10 +578,9 @@ test:
 	PWD=`pwd` ./clover2 code/reflection.cl
 	PWD=`pwd` ./clover2 code/MultiLineString.cl
 	PWD=`pwd` ./clover2 code/try.cl
-	PWD=`pwd` ./clover2 code/main.cl
-#	PWD=`pwd` bash -c "time ./clover2 code/main.cl"
+	PWD=`pwd` time ./clover2 code/main.cl
 
-	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./clover2 code/thread.cl; fi
+#	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./clover2 code/thread.cl; fi
 #	PWD=`pwd` ./clover2 code/SocketTestServer.cl &
 #	sleep 2
 #	PWD=`pwd` ./clover2 code/SocketTest.cl

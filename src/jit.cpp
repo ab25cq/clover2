@@ -52,11 +52,11 @@ void jit_final()
 //////////////////////////////////////////////////////////////
 #define MACHINE_STACK_MAX 128
 
-BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)
+BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block)
 {
     char* try_catch_label_name = NULL;
 
-    std::string func_name(method_path2);
+    std::string func_name(func_path);
     Function* function = create_llvm_function(func_name);
 
     // Create a new basic block to start insertion into.
@@ -79,8 +79,6 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     BasicBlock* entry_condnotends[MAX_COND_JUMP];
 
     /// Stack to LLVM ///
-    int var_num = method->mVarNum;
-
     LVALUE llvm_stack[CLOVER_STACK_SIZE];
     memset(llvm_stack, 0, sizeof(LVALUE)*CLOVER_STACK_SIZE);
 
@@ -103,7 +101,6 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
     }
 
     /// parametor from VM stack ptr ///
-    int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
     for(i=0; i<real_param_num; i++) {
         LVALUE llvm_value = get_stack_value_from_index_with_aligned(params, current_block, i, 8);
 
@@ -123,17 +120,6 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value, FALSE);
     }
-
-/*
-    Function* reset_andand_oror_fun = TheModule->getFunction("reset_andand_oror");
-    std::vector<Value*> params2;
-
-    std::string info_value_name("info");
-    Value* vminfo_value = params[info_value_name];
-    params2.push_back(vminfo_value);
-
-    Builder.CreateCall(reset_andand_oror_fun, params2);
-*/
 
     call_vm_mutex_off(params);
 
@@ -173,9 +159,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
 /*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
-    if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0) {
 call_show_inst_in_jit(inst);
-    }
 }
 */
 
@@ -329,6 +313,10 @@ call_show_inst_in_jit(inst);
 
                 Builder.CreateAlignedStore(llvm_value2.value, store_address_value, 8);
 
+                if(closure) {
+                    llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+                }
+
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));
                 Builder.CreateRet(ret_value);
 
@@ -364,6 +352,10 @@ call_show_inst_in_jit(inst);
                 params2.push_back(vminfo_value);
 
                 (void)Builder.CreateCall(entry_exception_object_fun, params2);
+
+                if(closure) {
+                    llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+                }
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);
@@ -476,6 +468,9 @@ call_show_inst_in_jit(inst);
                 Builder.CreateStore(llvm_value1, gSigIntValue);
 
                 call_entry_exception_object_with_class_name2(params, (char*)"Exception", (char*)"Signal Interrupt");
+                if(closure) {
+                    llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+                }
 
                 Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
                 Builder.CreateRet(ret_value);
@@ -941,7 +936,7 @@ call_show_inst_in_jit(inst);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
-                finish_method_call(result, params, &current_block, function, &try_catch_label_name);
+                finish_method_call(result, params, &current_block, function, &try_catch_label_name, closure, llvm_stack, var_num);
                 }
                 break;
 
@@ -1292,23 +1287,23 @@ call_show_inst_in_jit(inst);
                 break;
 
             default:
-                if(!compile_to_native_code2(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code2(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name, closure))
                 {
                     return FALSE;
                 }
-                if(!compile_to_native_code3(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code3(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name, closure))
                 {
                     return FALSE;
                 }
-                if(!compile_to_native_code4(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code4(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name, closure))
                 {
                     return FALSE;
                 }
-                if(!compile_to_native_code5(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code5(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name, closure))
                 {
                     return FALSE;
                 }
-                if(!compile_to_native_code6(code, constant, klass, method, method_path2, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code6(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name, closure))
                 {
                     return FALSE;
                 }
@@ -1335,6 +1330,29 @@ if(inst != OP_HEAD_OF_EXPRESSION
     }
 
     call_vm_mutex_on(params);
+
+    if(block) {
+        LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+        LVALUE llvm_value2;
+        llvm_value2 = trunc_value(llvm_value, 64);
+
+        std::string stack_param_name("stack");
+        Value* stack_value = params[stack_param_name];
+
+        std::string var_num_param_name("var_num");
+        Value* var_num_value = params[var_num_param_name];
+
+        Value* lvalue = stack_value;
+        Value* rvalue = var_num_value;
+        Value* store_address_value = Builder.CreateGEP(lvalue, rvalue, "store_address_value");
+
+        Builder.CreateAlignedStore(llvm_value2.value, store_address_value, 8);
+    }
+
+    if(closure) {
+        llvm_lvar_to_vm_lvar(llvm_stack, params, current_block, var_num);
+    }
 
     // Finish off the function.
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 1, true));

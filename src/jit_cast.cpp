@@ -2,7 +2,7 @@
 
 extern "C"
 {
-BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
+BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)
 {
     switch(inst)
     {
@@ -5599,7 +5599,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6284,7 +6284,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6363,7 +6363,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6439,7 +6439,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6515,7 +6515,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6592,7 +6592,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6668,7 +6668,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
-            if_value_is_zero_ret_zero(result2, params, *function, current_block);
+            if_value_is_zero_ret_zero(result2, params, *function, current_block, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6744,7 +6744,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6808,7 +6808,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6890,7 +6890,7 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -6931,6 +6931,12 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             int lambda = *(int*)(*pc);
             (*pc) += sizeof(int);
 
+            int block_id = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
+            int class_name_offset = *(int*)(*pc);
+            (*pc) += sizeof(int);
+
             Function* fun = TheModule->getFunction("run_create_block_object");
 
             std::vector<Value*> params2;
@@ -6968,18 +6974,38 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)lambda);
             params2.push_back(param10);
 
-            std::string info_value_name("info");
-            Value* param11 = params[info_value_name];
+            Value* param11 = ConstantInt::get(Type::getInt32Ty(TheContext), (int32_t)block_id);
             params2.push_back(param11);
 
+            Value* param12 = ConstantInt::get(Type::getInt32Ty(TheContext), (int32_t)class_name_offset);
+            params2.push_back(param12);
+
+            std::string info_value_name("info");
+            Value* param13 = params[info_value_name];
+            params2.push_back(param13);
+
+            std::string var_num_value_name("var_num");
+            Value* param14 = params[var_num_value_name];
+            params2.push_back(param14);
+
+            Value* result = Builder.CreateCall(fun, params2);
+
+            Value* result1 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 0);
+            result1  = Builder.CreateAlignedLoad(result1,  4);
+            Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
+            result2  = Builder.CreateAlignedLoad(result2,  4);
+
+            //if_value_is_zero_ret_zero(result2, params, *function, current_block);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
+
             LVALUE llvm_value;
-            llvm_value.value = Builder.CreateCall(fun, params2);
+            llvm_value.value = result1;
             llvm_value.lvar_address_index = -1;
             llvm_value.lvar_stored = FALSE;
-            llvm_value.kind = kLVKindObject;
-            llvm_value.parent_var_num = parent_var_num;
-            llvm_value.parent_stack = params[stack_value_name];
-            llvm_value.parent_llvm_stack = llvm_stack;
+            llvm_value.kind = kLVKindInt64;
+            llvm_value.parent_var_num = 0;
+            llvm_value.parent_stack = NULL;
+            llvm_value.parent_llvm_stack = NULL;
 
             /// vm stack_ptr to llvm stack ///
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);

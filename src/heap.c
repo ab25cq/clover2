@@ -290,7 +290,7 @@ static void free_handle(unsigned int handle_num)
 
 void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 {
-    if(obj != prev_obj) {
+    //if(obj != prev_obj) {
         if(is_valid_object(obj) && gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount == 0) {
             gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
 
@@ -326,7 +326,7 @@ void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
             }
         }
 */
-    }
+    //}
 }
 
 void dec_refference_count(CLObject obj, BOOL value_is_object)

@@ -5,3 +5,4 @@ do
         ./bclover2 $i
     fi
 done
+

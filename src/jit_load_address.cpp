@@ -2,7 +2,7 @@
 
 extern "C"
 {
-BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
+BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)
 {
     switch(inst)
     {
@@ -391,7 +391,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             dec_stack_ptr(llvm_stack_ptr, 2);
 
@@ -451,7 +451,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             //if_value_is_zero_ret_zero(result, params, *function, current_block);
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value = *value;
 
@@ -502,7 +502,7 @@ BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             //if_value_is_zero_ret_zero(result, params, *function, current_block);
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value = *value;
 

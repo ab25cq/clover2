@@ -938,7 +938,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         memset(lvar + real_param_num, 0, sizeof(CLVALUE)* (new_var_num - real_param_num));
 
 #ifdef ENABLE_JIT
-        if(!jit(&code, &constant, new_stack, new_var_num, klass, method, info, stack_ptr))
+        if(!jit(&code, &constant, new_stack, new_var_num, klass, method, 0, info, stack_ptr))
         {
             *stack_ptr = lvar;
             **stack_ptr = *(new_stack + new_var_num);
@@ -1046,6 +1046,33 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
         memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
+#ifdef ENABLE_JIT
+        klass = object_data->mClass2;
+
+        if(object_data->mBlockID == -1 || klass == NULL) {
+            if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
+                /// copy back variables to parent ///
+                object_data = CLBLOCK(block_object);
+                memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+
+                **stack_ptr = *(new_stack + new_var_num);
+                (*stack_ptr)++;
+                return FALSE;
+            }
+        }
+        else {
+            if(!jit(&code, &constant, new_stack, new_var_num, klass, NULL, block_object, info, stack_ptr))
+            {
+                /// copy back variables to parent ///
+                object_data = CLBLOCK(block_object);
+                memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+
+                **stack_ptr = *(new_stack + new_var_num);
+                (*stack_ptr)++;
+                return FALSE;
+            }
+        }
+#else
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             /// copy back variables to parent ///
             object_data = CLBLOCK(block_object);
@@ -1055,6 +1082,7 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
             (*stack_ptr)++;
             return FALSE;
         }
+#endif
 
         /// copy back variables to parent ///
         object_data = CLBLOCK(block_object);
@@ -16638,9 +16666,39 @@ show_inst(inst);
                     int lambda = *(int*)pc;
                     pc += sizeof(int);
 
+                    int block_id = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int class_name_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sCLClass* klass = NULL;
+                    if(class_name_offset == -1) {
+                        klass = NULL;
+                    }
+                    else {
+                        char* class_name = CONS_str(constant, class_name_offset);
+
+                        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+                        if(klass == NULL) {
+                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(99) %s", class_name);
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
+                        }
+                    }
+
                     CLVALUE* parent_stack = stack;
 
-                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, lambda, info);
+                    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, lambda, block_id, klass, info);
 
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = block_object;

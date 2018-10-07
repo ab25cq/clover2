@@ -2,7 +2,7 @@
 
 extern "C"
 {
-BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
+BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)
 {
     switch(inst)
     {
@@ -45,7 +45,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block);
+            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block, closure, llvm_stack, var_num);
 
             /// llvm stack to VM stack ///
             llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
@@ -82,7 +82,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
             
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -114,7 +114,6 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             /// llvm stack to VM stack ///
             llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
-
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_real_params);
 
             /// get object value from llvm stack ///
@@ -159,7 +158,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
             
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -257,7 +256,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             /// VM stack to llvm stack ///
             vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
@@ -292,6 +291,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             /// llvm stack to VM stack ///
             parent_llvm_stack_to_parent_vm_stack(parent_stack, parent_llvm_stack, *current_block, parent_var_num);
+            llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
             llvm_stack_to_vm_stack(*llvm_stack_ptr, params, *current_block, num_params + 1);
 
             /// go ///
@@ -320,10 +320,13 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* result = Builder.CreateCall(fun, params2);
 
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             /// parent vm stack for parent llvm stack ///
             parent_vm_stack_to_parent_llvm_stack(parent_stack, parent_llvm_stack, *current_block, parent_var_num);
+            
+            /// VM stack to llvm stack ///
+            vm_lvar_to_llvm_lvar(llvm_stack, params, *current_block, var_num);
 
             /// dec llvm stack pointer ///
             dec_stack_ptr(llvm_stack_ptr, num_params+1);
@@ -364,7 +367,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block);
+            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block, closure, llvm_stack, var_num);
 
             char* type_name = CONS_str(constant, offset2);
 
@@ -473,7 +476,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -535,7 +538,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             result2  = Builder.CreateAlignedLoad(result2, 4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -613,7 +616,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -683,7 +686,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result2 = Builder.CreateStructGEP(gCLValueAndBoolStruct, result, 1);
             result2  = Builder.CreateAlignedLoad(result2,  4);
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -750,7 +753,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             result2  = Builder.CreateAlignedLoad(result2,  4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -812,7 +815,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             result2  = Builder.CreateAlignedLoad(result2, 4);
 
             //if_value_is_zero_ret_zero(result2, params, *function, current_block);
-            finish_method_call(result2, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result2, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = result1;
@@ -875,7 +878,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             //if_value_is_zero_ret_zero(result, params, *function, current_block);
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
             }
             break;
 
@@ -927,7 +930,7 @@ BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass,
             Value* result = Builder.CreateCall(fun, params2);
 
             //if_value_is_zero_ret_zero(result, params, *function, current_block);
-            finish_method_call(result, params, current_block, *function, try_catch_label_name);
+            finish_method_call(result, params, current_block, *function, try_catch_label_name, closure, llvm_stack, var_num);
             }
             break;
     }

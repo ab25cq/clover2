@@ -335,6 +335,16 @@ struct sCLFieldStruct {
     int mNumGetterMethodIndex; 
 };
 
+struct sCLBlockObjectStruct {
+    sByteCode mByteCodes;
+    sConst mConst;
+    int mVarNum;
+    int mNumParams;
+    BOOL mLambda;
+};
+
+typedef struct sCLBlockObjectStruct sCLBlockObject;
+
 typedef struct sCLFieldStruct sCLField;
 typedef void (*fFreeFun)(CLObject self);
 
@@ -363,6 +373,10 @@ struct sCLClassStruct {
     sCLField* mClassFields;
     int mNumClassFields;
     int mSizeClassFields;
+
+    sCLBlockObject* mBlockObjects;
+    int mNumBlockObjects;
+    int mSizeBlockObjects;
 
     int mClassInitializeMethodIndex;
     int mClassFinalizeMethodIndex;
@@ -756,6 +770,7 @@ struct sNodeTreeStruct
             sVarTable* mOldTable;
 
             BOOL mQuestionOperator;
+            sCLClass* mClass;
         } sBlockObject;
 
         struct {
@@ -765,6 +780,7 @@ struct sNodeTreeStruct
             sNodeType* mResultType;
             sNodeBlock* mBlockObjectCode;
             BOOL mLambda;
+            sCLClass* mClass;
         } sFunction;
 
         struct {
@@ -846,6 +862,8 @@ struct sCompileInfoStruct
     BOOL no_pop_next;
 
     sNodeType* question_operator_result_type;
+
+    int mNumBlockObject;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -1867,6 +1885,7 @@ void dependency_final();
 
 /// klass_compile_time.c ///
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
+int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
@@ -2016,13 +2035,16 @@ struct sBlockObjectStruct
     int mParentVarNum;
     int mBlockVarNum;
     BOOL mLambda;
+    void* mJITDynamicSym;       // this requires runtime
+    int mBlockID;
+    sCLClass* mClass2;
 };
 
 typedef struct sBlockObjectStruct sBlockObject;
 
 #define CLBLOCK(obj) (sBlockObject*)(get_object_pointer((obj)))
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, sVMInfo* info);
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, int block_id, sCLClass* klass, sVMInfo* info);
 void block_mark_fun(CLObject self, unsigned char* mark_flg);
 
 /// regex.c ///
@@ -2419,7 +2441,7 @@ BOOL Clover_gc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_compaction(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr);
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr);
 void jit_init();
 void jit_final();
 BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);

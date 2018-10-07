@@ -248,9 +248,15 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             if(boxing_posibility(result_type, *block_last_type)) {
                 boxing_to_lapper_class(block_last_type, info);
             }
-        }
 
-        arrange_stack(info);
+            if(info->stack_num > 1) {
+                append_opecode_to_code(info->code, OP_POP_N, info->no_output);
+                append_int_value_to_code(info->code, info->stack_num-1, info->no_output);
+            }
+        }
+        else {
+            arrange_stack(info);
+        }
 
 #ifdef ENABLE_INTERPRETER
         append_opecode_to_code(info->code, OP_SIGINT, info->no_output);

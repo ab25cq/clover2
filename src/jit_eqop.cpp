@@ -2,7 +2,7 @@
 
 extern "C"
 {
-BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
+BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)
 {
     switch(inst)
     {
@@ -1454,7 +1454,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE llvm_value2;
             llvm_value2 = trunc_value(value, 32);
 
-            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)", closure, llvm_stack, var_num);
 
             Function* fun = TheModule->getFunction("get_string_object_of_object_name");
 
@@ -1488,7 +1488,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE llvm_value2;
             llvm_value2 = trunc_value(value, 32);
 
-            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)", closure, llvm_stack, var_num);
 
             Function* fun = TheModule->getFunction("get_object_allocated_size");
 
@@ -1518,7 +1518,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE llvm_value2;
             llvm_value2 = trunc_value(value, 32);
 
-            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)", closure, llvm_stack, var_num);
 
             Function* fun = TheModule->getFunction("get_object_head_of_memory");
 
@@ -1555,8 +1555,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             LVALUE rvalue2;
             rvalue2 = trunc_value(rvalue, 32);
 
-            if_value_is_zero_entry_exception_object(lvalue2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)");
-            if_value_is_zero_entry_exception_object(rvalue2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)");
+            if_value_is_zero_entry_exception_object(lvalue2.value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(1)", closure, llvm_stack, var_num);
 
             Function* fun = TheModule->getFunction("op_is_fun");
 
@@ -1600,11 +1599,11 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
 
             Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block);
+            if_value_is_null_ret_zero(klass_value, 64, params, *function, current_block, closure, llvm_stack, var_num);
 
             /// go ///
             LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
-            if_value_is_zero_entry_exception_object(value->value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(2)");
+            if_value_is_zero_entry_exception_object(value->value, 32, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"Null pointer exception(2)", closure, llvm_stack, var_num);
 
             Function* fun = TheModule->getFunction("object_implements_interface");
 

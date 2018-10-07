@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.7
+
+    JITの改良。
+
 version 6.5.6
 
     JITのバグを修正。

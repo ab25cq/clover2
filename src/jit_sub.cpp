@@ -1437,7 +1437,7 @@ void llvm_give_type_to_params(LVALUE* llvm_stack_ptr, std::map<std::string, Valu
     }
 }
 
-void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
+void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
@@ -1450,6 +1450,10 @@ void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> para
 
     Builder.SetInsertPoint(then_block);
 
+    if(closure) {
+        llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+    }
+
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
     Builder.CreateRet(ret_value);
 
@@ -1457,7 +1461,7 @@ void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> para
     *current_block = entry_ifend;
 }
 
-void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)
+void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
@@ -1470,6 +1474,10 @@ void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string
     Builder.CreateCondBr(comp, then_block, entry_ifend);
 
     Builder.SetInsertPoint(then_block);
+
+    if(closure) {
+        llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+    }
 
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
     Builder.CreateRet(ret_value);
@@ -1576,7 +1584,7 @@ void call_entry_exception_object_with_class_name2(std::map<std::string, Value *>
     (void)Builder.CreateCall(entry_exception_object_fun, params2);
 }
 
-void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)
+void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message, BOOL closure, LVALUE* llvm_stack, int var_num)
 {
     BasicBlock* then_block = BasicBlock::Create(TheContext, "then_block", function);
     BasicBlock* entry_ifend = BasicBlock::Create(TheContext, "entry_ifend", function);
@@ -1609,6 +1617,10 @@ void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL 
 
     call_entry_exception_object_with_class_name2(params, class_name, message);
 
+    if(closure) {
+        llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+    }
+
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
     Builder.CreateRet(ret_value);
 
@@ -1625,7 +1637,7 @@ void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& para
     }
 }
 
-void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name)
+void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, BOOL closure, LVALUE* llvm_stack, int var_num)
 {
     // if result is FALSE ret 0
     Value* comp = Builder.CreateICmpNE(result, ConstantInt::get(TheContext, llvm::APInt(32, 1, true)), "ifcond");
@@ -1660,6 +1672,10 @@ void finish_method_call(Value* result, std::map<std::string, Value *> params, Ba
     Builder.SetInsertPoint(then_block2);
 
     if(*try_catch_label_name == nullptr) {
+        if(closure) {
+            llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+        }
+
         Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
         Builder.CreateRet(ret_value);
     }
@@ -1672,6 +1688,10 @@ void finish_method_call(Value* result, std::map<std::string, Value *> params, Ba
         }
 
         if(label == nullptr) {
+            if(closure) {
+                llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+            }
+
             Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
             Builder.CreateRet(ret_value);
         }
@@ -1705,6 +1725,10 @@ void finish_method_call(Value* result, std::map<std::string, Value *> params, Ba
     }
 
     Builder.SetInsertPoint(entry_ifend2);
+
+    if(closure) {
+        llvm_lvar_to_vm_lvar(llvm_stack, params, *current_block, var_num);
+    }
     
     Value* ret_value = ConstantInt::get(TheContext, llvm::APInt(32, 0, true));
     Builder.CreateRet(ret_value);

@@ -787,9 +787,64 @@ sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset
     return klass;
 }
 
-BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr)
 {
-    if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
+    /// block object ///
+    if(block_object != 0) {
+        if(klass->mDynamicLibrary == NULL) {
+            llvm_load_dynamic_library(klass);
+        }
+
+        sBlockObject* object_data = CLBLOCK(block_object);
+
+        if(klass->mDynamicLibrary && object_data->mJITDynamicSym == NULL) {
+            char block_path[METHOD_NAME_MAX + 128];
+
+            create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
+
+            object_data->mJITDynamicSym = dlsym(klass->mDynamicLibrary, block_path);
+
+            if(object_data->mJITDynamicSym == NULL) {
+                fprintf(stderr, "%s\n", dlerror());
+            }
+        }
+
+        if(object_data->mJITDynamicSym) 
+        {
+            CLVALUE* stack_ptr = stack + var_num;
+            CLVALUE* lvar = stack;
+
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+
+            info->current_stack = stack;        // for invoking_block in native method
+            info->current_var_num = var_num;
+            info->stack_id = stack_id;
+
+            CLVALUE** stack_ptr_address = &stack_ptr;
+            fJITMethodType fun2 = (fJITMethodType)object_data->mJITDynamicSym;
+
+            CLVALUE** global_stack_ptr_address = &info->mTmpGlobalStackPtr;
+
+            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
+
+            if(!result) {
+                remove_stack_to_stack_list(stack_id);
+                return FALSE;
+            }
+
+            remove_stack_to_stack_list(stack_id);
+        }
+        else {
+            char block_path[METHOD_NAME_MAX + 128];
+
+            create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
+
+            fprintf(stderr, "Not found Symbol(%s)\n", block_path);
+            exit(2);
+        }
+    }
+    /// none native code method ///
+    else if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
     {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
 
@@ -797,6 +852,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             return FALSE;
         }
     }
+    /// native code method ///
     else {
         if(klass->mDynamicLibrary == NULL) {
             llvm_load_dynamic_library(klass);
@@ -1261,8 +1317,10 @@ struct sCLVALUEAndBoolResult* run_create_hash(CLVALUE** stack_ptr, CLVALUE* stac
     return result;
 }
 
-CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)
+struct sCLVALUEAndBoolResult* run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, int block_id, int class_name_offset, sVMInfo* info, int var_num)
 {
+    struct sCLVALUEAndBoolResult* result = &gCLValueAndBoolStructMemory;
+
     sByteCode codes2;
     codes2.mCodes = CONS_str(constant, code_offset);
     codes2.mLen = code_len;
@@ -1271,11 +1329,31 @@ CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* co
     constant2.mConst = CONS_str(constant, constant_offset);
     constant2.mLen = constant_len;
 
+    sCLClass* klass = NULL;
+    if(class_name_offset == -1) {
+        klass = NULL;
+    }
+    else {
+        char* class_name = CONS_str(constant, class_name_offset);
+
+        klass = get_class_with_load_and_initialize(class_name);
+
+        if(klass == NULL) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(99) %s", class_name);
+            result->result1.mLongValue = 0;
+            result->result2 = FALSE;
+            return result;
+        }
+    }
+
     CLVALUE* parent_stack = stack;
 
-    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, lambda, info);
+    CLObject block_object = create_block_object(&codes2, &constant2, parent_stack, parent_var_num, block_var_num, lambda, block_id, klass, info);
 
-    return block_object;
+    result->result1.mObjectValue = block_object;
+    result->result2 = TRUE;
+
+    return result;
 }
 
 struct sPointerAndBoolResult* run_load_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, CLObject obj)

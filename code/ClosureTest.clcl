@@ -42,16 +42,23 @@ class ClosureTest {
 
         block_(1,2);
 
+a.println();
         Clover.test("Closure test4", a.equals("111"));
         
+a.println();
         Clover.test("Closure test5", ClosureTest.method1(lambda(it:int,it2:int):int { return it + it2 }) == 333);
         b := 245;
+a.println();
         Clover.test("Closure test6", ClosureTest.method1(closure(it:int, it2:int):int {
             a = "123";
+"a \{a}".println();
             b = 345;
 
             return it + it2;
         }) == 333);
+
+"a \{a}".println();
+b.toString().println();
 
         Clover.test("Closure test7", a.equals("123") && b == 345);
 
@@ -63,6 +70,9 @@ class ClosureTest {
         }
 
         Clover.test("Closure test8", ClosureTest.method1(c) == 333);
+
+"a \{a}".println();
+b.toString().println();
 
         Clover.test("Closure test9", a.equals("234") && b == 456);
 

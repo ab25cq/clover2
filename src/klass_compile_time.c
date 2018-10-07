@@ -338,6 +338,30 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     return TRUE;
 }
 
+int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda)
+{
+    if(klass->mNumBlockObjects == klass->mSizeBlockObjects) {
+        int new_size = klass->mSizeBlockObjects * 2;
+        klass->mBlockObjects = MREALLOC(klass->mBlockObjects, sizeof(sCLMethod)*new_size);
+        memset(klass->mBlockObjects + klass->mSizeBlockObjects, 0, sizeof(sCLMethod)*(new_size - klass->mSizeBlockObjects));
+        klass->mSizeBlockObjects = new_size;
+    }
+
+    int num_block_objects = klass->mNumBlockObjects;
+
+    sCLBlockObject* block_object = klass->mBlockObjects + num_block_objects;
+
+    block_object->mByteCodes = codes;
+    block_object->mConst = constant;
+    block_object->mVarNum = var_num;
+    block_object->mNumParams = num_params;
+    block_object->mLambda = lambda;
+
+    klass->mNumBlockObjects++;
+    
+    return num_block_objects;
+}
+
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
 {
     klass->mTypedefClassName1Offsets[klass->mNumTypedef] = append_str_to_constant_pool(&klass->mConst, class_name1, FALSE);

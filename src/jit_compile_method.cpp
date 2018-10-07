@@ -55,12 +55,35 @@ static BOOL compile_jit_methods(sCLClass* klass)
                 sByteCode* code = &method->mByteCodes;
                 sConst* constant = &klass->mConst;
 
-                if(!compile_to_native_code(code, constant, klass, method, method_path2)) {
+                int var_num = method->mVarNum;
+                int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
+
+                if(!compile_to_native_code(code, constant, klass, var_num, real_param_num, method_path2, FALSE, FALSE)) {
                     return FALSE;
                 }
 
                 num_compiled_method++;
             }
+        }
+
+        for(i=0; i<klass->mNumBlockObjects; i++) {
+            sCLBlockObject* block_object = klass->mBlockObjects + i;
+
+            char func_path[METHOD_NAME_MAX + 128];
+            create_block_path_for_jit(klass, i, func_path, METHOD_NAME_MAX + 128);
+
+            sByteCode* code = &block_object->mByteCodes;
+            sConst* constant = &block_object->mConst;
+
+            int var_num = block_object->mVarNum;
+            int real_param_num = block_object->mNumParams;
+
+            if(!compile_to_native_code(code, constant, klass, var_num, real_param_num, func_path, !block_object->mLambda, TRUE)) 
+            {
+                return FALSE;
+            }
+
+            num_compiled_method++;
         }
     }
 

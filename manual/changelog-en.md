@@ -1,4 +1,8 @@
 
+version 6.5.7
+
+    Improvement of JIT.
+
 version 6.5.6
 
     Fixed a bug with JIT

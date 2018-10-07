@@ -550,6 +550,10 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         return NULL;
     }
 
+    klass->mBlockObjects = MCALLOC(1, sizeof(sCLBlockObject)*4); // requiring compile time info
+    klass->mSizeBlockObjects = 4;
+    klass->mNumBlockObjects = 0;
+
     if(!read_int_from_file(fd, &n)) {
         MFREE(klass);
         return NULL;
@@ -816,6 +820,10 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mSizeFields = 4;
     klass->mNumFields = 0;
 
+    klass->mBlockObjects = MCALLOC(1, sizeof(sCLBlockObject)*4);
+    klass->mSizeBlockObjects = 4;
+    klass->mNumBlockObjects = 0;
+
     klass->mClassFields = MCALLOC(1, sizeof(sCLField)*4);
     klass->mSizeClassFields = 4;
     klass->mNumClassFields = 0;
@@ -876,6 +884,15 @@ static void free_class(sCLClass* klass)
         }
     }
     MFREE(klass->mMethods);
+
+    for(i=0; i<klass->mNumBlockObjects; i++) {
+        sCLBlockObject* block_object = klass->mBlockObjects + i;
+
+        sByteCode_free(&block_object->mByteCodes);
+        sConst_free(&block_object->mConst);
+    }
+    MFREE(klass->mBlockObjects);
+
     for(i=0; i<klass->mNumFields; i++) {
         sCLField* field = klass->mFields + i;
 

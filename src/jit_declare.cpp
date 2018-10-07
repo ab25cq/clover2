@@ -1499,6 +1499,9 @@ void create_internal_functions2()
     Type* param9_type;
     Type* param10_type;
     Type* param11_type;
+    Type* param12_type;
+    Type* param13_type;
+    Type* param14_type;
     FunctionType* function_type;
 
     /// get_regex_dotall ///
@@ -1863,7 +1866,7 @@ void create_internal_functions2()
     /// run_create_block_object ///
     type_params.clear();
     
-    result_type = IntegerType::get(TheContext, 32);
+    result_type = PointerType::get(gCLValueAndBoolStruct, 0);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -1895,8 +1898,17 @@ void create_internal_functions2()
     param10_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param10_type);
 
-    param11_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    param11_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param11_type);
+
+    param12_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param12_type);
+
+    param13_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param13_type);
+
+    param14_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param14_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_create_block_object", TheModule);

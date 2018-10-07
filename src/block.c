@@ -31,15 +31,15 @@ void free_block(CLObject self)
     sByteCode_free(&object_data->mCodes);
 }
 
-CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, sVMInfo* info)
+CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, int block_id, sCLClass* klass, sVMInfo* info)
 {
     unsigned int size = object_size();
 
-    sCLClass* klass = get_class("lambda");
+    sCLClass* lambda_klass = get_class("lambda");
 
-    MASSERT(klass != NULL);
+    MASSERT(lambda_klass != NULL);
 
-    CLObject obj = alloc_heap_mem(size, klass, -2, info);
+    CLObject obj = alloc_heap_mem(size, lambda_klass, -2, info);
 
     sBlockObject* object_data = CLBLOCK(obj);
 
@@ -50,6 +50,8 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mParentVarNum = parent_var_num;
     object_data->mBlockVarNum = block_var_num;
     object_data->mLambda = lambda;
+    object_data->mBlockID = block_id;
+    object_data->mClass2 = klass;
 
     push_object_to_global_stack(obj, info);
 
