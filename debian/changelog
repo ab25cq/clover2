@@ -1,4 +1,9 @@
 
+clover2 (6.5.8-1) unstable; urgency=medium
+
+    * Improved String.indexOf, String.rindexOf algorism. Fixed bug of shell
+	mode. Fixed bug of Command Class
+
 clover2 (6.5.7-1) unstable; urgency=medium
 
     * Improvement of JIT.

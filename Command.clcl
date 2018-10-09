@@ -551,7 +551,7 @@ dynamic_class Command
         }
     }
 
-    def expandArg(arg:String):static SortableList<String> {
+    def expandArg(arg:String, quoted_string:bool=false):static SortableList<String> {
         if(Directory.isGlobString(arg)) {
             dir := dirname(arg);
             if(dir.equals(".")) {
@@ -563,15 +563,31 @@ dynamic_class Command
                     pattern = arg;
                 }
 
-                return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
+                if(quoted_string) {
+                    return slist { pattern };
+                }
+                else {
+                    return Directory.glob(dir, pattern, 0).map { it.subString(2,-1); }.select { !it.equals(".") && !it.equals("..") };
+                }
             }
             elif(dir.equals("/")) {
                 pattern := arg.subString(1, -1);
-                return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
+
+                if(quoted_string) {
+                    return slist { pattern };
+                }
+                else {
+                    return Directory.glob(dir, pattern, 0).select { !it.equals("/.") && !it.equals("/.."); }
+                }
             }
             else {
                 pattern := arg.subString(dir.length()+1, -1);
-                return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
+                if(quoted_string) {
+                    return slist { pattern };
+                }
+                else {
+                    return Directory.glob(dir, pattern, 0).select { !it.equals(dir.add("/.")) && !it.equals(dir.add("/..")) };
+                }
             }
         }
         else {
@@ -789,11 +805,13 @@ dynamic_class Command
 
             Clover.jobs.add(job);
 
+            setpgid(getpid(), getpid());
             tcsetpgrp(0, getpid());
 
             return Command("", rcode);
         }
         else {
+            setpgid(getpid(), getpid());
             tcsetpgrp(0, getpid());
 
             return Command("", WEXITSTATUS(status));
@@ -867,11 +885,13 @@ dynamic_class Command
 
             Clover.jobs.add(job);
 
+            setpgid(getpid(), getpid());
             tcsetpgrp(0, getpid());
 
             return Command("", rcode);
         }
         else {
+            setpgid(getpid(), getpid());
             tcsetpgrp(0, getpid());
 
             return Command("", WEXITSTATUS(status));

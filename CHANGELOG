@@ -1,4 +1,12 @@
 
+version 6.5.8
+
+    Improved String.indexOf, String.rindexOf algorism
+
+    Fixed bug of shell mode
+
+    Fixed bug of Command Class
+
 version 6.5.7
 
     JITの改良。

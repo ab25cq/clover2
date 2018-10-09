@@ -475,6 +475,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
 
             BOOL squort = FALSE;
             BOOL dquort = FALSE;
+            BOOL quoted_string = FALSE;
 
             while(1) {
                 if(!squort && *info->p == '$') {
@@ -525,10 +526,16 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 else if(!squort && *info->p == '"') {
                     info->p++;
                     dquort = !dquort;
+                    if(dquort) {
+                        quoted_string = TRUE;
+                    }
                 }
                 else if(!dquort && *info->p == '\'') {
                     info->p++;
                     squort = !squort;
+                    if(squort) {
+                        quoted_string = TRUE;
+                    }
                 }
                 else if(squort || dquort) {
                     sBuf_append_char(&param, *info->p);
@@ -549,14 +556,24 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 unsigned int node = 0;
                 node = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
 
+                unsigned int node2 = 0;
+                node2 = sNodeTree_create_int_value(quoted_string, 0, 0, 0, info);
+                if(quoted_string) {
+                    node2 = sNodeTree_true_expression(info);
+                }
+                else {
+                    node2 = sNodeTree_false_expression(info);
+                }
+
                 sNodeType* command_class = create_node_type_with_class_name("Command");
 
                 MASSERT(command_class != NULL);
 
                 unsigned int params2[PARAMS_MAX];
-                int num_params2 = 1;
+                int num_params2 = 2;
 
                 params2[0] = node;
+                params2[1] = node2;
 
                 node = sNodeTree_create_class_method_call(command_class, "expandArg", params2, num_params2, info);
 

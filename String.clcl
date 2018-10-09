@@ -882,16 +882,22 @@ class String
         return result;
     }
 
-    def rindexOf(str:String, count:int=1):int {
-        result := -1;
-        count2 := 0;
-        len := str.length();
+    def indexOf(str:String, count:int): int throws Exception {
+        result:int = -1;
+        count2:int = 0;
+        len:int = str.length();
 
-        for(i:=self.len; i>=len; i--) {
-            if(self.subString(i-len, i).equals(str)) {
+        for(i:=0; i<self.len; i++) {
+            for(j:=0; j<str.len; j++) {
+                if(self.buffer[i+j] != str.buffer[j]) 
+                {
+                    break;
+                }
+            }
+            if(j == str.len) {
                 count2++;
                 if(count2 == count) {
-                    result = i-1;
+                    result = i;
                     break;
                 }
             }
@@ -900,13 +906,20 @@ class String
         return result;
     }
 
-    def indexOf(str:String, count:int): int throws Exception {
-        result:int = -1;
-        count2:int = 0;
-        len:int = str.length();
 
-        for(i:=0; i<self.len; i++) {
-            if(self.subString(i, i+len).equals(str)) {
+    def rindexOf(str:String, count:int=1):int {
+        result := -1;
+        count2 := 0;
+        len := str.length();
+
+        for(i:=self.len-len; i>=0; i--) {
+            for(j:=0; j<len; j++) {
+                if(self.buffer[i+j] != str.buffer[j]) 
+                {
+                    break;
+                }
+            }
+            if(j == len) {
                 count2++;
                 if(count2 == count) {
                     result = i;
