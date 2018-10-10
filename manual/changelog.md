@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.1
+
+    Fixed bug of shell mode
+
 version 6.6.0
 
     GCのバグを修正。

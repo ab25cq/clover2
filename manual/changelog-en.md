@@ -1,4 +1,8 @@
 
+version 6.6.1
+
+    Fixed bug of shell mode
+
 version 6.6.0
 
     Fixed bug with GC.

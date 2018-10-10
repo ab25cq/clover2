@@ -1,4 +1,8 @@
 
+clover2 (6.6.1-1) unstable; urgency=medium
+
+    * Fixed bug of shell mode
+
 clover2 (6.6.0-1) unstable; urgency=medium
 
     * Fixed bug with GC. Append Command.selector method.

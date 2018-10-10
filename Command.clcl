@@ -552,7 +552,7 @@ dynamic_class Command
     }
 
     def expandArg(arg:String, quoted_string:bool=false):static SortableList<String> {
-        if(Directory.isGlobString(arg)) {
+        if(Directory.isGlobString(arg) && !quoted_string) {
             dir := dirname(arg);
             if(dir.equals(".")) {
                 pattern := "";
