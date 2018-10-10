@@ -6278,6 +6278,49 @@ BOOL System_bind(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_bind2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    if(addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_in addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    addr_value.sin_family = object_data->mFields[0].mIntValue;
+
+    CLObject sin_addr = object_data->mFields[1].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(sin_addr);
+
+    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
+
+    addr_value.sin_port = object_data->mFields[2].mIntValue;
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// go ///
+    int result = bind(sockfd_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bind(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL System_listen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* sockfd = lvar;
@@ -6327,6 +6370,48 @@ BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     inc_refference_count(path_object, 0, FALSE);
     object_data = CLOBJECT(addr_object);
     object_data->mFields[1].mObjectValue = path_object;
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_accept2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* addr = lvar+1;
+
+    /// Clover to c value ///
+    int sockfd_value = sockfd->mIntValue;
+    CLObject addr_object = addr->mObjectValue;
+
+    struct sockaddr_in addr_value;
+    socklen_t len_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    /// go ///
+    int result = accept(sockfd_value, (struct sockaddr*)&addr_value, &len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "accept(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    sCLObject* object_data = CLOBJECT(addr_object);
+    object_data->mFields[0].mIntValue = addr_value.sin_family;
+
+    sCLClass* klass = get_class_with_load_and_initialize("in_addr");
+
+    MASSERT(klass != NULL);
+
+    CLObject sin_addr_object = create_object(klass, "in_addr", info);
+    sCLObject* object_data2 = CLOBJECT(sin_addr_object);
+    object_data2->mFields[0].mUIntValue = addr_value.sin_addr.s_addr;
+
+    object_data->mFields[1].mObjectValue = sin_addr_object;
+    object_data->mFields[2].mIntValue = addr_value.sin_port;
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
@@ -6401,48 +6486,6 @@ BOOL System_connect2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-BOOL System_bind2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    CLVALUE* sockfd = lvar;
-    CLVALUE* addr = lvar+1;
-
-    /// Clover to c value ///
-    if(addr->mObjectValue == 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
-        return FALSE;
-
-    }
-
-    int sockfd_value = sockfd->mIntValue;
-    CLObject addr_object = addr->mObjectValue;
-    sCLObject* object_data = CLOBJECT(addr_object);
-
-    struct sockaddr_in addr_value;
-
-    memset(&addr_value, 0, sizeof(struct sockaddr_in));
-
-    addr_value.sin_family = object_data->mFields[0].mIntValue;
-
-    CLObject sin_addr = object_data->mFields[1].mObjectValue;
-
-    sCLObject* object_data2 = CLOBJECT(sin_addr);
-
-    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
-
-    addr_value.sin_port = object_data->mFields[2].mIntValue;
-
-    socklen_t len_value = sizeof(addr_value);
-
-    /// go ///
-    int result = bind(sockfd_value, (struct sockaddr*)&addr_value, len_value);
-
-    if(result < 0) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bind(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
-        return FALSE;
-    }
-
-    return TRUE;
-}
 
 static CLObject create_string_array_from_ppchar_nullterminated(char** array, sVMInfo* info) 
 {
@@ -7012,15 +7055,22 @@ BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         errorfds_value = (fd_set*)&CLOBJECT(errorfds->mObjectValue)->mHeadOfMemory;
     }
 
-    struct timeval timeout_value;
+    struct timeval* timeout_value;
+    struct timeval timeout_value2;
+    if(timeout->mObjectValue == 0) {
+        timeout_value = NULL;
+    }
+    else {
+        sCLObject* object_data = CLOBJECT(timeout->mObjectValue);
 
-    sCLObject* object_data = CLOBJECT(timeout->mObjectValue);
+        timeout_value2.tv_sec = object_data->mFields[0].mULongValue;
+        timeout_value2.tv_usec = object_data->mFields[1].mLongValue;
 
-    timeout_value.tv_sec = object_data->mFields[0].mULongValue;
-    timeout_value.tv_usec = object_data->mFields[1].mLongValue;
+        timeout_value = &timeout_value2;
+    }
 
     /// go ///
-    int result = select(nfds_value, readfds_value, writefds_value, errorfds_value, &timeout_value);
+    int result = select(nfds_value, readfds_value, writefds_value, errorfds_value, timeout_value);
 
     if(result < 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "select(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
@@ -7933,6 +7983,330 @@ BOOL System_isblank(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     (*stack_ptr)->mBoolValue = result != 0;
     (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_send(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* buf = lvar+1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    int flags_value = flags->mIntValue;
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    ssize_t result = send(fd_value, buf_value, size_value, flags_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "send(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_sendto(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* buf = lvar + 1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+    CLVALUE* addr = lvar + 4;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0 || addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    /// Clover Value to C Value ///
+    int sockfd_value = sockfd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    int flags_value = flags->mIntValue;
+
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_un addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_un));
+
+    addr_value.sun_family = object_data->mFields[0].mIntValue;
+
+    CLObject path_object = object_data->mFields[1].mObjectValue;
+
+    char* path_value = ALLOC string_object_to_char_array(path_object);
+
+    xstrncpy(addr_value.sun_path, path_value, sizeof(addr_value.sun_path));
+
+    MFREE(path_value);
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = sendto(sockfd_value, buf_value, size_value, flags_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "sendto(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_sendto2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* buf = lvar + 1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+    CLVALUE* addr = lvar + 4;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0 || addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    /// Clover Value to C Value ///
+    int sockfd_value = sockfd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    int flags_value = flags->mIntValue;
+
+    struct sockaddr_in addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    sCLObject* object_data = CLOBJECT(addr->mObjectValue);
+    addr_value.sin_family = object_data->mFields[0].mIntValue;
+
+    CLObject sin_addr = object_data->mFields[1].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(sin_addr);
+
+    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
+
+    addr_value.sin_port = object_data->mFields[2].mIntValue;
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = sendto(sockfd_value, buf_value, size_value, flags_value, (struct sockaddr*)&addr_value, len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "sendto(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_recv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* buf = lvar+1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+
+    if(buf->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+    }
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    int flags_value = flags->mIntValue;
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    ssize_t result = recv(fd_value, buf_value, size_value, flags_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "recv(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_recvfrom(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* buf = lvar + 1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+    CLVALUE* addr = lvar + 4;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0 || addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    /// Clover Value to C Value ///
+    int sockfd_value = sockfd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t size_value = (size_t)size->mULongValue;
+
+    int flags_value = flags->mIntValue;
+
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    CLObject addr_object = addr->mObjectValue;
+    sCLObject* object_data = CLOBJECT(addr_object);
+
+    struct sockaddr_un addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_un));
+
+    addr_value.sun_family = object_data->mFields[0].mIntValue;
+
+    CLObject path_object = object_data->mFields[1].mObjectValue;
+
+    char* path_value = ALLOC string_object_to_char_array(path_object);
+
+    xstrncpy(addr_value.sun_path, path_value, sizeof(addr_value.sun_path));
+
+    MFREE(path_value);
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = recvfrom(sockfd_value, buf_value, size_value, flags_value, (struct sockaddr*)&addr_value, &len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "sendto(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* sockfd = lvar;
+    CLVALUE* buf = lvar + 1;
+    CLVALUE* size = lvar + 2;
+    CLVALUE* flags = lvar + 3;
+    CLVALUE* addr = lvar + 4;
+
+    /// Clover to c value ///
+    if(buf->mObjectValue == 0 || addr->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+        return FALSE;
+
+    }
+
+    /// Clover Value to C Value ///
+    int sockfd_value = sockfd->mIntValue;
+
+    void* buf_value = get_pointer_from_buffer_object(buf->mObjectValue);
+    size_t buffer_size = get_size_from_buffer_object(buf->mObjectValue);
+
+    size_t size_value = (size_t)size->mULongValue;
+
+    int flags_value = flags->mIntValue;
+
+    struct sockaddr_in addr_value;
+
+    memset(&addr_value, 0, sizeof(struct sockaddr_in));
+
+    sCLObject* object_data = CLOBJECT(addr->mObjectValue);
+    addr_value.sin_family = object_data->mFields[0].mIntValue;
+
+    CLObject sin_addr = object_data->mFields[1].mObjectValue;
+
+    sCLObject* object_data2 = CLOBJECT(sin_addr);
+
+    addr_value.sin_addr.s_addr = object_data2->mFields[0].mUIntValue;
+
+    addr_value.sin_port = object_data->mFields[2].mIntValue;
+
+    socklen_t len_value = sizeof(addr_value);
+
+    /// check size ///
+    if(size_value > buffer_size) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Buffer size is smaller than the size value of argument");
+        return FALSE;
+    }
+
+    /// go ///
+    int result = recvfrom(sockfd_value, buf_value, size_value, flags_value, (struct sockaddr*)&addr_value, &len_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "sendto(2) is faield. The error is %s. The errnor is %d", strerror(errno), errno);
+        return FALSE;
+    }
 
     return TRUE;
 }

@@ -309,6 +309,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.bind(int,sockaddr_in)", "System_bind2", System_bind2 },
     { "System.listen(int,int)", "System_listen", System_listen },
     { "System.accept(int,sockaddr_un)", "System_accept", System_accept },
+    { "System.accept(int,sockaddr_in)", "System_accept2", System_accept2 },
     { "System.inet_addr(String)", "System_inet_addr", System_inet_addr },
     { "System.gethostbyaddr(pointer,ulong,int)", "System_gethostbyaddr", System_gethostbyaddr },
     { "System.gethostbyname(String)", "System_gethostbyname", System_gethostbyname },
@@ -323,7 +324,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.FD_CLR(int,fd_set)", "System_FD_CLR", System_FD_CLR },
     { "System.FD_SET(int,fd_set)", "System_FD_SET", System_FD_SET },
     { "System.FD_ISSET(int,fd_set)", "System_FD_ISSET", System_FD_ISSET },
-    { "System.select(int,fd_set?,fd_set?,fd_set?,timeval)", "System_select", System_select },
+    { "System.select(int,fd_set?,fd_set?,fd_set?,timeval?)", "System_select", System_select },
     { "System.ioctl(int,int,pointer)", "System_ioctl", System_ioctl },
     { "Clover.getAllClassName()", "Clover_getAllClassName", Clover_getAllClassName },
     { "Clover.declareMethod(String,String)", "Clover_declareMethod", Clover_declareMethod },
@@ -371,6 +372,12 @@ static sNativeMethod gNativeMethods[] = {
     { "System.isblank(char)", "System_isblank", System_isblank },
     { "Clover.gc()", "Clover_gc", Clover_gc },
     { "Clover.compaction()", "Clover_compaction", Clover_compaction },
+    { "System.send(int,Buffer,ulong,int)", "System_send", System_send },
+    { "System.sendto(int,Buffer,ulong,int,sockaddr_un)", "System_sendto", System_sendto },
+    { "System.sendto(int,Buffer,ulong,int,sockaddr_in)", "System_sendto2", System_sendto2 },
+    { "System.recv(int,Buffer,ulong,int)", "System_recv", System_recv },
+    { "System.recvfrom(int,Buffer,ulong,int,sockaddr_un)", "System_recvfrom", System_recvfrom },
+    { "System.recvfrom(int,Buffer,ulong,int,sockaddr_in)", "System_recvfrom2", System_recvfrom2 },
 
     { "", "", 0 }  // sentinel
 };

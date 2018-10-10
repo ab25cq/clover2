@@ -1586,7 +1586,7 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
     }
 }
 
-static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
+static BOOL string_expression(char* str, int str_len, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
     int offset_before = 0;
 
@@ -1610,7 +1610,7 @@ static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offse
         offset_before = offset;
     }
 
-    sBuf_append(buf, str + offset_before, strlen(str) - offset_before);
+    sBuf_append(buf, str + offset_before, str_len - offset_before);
 
     return TRUE;
 }
@@ -15841,7 +15841,7 @@ show_inst(inst);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        if(!string_expression(str, strlen(str), &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
@@ -15909,7 +15909,7 @@ show_inst(inst);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        if(!string_expression(str, size, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
@@ -15926,7 +15926,6 @@ show_inst(inst);
                         }
 
                         stack_ptr -= num_string_expression;
-
 
                         CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen, info);
 
@@ -15975,7 +15974,7 @@ show_inst(inst);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        if(!string_expression(str, strlen(str), &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;
@@ -16762,7 +16761,7 @@ show_inst(inst);
                         sBuf buf;
                         sBuf_init(&buf);
 
-                        if(!string_expression(str, &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
+                        if(!string_expression(str, strlen(str), &buf, string_expression_offsets, string_expression_object, num_string_expression, &stack_ptr, stack, var_num, info))
                         {
                             if(info->try_code == code && info->try_offset != 0) {
                                 pc = code->mCodes + info->try_offset;

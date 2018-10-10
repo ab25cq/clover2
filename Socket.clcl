@@ -189,12 +189,23 @@ class System
     }
 
     def socket(domain:int, type:int, protocol:int): native static int throws Exception;
+
     def connect(sockfd:int, addr:sockaddr_un): native static throws Exception;
     def connect(sockfd:int, addr:sockaddr_in): native static throws Exception;
     def bind(sockfd:int, addr:sockaddr_un): native static throws Exception;
     def bind(sockfd:int, addr:sockaddr_in): native static throws Exception;
-    def listen(sockfd:int, backlog:int): native static throws Exception;
     def accept(sockfd:int, addr:sockaddr_un): native static int throws Exception;
+    def accept(sockfd:int, addr:sockaddr_in): native static int throws Exception;
+
+    def recv(sockfd:int, buf:Buffer, len:size_t, flags:int): native static ssize_t throws Exception;
+    def recvfrom(sockfd:int, buf:Buffer, len:size_t, flags:int, src_addr:sockaddr_un): native static ssize_t throws Exception;
+    def recvfrom(sockfd:int, buf:Buffer, len:size_t, flags:int, src_addr:sockaddr_in): native static ssize_t throws Exception;
+
+    def listen(sockfd:int, backlog:int): native static throws Exception;
+
+    def send(sockfd:int, buf:Buffer, size:size_t, flags:int):native static ssize_t throws Exception;
+    def sendto(sockfd:int, buf:Buffer, size:size_t, flags:int, dest_addr:sockaddr_un): native static ssize_t throws Exception;
+    def sendto(sockfd:int, buf:Buffer, size:size_t, flags:int, dest_addr:sockaddr_in): native static ssize_t throws Exception;
 
     def inet_addr(cp:String):static native in_addr_t;
 

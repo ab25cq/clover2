@@ -58,7 +58,7 @@
 #define GENERICS_TYPES_MAX 32
 #define CLASS_VERSION_MAX 128
 #define METHOD_PATH_MAX METHOD_NAME_MAX+32+CLASS_NAME_MAX+PARAMS_MAX*CLASS_NAME_MAX
-#define METHOD_NUM_MAX 256
+#define METHOD_NUM_MAX 512
 #define CL_MODULE_HASH_SIZE 256
 #define CL_MODULE_NAME_MAX CLASS_NAME_MAX
 #define ARRAY_VALUE_ELEMENT_MAX 32
@@ -2285,6 +2285,7 @@ BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
 BOOL System_socket(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_connect(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_accept2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_listen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_bind(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_inet_addr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2352,6 +2353,14 @@ BOOL System_isdigit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_iscntrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_isalnum(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_send(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_sendto(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_sendto2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+
+BOOL System_recv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_recvfrom(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 extern CLObject signal_handler_object[SIGMAX];
 

@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 6.5.9
+
+    System.send,System.sendto, System.recv, Sytem.recvfromの追加。
+
+    Fixed bug of Buffer with string expression.
+
 version 6.5.8
 
     Improved String.indexOf, String.rindexOf algorism

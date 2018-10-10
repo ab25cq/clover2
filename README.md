@@ -1,6 +1,6 @@
 # clover2 computer language
 
-version 6.5.8
+version 6.5.9
 
 サポートしている機能
 

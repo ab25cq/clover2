@@ -165,7 +165,7 @@ class System
 
     FD_SETSIZE:static int;
 
-    def select(nfds:int, readfds:fd_set?, writefds:fd_set?, errorfds:fd_set?, timeout:timeval): static native int throws Exception;
+    def select(nfds:int, readfds:fd_set?, writefds:fd_set?, errorfds:fd_set?, timeout:timeval?): static native int throws Exception;
 
     SIOCADDRT:static int;
     SIOCDELRT:static int;
