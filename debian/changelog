@@ -1,4 +1,8 @@
 
+clover2 (6.6.0-1) unstable; urgency=medium
+
+    * Fixed bug with GC. Append Command.selector method.
+
 clover2 (6.5.9-1) unstable; urgency=medium
 
     * Appended System.send,System.sendto, System.recv, System.recvfrom. Fixed bug of Buffer with string expression.

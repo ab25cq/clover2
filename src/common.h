@@ -156,6 +156,7 @@ struct sCLStackStruct {
     CLVALUE** mStackPtr;
 
     int mStackID;
+    BOOL mGlobalStack;
 
     struct sCLStackStruct* mNextStack;
 };
@@ -165,7 +166,7 @@ typedef struct sCLStackStruct sCLStack;
 void stack_init();
 void stack_final();
 
-sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr);
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr, BOOL global);
 BOOL remove_stack_to_stack_list(sCLStack* stack);
 BOOL check_variables_existance_on_stack(CLVALUE* stack, CLVALUE* stack_ptr);
 

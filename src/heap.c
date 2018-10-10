@@ -345,6 +345,7 @@ void dec_refference_count(CLObject obj, BOOL value_is_object)
 
 void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_global_stack_ptr, CLVALUE* lvar, int num_params)
 {
+#ifdef ENABLE_JIT
     if(!info->prohibit_delete_global_stack) {
         inc_refference_count(result_object, 0, FALSE);
 
@@ -369,6 +370,9 @@ void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_gl
     info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
 
     push_object_to_global_stack(result_object, info);
+#else
+    info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
+#endif
 }
 
 void mark_object(CLObject obj, unsigned char* mark_flg)

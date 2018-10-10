@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.0
+
+    GCのバグを修正。
+
+    Command.selector()の追加。
+
 version 6.5.9
 
     System.send,System.sendto, System.recv, Sytem.recvfromの追加。

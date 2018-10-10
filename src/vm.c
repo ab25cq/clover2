@@ -1629,7 +1629,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
-    sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+    sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
 
     int try_offset_before = 0;
     char** try_pc_before = NULL;

@@ -8,13 +8,13 @@ void create_global_stack_and_append_it_to_stack_list(sVMInfo* info)
     info->mGlobalStack = MCALLOC(1, sizeof(CLVALUE)*info->mSizeGlobalStack);
     info->mGlobalStackPtr = info->mGlobalStack;
 
-    info->mGlobalStackID = append_stack_to_stack_list(info->mGlobalStack, &info->mGlobalStackPtr);
+    info->mGlobalStackID = append_stack_to_stack_list(info->mGlobalStack, &info->mGlobalStackPtr, TRUE);
 
     info->mTmpSizeGlobalStack = GLOBAL_STACK_MAX;
     info->mTmpGlobalStack = MCALLOC(1, sizeof(CLVALUE)*info->mTmpSizeGlobalStack);
     info->mTmpGlobalStackPtr = info->mTmpGlobalStack;
 
-    info->mTmpGlobalStackID = append_stack_to_stack_list(info->mTmpGlobalStack, &info->mTmpGlobalStackPtr);
+    info->mTmpGlobalStackID = append_stack_to_stack_list(info->mTmpGlobalStack, &info->mTmpGlobalStackPtr, FALSE);
 }
 
 void free_global_stack(sVMInfo* info)
@@ -115,12 +115,14 @@ void stack_final()
     }
 }
 
-sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)
+sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr, BOOL global)
 {
     sCLStack* stack = MCALLOC(1, sizeof(sCLStack));
 
     stack->mStack = stack_mem;
     stack->mStackPtr = stack_ptr;
+
+    stack->mGlobalStack = global;
 
     stack->mNextStack = gHeadStack;
     gHeadStack = stack;

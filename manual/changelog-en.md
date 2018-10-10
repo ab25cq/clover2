@@ -1,4 +1,10 @@
 
+version 6.6.0
+
+    Fixed bug with GC.
+
+    Append Command.selector method.
+
 version 6.5.9
 
     Appended System.send,System.sendto, System.recv, System.recvfrom.
