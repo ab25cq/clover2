@@ -11,8 +11,8 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     char msg3[1024];
 
-    if(info->running_class && info->running_method) {
-        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg2, CLASS_NAME(info->running_class), METHOD_NAME2(info->running_class, info->running_method));
+    if(info->running_class_name && info->running_method_name) {
+        snprintf(msg3, 1024, "%s %d: %s at %s.%s", info->sname, info->sline, msg2, info->running_class_name, info->running_method_name);
         int i;
         for(i=0; i<info->num_stack_trace; i++) {
             char buf[1024];

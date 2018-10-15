@@ -1,4 +1,8 @@
 
+clover2 (6.6.2-1) unstable; urgency=medium
+
+    * Appended System.setEscapeDelay and System.getEscapeDelay method. Fixed bug of VM.
+
 clover2 (6.6.1-1) unstable; urgency=medium
 
     * Fixed bug of shell mode

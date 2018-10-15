@@ -1863,17 +1863,22 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     create_global_stack_and_append_it_to_stack_list(&vinfo);
 
-    vinfo.running_class_name = "none";
-    vinfo.running_method_name = "eval_str";
+    vinfo.running_class_name = MSTRDUP("none");
+    vinfo.running_method_name = MSTRDUP("eval_str");
 
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+        MFREE(vinfo.running_class_name);
+        MFREE(vinfo.running_method_name);
         free_global_stack(&vinfo);
         vm_mutex_off();
 
         return FALSE;
     }
+
+    MFREE(vinfo.running_class_name);
+    MFREE(vinfo.running_method_name);
 
     free_global_stack(&vinfo);
 
@@ -2042,12 +2047,14 @@ BOOL compile_class_source(char* fname, char* source)
         int stack_size = 512;
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
-        vinfo.running_class_name = "none";
-        vinfo.running_method_name = "compile_class_source";
+        vinfo.running_class_name = MSTRDUP("none");
+        vinfo.running_method_name = MSTRDUP("compile_class_source");
 
         vm_mutex_on();
 
         if(!vm(&code, &constant, stack, var_num, NULL, &vinfo)) {
+            MFREE(vinfo.running_class_name);
+            MFREE(vinfo.running_method_name);
             free_global_stack(&vinfo);
             sByteCode_free(&code);
             sConst_free(&constant);
@@ -2055,6 +2062,9 @@ BOOL compile_class_source(char* fname, char* source)
             MFREE(stack);
             return FALSE;
         }
+
+        MFREE(vinfo.running_class_name);
+        MFREE(vinfo.running_method_name);
 
         free_global_stack(&vinfo);
         MFREE(stack);

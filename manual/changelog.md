@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.2
+
+    Appended System.setEscapeDelay and System.getEscapeDelay method.
+
+    Fixed bug of VM.
+
 version 6.6.1
 
     Fixed bug of shell mode

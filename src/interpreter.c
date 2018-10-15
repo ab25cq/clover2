@@ -2397,16 +2397,21 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     create_global_stack_and_append_it_to_stack_list(&vinfo);
 
-    vinfo.running_class_name = "none";
-    vinfo.running_method_name = "eval_str";
+    vinfo.running_class_name = MSTRDUP("none");
+    vinfo.running_method_name = MSTRDUP("eval_str");
 
     vm_mutex_on();
 
     if(!vm(code, constant, stack, var_num, NULL, &vinfo)) {
+        MFREE(vinfo.running_class_name);
+        MFREE(vinfo.running_method_name);
         vm_mutex_off();
 
         return FALSE;
     }
+
+    MFREE(vinfo.running_class_name);
+    MFREE(vinfo.running_method_name);
 
     vm_mutex_off(); // see OP_RETURN
 
@@ -2454,7 +2459,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.1";
+char* gVersion = "6.6.2";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

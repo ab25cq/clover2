@@ -352,6 +352,8 @@ static sNativeMethod gNativeMethods[] = {
     { "System.wrefresh(pointer)", "System_wrefresh", System_wrefresh },
     { "System.wclear(pointer)", "System_wclear", System_wclear },
     { "System.touchwin(pointer)", "System_touchwin", System_touchwin },
+    { "System.setEscapeDelay(int)", "System_setEscapeDelay", System_setEscapeDelay },
+    { "System.getEscapeDelay()", "System_getEscapeDelay", System_getEscapeDelay },
     { "System.keypad(pointer,bool)", "System_keypad", System_keypad },
     { "System.wmove(pointer,int,int)", "System_wmove", System_wmove },
     { "System.wprintw(pointer,String)", "System_wprintw", System_wprintw },

@@ -77,12 +77,14 @@ BOOL eval_file(char* fname, int stack_size)
 
     create_global_stack_and_append_it_to_stack_list(&info);
 
-    info.running_class_name = "none";
-    info.running_method_name = "eval_file";
+    info.running_class_name = MSTRDUP("none");
+    info.running_method_name = MSTRDUP("eval_file");
 
     vm_mutex_on();
 
     if(!vm(&code, &constant, stack, var_num, NULL, &info)) {
+        MFREE(info.running_class_name);
+        MFREE(info.running_method_name);
         free_global_stack(&info);
         fclose(f);
         MFREE(stack);
@@ -93,6 +95,9 @@ BOOL eval_file(char* fname, int stack_size)
         vm_mutex_off();
         return FALSE;
     }
+
+    MFREE(info.running_class_name);
+    MFREE(info.running_method_name);
 
     free_global_stack(&info);
 

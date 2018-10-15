@@ -7601,6 +7601,27 @@ BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* msec = lvar;
+
+    /// Clover to C ///
+    int msec_value = msec->mIntValue;
+
+    /// go ///
+    ESCDELAY = msec_value;
+
+    return TRUE;
+}
+
+BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    (*stack_ptr)->mIntValue = ESCDELAY;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
 #else
 
 BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
@@ -7772,6 +7793,18 @@ BOOL System_getmaxx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 }
 
 BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
     return FALSE;

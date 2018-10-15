@@ -2333,6 +2333,8 @@ BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wclear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_touchwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

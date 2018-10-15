@@ -520,8 +520,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     char* running_class_name = info->running_class_name;
     char* running_method_name = info->running_method_name;
 
-    info->running_class_name = CLASS_NAME(klass);
-    info->running_method_name = METHOD_NAME2(klass, method);
+    info->running_class_name = MSTRDUP(CLASS_NAME(klass));
+    info->running_method_name = MSTRDUP(METHOD_NAME2(klass, method));
 
     char* sname2 = info->sname2;
     int sline2 = info->sline2;
@@ -564,6 +564,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function method not found");
             info->running_class = running_class;
             info->running_method = running_method;
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
@@ -646,6 +648,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
             info->running_class = running_class;
             info->running_method = running_method;
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
@@ -698,6 +702,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported lambda or struct class");
                 info->running_class = running_class;
                 info->running_method = running_method;
+                MFREE(info->running_class_name);
+                MFREE(info->running_method_name);
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
 
@@ -827,6 +833,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             info->running_class = running_class;
             info->running_method = running_method;
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
@@ -838,6 +846,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function is not supported. Please add --with-c-ffi to configure option.");
         info->running_class = running_class;
         info->running_method = running_method;
+        MFREE(info->running_class_name);
+        MFREE(info->running_method_name);
         info->running_class_name = running_class_name;
         info->running_method_name = running_method_name;
 
@@ -866,6 +876,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Native method not found");
                 info->running_class = running_class;
                 info->running_method = running_method;
+                MFREE(info->running_class_name);
+                MFREE(info->running_method_name);
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
                 info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
@@ -887,6 +899,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             info->running_class = running_class;
             info->running_method = running_method;
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
@@ -945,6 +959,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             sConst_free(&constant);
             sByteCode_free(&code);
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
             info->running_class = running_class;
@@ -960,6 +976,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             (*stack_ptr)++;
             sConst_free(&constant);
             sByteCode_free(&code);
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
             info->running_class = running_class;
@@ -993,6 +1011,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_class = running_class;
     info->running_method = running_method;
 
+    MFREE(info->running_class_name);
+    MFREE(info->running_method_name);
+
     info->running_class_name = running_class_name;
     info->running_method_name = running_method_name;
 
@@ -1017,13 +1038,20 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
     sCLClass* klass = NULL;
 
-    info->running_class_name = "none";
-    info->running_method_name = "block_object";
+    char* running_class_name = info->running_class_name;
+    char* running_method_name = info->running_method_name;
+
+    info->running_class_name = MSTRDUP("none");
+    info->running_method_name = MSTRDUP("block_object");
 
     if(lambda) {
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
+            info->running_method_name = running_method_name;
+            info->running_class_name = running_class_name;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
             return FALSE;
@@ -1034,6 +1062,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         /// check variable existance ///
         if(!check_variables_existance_on_stack(stack, *stack_ptr))
         {
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
+            info->running_method_name = running_method_name;
+            info->running_class_name = running_class_name;
             /// copy back variables to parent ///
             object_data = CLBLOCK(block_object);
             memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
@@ -1057,6 +1089,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
+                MFREE(info->running_class_name);
+                MFREE(info->running_method_name);
+                info->running_method_name = running_method_name;
+                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
@@ -1069,6 +1105,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
+                MFREE(info->running_class_name);
+                MFREE(info->running_method_name);
+                info->running_method_name = running_method_name;
+                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
@@ -1080,6 +1120,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
+            info->running_method_name = running_method_name;
+            info->running_class_name = running_class_name;
             return FALSE;
         }
 #endif
@@ -1091,6 +1135,11 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
     **stack_ptr = *(new_stack + new_var_num);
     (*stack_ptr)++;
+
+    MFREE(info->running_class_name);
+    MFREE(info->running_method_name);
+    info->running_method_name = running_method_name;
+    info->running_class_name = running_class_name;
 
     return TRUE;
 }
@@ -2008,6 +2057,20 @@ show_inst(inst);
 
                 CLObject tuple = (stack_ptr-1)->mObjectValue;
                 stack_ptr--;
+
+                if(tuple == 0) {
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
+                    if(info->try_code == code && info->try_offset != 0) {
+                        pc = code->mCodes + info->try_offset;
+                        info->try_offset = 0;
+                        info->try_code = NULL;
+                        break;
+                    }
+                    else {
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+                }
 
                 sCLObject* object_data = CLOBJECT(tuple);
 
@@ -5898,9 +5961,9 @@ show_inst(inst);
                     sCLClass* klass = get_class_with_load_and_initialize(class_name);
 
                     if(klass == NULL) {
-                        
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
-                        if(info->try_code == code && info->try_offset != 0) {
+                        if(info->try_code == code && info->try_offset != 0) 
+                        {
                             pc = code->mCodes + info->try_offset;
                             info->try_offset = 0;
                             info->try_code = NULL;
@@ -5912,8 +5975,8 @@ show_inst(inst);
                         }
                     }
 
-                    if(field_index < 0 || field_index >= klass->mNumClassFields) {
-                        
+                    if(field_index < 0 || field_index >= klass->mNumClassFields) 
+                    {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "field index is invalid(4). Field index is %d", field_index);
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
@@ -5977,6 +6040,21 @@ show_inst(inst);
                     }
 
                     sCLField* field = klass->mClassFields + field_index;
+
+                    if(field == NULL) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Field is invalid. Field index is %d", field_index);
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     char* value = (char*)&field->mValue;
 
                     stack_ptr->mLongValue = 0;              // zero clear for jit
@@ -15580,6 +15658,20 @@ show_inst(inst);
                 }
 
                 CLObject array = (stack_ptr-1)->mObjectValue;
+
+                if(array == 0) {
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
+                    if(info->try_code == code && info->try_offset != 0) {
+                        pc = code->mCodes + info->try_offset;
+                        info->try_offset = 0;
+                        info->try_code = NULL;
+                        break;
+                    }
+                    else {
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+                }
                 sCLObject* array_data = CLOBJECT(array);
                 int array_num = array_data->mArrayNum;
 
@@ -15631,9 +15723,22 @@ show_inst(inst);
                 
             case OP_GET_ARRAY_LENGTH:
                 {
-                    
-
                     CLObject array = (stack_ptr-1)->mObjectValue;
+
+                    if(array == 0) {
+                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-1)");
+                        if(info->try_code == code && info->try_offset != 0) {
+                            pc = code->mCodes + info->try_offset;
+                            info->try_offset = 0;
+                            info->try_code = NULL;
+                            break;
+                        }
+                        else {
+                            remove_stack_to_stack_list(stack_id);
+                            return FALSE;
+                        }
+                    }
+
                     sCLObject* array_data = CLOBJECT(array);
                     stack_ptr--;
 

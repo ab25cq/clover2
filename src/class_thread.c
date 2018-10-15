@@ -106,8 +106,8 @@ void* thread_func(void* param)
     create_global_stack_and_append_it_to_stack_list(&new_info);
 
     new_info.running_thread = TRUE;
-    new_info.running_class_name = "Thread";
-    new_info.running_method_name = "thread_func";
+    new_info.running_class_name = MSTRDUP("Thread");
+    new_info.running_method_name = MSTRDUP("thread_func");
 
     if(lambda) {
         int new_var_num = block_var_num;
@@ -120,6 +120,8 @@ void* thread_func(void* param)
         if(!vm(code, constant, new_stack, new_var_num, &klass2, &new_info)) {
             MFREE(arg);
             MFREE(new_stack);
+            MFREE(new_info.running_class_name);
+            MFREE(new_info.running_method_name);
 
             sConst_free(constant);
             sByteCode_free(code);
@@ -148,6 +150,8 @@ void* thread_func(void* param)
         if(!vm(code, constant, new_stack, new_var_num, &klass2, &new_info)) {
             MFREE(arg);
             MFREE(new_stack);
+            MFREE(new_info.running_class_name);
+            MFREE(new_info.running_method_name);
 
             sConst_free(constant);
             sByteCode_free(code);
@@ -162,6 +166,9 @@ void* thread_func(void* param)
             pthread_exit((void*)1);
         }
     }
+
+    MFREE(new_info.running_class_name);
+    MFREE(new_info.running_method_name);
 
     MFREE(arg);
     MFREE(new_stack);
