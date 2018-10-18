@@ -227,12 +227,6 @@ class String
             if(self.len == str.length()) {
                 for(i := 0; i<self.len; i++) {
                     if(self.buffer[i] != str.buffer[i]) {
-/*
-if(self != null && str != null) {
-System.println("self.buffer[i] \{self.buffer[i]} str.buffer[i] \{str.buffer[i]}");
-System.println("self \{self} str \{str}");
-}
-*/
                         return false;
                     }
                 }
@@ -240,11 +234,6 @@ System.println("self \{self} str \{str}");
                 return true;
             }
             else {
-/*
-if(self != null && str != null) {
-    System.println("self \{self} str \{str}");
-}
-*/
                 return false;
             }
         }

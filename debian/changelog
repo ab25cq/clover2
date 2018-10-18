@@ -1,4 +1,8 @@
 
+clover2 (6.6.3-1) unstable; urgency=medium
+
+    * Fixed block object bug
+
 clover2 (6.6.2-1) unstable; urgency=medium
 
     * Appended System.setEscapeDelay and System.getEscapeDelay method. Fixed bug of VM.

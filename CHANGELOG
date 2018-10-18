@@ -1,4 +1,8 @@
 
+version 6.6.3
+
+    Fixed block object bug
+
 version 6.6.2
 
     Appended System.setEscapeDelay and System.getEscapeDelay method.

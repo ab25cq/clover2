@@ -4752,7 +4752,6 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                             int param_class_num = block_result_type->mClass->mMethodGenericsParamClassNum;
                             if(param_class_num != -1) {
                                 result_method_generics_types->mGenericsTypes[param_class_num] = info->block_last_type;
-
                                 result_method_generics_types->mNumGenericsTypes = param_class_num +1;
                             }
                         }
@@ -9235,14 +9234,9 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
         parent_param_num = 0;
     }
 
-    int num_block_object;
+    int num_block_object = -1;
     if(klass) {
         num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
-    }
-    else {
-        num_block_object = -1;
-        sByteCode_free(&codes);
-        sConst_free(&constant);
     }
 
     /// make block object ///
@@ -9255,6 +9249,11 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
     append_int_value_to_code(info->code, offset2, info->no_output);
     append_int_value_to_code(info->code, constant.mLen, info->no_output);
+    
+    if(klass == NULL) {
+        sByteCode_free(&codes);
+        sConst_free(&constant);
+    }
 
     append_int_value_to_code(info->code, var_num, info->no_output);
 
@@ -9447,14 +9446,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         parent_param_num = 0;
     }
 
-    int num_block_object;
+    int num_block_object = -1;
     if(klass) {
         num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
-    }
-    else {
-        num_block_object = -1;
-        sByteCode_free(&codes);
-        sConst_free(&constant);
     }
 
     /// make block object ///
@@ -9467,6 +9461,11 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
     append_int_value_to_code(info->code, offset2, info->no_output);
     append_int_value_to_code(info->code, constant.mLen, info->no_output);
+
+    if(klass == NULL) {
+        sByteCode_free(&codes);
+        sConst_free(&constant);
+    }
 
     append_int_value_to_code(info->code, var_num, info->no_output);
 

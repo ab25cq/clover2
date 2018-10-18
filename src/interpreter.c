@@ -2240,6 +2240,13 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
             return FALSE;
         }
 
+        unsigned int params[PARAMS_MAX];
+        int num_params = 0;
+
+        node = sNodeTree_create_method_call(node, "toString", params, num_params, 0, &info);
+        node = sNodeTree_create_method_call(node, "chomp", params, num_params, 0, &info);
+        node = sNodeTree_create_method_call(node, "printlnWithoutNullString", params, num_params, 0, &info);
+
         cinfo.sname = gNodes[node].mSName;
         cinfo.sline = gNodes[node].mLine;
 
@@ -2254,124 +2261,6 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                 return FALSE;
             }
 
-            sCLClass* klass = cinfo.type->mClass;
-
-            /// toString and println ///
-            if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                cast_right_type_to_String(&cinfo.type, &cinfo);
-
-                if(type_identify_with_class_name(cinfo.type, "String")) {
-                    sCLClass* string_class = get_class("String");
-
-                    MASSERT(string_class != NULL);
-
-                    /// chomp ///
-                    sNodeType* result_type = NULL;
-                    sNodeType* result_method_generics_types = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
-
-                    if(method_index != -1) {
-                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
-
-                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
-                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
-                        int size = get_var_size(result_type);
-                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
-
-                        cinfo.stack_num--;
-                        cinfo.stack_num++;
-
-                        cinfo.type = result_type;
-                    }
-
-                    /// println ///
-                    result_method_generics_types = NULL;
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
-
-                    if(method_index != -1) {
-                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
-
-                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
-                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
-                        int size = get_var_size(result_type);
-                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
-
-                        cinfo.stack_num--;
-                        cinfo.stack_num++;
-
-                        cinfo.type = result_type;
-                    }
-                }
-            }
-            else {
-                BOOL array_and_special_method = FALSE;
-                boxing_before_method_call("toString", &cinfo, &array_and_special_method);
-
-                klass = cinfo.type->mClass;
-
-                sNodeType* result_type = NULL;
-                sNodeType* result_method_generics_types = NULL;
-                int method_index = search_for_method(klass, "toString", NULL, 0, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
-
-                if(method_index != -1) {
-                    append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
-
-                    append_class_name_to_constant_pool_and_code(&cinfo, klass);
-                    append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
-                    int size = get_var_size(result_type);
-                    append_int_value_to_code(cinfo.code, size, cinfo.no_output);
-
-                    cinfo.stack_num--;
-                    cinfo.stack_num++;
-
-                    cinfo.type = result_type;
-
-                    /// println ///
-                    sCLClass* string_class = get_class("String");
-
-                    MASSERT(string_class != NULL);
-
-                    /// chomp ///
-                    sNodeType* result_type = NULL;
-                    sNodeType* result_method_generics_types = NULL;
-                    int method_index = search_for_method(string_class, "chomp", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
-
-                    if(method_index != -1) {
-                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
-
-                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
-                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
-                        int size = get_var_size(result_type);
-                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
-
-                        cinfo.stack_num--;
-                        cinfo.stack_num++;
-
-                        cinfo.type = result_type;
-                    }
-
-                    /// println ///
-                    result_type = NULL;
-                    result_method_generics_types = NULL;
-                    method_index = search_for_method(string_class, "printlnWithoutNullString", NULL, 0, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, NULL);
-
-                    if(method_index != -1) {
-                        append_opecode_to_code(cinfo.code, OP_INVOKE_METHOD, cinfo.no_output);
-
-                        append_class_name_to_constant_pool_and_code(&cinfo, string_class);
-                        append_int_value_to_code(cinfo.code, method_index, cinfo.no_output);
-                        int size = get_var_size(result_type);
-                        append_int_value_to_code(cinfo.code, size, cinfo.no_output);
-
-                        cinfo.stack_num--;
-                        cinfo.stack_num++;
-
-                        cinfo.type = result_type;
-                    }
-                }
-            }
-
-            /// end of line ///
             arrange_stack(&cinfo);
 
 #ifdef ENABLE_INTERPRETER
@@ -2459,7 +2348,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.2";
+char* gVersion = "6.6.3";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

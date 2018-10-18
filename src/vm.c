@@ -1075,7 +1075,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         }
 */
         /// copy variables ///
-        memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
+        if(object_data->mParentVarNum > 0) {
+            memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
+        }
         memcpy(new_stack + object_data->mParentVarNum, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
 #ifdef ENABLE_JIT
@@ -1085,7 +1087,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
             if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
                 /// copy back variables to parent ///
                 object_data = CLBLOCK(block_object);
-                memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+                if(object_data->mParentVarNum > 0) {
+                    memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+                }
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
@@ -1101,7 +1105,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
             {
                 /// copy back variables to parent ///
                 object_data = CLBLOCK(block_object);
-                memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+                if(object_data->mParentVarNum > 0) {
+                    memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+                }
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
@@ -1116,7 +1122,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             /// copy back variables to parent ///
             object_data = CLBLOCK(block_object);
-            memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+            if(object_data->mParentVarNum > 0) {
+                memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+            }
 
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
@@ -1130,8 +1138,11 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
         /// copy back variables to parent ///
         object_data = CLBLOCK(block_object);
-        memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+        if(object_data->mParentVarNum > 0) {
+            memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+        }
     }
+
 
     **stack_ptr = *(new_stack + new_var_num);
     (*stack_ptr)++;
@@ -1711,6 +1722,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         pc+=sizeof(int);
 /*
 if(!gRunningCompiler && !gRunningInitializer) {
+printf("running_class_name %s running_method_name %s\n", info->running_class_name, info->running_method_name);
 show_inst(inst);
 }
 */
@@ -16902,7 +16914,9 @@ show_inst(inst);
         if(!info->no_mutex_in_vm) {
             vm_mutex_off();
         }
-//show_stack(stack, stack_ptr);
+/*
+show_stack(stack, stack_ptr);
+*/
     }
 
 
