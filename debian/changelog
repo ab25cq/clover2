@@ -1,4 +1,8 @@
 
+clover2 (6.6.6-1) unstable; urgency=medium
+
+    * Appended tyclover2 program for getting type.
+
 clover2 (6.6.5-1) unstable; urgency=medium
 
     * Appended System.nodelay.

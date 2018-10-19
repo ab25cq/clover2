@@ -313,64 +313,6 @@ static ALLOC char* line_buffer_from_head_to_cursor_point()
     return result;
 }
 
-static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_, sVarTable** result_lv_table)
-{
-    sParserInfo info;
-
-    memset(&info, 0, sizeof(sParserInfo));
-
-    info.p = source;
-    info.source = source;
-    info.sname = fname;
-    info.sline = 1;
-    info.lv_table = lv_table;
-    info.parse_phase = 0;
-    info.get_type_for_interpreter = TRUE;
-
-    sCompileInfo cinfo;
-    
-    memset(&cinfo, 0, sizeof(sCompileInfo));
-
-    sByteCode code;
-    sByteCode_init(&code);
-    cinfo.code = &code;
-
-    sConst constant;
-    sConst_init(&constant);
-    cinfo.constant = &constant;
-
-    cinfo.lv_table = lv_table;
-    cinfo.no_output = TRUE;
-    cinfo.pinfo = &info;
-
-    info.cinfo = &cinfo;
-
-    while(*info.p) {
-        info.exist_block_object_err = FALSE;
-
-        unsigned int node = 0;
-        (void)expression(&node, &info);
-
-        *result_lv_table = info.lv_table;
-
-        if(node != 0) {
-            (void)compile(node, &cinfo);
-
-            *type_ = cinfo.type;
-
-            if(*info.p == ';') {
-                info.p++;
-                skip_spaces_and_lf(&info);
-            }
-        }
-    }
-
-    sByteCode_free(&code);
-    sConst_free(&constant);
-
-    return TRUE;
-}
-
 static void skip_curly(char** p, char** head, char** comma, char** semi_colon);
 
 static void skip_paren(char** p, char** head, char** comma, char** semi_colon)
@@ -1168,6 +1110,64 @@ void get_system_class_field_names(char** candidates, int *num_candidates, int ma
     }
 }
 
+static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)
+{
+    sParserInfo info;
+
+    memset(&info, 0, sizeof(sParserInfo));
+
+    info.p = source;
+    info.source = source;
+    info.sname = fname;
+    info.sline = 1;
+    info.lv_table = lv_table;
+    info.parse_phase = 0;
+    info.get_type_for_interpreter = TRUE;
+
+    sCompileInfo cinfo;
+    
+    memset(&cinfo, 0, sizeof(sCompileInfo));
+
+    sByteCode code;
+    sByteCode_init(&code);
+    cinfo.code = &code;
+
+    sConst constant;
+    sConst_init(&constant);
+    cinfo.constant = &constant;
+
+    cinfo.lv_table = lv_table;
+    cinfo.no_output = TRUE;
+    cinfo.pinfo = &info;
+
+    info.cinfo = &cinfo;
+
+    while(*info.p) {
+        info.exist_block_object_err = FALSE;
+
+        unsigned int node = 0;
+        (void)expression(&node, &info);
+
+        *result_lv_table = info.lv_table;
+
+        if(node != 0) {
+            (void)compile(node, &cinfo);
+
+            *type_ = cinfo.type;
+
+            if(*info.p == ';') {
+                info.p++;
+                skip_spaces_and_lf(&info);
+            }
+        }
+    }
+
+    sByteCode_free(&code);
+    sConst_free(&constant);
+
+    return TRUE;
+}
+
 static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
     BOOL expression_is_void = TRUE;
@@ -1210,7 +1210,7 @@ static void local_variable_completion(char* exp, char** candidates, int *num_can
         sVarTable* lv_table;
         sNodeType* type_ = NULL;
         sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-        (void)get_type(line2, "iclover2", tmp_lv_table, gStack, &type_, &lv_table);
+        (void)get_type(line2, "iclover2", tmp_lv_table, &type_, &lv_table);
 
         sVarTable* table = lv_table;
 
@@ -1645,10 +1645,10 @@ static int my_complete_internal(int count, int key)
             sVarTable* tmp_lv_table = clone_var_table(gLVTable);
 
             if(in_the_method_block) {
-                (void)get_type(line, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+                (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
             }
             else {
-                (void)get_type(exp, "iclover2", tmp_lv_table, gStack, &type_, &result_lv_table);
+                (void)get_type(exp, "iclover2", tmp_lv_table, &type_, &result_lv_table);
             }
 
             if(type_) {
@@ -2349,7 +2349,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.5";
+char* gVersion = "6.6.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -2381,6 +2381,7 @@ int readline_init_text()
 
     return 0;
 }
+
 
 int main(int argc, char** argv)
 {

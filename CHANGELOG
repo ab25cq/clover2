@@ -1,4 +1,8 @@
 
+version 6.6.6
+
+    Appended tyclover2 program for getting type.
+
 version 6.6.5
 
     appended System.nodelay.
