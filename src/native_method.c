@@ -345,6 +345,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.nocbreak()", "System_nocbreak", System_nocbreak },
     { "System.raw()", "System_raw", System_raw },
     { "System.noraw()", "System_noraw", System_noraw },
+    { "System.nodelay(pointer,bool)", "System_nodelay", System_nodelay },
     { "System.getch()", "System_getch", System_getch },
     { "System.newwin(int,int,int,int)", "System_newwin", System_newwin },
     { "System.delwin(pointer)", "System_delwin", System_delwin },

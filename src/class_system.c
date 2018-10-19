@@ -7375,6 +7375,26 @@ BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* window_to_nodelay = lvar;
+    CLVALUE* true_or_false = lvar + 1;
+
+    /// Clover to C ///
+    WINDOW* window_to_nodelay_value = (WINDOW*)window_to_nodelay->mPointerValue;
+    BOOL true_or_false_value = true_or_false->mBoolValue;
+
+    /// go ///
+    int result = nodelay(window_to_nodelay_value, true_or_false_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "nodelay(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     /// go ///
@@ -7609,7 +7629,12 @@ BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int msec_value = msec->mIntValue;
 
     /// go ///
-    ESCDELAY = msec_value;
+    int result = set_escdelay(msec_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "set_escdelay(3) is error.");
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -7721,6 +7746,12 @@ BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 }
 
 BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
+    return FALSE;
+}
+
+BOOL System_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
     return FALSE;

@@ -2241,11 +2241,12 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
         }
 
         unsigned int params[PARAMS_MAX];
+        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
         int num_params = 0;
 
         node = sNodeTree_create_method_call(node, "toString", params, num_params, 0, &info);
         node = sNodeTree_create_method_call(node, "chomp", params, num_params, 0, &info);
-        node = sNodeTree_create_method_call(node, "printlnWithoutNullString", params, num_params, 0, &info);
+        node = sNodeTree_create_method_call(node, "printlnForREPL", params, num_params, 0, &info);
 
         cinfo.sname = gNodes[node].mSName;
         cinfo.sline = gNodes[node].mLine;
@@ -2348,7 +2349,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.3";
+char* gVersion = "6.6.5";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

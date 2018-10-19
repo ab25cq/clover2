@@ -7,9 +7,18 @@ module MObjectBase
     def filter(block_:lambda(SELF):SELF): SELF {
         return block_(self);
     }
-
     def nothing(): SELF {
         return self;
+    }
+    def noException(block_:lambda(SELF):SELF): SELF? {
+        result:SELF? = null;
+        try {
+            result = block_(self);
+        }
+        catch(e:Exception) {
+        }
+
+        return result;
     }
 }
 
@@ -1092,4 +1101,40 @@ class Bool : unboxing bool
 
         null;
     }
+    def cond(false_value:Anonymous?, block_:lambda():Anonymous?):Anonymous? {
+        if(self.value) {
+            return block_();
+        }
+
+        return false_value;
+    }
+
+    def cond(block_:lambda():Anonymous?):Anonymous? { 
+        self.cond(null, block_); 
+    }
+}
+
+class Null
+{
+    def toString():String {
+        return ""
+    }
+    def to_bool():bool {
+        return false;
+    }
+/*
+    def equals(right:Null): bool {
+        return true;
+    }
+    def compare(right:Null): bool {
+        return true;
+    }
+    def clone(): Null? {
+    }
+    def getHashKey(): uint {
+        return 0;
+    }
+    def add(right:Null): Null {
+    }
+*/
 }

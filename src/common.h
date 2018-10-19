@@ -621,6 +621,8 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
 BOOL parse_type(sNodeType** result_type, sParserInfo* info);
 BOOL parse_class_type(sCLClass** klass, sParserInfo* info);
 BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info);
+BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda);
+BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda);
 
 /// node_block.c ///
 struct sNodeBlockStruct
@@ -2329,6 +2331,7 @@ BOOL System_cbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

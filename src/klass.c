@@ -797,7 +797,7 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
-    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic_class ? CLASS_FLAGS_DYNAMIC_CLASS:0) | (no_free_object ? CLASS_FLAGS_NO_FREE_OBJECT:0) | (lambda ? CLASS_FLAGS_LAMBDA:0);
+    klass->mFlags |= (primitive_ ? CLASS_FLAGS_PRIMITIVE:0) | (interface ? CLASS_FLAGS_INTERFACE:0) | (dynamic_class ? CLASS_FLAGS_DYNAMIC_CLASS:0) | ((strcmp(class_name, "Null") == 0 || no_free_object) ? CLASS_FLAGS_NO_FREE_OBJECT:0) | (lambda ? CLASS_FLAGS_LAMBDA:0);
     klass->mGenericsParamClassNum = generics_param_class_num;
     klass->mMethodGenericsParamClassNum = method_generics_param_class_num;
 
@@ -969,7 +969,6 @@ void class_init()
     alloc_class("lambda", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, TRUE, NULL);
     alloc_class("regex", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
 
-    alloc_class("Null", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
     alloc_class("WildCard", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
     alloc_class("Anonymous", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
     alloc_class("Self", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);

@@ -315,6 +315,11 @@ class String
             Global.println(self);
         }
     }
+    def printlnForREPL() {
+        if(self.len != 0) {
+            Global.println(self.insert(0, "=>"));
+        }
+    }
 
     def match(regex_:regex): bool {
         ovec_max:int = 16;

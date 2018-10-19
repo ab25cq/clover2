@@ -1,4 +1,14 @@
 
+version 6.6.5
+
+    appended System.nodelay.
+
+version 6.6.4
+
+    appended Null class for REPL
+
+    Fixed some bugs of REPL
+
 version 6.6.3
 
     Fixed block object bug

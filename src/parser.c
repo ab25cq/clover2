@@ -305,7 +305,7 @@ BOOL expect_next_character(char* characters, sParserInfo* info)
 }
 
 
-static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)
+BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
@@ -2689,7 +2689,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
     return TRUE;
 }
 
-static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
+BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
 {
     sParserParam params[PARAMS_MAX];
     memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);

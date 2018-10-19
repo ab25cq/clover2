@@ -4902,8 +4902,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         return FALSE;
     }
 
-    if(info->type == NULL 
-        || type_identify_with_class_name(info->type, "Null"))
+    if(info->type == NULL)
     {
         compile_err_msg(info, "no type for method call");
         info->err_num++;

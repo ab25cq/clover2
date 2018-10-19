@@ -332,7 +332,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     else if(left_class->mGenericsParamClassNum != -1 || right_class->mGenericsParamClassNum != -1) {
         return FALSE;
     }
-    else if(type_identify_with_class_name(right3, "Null") && !((left_class->mFlags & CLASS_FLAGS_PRIMITIVE) || left3->mArray) && left->mNullable) 
+    else if(type_identify_with_class_name(right3, "Null") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE) && left->mNullable) 
     {
         return TRUE;
     }

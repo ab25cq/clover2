@@ -141,6 +141,7 @@ jit-compile:
 	if test -e sockaddr_in.bc; then ./bclover2 sockaddr_in.bc; fi
 	if test -e sockaddr_un.bc; then ./bclover2 sockaddr_un.bc; fi
 	if test -e timeval.bc; then ./bclover2 timeval.bc; fi
+	if test -e Null.bc; then ./bclover2 Null.bc; fi
 	if test -e Buffer.bc; then ./bclover2 Buffer.bc; fi
 
 #########################################################
@@ -375,6 +376,9 @@ install:
 
 	$(INSTALL) -m 644 ./timeval.oclcl $(DESTDIR)/share/clover2
 	if test -e libtimeval.so; then $(INSTALL) -m 755 ./libtimeval.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libtimeval.so $(DESTDIR)/share/clover2; fi
+
+	$(INSTALL) -m 644 ./Null.oclcl $(DESTDIR)/share/clover2
+	if test -e libNull.so; then $(INSTALL) -m 755 ./libNull.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libNull.so $(DESTDIR)/share/clover2; fi
 
 
 	$(INSTALL) -m 644 ./MArray.clm $(DESTDIR)/share/clover2

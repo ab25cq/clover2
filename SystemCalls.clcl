@@ -526,6 +526,7 @@ class System
     def raw(): static native throws Exception;
     def noraw(): static native throws Exception;
     def getch(): static native int throws Exception;
+    def nodelay(window:pointer@WINDOW, true_or_false:bool): static native throws Exception;
     def setEscapeDelay(msec:int): static native;
     def getEscapeDelay(): static native int;
 
