@@ -259,7 +259,7 @@ class CLNodeTreePlus
     }
 
     def toString():String {
-        "plus tree left \{self.left?.toString()} right \{self.right?.toString}";
+        "plus tree left \{self.left?.toString():""} right \{self.right?.toString:""}";
     }
 
     def equals(right:CLNodeTreePlus): bool {
@@ -302,7 +302,7 @@ class CLNodeTreeMinus
     }
 
     def toString():String {
-        "plus tree left \{self.left?.toString()} right \{self.right?.toString}";
+        "plus tree left \{self.left?.toString():""} right \{self.right?.toString:""}";
     }
 
     def equals(right:CLNodeTreeMinus): bool {

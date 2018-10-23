@@ -1,4 +1,8 @@
 
+version 6.6.8
+
+    Fixed exception message bug.
+
 version 6.6.7
 
     Prevent from overflow when block. Now when block number is 16 to 64

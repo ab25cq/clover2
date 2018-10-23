@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.8
+
+    例外メッセージのバグを修正。
+
 version 6.6.7
 
     Whenのブロックが16以上になるとオーバーフローしていた問題を解決。64まで可能になりました。

@@ -200,3 +200,5 @@ println("BoolTest");
 BoolTest.main();
 println("ObjectTest");
 ObjectTest.main();
+println("QuetionOperator");
+QuetionOperator.main();

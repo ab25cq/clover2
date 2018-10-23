@@ -33,7 +33,7 @@ class ObjectTest {
 
         Clover.test("Object test2", b == null);
 
-        b?.match(/./).negative().if { b = "ABC" };
+        b?.match(/./).negative().if { b = "ABC" }:false;
 
         Clover.test("Object test4", b == null);
 
@@ -41,7 +41,7 @@ class ObjectTest {
 
         b = "ABC";
 
-        Clover.test("Object test6", b?.match(/./) == true);
+        Clover.test("Object test6", b?.match(/./):false == true);
 
         c:String? = null;
 

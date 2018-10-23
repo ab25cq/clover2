@@ -1,4 +1,15 @@
-class AAAA 
+class AAAAAA
 {
     var a:int;
+
+    def initialize() {
+    }
+
+    def method2() {
+        throw Exception("AAA")
+    }
+
+    def method() {
+        method2();
+    }
 }

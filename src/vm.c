@@ -571,6 +571,11 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
+
             return FALSE;
         }
 
@@ -655,6 +660,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
             return FALSE;
         }
 
@@ -709,6 +718,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
                 info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
                 info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+                if(sname2 && info->num_stack_trace > 0) {
+                    info->num_stack_trace--;
+                }
                 return FALSE;
             }
         }
@@ -840,6 +853,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
             return FALSE;
         }
 #else
@@ -853,6 +870,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
         info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+        if(sname2 && info->num_stack_trace > 0) {
+            info->num_stack_trace--;
+        }
         return FALSE;
 #endif
     }
@@ -882,6 +903,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_method_name = running_method_name;
                 info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
                 info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+                if(sname2 && info->num_stack_trace > 0) {
+                    info->num_stack_trace--;
+                }
                 return FALSE;
             }
 
@@ -905,6 +930,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
             return FALSE;
         }
 
@@ -967,6 +996,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
             return FALSE;
         }
 #else
@@ -984,6 +1017,10 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method = running_method;
             info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
             info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+
+            if(sname2 && info->num_stack_trace > 0) {
+                info->num_stack_trace--;
+            }
             return FALSE;
         }
 #endif
@@ -1004,7 +1041,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         sByteCode_free(&code);
     }
 
-    if(sname2) {
+    if(sname2 && info->num_stack_trace > 0) {
         info->num_stack_trace--;
     }
 
@@ -1722,12 +1759,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
-/*
-if(!gRunningCompiler && !gRunningInitializer) {
-printf("running_class_name %s running_method_name %s\n", info->running_class_name, info->running_method_name);
-show_inst(inst);
-}
-*/
         switch(inst) {
             case OP_NOP:
                 break;

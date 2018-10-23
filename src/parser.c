@@ -2671,6 +2671,13 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 *node = sNodeTree_create_method_call(*node, "if", params, num_params, *num_method_chains, info);
             }
             else {
+                /*
+                parser_err_msg(info, "? operator requires after :");
+                info->err_num++;
+
+                *node = 0;
+                */
+
                 num_params = 1;
 
                 BOOL lambda = FALSE;

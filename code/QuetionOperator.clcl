@@ -1,0 +1,36 @@
+
+class QuetionOperator
+{
+    def exceptionMethod():int {
+        throw Exception("BBB");
+
+        return 999;
+    }
+
+    def exceptionMethod():static int {
+        throw Exception("AAA");
+
+        return 999;
+    }
+
+    def initialize() {
+    }
+
+    def main():static {
+        a:String? = null;
+
+        aa:bool = a?.equals(""):true;
+
+        Clover.test("quetion operator", aa);
+
+        b :QuetionOperator? = QuetionOperator();
+
+        c := b?.exceptionMethod():123;
+
+        Clover.test("quetion operator2", c == 123);
+
+        c = b?.exceptionMethod().filter { it }:234;
+
+        Clover.test("quetion operator3", c == 234);
+    }
+}
