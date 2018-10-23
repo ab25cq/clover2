@@ -137,7 +137,7 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.6";
+char* gVersion = "6.6.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

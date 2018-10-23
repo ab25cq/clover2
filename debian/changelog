@@ -1,4 +1,8 @@
 
+clover2 (6.6.7-1) unstable; urgency=medium
+
+    * Prevent from overflow when block. Now when block number is 16 to 64
+
 clover2 (6.6.6-1) unstable; urgency=medium
 
     * Appended tyclover2 program for getting type.

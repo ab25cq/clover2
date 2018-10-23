@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.7
+
+    Whenのブロックが16以上になるとオーバーフローしていた問題を解決。64まで可能になりました。
+
 version 6.6.6
 
     Appended tyclover2 program for getting type.
