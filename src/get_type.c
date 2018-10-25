@@ -67,7 +67,7 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
         klass = get_class_with_load_and_initialize(class_name);
 
         if(klass == NULL) {
-            *type_ = create_node_type_with_class_name("int");
+            *type_ = NULL;
             return FALSE;
         }
     }
@@ -148,7 +148,7 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.0";
+char* gVersion = "6.7.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

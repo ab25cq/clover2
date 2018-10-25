@@ -1,4 +1,8 @@
 
+clover2 (6.7.1-1) unstable; urgency=medium
+
+    Some chages for tyclover2
+
 clover2 (6.7.0-1) unstable; urgency=medium
 
     * Prevent memory overflow when block. Now when block number is 64 to 32.
