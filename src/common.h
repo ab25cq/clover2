@@ -77,7 +77,7 @@
 #define CLOVER2_NUM_THREAD_MAX 512
 #define ANDAND_OROR_MAX 32
 
-#define WHEN_BLOCK_MAX 64
+#define WHEN_BLOCK_MAX 32
 
 #define SIGMAX 256
 

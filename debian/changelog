@@ -1,4 +1,8 @@
 
+clover2 (6.7.0-1) unstable; urgency=medium
+
+    * Prevent memory overflow when block. Now when block number is 64 to 32.
+
 clover2 (6.6.9-1) unstable; urgency=medium
 
     * Add future to tyclover2

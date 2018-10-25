@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.7.0
+
+    Prevent memory overflow when block. Now when block number is 64 to 32.
+
 version 6.6.9
 
     Add future to tyclover2
