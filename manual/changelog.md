@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.6.9
+
+    Add future to tyclover2
+
 version 6.6.8
 
     例外メッセージのバグを修正。

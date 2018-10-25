@@ -1,4 +1,8 @@
 
+clover2 (6.6.9-1) unstable; urgency=medium
+
+    * Add future to tyclover2
+
 clover2 (6.6.8-1) unstable; urgency=medium
 
     * Fixed exception message bug.

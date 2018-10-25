@@ -1,4 +1,8 @@
 
+version 6.6.9
+
+    Add future to tyclover2
+
 version 6.6.8
 
     Fixed exception message bug.

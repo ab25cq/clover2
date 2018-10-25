@@ -60,8 +60,18 @@ static void compiler_final()
     free_nodes();
 }
 
-static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)
+static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)
 {
+    sCLClass* klass = NULL;
+    if(class_name) {
+        klass = get_class_with_load_and_initialize(class_name);
+
+        if(klass == NULL) {
+            *type_ = create_node_type_with_class_name("int");
+            return FALSE;
+        }
+    }
+
     sParserInfo info;
 
     memset(&info, 0, sizeof(sParserInfo));
@@ -73,6 +83,7 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
     info.lv_table = lv_table;
     info.parse_phase = 0;
     info.get_type_for_interpreter = TRUE;
+    info.klass = klass;
 
     sCompileInfo cinfo;
     
@@ -119,13 +130,13 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
 }
 
 
-static void tclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size)
+static void tclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name)
 {
     sVarTable* lv_table = init_var_table();
     sVarTable* result_lv_table;
     sNodeType* type_ = NULL;
 
-    (void)get_type(source_value, fname_object_value, lv_table, &type_, &result_lv_table);
+    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table);
 
     if(type_ == NULL || type_->mClass == NULL) {
         type_name[0] = '\0';
@@ -137,7 +148,7 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.6.8";
+char* gVersion = "6.6.9";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -158,6 +169,13 @@ int main(int argc, char** argv)
     sBuf buf;
     sBuf_init(&buf);
 
+    char* class_name = NULL;
+
+    int i;
+    for(i=1; i<argc; i++) {
+        class_name = argv[i];
+    }
+
     while(!feof(stdin)) {
         char buf2[BUFSIZ];
 
@@ -172,7 +190,7 @@ int main(int argc, char** argv)
     }
 
     char type_name[1024];
-    tclover_get_type(buf.mBuf, "tyclover2", type_name, 1024);
+    tclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
 
     printf("%s\n", type_name);
 
