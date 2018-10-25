@@ -317,7 +317,7 @@ class String
     }
     def printlnForREPL() {
         if(self.len != 0) {
-            Global.println(self.insert(0, "=>"));
+            Global.println(self.clone().insert(0, "=>"));
         }
     }
 

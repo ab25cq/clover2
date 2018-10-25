@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 6.7.2
+
+    Fixed REPL bug.
+
+    Removed List.toSortableList, List.toEqualableList EqualableList.toSortableList.
+
+    Fixed Interface checking bug.
+
 version 6.7.1
 
     Some chages for tyclover2

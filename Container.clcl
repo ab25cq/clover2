@@ -1245,42 +1245,6 @@ class List <T:Object>
 
         return result;
     }
-
-    def toEqualableList():EqualableList<IEqualable> throws Exception {
-        result:EqualableList<IEqualable>  = EqualableList<IEqualable>();
-
-        it :ListItem<IEqualable>? = result.head;
-
-        while(!it.identifyWith(null)) {
-            item :IEqualable = it.item;
-
-            if(item implements IEqualable) {
-                result.add(item);
-            }
-
-            it = it.next;
-        }
-
-        return result;
-    }
-
-    def toSortableList():SortableList<ISortable> throws Exception {
-        result:SortableList<ISortable>  = SortableList<ISortable>();
-
-        it :ListItem<ISortable>? = result.head;
-
-        while(!it.identifyWith(null)) {
-            item :ISortable = it.item;
-
-            if(item implements ISortable) {
-                result.add(item);
-            }
-
-            it = it.next;
-        }
-
-        return result;
-    }
 }
 
 class EqualableList<T:IEqualable>
@@ -1302,24 +1266,6 @@ class EqualableList<T:IEqualable>
                 if(e.message.equals("break")) {
                     break;
                 }
-            }
-
-            it = it.next;
-        }
-
-        return result;
-    }
-
-    def toSortableList():SortableList<ISortable> throws Exception {
-        result:SortableList<ISortable>  = SortableList<ISortable>();
-
-        it :ListItem<ISortable>? = result.head;
-
-        while(!it.identifyWith(null)) {
-            item :ISortable = it.item;
-
-            if(item implements ISortable) {
-                result.add(item);
             }
 
             it = it.next;

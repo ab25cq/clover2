@@ -1,7 +1,11 @@
 
+clover2 (6.7.2-1) unstable; urgency=medium
+
+    * Fixed REPL bug. Removed List.toSortableList, List.toEqualableList EqualableList.toSortableList. Fixed Interface checking bug.
+
 clover2 (6.7.1-1) unstable; urgency=medium
 
-    Some chages for tyclover2
+    * Some chages for tyclover2
 
 clover2 (6.7.0-1) unstable; urgency=medium
 

@@ -719,6 +719,13 @@ class Class
         }
         return result;
     }
+    def getFields():List<Field> {
+        result := List<Field>();
+        for(i:=0; i<numFields; i++) {
+            result.add(getField(i));
+        }
+        return result;
+    }
     def createObject(): Anonymous {
         return Clover.createObject(className);
     }
