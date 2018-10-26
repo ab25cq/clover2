@@ -1,7 +1,7 @@
 
 clover2 (6.7.4-1) unstable; urgency=medium
 
-    * Appended 'regex "regex"' expression for regex for including # regex.
+    * Appended 'regex "regex"' expression for regex for including # regex. Command completion changes
 
 clover2 (6.7.3-1) unstable; urgency=medium
 
