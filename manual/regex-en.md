@@ -160,3 +160,5 @@ Next, I would like to go to the explanation of indexOf. indexOf returns the offs
 If it is judged whether the return value of indexOf () is -1 or not, it can judge whether a partial character string is included in the character string or not.
 
 that's all.
+
+Additional notes. Regular expressions can be written as regex "regular expressions" as expressions other than / regular expressions /. Regular expressions including # are treated as comments, but regex "regular expression" is fine. Honestly I wish I had done this from the beginning on this expression ,,,,

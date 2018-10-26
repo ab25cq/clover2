@@ -1,4 +1,8 @@
 
+version 6.7.4
+
+    Appended 'regex "regex"' expression for regex for including # regex.
+
 version 6.7.3
 
     Some chages for tyclover2

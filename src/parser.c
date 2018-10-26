@@ -3386,6 +3386,116 @@ static BOOL remove_indent_for_multi_line_string(sBuf* value, int indent, sParser
     return TRUE;
 }
 
+static BOOL parse_regex(unsigned int* node, sParserInfo* info)
+{
+    sNodeBlock* string_expressions[STRING_EXPRESSION_MAX];
+    memset(string_expressions, 0, sizeof(sNodeBlock*)*STRING_EXPRESSION_MAX);
+
+    int string_expression_offsets[STRING_EXPRESSION_MAX];
+    memset(string_expression_offsets, 0, sizeof(int)*STRING_EXPRESSION_MAX);
+
+    int num_string_expression = 0;
+
+    sBuf regex;
+    sBuf_init(&regex);
+
+    while(1) {
+        if(*info->p == '\\' && *(info->p+1) == '"') {
+            info->p++;
+            sBuf_append_char(&regex, *info->p);
+            info->p++;
+        }
+        else if(*info->p == '"') {
+            info->p++;
+            skip_spaces_and_lf(info);
+            break;
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '\\' && *(info->p+2) == '{') {
+            sBuf_append_char(&regex, *info->p);
+            info->p++;
+            sBuf_append_char(&regex, *info->p);
+            info->p++;
+            sBuf_append_char(&regex, *info->p);
+            info->p++;
+        }
+        else if(*info->p == '\\' && *(info->p+1) == '{') {
+            info->p+=2;
+
+            /// string expression ///
+            if(!parse_string_expression(string_expressions, string_expression_offsets, &num_string_expression, &regex, info)) 
+            {
+                MFREE(regex.mBuf);
+                return FALSE;
+            }
+        }
+        else if(*info->p == '\0') {
+            parser_err_msg(info, "close \" to make string value");
+            info->err_num++;
+            break;
+        }
+        else {
+            if(*info->p == '\n') info->sline++;
+
+            sBuf_append_char(&regex, *info->p);
+            info->p++;
+        }
+    }
+
+    skip_spaces_and_lf(info);
+
+    BOOL global = FALSE;
+    BOOL ignore_case = FALSE;
+    BOOL multiline = FALSE;
+    BOOL extended = FALSE;
+    BOOL dotall = FALSE;
+    BOOL anchored = FALSE;
+    BOOL dollar_endonly = FALSE;
+    BOOL ungreedy = FALSE;
+    while(1) {
+        if(*info->p == 'g') {
+            info->p++;
+            global = TRUE;
+        }
+        else if(*info->p == 'i') {
+            info->p++;
+            ignore_case = TRUE;
+        }
+        else if(*info->p == 's') {
+            info->p++;
+            dotall = TRUE;
+        }
+        else if(*info->p == 'm') {
+            info->p++;
+            multiline = TRUE;
+        }
+        else if(*info->p == 'A') {
+            info->p++;
+            anchored = TRUE;
+        }
+        else if(*info->p == 'D') {
+            info->p++;
+            dollar_endonly = TRUE;
+        }
+        else if(*info->p == 'U') {
+            info->p++;
+            ungreedy = TRUE;
+        }
+        else if(*info->p == 'x') {
+            info->p++;
+            extended = TRUE;
+        }
+        else {
+            break;
+        }
+    }
+
+    skip_spaces_and_lf(info);
+
+    *node = sNodeTree_create_regex(MANAGED regex.mBuf, global, ignore_case, multiline, extended, dotall, anchored, dollar_endonly, ungreedy, string_expressions, string_expression_offsets, num_string_expression, info);
+
+    return TRUE;
+}
+
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
     int num_method_chains = 0;
@@ -4191,6 +4301,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_sortable_carray_value(node, info)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "regex") == 0 && *info->p == '"') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("\"", info);
+
+            if(!parse_regex(node, info)) {
                 return FALSE;
             }
         }
