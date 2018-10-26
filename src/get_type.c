@@ -148,7 +148,7 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.2";
+char* gVersion = "6.7.3";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -171,28 +171,58 @@ int main(int argc, char** argv)
 
     char* class_name = NULL;
 
+    BOOL get_class_name = FALSE;
+    BOOL get_command_name = FALSE;
+
     int i;
     for(i=1; i<argc; i++) {
-        class_name = argv[i];
+        if(strcmp(argv[i], "--class") == 0) {
+            get_class_name = TRUE;
+        }
+        else if(strcmp(argv[i], "--command") == 0) {
+            get_command_name = TRUE;
+        }
+        else {
+            class_name = argv[i];
+        }
     }
 
-    while(!feof(stdin)) {
-        char buf2[BUFSIZ];
+    if(get_class_name) {
+        sClassTable* p = gHeadClassTable;
 
-        int result = fread(buf2, 1, BUFSIZ, stdin);
-        
-        if(result < 0) {
-            fprintf(stderr, "invalid stdin\n");
-            exit(1);
+        while(p) {
+            sCLClass* klass = p->mItem;
+
+            printf("%s\n", CLASS_NAME(klass));
+
+            p = p->mNextClass;
+        }
+    }
+    else if(get_command_name) {
+        int i;
+        for(i=0; i<gNumCommandNames; i++) {
+            printf("%s\n", gCommandNames[i]);
+        }
+    }
+    else {
+        while(!feof(stdin)) {
+            char buf2[BUFSIZ];
+
+            int result = fread(buf2, 1, BUFSIZ, stdin);
+            
+            if(result < 0) {
+                fprintf(stderr, "invalid stdin\n");
+                exit(1);
+            }
+
+            sBuf_append(&buf, buf2, result);
         }
 
-        sBuf_append(&buf, buf2, result);
+        char type_name[1024];
+        tclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
+
+        printf("%s\n", type_name);
     }
-
-    char type_name[1024];
-    tclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
-
-    printf("%s\n", type_name);
 
     compiler_final();
     parser_final();

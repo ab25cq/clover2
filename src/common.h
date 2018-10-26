@@ -576,6 +576,9 @@ int get_parent_var_num_of_sum(sVarTable* table);
 /// parser.c ///
 extern BOOL gInterpreter;
 
+extern char** gCommandNames;
+extern int gNumCommandNames;
+
 struct sGenericsParamInfoStruct
 {
     char mParamNames[GENERICS_TYPES_MAX][VAR_NAME_MAX];
