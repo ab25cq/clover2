@@ -64,8 +64,8 @@ void parser_init()
                                 struct stat stat_;
                                 if(stat(path2, &stat_) == 0) {
                                     if(stat_.st_mode & S_IXUSR) {
-                                        /*
                                         char candidate[PATH_MAX];
+                                        /*
                                         snprintf(candidate, PATH_MAX, "%s(", entry->d_name);
                                         gCommandNames[n++] = MANAGED MSTRDUP(candidate);
 
