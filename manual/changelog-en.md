@@ -1,4 +1,8 @@
 
+version 6.7.5
+
+    Fixed interpreter bug.
+
 version 6.7.4
 
     Appended 'regex "regex"' expression for regex for including # regex.

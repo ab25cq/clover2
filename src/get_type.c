@@ -112,7 +112,10 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
         *result_lv_table = info.lv_table;
 
         if(node != 0) {
-            (void)compile(node, &cinfo);
+            if(!compile(node, &cinfo)) {
+                *type_ = cinfo.type;
+                break;
+            }
 
             *type_ = cinfo.type;
 
@@ -148,7 +151,7 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.4";
+char* gVersion = "6.7.5";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

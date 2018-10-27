@@ -2661,7 +2661,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info)
+unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info)
 {
     unsigned node = alloc_node();
 
@@ -2676,6 +2676,9 @@ unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNode
     memcpy(gNodes[node].uValue.sIf.mElifNodeBlocks, MANAGED elif_node_blocks, sizeof(sNodeBlock*)*elif_num);
     gNodes[node].uValue.sIf.mElifNum = elif_num;
     gNodes[node].uValue.sIf.mElseNodeBlock = MANAGED else_node_block;
+
+    gNodes[node].uValue.sIf.mIfUnclosed = if_unclosed;
+    memcpy(gNodes[node].uValue.sIf.mElifUnclosed, elif_unclosed, sizeof(BOOL)*elif_num);
 
     gNodes[node].mLeft = 0;
     gNodes[node].mRight = 0;
@@ -2705,6 +2708,10 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
 
     if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    if(gNodes[node].uValue.sIf.mIfUnclosed) {
         return FALSE;
     }
 
@@ -2776,6 +2783,10 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
 
             if(!compile(elif_expression_node, info)) {
+                return FALSE;
+            }
+
+            if(gNodes[node].uValue.sIf.mElifUnclosed[j]) {
                 return FALSE;
             }
 
@@ -3020,6 +3031,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
+            if(info->pinfo->exist_brace_unclosed) {
+                return FALSE;
+            }
+
             append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
             info->type = create_node_type_with_class_name("String");
@@ -3160,6 +3175,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     return FALSE;
                 }
 
+                if(info->pinfo->exist_brace_unclosed) {
+                    return FALSE;
+                }
+
                 sNodeType* left_type = info->type;
                 sCLClass* klass = left_type->mClass;
 
@@ -3274,6 +3293,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             for(j=0; j<num_values[i]; j++) {
                 /// left value ///
                 if(!compile(expression_node, info)) {
+                    return FALSE;
+                }
+
+                if(info->pinfo->exist_brace_unclosed) {
                     return FALSE;
                 }
 
@@ -3794,6 +3817,10 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
 
     if(!compile(expression_node3, info)) {
+        return FALSE;
+    }
+
+    if(info->pinfo->exist_brace_unclosed) {
         return FALSE;
     }
 

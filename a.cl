@@ -1,4 +1,5 @@
 
-klass := Class("Integer");
+gg := slist { 1,2,3 }
 
-klass.getMethods();
+when("AAA") {
+    case (gg

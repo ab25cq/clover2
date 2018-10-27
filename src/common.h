@@ -607,6 +607,7 @@ struct sParserInfoStruct
     BOOL get_type_for_interpreter;
     BOOL next_command_is_to_bool;
     BOOL exist_block_object_err;
+    BOOL exist_brace_unclosed;
     BOOL multiple_assignment;
 };
 
@@ -699,6 +700,8 @@ struct sNodeTreeStruct
             MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];
             int mElifNum;
             MANAGED sNodeBlock* mElseNodeBlock;
+            BOOL mIfUnclosed;
+            BOOL mElifUnclosed[ELIF_NUM_MAX];
         } sIf;
         struct {
             unsigned int mExpressionNode;
@@ -891,7 +894,7 @@ void boxing_before_method_call(char* method_name, sCompileInfo* info, BOOL* arra
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_multiple_asignment(int num_elements, unsigned int tuple_elements[], int right_value, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], BOOL when_match[WHEN_BLOCK_MAX], sParserInfo* info);
-unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info);
+unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info);
 unsigned int sNodeTree_create_range(unsigned int head, unsigned int tail, sParserInfo* info);
 unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
 unsigned int sNodeTree_create_cbyte_value(char value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
@@ -914,7 +917,7 @@ unsigned int sNodeTree_create_assign_field(char* var_name, unsigned int left_nod
 unsigned int sNodeTree_create_load_variable(char* var_name, sParserInfo* info);
 unsigned int sNodeTree_create_return_expression(unsigned int expression_node, sParserInfo* info);
 unsigned int sNodeTree_create_throw_expression(unsigned int expression_node, sParserInfo* info);
-unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_node, MANAGED sNodeBlock** elif_node_block, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info);
+unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info);
 unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sNodeBlock* while_node_block, sParserInfo* info);
 unsigned int sNodeTree_break_expression(sParserInfo* info);
 unsigned int sNodeTree_false_expression(sParserInfo* info);

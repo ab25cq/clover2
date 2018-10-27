@@ -75,13 +75,22 @@ void display_candidates(char** candidates)
 
     p = candidates;
     while((candidate = *p) != NULL) {
-        char format[128];
-        format[0] = '%';
-        format[1] = '-';
-        snprintf(format + 2, 128-2, "%d", max_len + 2);
-        xstrncat(format, "s", 128);
+        if(max_len < maxx-1) {
+            char format[128];
+            format[0] = '%';
+            format[1] = '-';
 
-        printf(format, candidate);
+            snprintf(format + 2, 128-2, "%d", max_len + 2);
+            xstrncat(format, "s", 128);
+            printf(format, candidate);
+        }
+        else {
+            char candidate2[128];
+            xstrncpy(candidate2, candidate, maxx-1);
+
+            printf("%s", candidate2);
+        }
+
         n++;
         if(n == cols) {
             puts("");
@@ -90,7 +99,7 @@ void display_candidates(char** candidates)
         p++;
     }
 
-    puts("");
+    if(n != 0) { puts(""); }
 }
 
 static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass);
@@ -1151,7 +1160,10 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
         *result_lv_table = info.lv_table;
 
         if(node != 0) {
-            (void)compile(node, &cinfo);
+            if(!compile(node, &cinfo)) {
+                *type_ = cinfo.type;
+                break;
+            }
 
             *type_ = cinfo.type;
 
@@ -1665,6 +1677,7 @@ static int my_complete_internal(int count, int key)
                     if(strcmp(CLASS_NAME(klass), "Command") == 0) {
                         int num_methods = 0;
                         char** candidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+
                         command_completion(exp, candidates, num_methods);
 
                         MFREE(candidates);
@@ -2349,7 +2362,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.4";
+char* gVersion = "6.7.5";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

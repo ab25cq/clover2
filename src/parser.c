@@ -1076,6 +1076,15 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         return TRUE;
     }
 
+    BOOL if_unclosed;
+
+    if(*info->p != ')') {
+        if_unclosed = TRUE;
+    }
+    else {
+        if_unclosed = FALSE;
+    }
+
     expect_next_character_with_one_forward(")", info);
     expect_next_character_with_one_forward("{", info);
 
@@ -1089,6 +1098,9 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
 
     sNodeBlock* elif_node_blocks[ELIF_NUM_MAX];
     memset(elif_node_blocks, 0, sizeof(sNodeBlock*)*ELIF_NUM_MAX);
+
+    BOOL elif_unclosed[ELIF_NUM_MAX];
+    memset(elif_unclosed, 0, sizeof(BOOL)*ELIF_NUM_MAX);
 
     int elif_num = 0;
 
@@ -1130,6 +1142,13 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
                 return TRUE;
             }
 
+            if(*info->p != ')') {
+                elif_unclosed[elif_num] = TRUE;
+            }
+            else {
+                elif_unclosed[elif_num] = FALSE;
+            }
+
             expect_next_character_with_one_forward(")", info);
             expect_next_character_with_one_forward("{", info);
 
@@ -1151,7 +1170,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         }
     }
 
-    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, info);
+    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, if_unclosed, elif_unclosed, info);
 
     return TRUE;
 }
@@ -1170,6 +1189,13 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
         parser_err_msg(info, "require expression for while");
         info->err_num++;
         return TRUE;
+    }
+
+    if(*info->p != ')') {
+        info->exist_brace_unclosed = TRUE;
+    }
+    else {
+        info->exist_brace_unclosed = FALSE;
     }
 
     expect_next_character_with_one_forward(")", info);
@@ -1201,7 +1227,13 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
         return TRUE;
     }
 
-    expect_next_character_with_one_forward(";", info);
+    if(*info->p == ';') {
+        expect_next_character_with_one_forward(";", info);
+    }
+    else {
+        *node = expression_node;
+        return TRUE;
+    }
 
     /// expression2 ///
     unsigned int expression_node2 = 0;
@@ -1215,7 +1247,13 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
         return TRUE;
     }
 
-    expect_next_character_with_one_forward(";", info);
+    if(*info->p == ';') {
+        expect_next_character_with_one_forward(";", info);
+    }
+    else {
+        *node = expression_node2;
+        return TRUE;
+    }
 
     /// expression3 ///
     unsigned int expression_node3 = 0;
@@ -1229,7 +1267,14 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
         return TRUE;
     }
 
-    expect_next_character_with_one_forward(")", info);
+    if(*info->p == ')') {
+        expect_next_character_with_one_forward(")", info);
+    }
+    else {
+        *node = expression_node3;
+        return TRUE;
+    }
+
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = NULL;
