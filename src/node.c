@@ -4945,6 +4945,11 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
     char method_name[METHOD_NAME_MAX];
     xstrncpy(method_name, gNodes[node].uValue.sMethodCall.mMethodName, METHOD_NAME_MAX);
 
+    if(info->pinfo->get_type_for_interpreter && strcmp(method_name, "") == 0) 
+    {
+        return FALSE;
+    }
+
     /// Do boxing if the class of left object is primitive ///
     BOOL array_and_special_method = FALSE;
     boxing_before_method_call(method_name, info, &array_and_special_method);

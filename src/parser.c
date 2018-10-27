@@ -2474,7 +2474,9 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
             info->p++;
             skip_spaces_and_lf(info);
 
-            if(info->get_type_for_interpreter && *info->p == '\0') {
+            if(info->get_type_for_interpreter && *info->p == '\0') 
+            {
+                *node = sNodeTree_create_method_call(*node, "", NULL, 0, 0, info);
                 return TRUE;
             }
 
@@ -2487,6 +2489,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 skip_spaces_and_lf(info);
 
                 if(info->get_type_for_interpreter && *info->p == '\0') {
+                    *node = sNodeTree_create_method_call(*node, "", NULL, 0, *num_method_chains, info);
                     return TRUE;
                 }
 
