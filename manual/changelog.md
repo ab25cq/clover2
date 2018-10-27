@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 6.7.6
+
+    Fixed interpreter bug.
+
 version 6.7.5
 
     Fixed interpreter bug.

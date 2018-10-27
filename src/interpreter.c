@@ -1302,7 +1302,7 @@ static int my_complete_internal(int count, int key)
                     p++;
                 }
 
-                if(*p != '(' && *p != '{') {
+                if(*p != '(' && *p != '{' && *p != ':' && *p != '=') {
                     inputing_command_line = TRUE;
 
                     /// params ////
@@ -1561,67 +1561,6 @@ static int my_complete_internal(int count, int key)
     else if(expression_is_void) {
         rl_completion_entry_function = on_complete;
 
-        char* words[] = {
-            "if(",
-            "while(",
-            "for(",
-            "break",
-            "true",
-            "false",
-            "null",
-            "throw",
-            "try(",
-            "return",
-            "new",
-            "closure(",
-            "lambda(",
-            "block{",
-            "inherit(",
-            "list{",
-            "equalable_list{",
-            "sortable_list{",
-            "elist{",
-            "slist{",
-            "tuple{",
-            "hash{",
-            "array{",
-            "equalable_array{",
-            "sortable_array{",
-            "earray{",
-            "sarray{",
-            NULL
-        };
-        int num_words = 0;
-        while(words[num_words]) {
-            num_words++;
-        }
-
-        int num_candidates = 0;
-        int max_candidates = CLASS_NUM_MAX + METHOD_NUM_MAX * 3 + 128 + LOCAL_VARIABLE_MAX * 3 + 1024;
-        char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
-
-        int i;
-        for(i=0; i<num_words; i++) {
-            candidates[i] = MANAGED MSTRDUP(words[i]);
-        }
-
-        num_candidates += num_words;
-        
-        get_class_names(candidates, &num_candidates, max_candidates);
-        get_global_method_names(candidates, &num_candidates, max_candidates);
-        get_system_method_names(candidates, &num_candidates, max_candidates);
-        get_system_class_field_names(candidates, &num_candidates, max_candidates);
-        local_variable_completion(exp, candidates, &num_candidates, max_candidates);
-        command_completion(exp, candidates, num_candidates);
-        MFREE(candidates);
-
-        gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t\n.({ =";
-    }
-    /// inputing method name ///
-    else if(!in_double_quote && !in_single_quote && *p == '.') {
-        rl_completion_entry_function = on_complete;
-
         /// class method ? ///
         char* p2 = p;
         p2--;
@@ -1660,7 +1599,7 @@ static int my_complete_internal(int count, int key)
                 (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
             }
             else {
-                (void)get_type(exp, "iclover2", tmp_lv_table, &type_, &result_lv_table);
+                (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
             }
 
             if(type_) {
@@ -2362,7 +2301,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.5";
+char* gVersion = "6.7.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
