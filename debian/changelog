@@ -1,4 +1,8 @@
 
+clover2 (7.0.3-1) unstable; urgency=medium
+
+    * Fixed REPL bug
+
 clover2 (7.0.2-1) unstable; urgency=medium
 
     * Command has been able to get Path Object.

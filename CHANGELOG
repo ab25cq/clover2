@@ -1,4 +1,8 @@
 
+version 7.0.3
+
+    Fixed REPL bug
+
 version 7.0.2
 
     Command has been able to get Path Object.
