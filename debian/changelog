@@ -1,4 +1,8 @@
 
+clover2 (7.0.2-1) unstable; urgency=medium
+
+    * Command has been able to get Path Object.
+
 clover2 (7.0.1-1) unstable; urgency=medium
 
     * Fixed command completion bugs.

@@ -1,4 +1,8 @@
 
+version 7.0.2
+
+    Command has been able to get Path Object.
+
 version 7.0.1
 
     Fixed command completion bugs.

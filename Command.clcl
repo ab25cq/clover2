@@ -422,6 +422,9 @@ dynamic_class Command
             if(it.className().equals("String")) {
                 params2.add(it.toAnonymous().cast("String"));
             }
+            elif(it.className().equals("Path")) {
+                params.add(it.toAnonymous().cast("Path").toString());
+            }
             elif(it.className().match(/^List</)) {
                 list_:List<Anonymous> = it.toAnonymous();
 
