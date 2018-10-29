@@ -1286,7 +1286,7 @@ void shellModeCompletion(char* line)
     while(*p) {
         if(*p == '\\') {
             p++;
-            p++;
+            if(*p!=0)p++;
         }
         else if(!squort && *p == '"') {
             dquort = !dquort;
