@@ -613,8 +613,10 @@ static char* get_one_expression(char* source)
 
 char** gCandidates = NULL;
 int gNumCandidates = 0;
+int gSizeCandidates = 0;
 
 BOOL gInputingMethod = FALSE;
+BOOL gInputingTopLevel = FALSE;
 BOOL gInputingPath = FALSE;
 BOOL gInputingCommandPath = FALSE;
 
@@ -902,23 +904,16 @@ static void file_completion_command_line(char* text)
 }
 
 /// get program name from PATH environment variable ///
-void command_completion(char* line, char** candidates, int num_candidates)
+void command_completion()
 {
-    int size = 128 + num_candidates;
-    gCandidates = MCALLOC(1, sizeof(char*)*size);
-    int i;
-    for(i=0; i<num_candidates; i++) {
-        gCandidates[i] = candidates[i];
-    }
-    int n = num_candidates;
-
     char* env = getenv("PATH");
     char path[PATH_MAX];
 
     char* p = path;
     int len = strlen(env);
 
-    for(i= 0; i<len; i++) {
+    int i;
+    for(i=0; i<len; i++) {
         if(env[i] == ':') {
             *p = '\0';
 
@@ -951,19 +946,19 @@ void command_completion(char* line, char** candidates, int num_candidates)
                                     if(stat_.st_mode & S_IXUSR) {
                                         char candidate[PATH_MAX];
                                         snprintf(candidate, PATH_MAX, "%s(", entry->d_name);
-                                        gCandidates[n++] = MANAGED MSTRDUP(candidate);
+                                        gCandidates[gNumCandidates++] = MANAGED MSTRDUP(candidate);
 
-                                        if(n >= size) {
-                                            size *= 2;
-                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                                        if(gNumCandidates >= gSizeCandidates) {
+                                            gSizeCandidates *= 2;
+                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*gSizeCandidates);
                                         }
 
                                         snprintf(candidate, PATH_MAX, "%s", entry->d_name);
-                                        gCandidates[n++] = MANAGED MSTRDUP(candidate);
+                                        gCandidates[gNumCandidates++] = MANAGED MSTRDUP(candidate);
 
-                                        if(n >= size) {
-                                            size *= 2;
-                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*size);
+                                        if(gNumCandidates >= gSizeCandidates) {
+                                            gSizeCandidates *= 2;
+                                            gCandidates = MREALLOC(gCandidates, sizeof(char*)*gSizeCandidates);
                                         }
                                     }
                                 }
@@ -986,9 +981,6 @@ void command_completion(char* line, char** candidates, int num_candidates)
             }
         }
     }
-
-    gCandidates[n] = NULL;
-    gNumCandidates = n;
 }
 
 void get_class_names(char** candidates, int *num_candidates, int max_candidates)
@@ -1180,6 +1172,38 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
     return TRUE;
 }
 
+static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
+{
+    BOOL result = FALSE;
+    sParserInfo info;
+
+    memset(&info, 0, sizeof(sParserInfo));
+
+    info.p = source;
+    info.source = source;
+    info.sname = fname;
+    info.sline = 1;
+    info.lv_table = lv_table;
+    info.parse_phase = 0;
+    info.get_in_the_shell_mode = TRUE;
+    info.get_type_for_interpreter = TRUE;
+
+    while(*info.p) {
+        info.exist_block_object_err = FALSE;
+
+        unsigned int node = 0;
+        (void)expression(&node, &info);
+        result = info.inputing_shell_mode;
+
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+        }
+    }
+
+    return result;
+}
+
 static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
     BOOL expression_is_void = TRUE;
@@ -1247,8 +1271,194 @@ static void local_variable_completion(char* exp, char** candidates, int *num_can
 
 char* on_complete(const char* text, int a);
 
+void shellModeCompletion(char* line)
+{
+    char* p = line + strlen(line)-1;
+
+    while(p >= line) {
+        if(*p == ' ' || *p == '\t') {
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    char* word = MSTRDUP(p+1);
+
+    file_completion(word);
+
+    MFREE(word);
+
+    gInputingCommandPath = TRUE;
+
+    rl_completer_word_break_characters = "\t ";
+}
+
+void methodNameCompletion(char* line)
+{
+    sNodeType* type_ = NULL;
+    sVarTable* result_lv_table;
+    sVarTable* tmp_lv_table = clone_var_table(gLVTable);
+
+    (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
+
+    if(type_) {
+        sCLClass* klass = type_->mClass;
+
+        if(type_->mArray) {
+            klass = get_class("Array");
+        }
+        else if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+            klass = klass->mBoxingClass;
+        }
+
+        if(klass) {
+            if(strcmp(CLASS_NAME(klass), "Command") == 0) {
+                int num_methods = 0;
+                char** candidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+
+                int size = 128 + num_methods;
+                gCandidates = MCALLOC(1, sizeof(char*)*size);
+                int i;
+                for(i=0; i<num_methods; i++) {
+                    gCandidates[i] = candidates[i];
+                }
+
+                gNumCandidates = num_methods;
+                gSizeCandidates = size;
+
+                MFREE(candidates);
+
+                command_completion();
+
+                gCandidates[gNumCandidates] = NULL;
+            }
+            else {
+                int num_methods = 0;
+                gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
+                gNumCandidates = num_methods;
+
+                gCandidates[gNumCandidates] = NULL;
+            }
+
+            gInputingMethod = TRUE;
+            rl_completer_word_break_characters = "\t\n.({";
+        }
+    }
+}
+
+void localVariableCompletion(char* line)
+{
+    int max_candidates = 1024;
+    char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
+    int num_candidates = 0;
+    local_variable_completion(line, candidates, &num_candidates, max_candidates);
+
+    if(gNumCandidates >= gSizeCandidates + num_candidates) {
+        int new_size = (gSizeCandidates + num_candidates + 1) * 2;
+        gCandidates= MREALLOC(gCandidates, sizeof(char*)*new_size);
+        gSizeCandidates = new_size;
+    }
+
+    int i;
+    for(i=0; i<num_candidates; i++) {
+        gCandidates[gNumCandidates+i] = candidates[i];
+    }
+    gNumCandidates+=num_candidates;
+
+    MFREE(candidates);
+}
+
+void classNameCompletion()
+{
+    int num_candidates = 0;
+    int max_candidates = CLASS_NUM_MAX + 128;
+    char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
+
+    get_class_names(candidates, &num_candidates, max_candidates);
+
+    if(gNumCandidates >= gSizeCandidates + num_candidates) {
+        int new_size = (gSizeCandidates + num_candidates + 1) * 2;
+        gCandidates= MREALLOC(gCandidates, sizeof(char*)*new_size);
+        gSizeCandidates = new_size;
+    }
+
+    int i;
+    for(i=0; i<num_candidates; i++) {
+        gCandidates[gNumCandidates+i] = candidates[i];
+    }
+    gNumCandidates+=num_candidates;
+
+    MFREE(candidates);
+}
+
+void commandCompletion()
+{
+    command_completion();
+}
+
+void globalMethodCompletion() 
+{
+    int num_candidates = 0;
+    int max_candidates = 1024;
+    char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
+    get_global_method_names(candidates, &num_candidates, max_candidates);
+
+    int i;
+    for(i=0; i<num_candidates; i++) {
+        gCandidates[gNumCandidates+i] = candidates[i];
+    }
+    gNumCandidates+=num_candidates;
+
+    MFREE(candidates);
+}
+
+void systemMethodCompletion()
+{
+    int num_candidates = 0;
+    int max_candidates = 1024;
+    char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
+    get_system_method_names(candidates, &num_candidates, max_candidates);
+
+    int i;
+    for(i=0; i<num_candidates; i++) {
+        gCandidates[gNumCandidates+i] = candidates[i];
+    }
+    gNumCandidates+=num_candidates;
+
+    MFREE(candidates);
+}
+
+void topLevelCompletion(char* line)
+{
+    char* words[] = { "if", "when", "while", "for", "break", "true", "false", "null", "wildcard", "throw", "try", "return", "new", "closure", "lambda", "var", "val", "def", "inherit", "unset", "list", "elist", "slist", "tuple", "hash", "array", "earray", "sarray", NULL };
+
+    gSizeCandidates = 1024;
+    gCandidates = MCALLOC(1, sizeof(char*)*gSizeCandidates);
+
+    int i=0;
+    while(words[i]) {
+        gCandidates[i] = MSTRDUP(words[i]);
+        gNumCandidates++;
+        i++;
+    }
+
+    classNameCompletion();
+    localVariableCompletion(line);
+    globalMethodCompletion();
+    systemMethodCompletion();
+    commandCompletion();
+
+    gCandidates[gNumCandidates] = NULL;
+
+    gInputingTopLevel = TRUE;
+    rl_completer_word_break_characters = "\t\n.({";
+}
+
 static int my_complete_internal(int count, int key)
 {
+    gInputingTopLevel = FALSE;
     gInputingMethod = FALSE;
     gInputingPath = FALSE;
     gInputingCommandPath = FALSE;
@@ -1257,396 +1467,44 @@ static int my_complete_internal(int count, int key)
 
     /// parse the line ///
     char* line = ALLOC line_buffer_from_head_to_cursor_point();
-    char* exp = get_one_expression(line);
 
-    /// in double quote or single quote ? ///
-    BOOL in_double_quote = FALSE;
-    BOOL in_single_quote = FALSE;
-    char* p = exp;
+    /// get type ///
+    sVarTable* tmp_lv_table = clone_var_table(gLVTable);
 
-    while(*p) {
-        if(*p == '"') {
-            p++;
-            in_double_quote = !in_double_quote;
-        }
-        else if(*p == '\'') {
-            p++;
-            in_single_quote = !in_single_quote;
-        }
-        else if(*p == '\\') {
-            p++;
-            if(*p != '\0') {
-                p++;
-            }
-        }
-        else {
-            p++;
-        }
+    BOOL shell_mode = is_shell_mode(line, "iclover2", tmp_lv_table);
+
+    if(shell_mode) {
+        shellModeCompletion(line);
     }
-
-    /// Is Command line ? ///
-    BOOL inputing_command_line = FALSE;
-    p = exp;
-    while(*p) {
-        if(*p == ' ' || *p == '\t') {
-            p++;
-        }
-        else if(isalnum(*p) || *p == '-') {
-            /// Command name ///
-            while(isalnum(*p) || *p == '-') {
-                p++;
-            }
-
-            if(*p == ' ' || *p == '\t') {
-                while(*p == ' ' || *p == '\t') {
-                    p++;
-                }
-
-                if(*p != '(' && *p != '{' && *p != ':' && *p != '=') {
-                    inputing_command_line = TRUE;
-
-                    /// params ////
-                    while(*p) {
-                        while(!(*p == ' ' || *p == '\t' || *p == '\0')) {
-                            p++;
-                        }
-                        while(*p == ' ' || *p == '\t') {
-                            p++;
-                        }
-                    }
-                    break;
-                }
-                else {
-                    break;
-                }
-            }
-            else {
-                break;
-            }
-        }
-        else {
-            break;
-        }
-    }
-
-    /// Is expression void ? ///
-    BOOL expression_is_void = TRUE;
-
-    p = exp;
-    while(*p) {
-        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
-            p++;
-        }
-        else {
-            expression_is_void = FALSE;
-            p++;
-        }
-    }
-
-    p = exp + strlen(exp) -1;
-    while(p >= exp) {
-        if(isalnum(*p) || *p == '_') {
-            p--;
-        }
-        else {
-            break;
-        }
-    }
-
-    /// Is in the method block ? ///
-    BOOL in_the_method_block = FALSE;
-
-    p = line;
-    while(*p) {
-        if(*p == '"') {
-            p++;
-            while(*p) {
-                if(*p == '\\' && *p == '"') {
-                    p+=2;
-                }
-                else if(*p == '"') {
-                    p++;
-                    break;
-                }
-                else {
-                    p++;
-                }
-            }
-        }
-        else if(*p == '\'') {
-            p++;
-
-            if(*p == '\0') {
-            }
-            else if(*p == '\\') {
-                p++;
-
-                if(*p == '\0') {
-                }
-                else {
-                    p++;
-                }
-            }
-            else {
-                p++;
-            }
-
-            if(*p == '\'') {
-                p++;
-            }
-        }
-        else if(*p == '.' && (isalnum(*(p+1)) || *(p+1) == '_')) {
-            p++;
-
-            while(isalnum(*p) || *p == '_') {
-                p++;
-            }
-
-            while(*p == ' ' || *p == '\t' || *p == '\n') {
-                p++;
-            }
-
-            if(*p == '{') {
-                p++;
-                in_the_method_block = TRUE;
-
-                while(*p) {
-                    if(*p == '"') {
-                        p++;
-                        while(*p) {
-                            if(*p == '\\' && *p == '"') {
-                                p+=2;
-                            }
-                            else if(*p == '"') {
-                                p++;
-                                break;
-                            }
-                            else {
-                                p++;
-                            }
-                        }
-                    }
-                    else if(*p == '\'') {
-                        p++;
-
-                        if(*p == '\0') {
-                        }
-                        else if(*p == '\\') {
-                            p++;
-
-                            if(*p == '\0') {
-                            }
-                            else {
-                                p++;
-                            }
-                        }
-                        else {
-                            p++;
-                        }
-
-                        if(*p == '\'') {
-                            p++;
-                        }
-                    }
-                    else if(*p == '}') {
-                        p++;
-                        in_the_method_block = FALSE;
-                        break;
-                    }
-                    else {
-                        p++;
-                    }
-                }
-            }
-        }
-        else {
-            p++;
-        }
-    }
-
-    /// is class name completion ? ///
-    BOOL class_name_completion = FALSE;
-
-    p = line + strlen(line) -1;
-    while(p >= line) {
-        if(isalnum(*p) || *p == '_' || *p == ' ' || *p == '\t' || *p == ',') {
-            p--;
-        }
-        else if(*p == ':' || *p == '<') {
-            class_name_completion = TRUE;
-            break;
-        }
-        else if(strstr(p, "new") == p) {
-            class_name_completion = TRUE;
-            break;
-        }
-        else {
-            break;
-        }
-    }
-
-    /// is current_directory_command_name? ///
-    BOOL current_directory_command_name = FALSE;
-
-    //exp = get_one_expression(line);
-    char* p2 = exp;
-
-    while(*p2 == ' ') {
-        p2++;
-    }
-
-    if(*p2 == '.' && *(p2+1) == '/') {
-        current_directory_command_name = TRUE;
-
-        while(isalnum(*p2) || *p2 == '.' || *p2 == '/') {
-            p2++;
-        }
-
-        if(*p2 == ' ' || *p2 == '\t' || *p2 == '\n') {
-            while(*p2 == ' ' || *p2 == '\t' || *p2 =='\n') {
-                p2++;
-            }
-
-            exp = p2;
-
-            current_directory_command_name = FALSE;
-            class_name_completion = FALSE;
-            inputing_command_line = FALSE;
-            current_directory_command_name = FALSE;
-            expression_is_void = FALSE;
-        }
-    }
-
-    /// class name completion ///
-    if(!in_double_quote && !in_single_quote && class_name_completion) {
-        int num_candidates = 0;
-        int max_candidates = CLASS_NUM_MAX + 128;
-        char** candidates = MCALLOC(1, sizeof(char*)*max_candidates);
-
-        get_class_names(candidates, &num_candidates, max_candidates);
-
-        int size = 128 + num_candidates;
-        gCandidates = MCALLOC(1, sizeof(char*)*size);
-        int i;
-        for(i=0; i<num_candidates; i++) {
-            gCandidates[i] = candidates[i];
-        }
-        gCandidates[i] = NULL;
-        gNumCandidates = i;
-
-        MFREE(candidates);
-
-        gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t :<,";
-    }
-    /// command line ///
-    else if(!in_double_quote && !in_single_quote && inputing_command_line) {
-        rl_completion_entry_function = on_complete;
-
-        file_completion_command_line(exp);
-
-        gInputingCommandPath = TRUE;
-        rl_completer_word_break_characters = "\t ";
-    }
-    /// current directory command name ///
-    else if(current_directory_command_name) {
-        rl_completion_entry_function = on_complete;
-
-        file_completion(exp);
-
-        gInputingCommandPath = TRUE;
-        rl_completer_word_break_characters = "\t ";
-    }
-    /// first word ///
-    else if(expression_is_void) {
-        rl_completion_entry_function = on_complete;
-
-        /// class method ? ///
-        char* p2 = p;
-        p2--;
-
-        while(p2 >= exp) {
-            if(isalnum(*p2) || *p2 == '_') {
-                p2--;
-            }
-            else {
-                break;
-            }
-        }
-
-        p2++;
-
-        char* class_name = MCALLOC(1, sizeof(char)*(p-p2+1));
-
-        memcpy(class_name, p2, p-p2);
-        class_name[p-p2] = 0;
-
-        sCLClass* klass = get_class(class_name);
-
-        MFREE(class_name);
-
-        gCandidates = NULL;
-        gNumCandidates = 0;
-
-        /// normal method ///
-        if(klass == NULL) {
-            /// get type ///
-            sNodeType* type_ = NULL;
-            sVarTable* result_lv_table;
-            sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-
-            if(in_the_method_block) {
-                (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
-            }
-            else {
-                (void)get_type(line, "iclover2", tmp_lv_table, &type_, &result_lv_table);
-            }
-
-            if(type_) {
-                klass = type_->mClass;
-
-                if(type_->mArray) {
-                    klass = get_class("Array");
-                }
-                else if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                    klass = klass->mBoxingClass;
-                }
-
-                if(klass) {
-                    if(strcmp(CLASS_NAME(klass), "Command") == 0) {
-                        int num_methods = 0;
-                        char** candidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
-
-                        command_completion(exp, candidates, num_methods);
-
-                        MFREE(candidates);
-                    }
-                    else {
-                        int num_methods = 0;
-                        gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, FALSE, &num_methods);
-                        gNumCandidates = num_methods;
-                    }
-                }
-            }
-        }
-        /// class method ///
-        else {
-            int num_methods = 0;
-            gCandidates = ALLOC ALLOC get_method_names_with_arguments(klass, TRUE, &num_methods);
-            gNumCandidates = num_methods;
-        }
-
-        gInputingMethod = TRUE;
-        rl_completer_word_break_characters = "\t\n.({";
-    }
-    /// file completion ///
     else {
-        rl_completion_entry_function = on_complete;
+        BOOL is_method_name_completion = FALSE;
 
-        file_completion(exp);
+        char* p = line + strlen(line) -1;
 
-        gInputingPath = TRUE;
-        rl_completer_word_break_characters = "\t ";
+        while(p >= line) {
+            if(*p == '.') {
+                is_method_name_completion = TRUE;
+                break;
+            }
+            else if(isalnum(*p) || *p == '_') {
+                p--;
+
+                if(*p == '.') {
+                    is_method_name_completion = TRUE;
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+
+        if(is_method_name_completion) {
+            methodNameCompletion(line);
+        }
+        else {
+            topLevelCompletion(line);
+        }
     }
 
     MFREE(line);
@@ -1737,6 +1595,24 @@ char* on_complete(const char* text, int a)
 
                 p--;
             }
+        }
+    }
+    else if(gInputingTopLevel) {
+        if(strcmp(text2, "") != 0) {
+            char* p = text2 + strlen(text2) -1;
+
+            while(p >= text2) {
+                if(isalnum(*p) || *p == '_' || *p == '-') {
+                    p --;
+                }
+                else {
+                    break;
+                }
+            }
+
+            char* tmp = MSTRDUP(p + 1);
+            MFREE(text2);
+            text2 = tmp;
         }
     }
     else if(gInputingPath) {
@@ -1836,7 +1712,7 @@ char* on_complete(const char* text, int a)
 
                 flg_field = strstr(candidate, "(") == NULL && !gInputingCommandPath;
 
-                if(gInputingMethod) {
+                if(gInputingMethod || gInputingTopLevel) {
                     parenthesis = strstr(candidate, "(");
 
                     if(parenthesis) {
@@ -1881,7 +1757,7 @@ char* on_complete(const char* text, int a)
                         rl_insert_text(appended_chars2);
                     }
                 }
-                else if(gInputingMethod) {
+                else if(gInputingMethod || gInputingTopLevel) {
                     int len = strlen(candidate);
 
                     if(candidate[len-1] == '(') {
@@ -2301,7 +2177,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "6.7.6";
+char* gVersion = "7.0.0";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

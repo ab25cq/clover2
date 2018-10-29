@@ -5051,17 +5051,6 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         }
 
                         *node = sNodeTree_create_method_call(*node, "toBool", NULL, 0, num_method_chains, info);
-                        /*
-                        max_method_chains_node[num_method_chains] = *node;
-
-                        num_method_chains++;
-
-                        if(num_method_chains >= METHOD_CHAIN_MAX) {
-                            info->sline = sline_before;
-                            parser_err_msg(info, "overflow method chain");
-                            return FALSE;
-                        }
-                        */
                         
                         info->next_command_is_to_bool = TRUE;
                         break;
@@ -5080,6 +5069,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         info->p++;
                         break;
                     }
+                }
+
+                if(info->get_in_the_shell_mode 
+                    && *info->p == '\0' 
+                    && (num_params > 1
+                        || (num_params == 1 && (*(info->p-1) == ' ' || *(info->p-1) == '\t'))))
+                {
+                    info->inputing_shell_mode = TRUE;
+                    return FALSE;
                 }
             }
             else {

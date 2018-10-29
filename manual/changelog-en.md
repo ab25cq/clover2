@@ -1,4 +1,8 @@
 
+version 7.0.0
+
+    Refctoring REPL and fixed bugs. Now Clover2 REPL has gotten good completion like IDE.
+
 version 6.7.6
 
     Fixed interpreter bug.

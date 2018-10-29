@@ -605,6 +605,8 @@ struct sParserInfoStruct
     struct sCompileInfoStruct* cinfo;
     BOOL included_source;
     BOOL get_type_for_interpreter;
+    BOOL get_in_the_shell_mode;
+    BOOL inputing_shell_mode;
     BOOL next_command_is_to_bool;
     BOOL exist_block_object_err;
     BOOL exist_brace_unclosed;
