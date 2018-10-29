@@ -1,4 +1,8 @@
 
+version 7.0.1
+
+    Fixed command completion bugs.
+
 version 7.0.0
 
     Refctoring REPL and fixed bugs. Now Clover2 REPL has gotten good completion like IDE.

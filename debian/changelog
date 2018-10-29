@@ -1,4 +1,8 @@
 
+clover2 (7.0.1-1) unstable; urgency=medium
+
+    * Fixed command completion bugs.
+
 clover2 (7.0.0-1) unstable; urgency=medium
 
     * Refctoring REPL and fixed bugs. Now Clover2 REPL has gotten good completion like IDE.

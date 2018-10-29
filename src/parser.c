@@ -4605,6 +4605,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             sCLClass* global_klass = get_class("Global");
             sCLClass* system_klass = get_class("System");
+            sCLClass* command_class = get_class("Command");
 
             /// It is class name ///
             if(klass) {
@@ -4970,7 +4971,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_load_variable(buf, info);
             }
             /// shell mode ///
-            else if(including_slash || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
+            else if(including_slash || class_method_name_existance(command_class, buf) || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
@@ -5071,10 +5072,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     }
                 }
 
+                BOOL blank = *(info->p-1) == ' ' || *(info->p-1) == '\t';
+
                 if(info->get_in_the_shell_mode 
                     && *info->p == '\0' 
                     && (num_params > 1
-                        || (num_params == 1 && (*(info->p-1) == ' ' || *(info->p-1) == '\t'))))
+                        || (num_params == 1 && blank)
+                        || (num_params == 0 && is_command_name(buf) && blank)
+                        || (num_params >= 1 && is_command_name(buf))))
                 {
                     info->inputing_shell_mode = TRUE;
                     return FALSE;

@@ -1273,7 +1273,78 @@ char* on_complete(const char* text, int a);
 
 void shellModeCompletion(char* line)
 {
-    char* p = line + strlen(line)-1;
+    /// parse command line ///
+    BOOL command_name_completion = TRUE;
+
+    char* p = line;
+
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
+
+    while(*p == ' ' || *p == '\t') { p++; }
+
+    while(*p) {
+        if(*p == '\\') {
+            p++;
+            p++;
+        }
+        else if(!squort && *p == '"') {
+            dquort = !dquort;
+            p++;
+        }
+        else if(!dquort && *p == '\'') {
+            dquort = !squort;
+            p++;
+        }
+        else if(squort || dquort) {
+            p++;
+        }
+        else if((*p == '|' && *(p+1) == '|')
+            || (*p == '&' && *(p+1) == '&'))
+        {
+            p+=2;
+            command_name_completion = TRUE;
+
+            while(*p == ' ' || *p == '\t') { p++; }
+
+            while(*p) {
+                if(*p == ' ' || *p == '\t') {
+                    p++;
+                    command_name_completion = FALSE;
+                    break;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+        else if((*p == '|') || (*p == ';')) {
+            p++;
+            command_name_completion = TRUE;
+
+            while(*p == ' ' || *p == '\t') { p++; }
+
+            while(*p) {
+                if(*p == ' ' || *p == '\t') {
+                    p++;
+                    command_name_completion = FALSE;
+                    break;
+                }
+                else {
+                    p++;
+                }
+            }
+        }
+        else if(*p == ' ' || *p == '\t') {
+            p++;
+            command_name_completion = FALSE;
+        }
+        else {
+            p++;
+        }
+    }
+
+    p = line + strlen(line)-1;
 
     while(p >= line) {
         if(*p == ' ' || *p == '\t') {
@@ -1284,15 +1355,28 @@ void shellModeCompletion(char* line)
         }
     }
 
-    char* word = MSTRDUP(p+1);
+    if(command_name_completion) {
+        gSizeCandidates = 1024;
+        gCandidates = MCALLOC(1, sizeof(char*)*gSizeCandidates);
 
-    file_completion(word);
+        command_completion();
 
-    MFREE(word);
+        gCandidates[gNumCandidates] = NULL;
 
-    gInputingCommandPath = TRUE;
+        gInputingTopLevel = TRUE;
+        rl_completer_word_break_characters = "\t\n.({";
+    }
+    else {
+        char* word = MSTRDUP(p+1);
 
-    rl_completer_word_break_characters = "\t ";
+        file_completion(word);
+
+        MFREE(word);
+
+        gInputingCommandPath = TRUE;
+
+        rl_completer_word_break_characters = "\t ";
+    }
 }
 
 void methodNameCompletion(char* line)
@@ -2177,7 +2261,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.0.0";
+char* gVersion = "7.0.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
