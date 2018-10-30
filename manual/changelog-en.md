@@ -1,4 +1,8 @@
 
+version 7.0.4
+
+    Fixed REPL bug and appended Path Object completion.
+
 version 7.0.3
 
     Fixed REPL bug

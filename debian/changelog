@@ -1,4 +1,8 @@
 
+clover2 (7.0.4-1) unstable; urgency=medium
+
+    * Fixed REPL bug and appended Path Object completion.
+
 clover2 (7.0.3-1) unstable; urgency=medium
 
     * Fixed REPL bug

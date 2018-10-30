@@ -610,6 +610,8 @@ struct sParserInfoStruct
     BOOL next_command_is_to_bool;
     BOOL exist_block_object_err;
     BOOL exist_brace_unclosed;
+    BOOL get_path_object;
+    BOOL inputing_path_object;
     BOOL multiple_assignment;
 };
 

@@ -3993,8 +3993,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '\0') {
-                parser_err_msg(info, "close \" to make string buffer value");
-                return FALSE;
+                if(info->get_path_object) {
+                    info->inputing_path_object = TRUE;
+                    return FALSE;
+                }
+                else {
+                    parser_err_msg(info, "close \" to make string buffer value");
+                    return FALSE;
+                }
             }
             else {
                 if(*info->p == '\n') info->sline++;

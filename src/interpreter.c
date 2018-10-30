@@ -1204,69 +1204,68 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
     return result;
 }
 
+static BOOL is_path_object(char* source, char* fname, sVarTable* lv_table)
+{
+    BOOL result = FALSE;
+    sParserInfo info;
+
+    memset(&info, 0, sizeof(sParserInfo));
+
+    info.p = source;
+    info.source = source;
+    info.sname = fname;
+    info.sline = 1;
+    info.lv_table = lv_table;
+    info.parse_phase = 0;
+    info.get_path_object = TRUE;
+    info.get_type_for_interpreter = TRUE;
+
+    while(*info.p) {
+        info.inputing_path_object = FALSE;
+
+        unsigned int node = 0;
+        (void)expression(&node, &info);
+        result = info.inputing_path_object;
+
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+        }
+    }
+
+    return result;
+}
+
 static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
-    BOOL expression_is_void = TRUE;
+    char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
+    memcpy(line2, rl_line_buffer, rl_point);
+    line2[rl_point] = '\0';
 
-    char* p = exp;
-    while(*p) {
-        if(*p == ' ' || *p == '\t' || *p == '\n' || isalpha(*p) || *p == '(' || *p == '_') {
-            p++;
-        }
-        else {
-            expression_is_void = FALSE;
-            p++;
-        }
-    }
+    /// get type ///
+    sVarTable* lv_table;
+    sNodeType* type_ = NULL;
+    sVarTable* tmp_lv_table = clone_var_table(gLVTable);
+    (void)get_type(line2, "iclover2", tmp_lv_table, &type_, &lv_table);
 
-    if(expression_is_void) {
-        sVarTable* table = gLVTable;
+    sVarTable* table = lv_table;
 
-        while(table) {
-            int j;
-            for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
-                sVar* var = table->mLocalVariables + j;
-                if(var->mName[0] != '\0') {
-                    if(*num_candidates < max_candidates) {
-                        candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
-                        (*num_candidates)++;
-                    }
+    while(table) {
+        int j;
+        for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
+            sVar* var = table->mLocalVariables + j;
+            if(var->mName[0] != '\0') {
+                if(*num_candidates < max_candidates) {
+                    candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
+                    (*num_candidates)++;
                 }
             }
-
-            table = table->mParent;
-        }
-    }
-    else {
-        char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
-        memcpy(line2, rl_line_buffer, rl_point);
-        line2[rl_point] = '\0';
-
-        /// get type ///
-        sVarTable* lv_table;
-        sNodeType* type_ = NULL;
-        sVarTable* tmp_lv_table = clone_var_table(gLVTable);
-        (void)get_type(line2, "iclover2", tmp_lv_table, &type_, &lv_table);
-
-        sVarTable* table = lv_table;
-
-        while(table) {
-            int j;
-            for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
-                sVar* var = table->mLocalVariables + j;
-                if(var->mName[0] != '\0') {
-                    if(*num_candidates < max_candidates) {
-                        candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
-                        (*num_candidates)++;
-                    }
-                }
-            }
-
-            table = table->mParent;
         }
 
-        MFREE(line2);
+        table = table->mParent;
     }
+
+    MFREE(line2);
 }
 
 char* on_complete(const char* text, int a);
@@ -1377,6 +1376,12 @@ void shellModeCompletion(char* line)
 
         rl_completer_word_break_characters = "\t ";
     }
+}
+
+void pathObjectCompletion(char* line)
+{
+    file_completion(line);
+    gInputingPath = TRUE;
 }
 
 void methodNameCompletion(char* line)
@@ -1557,7 +1562,14 @@ static int my_complete_internal(int count, int key)
 
     BOOL shell_mode = is_shell_mode(line, "iclover2", tmp_lv_table);
 
-    if(shell_mode) {
+    tmp_lv_table = clone_var_table(gLVTable);
+
+    BOOL inputing_path_object = is_path_object(line, "iclover2", tmp_lv_table);
+
+    if(inputing_path_object) {
+        pathObjectCompletion(line);
+    }
+    else if(shell_mode) {
         shellModeCompletion(line);
     }
     else {
@@ -2261,7 +2273,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.0.3";
+char* gVersion = "7.0.4";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

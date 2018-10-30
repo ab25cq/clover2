@@ -118,9 +118,14 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
         }
 
         if(node == 0) {
-            parser_err_msg(info, "require an expression");
-            info->err_num++;
-            break;
+            if(info->get_type_for_interpreter) {
+                return FALSE;
+            }
+            else {
+                parser_err_msg(info, "require an expression");
+                info->err_num++;
+                break;
+            }
         }
 
         append_node_to_node_block(*node_block, node);
