@@ -33,8 +33,8 @@ void parser_init()
     char* p = path;
     int len = strlen(env);
 
-    for(i= 0; i<len; i++) {
-        if(env[i] == ':') {
+    for(i= 0; i<len+1; i++) {
+        if(env[i] == ':' || i == len) {
             *p = '\0';
 
             if(access(path, F_OK) == 0) {
@@ -93,6 +93,10 @@ void parser_init()
             }
 
             p = path;
+
+            if(i == len) {
+                break;
+            }
         }
         else {
             *p++ = env[i];

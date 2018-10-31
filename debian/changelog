@@ -1,4 +1,8 @@
 
+clover2 (7.0.6-1) unstable; urgency=medium
+
+    * Fixed bug with getting command name from PATH environment variable
+
 clover2 (7.0.5-1) unstable; urgency=medium
 
     * When transferring a class, you can now assign an object to the transfer class. class Path { path:delegate String; def initialize() {} }; b := Path(); a:String = b;

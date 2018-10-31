@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 7.0.6
+
+    Fixed bug with getting command name from PATH environment variable
+
 version 7.0.5
 
     クラスを移譲した場合、移譲先のクラスにオブジェクトを代入できるようになりました。

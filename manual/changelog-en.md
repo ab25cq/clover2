@@ -1,4 +1,8 @@
 
+version 7.0.6
+
+    Fixed bug with getting command name from PATH environment variable
+
 version 7.0.5
 
     When transferring a class, you can now assign an object to the transfer class.
