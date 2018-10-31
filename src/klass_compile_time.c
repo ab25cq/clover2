@@ -808,6 +808,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     return TRUE;
 }
 
+
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class, BOOL output_message)
 {
     sCLClass* anonymous_class = get_class("Anonymous");
@@ -1052,7 +1053,7 @@ BOOL write_all_modified_classes()
     return TRUE;
 }
 
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, sNodeType* result_type)
 {
     if(klass->mNumFields == klass->mSizeFields) {
         int new_size = klass->mSizeFields * 2;
@@ -1063,7 +1064,7 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
 
     const int num_fields = klass->mNumFields;
 
-    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0) | (delegated ? FIELD_FLAGS_DELEGATED:0);
     klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
     klass->mFields[num_fields].mNumDelegatedMethod = 0;
@@ -1188,7 +1189,7 @@ static BOOL type_name_to_cl_type(char** p, ALLOC sCLType** cl_type, sCLClass* kl
     return TRUE;
 }
 
-BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name)
+BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, char* field_type_name)
 {
     if(klass->mNumFields == klass->mSizeFields) {
         int new_size = klass->mSizeFields * 2;
@@ -1199,7 +1200,7 @@ BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL privat
 
     const int num_fields = klass->mNumFields;
 
-    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0) | (delegated ? FIELD_FLAGS_DELEGATED : 0);
     klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
     klass->mFields[num_fields].mNumDelegatedMethod = 0;

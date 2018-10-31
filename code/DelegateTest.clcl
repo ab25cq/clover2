@@ -46,6 +46,9 @@ class DelegateClass
 }
 
 class DelegateTest {
+    def method(a:DelegateClassA): static int {
+        return a.a;
+    }
     def main():static {
         a := new DelegateClass();
 
@@ -55,5 +58,19 @@ class DelegateTest {
 
         Clover.test("delegate test", a.get() == 345);
         Clover.test("delegate test2", a.plus(1, 2) == 3);
+
+        a.a(777);
+        
+        x:DelegateClassA = a;
+
+        Clover.test("delegate test3", x.get() == 777);
+
+        y:DelegateClassA[] = DelegateClassA[3]();
+
+        y[0] = a;
+
+        Clover.test("delegate test4", y[0].get() == 777);
+
+        Clover.test("delegate test5", method(a) == 777);
     }
 }

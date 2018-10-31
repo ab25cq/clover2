@@ -165,6 +165,33 @@ int get_var_size(sNodeType* var_type)
     return size;
 }
 
+void store_delegated_varialbe(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)
+{
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = right_type->mClass;
+
+    if(is_delegated_class(left_type, right_type)) {
+        int i;
+        for(i=0; i<right_class->mNumFields; i++) {
+            sCLField* field = right_class->mFields + i;
+
+            sNodeType* left_type2 = create_node_type_with_class_pointer(left_class);
+            sNodeType* right_type2 = create_node_type_from_cl_type(field->mResultType, right_class);
+
+            if(type_identify(left_type2, right_type2) && (field->mFlags & FIELD_FLAGS_DELEGATED)) {
+                append_opecode_to_code(info->code, OP_LOAD_FIELD, info->no_output);
+                append_int_value_to_code(info->code, i, info->no_output);
+                int size = get_var_size(right_type2);
+
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                info->stack_num--;
+                info->stack_num++;
+            }
+        }
+    }
+}
+
 /// method param default value ///
 BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int* num_params, unsigned int params[PARAMS_MAX], sNodeType* param_types[PARAMS_MAX], sNodeType* generics_types, sCompileInfo* info, int size_method_indexes, int method_indexes[], int num_methods)
 {
@@ -277,8 +304,7 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(*num_params == method->mNumParams 
-                    && i < method->mNumParams) 
+                if(*num_params == method->mNumParams && i < method->mNumParams) 
                 {
                     sNodeType* param;
                     sNodeType* solved_param;
@@ -332,6 +358,30 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
                     }
                     else if(cast_posibility(solved_param, param_types[i])) {
                         cast_right_type_to_left_type(solved_param, &param_types[i], info);
+                    }
+                }
+            }
+
+            /// If the method is found from the delegation, make delegation ///
+            for(j=0; j<num_methods; j++) {
+                sCLMethod* method = klass->mMethods + method_indexes[j];
+
+                if(*num_params == method->mNumParams && i < method->mNumParams) 
+                {
+                    sNodeType* param;
+                    sNodeType* solved_param;
+
+                    param = create_node_type_from_cl_type(method->mParams[i].mType, klass);
+
+                    if(!solve_generics_types_for_node_type(param, ALLOC &solved_param, generics_types, TRUE, FALSE)) 
+                    {
+                        return FALSE;
+                    }
+
+                    if(is_delegated_class(solved_param, param_types[i])) {
+                        store_delegated_varialbe(solved_param, param_types[i], info);
+
+                        param_types[i] = solved_param;
                     }
                 }
             }
@@ -2490,6 +2540,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+
 unsigned int sNodeTree_create_store_variable(char* var_name, sNodeType* node_type, int right, sCLClass* klass, sParserInfo* info)
 {
     unsigned node = alloc_node();
@@ -2569,6 +2620,8 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
     int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sAssignVariable.mVarName);
 
     MASSERT(var_index != -1);
+
+    store_delegated_varialbe(left_type2, right_type, info);
 
     if(type_identify_with_class_name(left_type2, "Buffer") && type_identify_with_class_name(right_type, "pointer")) {
         append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
@@ -5972,6 +6025,8 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     }
 
+    store_delegated_varialbe(solved_field_type, right_type, info);
+
     if(type_identify_with_class_name(solved_field_type, "Buffer") && type_identify_with_class_name(right_type, "pointer")) {
         append_opecode_to_code(info->code, OP_STORE_FIELD_OF_BUFFER, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
@@ -6131,6 +6186,8 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     }
 
+    store_delegated_varialbe(field_type, right_type, info);
+
     if(type_identify_with_class_name(field_type, "Buffer") && type_identify_with_class_name(right_type, "pointer")) {
         append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD_OF_BUFFER, info->no_output);
         append_class_name_to_constant_pool_and_code(info, klass);
@@ -6209,8 +6266,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
         cast_right_type_to_left_type(node_type, &right_type, info);
     }
 
-    if(right_type == NULL 
-        || !substitution_posibility(node_type, right_type, NULL, NULL, NULL, NULL, TRUE))
+    if(right_type == NULL || !substitution_posibility(node_type, right_type, NULL, NULL, NULL, NULL, TRUE))
     {
         if(right_type == NULL || node_type->mClass == NULL) {
             compile_err_msg(info, "The different type between left type and right type(4). NULL type.");
@@ -6224,6 +6280,8 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+
+    store_delegated_varialbe(node_type, right_type, info);
 
     /// check node_type ///
     if(node_type->mArray) {
@@ -7516,6 +7574,8 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+
+    store_delegated_varialbe(left_type3, right_type2, info);
 
     //// generate code ///
     if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
@@ -8884,6 +8944,8 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
             int var_index = get_variable_index(info->lv_table, var_name);
             MASSERT(var_index != -1);
 
+            store_delegated_varialbe(left_element_type, right_element_type, info);
+
             if(type_identify_with_class_name(left_element_type, "Buffer") && type_identify_with_class_name(right_element_type, "pointer")) {
                 append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
                 append_int_value_to_code(info->code, var_index, info->no_output);
@@ -8968,6 +9030,8 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
+            store_delegated_varialbe(solved_field_type, right_element_type, info);
+
             if(type_identify_with_class_name(solved_field_type, "Buffer") 
                 && type_identify_with_class_name(right_element_type, "pointer")) 
             {
@@ -9038,6 +9102,8 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 return TRUE;
 
             }
+
+            store_delegated_varialbe(left_element_type, right_element_type, info);
 
             if(type_identify_with_class_name(left_element_type, "Buffer") && type_identify_with_class_name(right_element_type, "pointer")) {
                 append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD_OF_BUFFER, info->no_output);

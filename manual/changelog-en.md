@@ -1,4 +1,10 @@
 
+version 7.0.5
+
+    When transferring a class, you can now assign an object to the transfer class.
+
+    class Path { path:delegate String; def initialize() {} }; b := Path(); a:String = b;
+
 version 7.0.4
 
     Fixed REPL bug and appended Path Object completion.

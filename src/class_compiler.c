@@ -813,7 +813,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
                     info->err_num++;
                 }
 
-                if(!add_field_to_class(info->klass, buf, private_, protected_, result_type)) {
+                if(!add_field_to_class(info->klass, buf, private_, protected_, delegate_, result_type)) {
                     return FALSE;
                 }
             }

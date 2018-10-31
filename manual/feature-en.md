@@ -918,6 +918,12 @@ In internally delegate specified place In the example above, the following metho
 ```
 It is a simple mechanism. You can expect implementation similar to inheritance by including a class that allows implementations to be shared by delegate and that also satisfies interface requirements. I think transfer is a concept above inheritance. Please do not miss it.
 
+When transferring a class, you can now assign an object to the transfer class.
+
+```
+    class Path { path:delegate String; def initialize() {} }; b := Path(); a:String = b;
+```
+
 ## module
 
 Since there is no inheritance in Clover 2, use the module if you want to share the implementation between classes. If a module is simply text and included in the definition of class, that text will be copied and the implemented methods and fields will be available.

@@ -321,6 +321,7 @@ typedef struct sCLMethodStruct sCLMethod;
 #define FIELD_FLAGS_PRIVATE 0x01
 #define FIELD_FLAGS_PROTECTED 0x02
 #define FIELD_FLAGS_MODIFIED 0x04
+#define FIELD_FLAGS_DELEGATED 0x08
 
 struct sCLFieldStruct {
     clint64 mFlags;
@@ -462,6 +463,7 @@ typedef struct sNodeTypeStruct sNodeType;
 
 void init_node_types();
 void free_node_types();
+BOOL is_delegated_class(sNodeType* left_class, sNodeType* right_class);
 sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
 sNodeType* create_node_type_with_class_name(char* class_name);
@@ -1917,8 +1919,8 @@ BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 BOOL is_method_param_name(char* name);
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type);
-BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name);
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, sNodeType* result_type);
+BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, char* field_type_name);
 BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value);
 
 /// native_method.c ///

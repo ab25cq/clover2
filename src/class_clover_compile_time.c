@@ -37,7 +37,7 @@ BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// go ///
-    if(!add_field_to_class_with_class_name(klass2, name_value, FALSE, FALSE, class_name_value)) {
+    if(!add_field_to_class_with_class_name(klass2, name_value, FALSE, FALSE, FALSE, class_name_value)) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid class name");
         MFREE(klass_value);
         MFREE(name_value);

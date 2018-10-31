@@ -270,6 +270,24 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
     return node_type;
 }
 
+BOOL is_delegated_class(sNodeType* left_type, sNodeType* right_type)
+{
+    sCLClass* right_class = right_type->mClass;
+
+    int i;
+    for(i=0; i<right_class->mNumFields; i++) {
+        sCLField* field = right_class->mFields + i;
+
+        sNodeType* right_type2 = create_node_type_from_cl_type(field->mResultType, right_class);
+
+        if(type_identify(left_type, right_type2) && (field->mFlags & FIELD_FLAGS_DELEGATED)) {
+            return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
 BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message)
 {
     sNodeType* left2;
@@ -359,6 +377,9 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         else {
             return check_implemented_methods_for_interface(left_class, right_class, output_message);
         }
+    }
+    else if(is_delegated_class(left3, right3)) {
+        return TRUE;
     }
     else if(strcmp(CLASS_NAME(left3->mClass), "lambda") == 0) {
         if(strcmp(CLASS_NAME(right3->mClass), "lambda") == 0) 

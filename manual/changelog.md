@@ -1,5 +1,11 @@
 English page is here [>> English page](changelog-en)
 
+version 7.0.5
+
+    クラスを移譲した場合、移譲先のクラスにオブジェクトを代入できるようになりました。
+
+    class Path { path:delegate String; def initialize() {} }; b := Path(); a:String = b;
+
 version 7.0.4
 
     Fixed REPL bug and appended Path Object completion.
