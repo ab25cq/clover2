@@ -2937,74 +2937,68 @@ static BOOL parse_array_value_or_hash_value(unsigned int* node, sParserInfo* inf
     memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
     memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
 
-    if(*info->p == ']') {
-        info->p++;
-        skip_spaces_and_lf(info);
-    }
-    else {
-        while(1) {
-            unsigned int node = 0;
-            if(!expression(&node, info)) {
+    while(1) {
+        unsigned int node = 0;
+        if(!expression(&node, info)) {
+            return FALSE;
+        }
+
+        if(*info->p == '=' && *(info->p+1) == '>') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            hash_keys[num_elements] = node;
+
+            unsigned int node2 = 0;
+            if(!expression(&node2, info)) {
                 return FALSE;
             }
 
-            if(*info->p == '=' && *(info->p+1) == '>') {
-                info->p+=2;
+            hash_items[num_elements] = node2;
+
+            num_elements++;
+
+            if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow hash value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
                 skip_spaces_and_lf(info);
-
-                hash_keys[num_elements] = node;
-
-                unsigned int node2 = 0;
-                if(!expression(&node2, info)) {
-                    return FALSE;
-                }
-
-                hash_items[num_elements] = node2;
-
-                num_elements++;
-
-                if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
-                    parser_err_msg(info, "overflow hash value elements");
-                    return FALSE;
-                }
-
-                if(*info->p == ',') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
-                else if(*info->p == ']') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                    break;
-                }
-                else {
-                    parser_err_msg(info, "invalid hash value");
-                    info->err_num++;
-                }
+            }
+            else if(*info->p == ']') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
             }
             else {
-                array_elements[num_elements] = node;
+                parser_err_msg(info, "invalid hash value");
+                info->err_num++;
+            }
+        }
+        else {
+            array_elements[num_elements] = node;
 
-                num_elements++;
+            num_elements++;
 
-                if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
-                    parser_err_msg(info, "overflow array value elements");
-                    return FALSE;
-                }
+            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
 
-                if(*info->p == ',') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                }
-                else if(*info->p == ']') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
-                    break;
-                }
-                else {
-                    parser_err_msg(info, "invalid array value");
-                    info->err_num++;
-                }
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == ']') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid array value");
+                info->err_num++;
             }
         }
     }
@@ -3023,14 +3017,14 @@ static BOOL parse_array_value_or_hash_value(unsigned int* node, sParserInfo* inf
     return TRUE;
 }
 
-static BOOL parse_carray_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_carray_value(unsigned int* node, sParserInfo* info, char tail_char) 
 {
     int num_elements = 0;
 
     unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
     memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == tail_char) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3051,7 +3045,7 @@ static BOOL parse_carray_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == tail_char) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3196,14 +3190,14 @@ static BOOL parse_hash_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_list_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_list_value(unsigned int* node, sParserInfo* info, char tail_char) 
 {
     int num_elements = 0;
 
     unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
     memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == tail_char) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3224,7 +3218,7 @@ static BOOL parse_list_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == tail_char) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3237,14 +3231,14 @@ static BOOL parse_list_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info, char tail_char) 
 {
     int num_elements = 0;
 
     unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
     memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == tail_char) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3265,7 +3259,7 @@ static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == tail_char) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3278,14 +3272,14 @@ static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info, char tail_char) 
 {
     int num_elements = 0;
 
     unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
     memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == tail_char) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3306,7 +3300,7 @@ static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == tail_char) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -4110,7 +4104,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             *node = sNodeTree_create_character_value(c, info);
         }
     }
-    /// array or hash ///
+    /// list or array or hash ///
     else if(*info->p == '[') {
         info->p++;
         skip_spaces_and_lf(info);
@@ -4124,8 +4118,30 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         info->p++;
         skip_spaces_and_lf(info);
 
-        if(!parse_normal_block(node, info)) {
-            return FALSE;
+        BOOL list_value = FALSE;
+
+        char* p_before = info->p;
+        int sline_before = info->sline;
+
+        unsigned int tmp = 0;
+        (void)expression(&tmp, info);
+
+        if(*info->p == ',') {
+            list_value = TRUE;
+        }
+
+        info->p = p_before;
+        info->sline = sline_before;
+
+        if(list_value) {
+            if(!parse_sortable_list_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else {
+            if(!parse_normal_block(node, info)) {
+                return FALSE;
+            }
         }
     }
     /// Head of alphabets or _ ./configure is inside for shell mode
@@ -4297,7 +4313,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_list_value(node, info)) {
+            if(!parse_list_value(node, info, '}')) {
                 return FALSE;
             }
         }
@@ -4306,7 +4322,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_equalable_list_value(node, info)) {
+            if(!parse_equalable_list_value(node, info, '}')) {
                 return FALSE;
             }
         }
@@ -4315,7 +4331,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_sortable_list_value(node, info)) {
+            if(!parse_sortable_list_value(node, info, '}')) {
                 return FALSE;
             }
         }
@@ -4342,7 +4358,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_carray_value(node, info)) {
+            if(!parse_carray_value(node, info, '}')) {
                 return FALSE;
             }
         }

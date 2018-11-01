@@ -1,5 +1,15 @@
 English page is here [>> English page](changelog-en)
 
+version 7.0.7
+
+    SortableListの表現に{"AAA", "BBB"}などと言う表現が使えるようになりました。
+
+    Arrayクラスにいくつかのメソッドが加わってます。
+
+    インターフェース同士の代入を厳密にするようになりました。
+
+    printf, sprintfにリストの表現も引数に取ることができるようになりました。
+
 version 7.0.6
 
     Fixed bug with getting command name from PATH environment variable

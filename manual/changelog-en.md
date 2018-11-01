@@ -1,4 +1,8 @@
 
+version 7.0.7
+
+    You can use expressions such as {"AAA", "BBB"} etc in the expression of SortableList. Several methods are added to the Array class. We began to strictly assign interfaces to each other. Now printf, sprintf can now take a list representation as an argument.
+
 version 7.0.6
 
     Fixed bug with getting command name from PATH environment variable

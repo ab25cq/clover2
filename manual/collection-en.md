@@ -408,3 +408,7 @@ Tuples can be written as (1, "AAA", 2), and so on.
     assert(a.value1.equals("AAA") && a.value2.equals("BBB") && a.value3 == 1);
 
 Hash can be written as "["AAA"=>1, "BBB"=>2] and so on. a: Hash <String, Integer> = ["AAA"=>2, "BBB"=>3] is compiled
+
+From version 7.0.7.
+You can use expressions such as {"AAA", "BBB"} etc in the expression of SortableList. 
+

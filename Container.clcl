@@ -47,6 +47,10 @@ module MArray
         self.items = items;
     }
 
+    def initialize(num:int) {
+        self.items = Clover.createArray("Object", num);
+    }
+
     def length():int {
         return self.items.length;
     }
@@ -61,6 +65,16 @@ module MArray
         }
         else {
             return null;
+        }
+    }
+
+    def put(index:int, item:T) {
+        if(index < 0) {
+            index += self.items.length;
+        }
+
+        if(index >= 0 && index < self.items.length) {
+            self.items[index] = item;
         }
     }
 
@@ -498,6 +512,22 @@ module MList
             result.append(self.head.item.className());
             return result;
         }
+    }
+
+    def toArray(): Array<T> {
+        result := Array<T>(self.number);
+
+        it := self.head;
+
+        n := 0;
+        while(it != null) {
+            result.put(n, it.item);
+
+            it = it.next;
+            n++;
+        }
+
+        return result;
     }
 
     def items(index:int):T? {

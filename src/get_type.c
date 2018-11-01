@@ -133,7 +133,7 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
 }
 
 
-static void tclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name)
+static void tyclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name)
 {
     sVarTable* lv_table = init_var_table();
     sVarTable* result_lv_table;
@@ -149,9 +149,38 @@ static void tclover_get_type(char* source_value, char* fname_object_value, char*
     }
 }
 
+static void tyclover_print_local_variable(char* source_value, char* fname_object_value, char* class_name)
+{
+    sVarTable* lv_table = init_var_table();
+    sVarTable* result_lv_table;
+    sNodeType* type_ = NULL;
+
+    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table);
+
+    sVarTable* it = result_lv_table;
+
+    while(it) {
+        sVar* p = it->mLocalVariables;
+
+        while(1) {
+            if(p->mName[0] != 0) {
+                printf("%s\n", p->mName);
+            }
+
+            p++;
+
+            if(p == it->mLocalVariables + LOCAL_VARIABLE_MAX) {
+                break;
+            }
+        }
+
+        it = it->mParent;
+    }
+}
+
 int gARGC;
 char** gARGV;
-char* gVersion = "7.0.6";
+char* gVersion = "7.0.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -176,6 +205,7 @@ int main(int argc, char** argv)
 
     BOOL get_class_name = FALSE;
     BOOL get_command_name = FALSE;
+    BOOL get_local_variable = FALSE;
 
     int i;
     for(i=1; i<argc; i++) {
@@ -185,12 +215,31 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "--command") == 0) {
             get_command_name = TRUE;
         }
+        else if(strcmp(argv[i], "--lvar") == 0) {
+            get_local_variable = TRUE;
+        }
         else {
             class_name = argv[i];
         }
     }
 
-    if(get_class_name) {
+    if(get_local_variable) {
+        while(!feof(stdin)) {
+            char buf2[BUFSIZ];
+
+            int result = fread(buf2, 1, BUFSIZ, stdin);
+            
+            if(result < 0) {
+                fprintf(stderr, "invalid stdin\n");
+                exit(1);
+            }
+
+            sBuf_append(&buf, buf2, result);
+        }
+
+        tyclover_print_local_variable(buf.mBuf, "tyclover2", class_name);
+    }
+    else if(get_class_name) {
         sClassTable* p = gHeadClassTable;
 
         while(p) {
@@ -222,7 +271,7 @@ int main(int argc, char** argv)
         }
 
         char type_name[1024];
-        tclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
+        tyclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
 
         printf("%s\n", type_name);
     }

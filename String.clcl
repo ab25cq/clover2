@@ -99,6 +99,18 @@ class Global
         str2 := sprintf(str, params);
         System.print(str2);
     }
+    def printf(str:String, params:List<Object>): static {
+        str2 := sprintf(str, params);
+        System.print(str2);
+    }
+    def printf(str:String, params:EqualableList<IEqualable>): static {
+        str2 := sprintf(str, params);
+        System.print(str2);
+    }
+    def printf(str:String, params:SortableList<ISortable>): static {
+        str2 := sprintf(str, params);
+        System.print(str2);
+    }
     def printf(str:String): static {
         System.print(str);
     }
@@ -106,8 +118,29 @@ class Global
         str2 := sprintf(str, params);
         System.printToError(str2);
     }
+    def printfToError(str:String, params:List<Object>): static {
+        str2 := sprintf(str, params);
+        System.printToError(str2);
+    }
+    def printfToError(str:String, params:EqualableList<IEqualable>): static {
+        str2 := sprintf(str, params);
+        System.printToError(str2);
+    }
+    def printfToError(str:String, params:SortableList<ISortable>): static {
+        str2 := sprintf(str, params);
+        System.printToError(str2);
+    }
     def sprintf(str:String, params:Array<Object>): static String {
         return System.sprintf(str, params);
+    }
+    def sprintf(str:String, params:List<Object>): static String {
+        return System.sprintf(str, params.toArray());
+    }
+    def sprintf(str:String, params:EqualableList<IEqualable>): static String {
+        return System.sprintf(str, params.toArray());
+    }
+    def sprintf(str:String, params:SortableList<ISortable>): static String {
+        return System.sprintf(str, params.toArray());
     }
 }
 

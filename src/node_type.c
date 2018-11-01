@@ -369,7 +369,8 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     }
     else if(left_class->mFlags & CLASS_FLAGS_INTERFACE) {
         if(right_class->mFlags & CLASS_FLAGS_INTERFACE) {
-            return type_identify(left3, right3);
+            return check_implemented_methods_for_interface(left_class, right_class, output_message);
+            //return type_identify(left3, right3);
         }
         else if(right_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
             return FALSE;

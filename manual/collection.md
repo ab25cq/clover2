@@ -392,3 +392,4 @@ equalsで値が同一か比較することができます。TupleのGenericsで�
 
 ハッシュは["AAA"=>1, "BBB"=>2]などと書けます。a:Hash<String,Integer> = [ "AAA"=>2, "BBB"=>3 ]はコンパイルが通ります。
 
+version 7.0.7よりSortableListの表現に{"AAA", "BBB"}などと言う表現が使えるようになりました。
