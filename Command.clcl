@@ -1000,6 +1000,21 @@ dynamic_class Command
         return self.write(path,0644);
     }
 
+    def append(path:String, permission:mode_t): Command {
+        f := File(path, O_CREAT|O_APPEND|O_WRONLY, permission);
+
+        buf := self.data.toBuffer();
+        f.write(buf, buf.len);
+
+        f.close();
+
+        return self;
+    }
+
+    def append(path:String): Command {
+        return self.append(path,0644);
+    }
+
     def selector(): String {
         result:String = "";
 

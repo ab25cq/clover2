@@ -191,4 +191,6 @@ Shell mode is only a bonus. The shell should use a proper shell after all. It is
 
 However, one important point is that when written in shell mode, the last program is terminal controlled. That is, `ls` is terminal-controlled, but `ls()` is not terminal-controlled. Take care of that point and write code.
 
+From version 7.0.8, you can now write command results to a file in shell mode.  pwd > XXX; ls - al >> XXX and so on. 
+
 [<< Previous library reference](libraries-en) [>> extension library](extension-en)

@@ -1,4 +1,8 @@
 
+version 7.0.8
+
+    You can now write command results to a file in shell mode.  pwd > XXX; ls - al >> XXX and so on. 
+
 version 7.0.7
 
     You can use expressions such as {"AAA", "BBB"} etc in the expression of SortableList. Several methods are added to the Array class. We began to strictly assign interfaces to each other. Now printf, sprintf can now take a list representation as an argument.

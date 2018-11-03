@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 7.0.8
+
+    シェルモードでコマンド結果をファイルに書き込むことができるようになりました。pwd > XXX; ls -al >> XXXなど。
+
 version 7.0.7
 
     SortableListの表現に{"AAA", "BBB"}などと言う表現が使えるようになりました。

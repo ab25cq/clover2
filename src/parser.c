@@ -467,6 +467,90 @@ BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* inf
     return TRUE;
 }
 
+static BOOL parse_command_param(sBuf* param, BOOL* quoted_string, sParserInfo* info)
+{
+
+    BOOL squort = FALSE;
+    BOOL dquort = FALSE;
+
+    while(1) {
+        if(!squort && *info->p == '$') {
+            info->p++;
+
+            sBuf env_name;
+            sBuf_init(&env_name);
+
+            if(*info->p == '{') {
+                info->p++;
+
+                while(1) {
+                    if(*info->p == '}') {
+                        info->p++;
+                        break;
+                    }
+                    else if(*info->p == '\0') {
+                        parser_err_msg(info, "require } to close ${ENV}");
+                        info->err_num++;
+                        break;
+                    }
+                    else {
+                        sBuf_append_char(&env_name, *info->p);
+                        info->p++;
+                    }
+                }
+            }
+            else {
+                while(isalnum(*info->p) || *info->p == '_') {
+                    sBuf_append_char(&env_name, *info->p);
+                    info->p++;
+                }
+            }
+
+            char* env = getenv(env_name.mBuf);
+
+            if(env) {
+                sBuf_append(param, env, strlen(env));
+            }
+
+            MFREE(env_name.mBuf);
+        }
+        else if(*info->p == '\\') {
+            info->p++;
+            sBuf_append_char(param, *info->p);
+            info->p++;
+        }
+        else if(!squort && *info->p == '"') {
+            info->p++;
+            dquort = !dquort;
+            if(dquort) {
+                *quoted_string = TRUE;
+            }
+        }
+        else if(!dquort && *info->p == '\'') {
+            info->p++;
+            squort = !squort;
+            if(squort) {
+                *quoted_string = TRUE;
+            }
+        }
+        else if(squort || dquort) {
+            sBuf_append_char(param, *info->p);
+            info->p++;
+        }
+        else if(*info->p == ' ' || *info->p == '\t' || *info->p == '\n' || *info->p == ';' || *info->p == '\0' || *info->p == '|' || *info->p == '&' || *info->p == '>') 
+        {
+            break;
+        }
+        else {
+            sBuf_append_char(param, *info->p);
+            info->p++;
+        }
+    }
+    skip_spaces(info);
+
+    return TRUE;
+}
+
 static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info, BOOL class_method, char* method_name)
 {
     *num_params = 0;
@@ -476,87 +560,14 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
     else if(*info->p != '\0') {
         while(1) {
             sBuf param;
-
             sBuf_init(&param);
-
-            BOOL squort = FALSE;
-            BOOL dquort = FALSE;
             BOOL quoted_string = FALSE;
 
-            while(1) {
-                if(!squort && *info->p == '$') {
-                    info->p++;
-
-                    sBuf env_name;
-                    sBuf_init(&env_name);
-
-                    if(*info->p == '{') {
-                        info->p++;
-
-                        while(1) {
-                            if(*info->p == '}') {
-                                info->p++;
-                                break;
-                            }
-                            else if(*info->p == '\0') {
-                                parser_err_msg(info, "require } to close ${ENV}");
-                                info->err_num++;
-                                break;
-                            }
-                            else {
-                                sBuf_append_char(&env_name, *info->p);
-                                info->p++;
-                            }
-                        }
-                    }
-                    else {
-                        while(isalnum(*info->p) || *info->p == '_') {
-                            sBuf_append_char(&env_name, *info->p);
-                            info->p++;
-                        }
-                    }
-
-                    char* env = getenv(env_name.mBuf);
-
-                    if(env) {
-                        sBuf_append(&param, env, strlen(env));
-                    }
-
-                    MFREE(env_name.mBuf);
-                }
-                else if(*info->p == '\\') {
-                    info->p++;
-                    sBuf_append_char(&param, *info->p);
-                    info->p++;
-                }
-                else if(!squort && *info->p == '"') {
-                    info->p++;
-                    dquort = !dquort;
-                    if(dquort) {
-                        quoted_string = TRUE;
-                    }
-                }
-                else if(!dquort && *info->p == '\'') {
-                    info->p++;
-                    squort = !squort;
-                    if(squort) {
-                        quoted_string = TRUE;
-                    }
-                }
-                else if(squort || dquort) {
-                    sBuf_append_char(&param, *info->p);
-                    info->p++;
-                }
-                else if(*info->p == ' ' || *info->p == '\t' || *info->p == '\n' || *info->p == ';' || *info->p == '\0' || *info->p == '|' || *info->p == '&') 
-                {
-                    break;
-                }
-                else {
-                    sBuf_append_char(&param, *info->p);
-                    info->p++;
-                }
+            if(!parse_command_param(&param, &quoted_string, info))
+            {
+                MFREE(param.mBuf);
+                return FALSE;
             }
-            skip_spaces(info);
 
             if(param.mLen > 0) {
                 unsigned int node = 0;
@@ -595,8 +606,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                 MFREE(param.mBuf);
             }
 
-            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' 
-                || *info->p == '|' || *info->p == '&') 
+            if(*info->p == '\0' || *info->p == '\n' || *info->p == ';' || *info->p == '|' || *info->p == '&' || *info->p == '>') 
             {
                 break;
             }
@@ -5028,7 +5038,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
 
                 while(1) {
-                    if(*info->p == '|' && *(info->p+1) != '|') {
+                    if(*info->p == '|' && *(info->p+1) != '|')
+                    {
                         info->p++;
                         skip_spaces_and_lf(info);
 
@@ -5081,6 +5092,87 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         
                         info->next_command_is_to_bool = TRUE;
                         break;
+                    }
+                    else if(*info->p == '>' && *(info->p+1) == '>')
+                    {
+                        info->p+=2;
+                        skip_spaces_and_lf(info);
+
+                        sBuf param;
+                        sBuf_init(&param);
+
+                        BOOL quoted_string = FALSE;
+
+                        if(!parse_command_param(&param, &quoted_string, info))
+                        {
+                            MFREE(param.mBuf);
+                            info->sline = sline_before;
+                            return FALSE;
+                        }
+
+                        if(param.mLen == 0) {
+                            MFREE(param.mBuf);
+                            info->sline = sline_before;
+                            parser_err_msg(info, "null file name");
+                            return FALSE;
+                        }
+
+                        unsigned int params[PARAMS_MAX];
+                        int num_params = 1;
+
+                        params[0] = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
+
+                        *node = sNodeTree_create_method_call(*node, "append", params, num_params, num_method_chains, info);
+                        max_method_chains_node[num_method_chains] = *node;
+
+                        num_method_chains++;
+
+                        if(num_method_chains >= METHOD_CHAIN_MAX) 
+                        {
+                            info->sline = sline_before;
+                            parser_err_msg(info, "overflow method chain");
+                            return FALSE;
+                        }
+                    }
+                    else if(*info->p == '>') {
+                        info->p++;
+                        skip_spaces_and_lf(info);
+
+                        sBuf param;
+                        sBuf_init(&param);
+
+                        BOOL quoted_string = FALSE;
+
+                        if(!parse_command_param(&param, &quoted_string, info))
+                        {
+                            MFREE(param.mBuf);
+                            info->sline = sline_before;
+                            return FALSE;
+                        }
+
+                        if(param.mLen == 0) {
+                            MFREE(param.mBuf);
+                            info->sline = sline_before;
+                            parser_err_msg(info, "null file name");
+                            return FALSE;
+                        }
+
+                        unsigned int params[PARAMS_MAX];
+                        int num_params = 1;
+
+                        params[0] = sNodeTree_create_string_value(MANAGED param.mBuf, NULL, NULL, 0, info);
+
+                        *node = sNodeTree_create_method_call(*node, "write", params, num_params, num_method_chains, info);
+                        max_method_chains_node[num_method_chains] = *node;
+
+                        num_method_chains++;
+
+                        if(num_method_chains >= METHOD_CHAIN_MAX) 
+                        {
+                            info->sline = sline_before;
+                            parser_err_msg(info, "overflow method chain");
+                            return FALSE;
+                        }
                     }
                     else if(*info->p == ';' || *info->p == '\n') {
                         info->p++;
