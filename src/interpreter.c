@@ -2273,7 +2273,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.0.8";
+char* gVersion = "7.0.9";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

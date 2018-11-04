@@ -1,4 +1,14 @@
 
+version 7.0.9
+
+    You can now express lists of different types. 
+
+    {"AAA", 1} -> SortableList<ISortable>
+    elist {"AAA", 1} -> EqualableList<IEqualable>
+    list {"AAA", 1} -> List<Object>
+
+    You can pass a list to printf's arguments.
+
 version 7.0.8
 
     You can now write command results to a file in shell mode.  pwd > XXX; ls - al >> XXX and so on. 

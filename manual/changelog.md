@@ -1,5 +1,18 @@
 English page is here [>> English page](changelog-en)
 
+version 7.0.9
+
+    型が違うリストを表現できるようになりました。
+    
+    {"AAA", 1} --> SortableList<ISortable>
+
+    elist { "AAA", 1 } --> EqualableList<IEqualable>
+
+    list { "AAA", 1 } --> List<Object>
+
+    printfの引数へリストを渡すことができます。
+
+
 version 7.0.8
 
     シェルモードでコマンド結果をファイルに書き込むことができるようになりました。pwd > XXX; ls -al >> XXXなど。

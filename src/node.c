@@ -8513,6 +8513,7 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
         return TRUE;
     }
 
+
     unsigned int first_element_node = elements[0];
 
     if(!compile(first_element_node, info)) {
@@ -8533,9 +8534,9 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
 
         boxing_to_lapper_class(&info->type, info);
 
-        if(!type_identify(element_type, info->type)) {
-            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
-            info->err_num++;
+        if(!type_identify(element_type, info->type)) 
+        {
+            element_type = create_node_type_with_class_name("Object");
         }
     }
 
@@ -8544,92 +8545,6 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
     list_type->mGenericsTypes[0] = element_type;
 
     append_opecode_to_code(info->code, OP_CREATE_LIST, info->no_output);
-    append_int_value_to_code(info->code, num_elements, info->no_output);
-    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
-    append_type_name_to_constant_pool_and_code(info, list_type);
-
-    info->stack_num-= num_elements;
-    info->stack_num++;
-
-    info->type = list_type;
-
-    return TRUE;
-}
-
-unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int list_elements[], sParserInfo* info)
-{
-    unsigned int node = alloc_node();
-
-    gNodes[node].mNodeType = kNodeTypeSortableListValue;
-
-    gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
-
-    gNodes[node].mLeft = 0;
-    gNodes[node].mRight = 0;
-    gNodes[node].mMiddle = 0;
-
-    gNodes[node].mType = NULL;
-
-    memcpy(gNodes[node].uValue.sListValue.mListElements, list_elements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
-    gNodes[node].uValue.sListValue.mNumListElements = num_elements;
-
-    return node;
-}
-
-BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
-{
-    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
-    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
-    int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
-
-    if(num_elements == 0) {
-        compile_err_msg(info, "require element in list value");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    unsigned int first_element_node = elements[0];
-
-    if(!compile(first_element_node, info)) {
-        return FALSE;
-    }
-
-    boxing_to_lapper_class(&info->type, info);
-
-    sNodeType* element_type = info->type;
-
-    int i;
-    for(i=1; i<num_elements; i++) {
-        unsigned int element_node = elements[i];
-
-        if(!compile(element_node, info)) {
-            return FALSE;
-        }
-
-        boxing_to_lapper_class(&info->type, info);
-
-        if(!type_identify(element_type, info->type)) {
-            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
-            info->err_num++;
-        }
-    }
-
-    /// check implemeted interface ///
-    sCLClass* isortable = get_class("ISortable");
-    if(!check_implemented_methods_for_interface(isortable, element_type->mClass, TRUE)) {
-        compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
-        info->err_num++;
-    }
-
-    sNodeType* list_type = create_node_type_with_class_name("SortableList");
-    list_type->mNumGenericsTypes = 1;
-    list_type->mGenericsTypes[0] = element_type;
-
-    append_opecode_to_code(info->code, OP_CREATE_SORTALBE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
     append_type_name_to_constant_pool_and_code(info, list_type);
@@ -8698,17 +8613,17 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 
         boxing_to_lapper_class(&info->type, info);
 
-        if(!type_identify(element_type, info->type)) {
-            compile_err_msg(info, "Invalid element type. Left type is %s. Right type is %s", CLASS_NAME(element_type->mClass), CLASS_NAME(info->type->mClass));
+        sCLClass* iequalable = get_class("IEqualable");
+        if(!check_implemented_methods_for_interface(iequalable, info->type->mClass, TRUE)) 
+        {
+            compile_err_msg(info, "Require IEqualable implemented for list element type(%s).", CLASS_NAME(info->type->mClass));
             info->err_num++;
         }
-    }
 
-    /// check implemeted interface ///
-    sCLClass* iequalable = get_class("IEqualable");
-    if(!check_implemented_methods_for_interface(iequalable, element_type->mClass, TRUE)) {
-        compile_err_msg(info, "Require IEqualable implemented for list element type(%s).", CLASS_NAME(element_type->mClass));
-        info->err_num++;
+        if(!type_identify(element_type, info->type))
+        {
+            element_type = create_node_type_with_class_name("IEqualable");
+        }
     }
 
     sNodeType* list_type = create_node_type_with_class_name("EqualableList");
@@ -8716,6 +8631,92 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
     list_type->mGenericsTypes[0] = element_type;
 
     append_opecode_to_code(info->code, OP_CREATE_EQUALABLE_LIST, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    append_class_name_to_constant_pool_and_code(info, element_type->mClass);
+    append_type_name_to_constant_pool_and_code(info, list_type);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = list_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_sortable_list_value(int num_elements, unsigned int list_elements[], sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeSortableListValue;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sListValue.mListElements, list_elements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sListValue.mNumListElements = num_elements;
+
+    return node;
+}
+
+BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
+{
+    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+    int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
+
+    if(num_elements == 0) {
+        compile_err_msg(info, "require element in list value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int"); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        sCLClass* isortable = get_class("ISortable");
+        if(!check_implemented_methods_for_interface(isortable, info->type->mClass, TRUE)) 
+        {
+            compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+
+        if(!type_identify(element_type, info->type))
+        {
+            element_type = create_node_type_with_class_name("ISortable");
+        }
+    }
+
+    sNodeType* list_type = create_node_type_with_class_name("SortableList");
+    list_type->mNumGenericsTypes = 1;
+    list_type->mGenericsTypes[0] = element_type;
+
+    append_opecode_to_code(info->code, OP_CREATE_SORTALBE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
     append_type_name_to_constant_pool_and_code(info, list_type);
