@@ -145,6 +145,7 @@ static void tyclover_get_type(char* source_value, char* fname_object_value, char
         type_name[0] = '\0';
     }
     else {
+        type_name[0] = '\0';
         create_type_name_from_node_type(type_name, type_name_size, type_);
     }
 }
