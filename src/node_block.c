@@ -113,7 +113,7 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
         if(!expression(&node, info)) {
             sNodeBlock_free(*node_block);
 
-            info->lv_table = old_vtable;
+            //info->lv_table = old_vtable;   // for interpreter completion
             return FALSE;
         }
 

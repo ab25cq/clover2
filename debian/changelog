@@ -1,4 +1,12 @@
 
+clover2 (7.1.1-1) unstable; urgency=medium
+
+    A bug in tyclover 2 has been fixed.
+
+clover2 (7.1.0-1) unstable; urgency=medium
+
+    * A bug in tyclover 2 has been fixed.
+
 clover2 (7.0.9-1) unstable; urgency=medium
 
     * You can now express lists of different types. {"AAA", 1} ->

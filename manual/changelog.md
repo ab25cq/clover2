@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 7.1.1
+
+    tyclover2のバグを修正しました。
+
+version 7.1.0
+
+    tyclover2のバグを修正しました。
+
 version 7.0.9
 
     型が違うリストを表現できるようになりました。

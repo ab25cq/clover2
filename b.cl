@@ -1,9 +1,3 @@
-a := AAAAAA();
+aaa := { 1, 2, 3 }
 
-try {
-    a.method();
-} catch(e:Exception) {
-}
-
-a.method();
-
+aaa.map { hhh := "AAA"; iii := {"AAA", "BBB"}; kkk := {1,2,3}; kkk.map { ggg := "ABC"; g

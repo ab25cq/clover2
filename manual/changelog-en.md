@@ -1,4 +1,12 @@
 
+version 7.1.1
+
+    A bug in tyclover 2 has been fixed.
+
+version 7.1.0
+
+    A bug in tyclover 2 has been fixed.
+
 version 7.0.9
 
     You can now express lists of different types. 

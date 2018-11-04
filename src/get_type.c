@@ -181,7 +181,7 @@ static void tyclover_print_local_variable(char* source_value, char* fname_object
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.0.9";
+char* gVersion = "7.1.1";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
