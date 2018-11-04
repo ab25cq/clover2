@@ -1,7 +1,11 @@
 
+clover2 (7.1.2-1) unstable; urgency=medium
+
+    * I improved tyclover2 for the editor.
+
 clover2 (7.1.1-1) unstable; urgency=medium
 
-    A bug in tyclover 2 has been fixed.
+    * A bug in tyclover 2 has been fixed.
 
 clover2 (7.1.0-1) unstable; urgency=medium
 

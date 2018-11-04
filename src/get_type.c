@@ -179,9 +179,42 @@ static void tyclover_print_local_variable(char* source_value, char* fname_object
     }
 }
 
+static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
+{
+    BOOL result = FALSE;
+    sParserInfo info;
+
+    memset(&info, 0, sizeof(sParserInfo));
+
+    info.p = source;
+    info.source = source;
+    info.sname = fname;
+    info.sline = 1;
+    info.lv_table = lv_table;
+    info.parse_phase = 0;
+    info.get_in_the_shell_mode = TRUE;
+    info.get_type_for_interpreter = TRUE;
+
+    while(*info.p) {
+        info.exist_block_object_err = FALSE;
+
+        unsigned int node = 0;
+        (void)expression(&node, &info);
+        result = info.inputing_shell_mode;
+
+        if(*info.p == ';') {
+            info.p++;
+            skip_spaces_and_lf(&info);
+        }
+    }
+
+    return result;
+}
+
+
 int gARGC;
 char** gARGV;
-char* gVersion = "7.1.1";
+char* gVersion = "7.1.2";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -207,6 +240,7 @@ int main(int argc, char** argv)
     BOOL get_class_name = FALSE;
     BOOL get_command_name = FALSE;
     BOOL get_local_variable = FALSE;
+    BOOL get_shell_mode = FALSE;
 
     int i;
     for(i=1; i<argc; i++) {
@@ -219,12 +253,39 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "--lvar") == 0) {
             get_local_variable = TRUE;
         }
+        else if(strcmp(argv[i], "--shell") == 0) {
+            get_shell_mode = TRUE;
+        }
         else {
             class_name = argv[i];
         }
     }
 
-    if(get_local_variable) {
+    if(get_shell_mode) {
+        while(!feof(stdin)) {
+            char buf2[BUFSIZ];
+
+            int result = fread(buf2, 1, BUFSIZ, stdin);
+            
+            if(result < 0) {
+                fprintf(stderr, "invalid stdin\n");
+                exit(1);
+            }
+
+            sBuf_append(&buf, buf2, result);
+        }
+
+        sVarTable* tmp_lv_table = init_var_table();
+        if(is_shell_mode(buf.mBuf, "tyclover2", tmp_lv_table))
+        {
+            puts("true");
+        }
+        else {
+            puts("false");
+        }
+        MFREE(buf.mBuf);
+    }
+    else if(get_local_variable) {
         while(!feof(stdin)) {
             char buf2[BUFSIZ];
 
@@ -239,6 +300,7 @@ int main(int argc, char** argv)
         }
 
         tyclover_print_local_variable(buf.mBuf, "tyclover2", class_name);
+        MFREE(buf.mBuf);
     }
     else if(get_class_name) {
         sClassTable* p = gHeadClassTable;
@@ -275,6 +337,8 @@ int main(int argc, char** argv)
         tyclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
 
         printf("%s\n", type_name);
+
+        MFREE(buf.mBuf);
     }
 
     compiler_final();

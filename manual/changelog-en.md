@@ -1,4 +1,8 @@
 
+version 7.1.2
+
+    I improved tyclover2 for the editor.
+
 version 7.1.1
 
     A bug in tyclover 2 has been fixed.

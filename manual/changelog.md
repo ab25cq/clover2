@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 7.1.2
+
+    エディッタのためにtyclover2を改良しました。
+
 version 7.1.1
 
     tyclover2のバグを修正しました。
