@@ -588,6 +588,7 @@ test:
 	PWD=`pwd` ./clover2 code/MultiLineString.cl
 	PWD=`pwd` ./clover2 code/try.cl
 	PWD=`pwd` time ./clover2 code/main.cl
+	PWD=`pwd` time ./clover2 code/main2.cl
 
 #	if test $(ENABLE_THREAD) = 1; then PWD=`pwd` ./clover2 code/thread.cl; fi
 #	PWD=`pwd` ./clover2 code/SocketTestServer.cl &

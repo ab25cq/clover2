@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 7.1.3
+
+    Buffer.toStringFromPointedPoint(), Buffer.toPointerAtPointedPoint()を追加。
+
 version 7.1.2
 
     エディッタのためにtyclover2を改良しました。

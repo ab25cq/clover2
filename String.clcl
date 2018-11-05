@@ -1345,8 +1345,18 @@ class Buffer
         return result;
     }
 
+    def toStringFromPointedPoint(): String {
+        wcs:char[] = mbstowcs(self.p, self.len - self.p - self.buffer);
+        result:String = String(wcs);
+        return result;
+    }
+
     def toPointer():pointer {
         return self.buffer;
+    }
+
+    def toPointerAtPoitedPoint():pointer {
+        return self.p;
     }
 
     def subBuffer(start:int, end:int): Buffer {

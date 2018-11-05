@@ -1,4 +1,8 @@
 
+version 7.1.3
+
+    Added Buffer.toStringFromPointedPoint (), Buffer.toPointerAtPointedPoint ().
+
 version 7.1.2
 
     I improved tyclover2 for the editor.

@@ -136,5 +136,13 @@ class PointerTest3
         p++;
 
         Clover.test("Memory safe pointer test17", p->byte == 'B');
+
+        buf2 := b"ABC";
+
+        p2 := buf2;
+
+        p2++;
+
+        Clover.test("Memory safe pointer test18", p2.toStringFromPointedPoint().equals("BC"));
     }
 }
