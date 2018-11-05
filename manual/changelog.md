@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 7.1.4
+
+    Buffer.toStringFromPointedPoint()のバグを修正。Buffer.head(), Buffer.tail()を追加。
+
 version 7.1.3
 
     Buffer.toStringFromPointedPoint(), Buffer.toPointerAtPointedPoint()を追加。

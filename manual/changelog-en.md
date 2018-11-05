@@ -1,4 +1,8 @@
 
+version 7.1.4
+
+    Fixed a bug in Buffer.toStringFromPointedPoint().  Added Buffer.head() and Buffer.tail().
+
 version 7.1.3
 
     Added Buffer.toStringFromPointedPoint (), Buffer.toPointerAtPointedPoint ().

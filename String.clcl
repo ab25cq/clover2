@@ -1346,9 +1346,17 @@ class Buffer
     }
 
     def toStringFromPointedPoint(): String {
-        wcs:char[] = mbstowcs(self.p, self.len - self.p - self.buffer);
+        wcs:char[] = mbstowcs(self.p, self.len - (self.p - self.buffer));
         result:String = String(wcs);
         return result;
+    }
+
+    def head():pointer {
+        return self.buffer;
+    }
+
+    def tail():pointer {
+        return self.buffer + self.len;
     }
 
     def toPointer():pointer {
