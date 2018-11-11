@@ -388,6 +388,7 @@ struct sCLClassStruct {
     int mAllocSizeMethodIndex;
 
     int mMethodIndexOnCompileTime;                  // This requires on the compile time
+    int mInitMethodIndexOnCompileTime;              // This requires on the compile time
     sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; // This requires on the run time
 
     struct sCLClassStruct* mBoxingClass; // This requires on the run time 
@@ -399,6 +400,8 @@ struct sCLClassStruct {
     int mTypedefClassName1Offsets[TYPEDEF_MAX];
     int mTypedefClassName2Offsets[TYPEDEF_MAX];
     int mNumTypedef;
+
+    int mUnboxingClassNameOffset;
 
     BOOL mInitialized;   // This requires on the run time
 };
@@ -428,6 +431,7 @@ BOOL jit_compile_all_classes();
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 void set_boxing_and_unboxing_classes();
 BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size);
+BOOL is_class_file_existance(char* class_name);
 
 struct sClassTableStruct
 {

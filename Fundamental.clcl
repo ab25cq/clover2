@@ -249,6 +249,239 @@ class String
     }
 }
 
+class Buffer
+{
+    include MObjectBase;
+
+    buffer:pointer;
+    len:size_t;
+    size:size_t;
+
+    p:pointer;
+
+    appendable:bool;
+
+    def initialize() {
+        self.size = 64;
+        self.buffer = malloc(self.size);
+        self.len = 0;
+        self.appendable = true;
+
+        self.p = self.buffer;
+    }
+    def initialize(buf:pointer, size:size_t, appendable:bool=true) {
+        if(appendable) {
+            self.buffer = malloc(size);
+            memcpy(self.buffer, buf, size);
+            self.len = size;
+            self.size = size;
+            self.appendable = true;
+            self.p = self.buffer;
+        }
+        else {
+            self.buffer = buf;
+            self.len = size;
+            self.size = size;
+            self.appendable = false;
+            self.p = buf;
+        }
+    }
+    def initialize(size:size_t) {
+        self.size = size;
+        self.buffer = malloc(self.size);
+        self.len = 0;
+        self.appendable = true;
+
+        self.p = self.buffer;
+    }
+    def finalize() {
+        if(self.appendable) {
+            free(self.buffer);
+        }
+    }
+
+    def append(buf:Buffer) throws Exception {
+        if(!self.appendable) {
+            throw Exception("This memory is not appendable");
+        }
+
+        len: size_t = buf.len;
+
+        if(self.len + len >= self.size) {
+            offset := self.p - self.buffer;
+
+            new_size:size_t = (self.len+len+1) * 2;
+            self.buffer = realloc(self.buffer, new_size);
+            self.size = new_size;
+
+            self.p = self.buffer + offset;
+        }
+
+        memcpy(self.buffer + self.len, buf.buffer, len);
+        self.len += len;
+    }
+
+    def append(data:byte) throws Exception {
+        if(!self.appendable) {
+            throw Exception("This memory is not appendable");
+        }
+
+        len: size_t = 1.to_ulong;
+
+        if(self.len + len >= self.size) {
+            offset := self.p - self.buffer;
+
+            new_size:size_t = (self.len+len+1) * 2;
+            self.buffer = realloc(self.buffer, new_size);
+            self.size = new_size;
+
+            self.p = self.buffer + offset;
+        }
+
+        (self.buffer + self.len)->byte = data;
+        self.len += len;
+    }
+
+    def chars(index:int):byte throws Exception {
+        if(index < 0) {
+            index += self.len;
+        }
+        if(index < 0) {
+            index = 0;
+        }
+        if(index >= self.len) {
+            index = self.len -1;
+        }
+
+        if(index >= 0 && index < self.len) {
+            return((self.buffer + index.to_ulong)->byte);
+        }
+        else {
+            throw Exception("Invalid range on Buffer.chars");
+        }
+    }
+
+    def chars(index:ulong):byte throws Exception {
+        if(index >= 0 && index < self.len) {
+            return((self.buffer + index)->byte);
+        }
+        else {
+            throw Exception("Invalid range on Buffer.char");
+        }
+    }
+
+    def equals(buf:Buffer):bool {
+        if(buf.is("WildCard")) {
+            return true;
+        }
+        else {
+            if(self.len != buf.len) {
+                return false;
+            }
+
+            for(i:size_t = 0; i<self.len; i++) {
+                if(self.chars(i) != buf.chars(i)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    def equals(right:WildCard):bool {
+        return true;
+    }
+
+    def clone():Buffer {
+        if(appendable) {
+            result := Buffer(self.size);
+
+            memcpy(result.buffer, self.buffer, self.size);
+            result.len = self.len;
+            result.size = self.size;
+            result.appendable = true;
+            result.p = result.p;
+
+            return result;
+        }
+        else {
+            result := Buffer(self.buffer, self.size, false);
+
+            result.buffer = self.buffer;
+            result.len = self.len;
+            result.size = self.size;
+            result.appendable = false;
+            result.p = self.p;
+
+            return result;
+        }
+    }
+
+    def head():pointer {
+        return self.buffer;
+    }
+
+    def tail():pointer {
+        return self.buffer + self.len;
+    }
+
+    def toPointer():pointer {
+        return self.buffer;
+    }
+
+    def toPointerAtPoitedPoint():pointer {
+        return self.p;
+    }
+
+    def subBuffer(start:int, end:int): Buffer {
+        if(start < 0) {
+            start += self.len;
+        }
+        if(end < 0) {
+            end += self.len + 1;
+        }
+
+        if(start < 0) {
+            start = 0;
+        }
+        if(end > self.len) {
+            end = self.len;
+        }
+
+        if(start >= end || start >= self.len || end < 0) {
+            return B"";
+        }
+
+        result: Buffer = Buffer(end.to_ulong-start.to_ulong);
+
+        memcpy(result.buffer, self.buffer + start.to_ulong, (end-start).to_ulong);
+
+        result.len = end-start;
+        result.size = end-start;
+
+        # no null-terminated buffer will be returned
+
+        return result;
+    }
+
+    def length(): size_t {
+        return self.len;
+    }
+
+    def next(): Buffer {
+        result := self.clone();
+        result++;
+        return result;
+    }
+
+    def prev(): Buffer {
+        result := self.clone();
+        result--;
+        return result;
+    }
+}
+
 class Exception
 {
     include MObjectBase;

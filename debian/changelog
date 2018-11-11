@@ -1,4 +1,8 @@
 
+clover2 (7.5.0-1) unstable; urgency=medium
+
+    * I put in class divide compile function.  If you want to add methods and fields to a compiled class file, the inherit class name is better.  When used as mixin-layers, mixin-layers becomes more rigorous and you can not access the fields and methods of the backward layer.  It will be effective at refactoring.  Fixed an interpreter bug.  It was a fairly fatal bug and it worked in my environment, but it was a strange bug that it worked.  I'm sorry. It corresponds to gcc.  It corresponds to the old ARM.  (It worked with netwalker).  However, shell mode seems to not work if the kernel version is too old. Upgrading Please do sudo make uninstall because it will not work if an old version is left.  Since the specification of the class file has changed, recompile the source file up to now. 
+
 clover2 (7.1.4-1) unstable; urgency=medium
 
     * Fixed a bug in Buffer.toStringFromPointedPoint().  Added Buffer.head() and Buffer.tail().

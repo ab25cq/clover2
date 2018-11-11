@@ -1,4 +1,3 @@
-include "CGI.clcl"
 
 class sockaddr
 {
@@ -156,7 +155,7 @@ class hostent
     }
 }
 
-class System
+inherit System
 {
     AF_UNIX:static int;
     AF_LOCAL:static int;

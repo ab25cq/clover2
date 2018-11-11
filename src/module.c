@@ -272,9 +272,9 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)
         return FALSE;
     }
 
-    char buf2[PATH_MAX];
+    char buf2[PATH_MAX+1];
 
-    int size = read(fd, buf2, PATH_MAX+128);
+    int size = read(fd, buf2, PATH_MAX);
 
     if(size < 0) {
         close(fd);
@@ -289,6 +289,7 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)
 
     while(*p) {
         if(*p == '\n') {
+            p++;
             break;
         }
         else {
@@ -310,6 +311,7 @@ BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)
 
     while(*p) {
         if(*p == '\n') {
+            p++;
             break;
         }
         else {

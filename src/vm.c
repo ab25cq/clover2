@@ -1372,7 +1372,6 @@ BOOL class_init_on_runtime()
         vm_mutex_off();
         return FALSE;
     }
-    set_boxing_and_unboxing_classes();
     set_free_fun_to_classes();
 
     vm_mutex_off();

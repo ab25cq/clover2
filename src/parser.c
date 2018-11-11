@@ -616,6 +616,11 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
     if(class_method) {
         sCLClass* command_class = get_class("Command");
 
+        if(command_class == NULL) {
+            fprintf(stderr, "There is no Command class\n");
+            return FALSE;
+        }
+
         if(!class_method_name_existance(command_class, method_name)) {
             params[*num_params] = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
             (*num_params)++;
@@ -1809,7 +1814,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
     }
 
     if(*klass == NULL) {
-        parser_err_msg(info, "%s is not defined class", class_name);
+        parser_err_msg(info, "%s is not defined class(1)", class_name);
         info->err_num++;
     }
 
@@ -1887,7 +1892,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
-        parser_err_msg(info, "%s is not defined class", type_name);
+        parser_err_msg(info, "%s is not defined class(2)", type_name);
         info->err_num++;
     }
 
@@ -2094,7 +2099,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     }
 
     if(*result_type == NULL || (*result_type)->mClass == NULL) {
-        parser_err_msg(info, "%s is not defined class", type_name);
+        parser_err_msg(info, "%s is not defined class(3)", type_name);
         info->err_num++;
         return TRUE;
     }
@@ -5007,7 +5012,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 *node = sNodeTree_create_load_variable(buf, info);
             }
             /// shell mode ///
-            else if(including_slash || class_method_name_existance(command_class, buf) || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
+            else if(including_slash || (command_class && class_method_name_existance(command_class, buf)) || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;

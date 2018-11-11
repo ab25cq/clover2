@@ -4370,7 +4370,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
     }
-    
+
     return TRUE;
 }
 

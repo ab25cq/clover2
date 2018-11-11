@@ -7,9 +7,9 @@
 ABC	ExtensionTest.h	4;"	d
 ALLOC	src/clover2-macros.h	17;"	d
 ANDAND_OROR_MAX	src/common.h	78;"	d
-ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` .\/cclover2 code\/CharTest.clcl; PWD=`pwd` .\/clover2 code\/char.cl; fi$/;"	m
+ANG	Makefile	/^	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` .\/cclover2 code\/CharTest.clcl; if test $(JIT) = 1; then bclover2 CharTest.oclcl; fi; PWD=`pwd` .\/clover2 code\/char.cl; fi$/;"	m
 ARRAY_VALUE_ELEMENT_MAX	src/common.h	64;"	d
-BIG_ENOUGH	src/klass_compile_time.c	367;"	d	file:
+BIG_ENOUGH	src/klass_compile_time.c	396;"	d	file:
 BOOL	src/clover2-macros.h	5;"	d
 BREAK_NUM_MAX	src/common.h	55;"	d
 BUFFER_H	src/clover2-buffer.h	2;"	d
@@ -19,37 +19,37 @@ CFFI	Makefile	/^CFFI=0$/;"	m
 CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
 CHECKML_BEGIN	src/clover2-debug.h	13;"	d
 CHECKML_END	src/clover2-debug.h	14;"	d
-CLASS_FLAGS_ALLOCATED	src/common.h	185;"	d
-CLASS_FLAGS_DYNAMIC_CLASS	src/common.h	186;"	d
-CLASS_FLAGS_INTERFACE	src/common.h	183;"	d
-CLASS_FLAGS_LAMBDA	src/common.h	188;"	d
-CLASS_FLAGS_MODIFIED	src/common.h	184;"	d
-CLASS_FLAGS_NO_FREE_OBJECT	src/common.h	187;"	d
-CLASS_FLAGS_PRIMITIVE	src/common.h	182;"	d
-CLASS_NAME	src/common.h	391;"	d
+CLASS_FLAGS_ALLOCATED	src/common.h	187;"	d
+CLASS_FLAGS_DYNAMIC_CLASS	src/common.h	188;"	d
+CLASS_FLAGS_INTERFACE	src/common.h	185;"	d
+CLASS_FLAGS_LAMBDA	src/common.h	190;"	d
+CLASS_FLAGS_MODIFIED	src/common.h	186;"	d
+CLASS_FLAGS_NO_FREE_OBJECT	src/common.h	189;"	d
+CLASS_FLAGS_PRIMITIVE	src/common.h	184;"	d
+CLASS_NAME	src/common.h	411;"	d
 CLASS_NAME_MAX	src/common.h	51;"	d
 CLASS_NUM_MAX	src/common.h	69;"	d
 CLASS_VERSION_MAX	src/common.h	59;"	d
-CLBLOCK	src/common.h	2022;"	d
-CLHEAPMEM	src/common.h	1924;"	d
-CLOBJECT	src/common.h	1989;"	d
+CLBLOCK	src/common.h	2064;"	d
+CLHEAPMEM	src/common.h	1963;"	d
+CLOBJECT	src/common.h	2028;"	d
 CLOVER2_CONFIGURE	debian/rules	/^CLOVER2_CONFIGURE=--with-optimize --with-interpreter --prefix=\/usr$/;"	m
 CLOVER2_NUM_THREAD_MAX	src/common.h	77;"	d
 CLOVER_STACK_SIZE	src/common.h	70;"	d
 CLObject	src/common.h	/^typedef unsigned int CLObject;$/;"	t
 CLParser_initialize	src/class_parser.c	/^BOOL CLParser_initialize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
-CLREGEX	src/common.h	2048;"	d
+CLREGEX	src/common.h	2090;"	d
 CLVALUE	src/common.h	/^typedef union CLVALUEUnion CLVALUE;$/;"	t	typeref:union:CLVALUEUnion
 CLVALUEUnion	src/common.h	/^union CLVALUEUnion {$/;"	u
 CL_MODULE_HASH_SIZE	src/common.h	62;"	d
 CL_MODULE_NAME_MAX	src/common.h	63;"	d
 COMMON_H	src/common.h	2;"	d
 COMMON_OBJS	Makefile	/^COMMON_OBJS=src\/buffer.o src\/debug.o src\/xfunc.o src\/klass.o src\/constant.o src\/code.o src\/alignment.o src\/utf.o$/;"	m
-COMPACTION_TIMING	src/heap.c	551;"	d	file:
+COMPACTION_TIMING	src/heap.c	527;"	d	file:
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o src\/class_clover_compile_time.o$/;"	m
 CONS_str	src/common.h	137;"	d
 CXX	Makefile	/^CXX=ccache clang++$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-3.8 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 Clover_appendClass	src/class_clover_compile_time.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClass	src/class_clover_runtime.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClassField	src/class_clover_compile_time.c	/^BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -84,27 +84,30 @@ Clover_isTypedefedClass	src/class_clover.c	/^BOOL Clover_isTypedefedClass(CLVALU
 Clover_load	src/class_clover.c	/^BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 DEBUG_H	src/clover2-debug.h	2;"	d
 DESTDIR	Makefile	/^DESTDIR=\/usr\/local$/;"	m
-DUMMY_ARRAY_SIZE	src/common.h	1969;"	d
+DUMMY_ARRAY_SIZE	src/common.h	2008;"	d
 ELIF_NUM_MAX	src/common.h	54;"	d
 ENABLE_THREAD	Makefile	/^ENABLE_THREAD=0$/;"	m
-EXCEPTION_MESSAGE_MAX	src/common.h	231;"	d
+EXCEPTION_MESSAGE_MAX	src/common.h	233;"	d
 EXTENSION_TEST_H	ExtensionTest.h	2;"	d
 ExtTest_hello	ext/hello.c	/^BOOL ExtTest_hello(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 FALSE	src/clover2-macros.h	13;"	d
-FIELD_FLAGS_MODIFIED	src/common.h	321;"	d
-FIELD_FLAGS_PRIVATE	src/common.h	319;"	d
-FIELD_FLAGS_PROTECTED	src/common.h	320;"	d
-FIELD_NAME	src/common.h	394;"	d
+FIELD_FLAGS_DELEGATED	src/common.h	324;"	d
+FIELD_FLAGS_MODIFIED	src/common.h	323;"	d
+FIELD_FLAGS_PRIVATE	src/common.h	321;"	d
+FIELD_FLAGS_PROTECTED	src/common.h	322;"	d
+FIELD_NAME	src/common.h	414;"	d
 FIRST_OBJ	src/heap.c	3;"	d	file:
 GC_INIT_PAGE_NUM	src/heap.c	7;"	d	file:
 GC_PAGE_SIZE	src/heap.c	5;"	d	file:
-GC_TIMING	src/heap.c	550;"	d	file:
+GC_TIMING	src/heap.c	526;"	d	file:
 GENERICS_TYPES_MAX	src/common.h	58;"	d
 GLOBAL_STACK_MAX	src/common.h	74;"	d
 HASH_VALUE_ELEMENT_MAX	src/common.h	67;"	d
+HAVE_BSD_H	config.h	9;"	d
 HAVE_ICONV_H	config.h	3;"	d
 HAVE_ICONV_H	config.h	5;"	d
 HAVE_MATH_H	config.h	2;"	d
+HAVE_NCURSESW_H	config.h	8;"	d
 HAVE_PCRE_H	config.h	6;"	d
 HAVE_READLINE_H	config.h	7;"	d
 HEAP_HANDLE_INIT_SIZE	src/common.h	50;"	d
@@ -114,40 +117,40 @@ INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
 JIT	Makefile	/^JIT=0$/;"	m
 JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
-LABEL_NAME_MAX	src/node.c	352;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_CGI	src/class_system.c	5794;"	d	file:
+LABEL_NAME_MAX	src/node.c	402;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_CGI	src/class_system.c	5807;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	2370;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1717;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_SOCKET	src/class_system.c	6165;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_SOCKET	src/class_system.c	6180;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1598;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS	src/class_system.c	5714;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS	src/class_system.c	5727;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM	src/class_system.c	817;"	d	file:
-LIBS	Makefile	/^LIBS= -lutil -lreadline -ldl -lm -lpcre -lrt$/;"	m
+LIBS	Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	65;"	d
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
-LOCAL_VARIABLE_MAX	src/common.h	517;"	d
+LOCAL_VARIABLE_MAX	src/common.h	539;"	d
 LVALUE	src/jit_common.hpp	/^typedef struct LVALUEStruct LVALUE;$/;"	t	typeref:struct:LVALUEStruct
 LVALUEStruct	src/jit_common.hpp	/^struct LVALUEStruct {$/;"	s
 MACHINE_STACK_MAX	src/jit.cpp	53;"	d	file:
 MACROS_H	src/clover2-macros.h	2;"	d
 MANAGED	src/clover2-macros.h	21;"	d
 MASSERT	src/clover2-debug.h	28;"	d
-MAX_CODES	src/interpreter.c	2171;"	d	file:
-MAX_COND_JUMP	src/jit_common.hpp	115;"	d
+MAX_CODES	src/interpreter.c	2095;"	d	file:
+MAX_COND_JUMP	src/jit_common.hpp	120;"	d
 MCALLOC	src/clover2-debug.h	25;"	d
 METHOD_BLOCK_PARAM_MAX	src/common.h	76;"	d
 METHOD_CHAIN_MAX	src/common.h	72;"	d
 METHOD_DEFAULT_PARAM_MAX	src/common.h	75;"	d
-METHOD_FLAGS_CLASS_METHOD	src/common.h	226;"	d
-METHOD_FLAGS_C_FUNCTION	src/common.h	229;"	d
-METHOD_FLAGS_MODIFIED	src/common.h	227;"	d
-METHOD_FLAGS_NATIVE	src/common.h	225;"	d
-METHOD_FLAGS_NON_NATIVE_CODE	src/common.h	228;"	d
-METHOD_NAME2	src/common.h	392;"	d
-METHOD_NAME_AND_PARAMS	src/common.h	395;"	d
+METHOD_FLAGS_CLASS_METHOD	src/common.h	228;"	d
+METHOD_FLAGS_C_FUNCTION	src/common.h	231;"	d
+METHOD_FLAGS_MODIFIED	src/common.h	229;"	d
+METHOD_FLAGS_NATIVE	src/common.h	227;"	d
+METHOD_FLAGS_NON_NATIVE_CODE	src/common.h	230;"	d
+METHOD_NAME2	src/common.h	412;"	d
+METHOD_NAME_AND_PARAMS	src/common.h	415;"	d
 METHOD_NAME_MAX	src/common.h	53;"	d
 METHOD_NUM_MAX	src/common.h	61;"	d
-METHOD_PATH	src/common.h	393;"	d
+METHOD_PATH	src/common.h	413;"	d
 METHOD_PATH_MAX	src/common.h	60;"	d
 METHOD_VAR_NUM_MAX	src/common.h	57;"	d
 MFREE	src/clover2-debug.h	26;"	d
@@ -158,771 +161,772 @@ NATIVE_METHOD_HASH_SIZE	src/native_method.c	3;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_block_type.c	8;"	d	file:
 NODE_TYPE_PAGE_SIZE	src/node_type.c	8;"	d	file:
 NULLABLE	src/clover2-macros.h	25;"	d
-OBJECT_TYPE_NAME_MAX	src/common.h	1971;"	d
+NUM_STACK_MAX	src/stack.c	96;"	d	file:
+OBJECT_TYPE_NAME_MAX	src/common.h	2010;"	d
 OBJS	Makefile	/^OBJS=src\/vm.o src\/script.o src\/object.o src\/array.o src\/string.o src\/block.o src\/regex.o src\/integer.o src\/byte.o src\/short.o src\/long.o src\/float.o src\/pointer.o src\/char.o src\/bool.o src\/hash.o src\/list.o src\/tuple.o src\/carray.o src\/type.o src\/stack.o src\/heap.o src\/exception.o src\/native_method.o src\/class_system.o src\/class_parser.o src\/class_clover.o src\/class_clover_runtime.o src\/clover_to_clang.o src\/class_thread.o$/;"	m
-OP_ANDAND	src/common.h	1264;"	d
-OP_ARRAY_TO_CARRAY_CAST	src/common.h	1802;"	d
-OP_BADD	src/common.h	1052;"	d
-OP_BAND	src/common.h	1059;"	d
-OP_BCOMPLEMENT	src/common.h	1140;"	d
-OP_BDIV	src/common.h	1055;"	d
-OP_BEQ	src/common.h	1166;"	d
-OP_BGT	src/common.h	1168;"	d
-OP_BGTEQ	src/common.h	1170;"	d
-OP_BLE	src/common.h	1169;"	d
-OP_BLEEQ	src/common.h	1171;"	d
-OP_BLSHIFT	src/common.h	1057;"	d
-OP_BMOD	src/common.h	1056;"	d
-OP_BMULT	src/common.h	1054;"	d
-OP_BNOTEQ	src/common.h	1167;"	d
-OP_BOOL_TO_CBOOL_CAST	src/common.h	1800;"	d
-OP_BOOL_TO_CBYTE_CAST	src/common.h	1664;"	d
-OP_BOOL_TO_CCHAR_CAST	src/common.h	1786;"	d
-OP_BOOL_TO_CDOUBLE_CAST	src/common.h	1760;"	d
-OP_BOOL_TO_CFLOAT_CAST	src/common.h	1747;"	d
-OP_BOOL_TO_CLONG_CAST	src/common.h	1720;"	d
-OP_BOOL_TO_CPOINTER_CAST	src/common.h	1772;"	d
-OP_BOOL_TO_CSHORT_CAST	src/common.h	1692;"	d
-OP_BOOL_TO_CUBYTE_CAST	src/common.h	1678;"	d
-OP_BOOL_TO_CULONG_CAST	src/common.h	1734;"	d
-OP_BOOL_TO_CUSHORT_CAST	src/common.h	1706;"	d
-OP_BOOL_TO_INTEGER_CAST	src/common.h	1636;"	d
-OP_BOOL_TO_STRING_CAST	src/common.h	1619;"	d
-OP_BOOL_TO_UINTEGER_CAST	src/common.h	1650;"	d
-OP_BOR	src/common.h	1061;"	d
-OP_BRSHIFT	src/common.h	1058;"	d
-OP_BSUB	src/common.h	1053;"	d
-OP_BUFFER_TO_POINTER_CAST	src/common.h	1581;"	d
-OP_BXOR	src/common.h	1060;"	d
-OP_BYTE_TO_CBOOL_CAST	src/common.h	1788;"	d
-OP_BYTE_TO_CBYTE_CAST	src/common.h	1652;"	d
-OP_BYTE_TO_CCHAR_CAST	src/common.h	1774;"	d
-OP_BYTE_TO_CDOUBLE_CAST	src/common.h	1749;"	d
-OP_BYTE_TO_CFLOAT_CAST	src/common.h	1736;"	d
-OP_BYTE_TO_CHAR_CAST	src/common.h	1583;"	d
-OP_BYTE_TO_CLONG_CAST	src/common.h	1708;"	d
-OP_BYTE_TO_CPOINTER_CAST	src/common.h	1762;"	d
-OP_BYTE_TO_CSHORT_CAST	src/common.h	1680;"	d
-OP_BYTE_TO_CUBYTE_CAST	src/common.h	1666;"	d
-OP_BYTE_TO_CULONG_CAST	src/common.h	1722;"	d
-OP_BYTE_TO_CUSHORT_CAST	src/common.h	1694;"	d
-OP_BYTE_TO_DOUBLE_CAST	src/common.h	1548;"	d
-OP_BYTE_TO_FLOAT_CAST	src/common.h	1524;"	d
-OP_BYTE_TO_INTEGER_CAST	src/common.h	1624;"	d
-OP_BYTE_TO_INT_CAST	src/common.h	1368;"	d
-OP_BYTE_TO_LONG_CAST	src/common.h	1394;"	d
-OP_BYTE_TO_POINTER_CAST	src/common.h	1572;"	d
-OP_BYTE_TO_SHORT_CAST	src/common.h	1342;"	d
-OP_BYTE_TO_STRING_CAST	src/common.h	1609;"	d
-OP_BYTE_TO_UBYTE_CAST	src/common.h	1420;"	d
-OP_BYTE_TO_UINTEGER_CAST	src/common.h	1638;"	d
-OP_BYTE_TO_UINT_CAST	src/common.h	1472;"	d
-OP_BYTE_TO_ULONG_CAST	src/common.h	1498;"	d
-OP_BYTE_TO_USHORT_CAST	src/common.h	1446;"	d
-OP_CADD	src/common.h	1163;"	d
-OP_CATCH_POP	src/common.h	1007;"	d
-OP_CATCH_STORE	src/common.h	1008;"	d
-OP_CBOOL_TO_BYTE_CAST	src/common.h	1340;"	d
-OP_CBOOL_TO_CHAR_CAST	src/common.h	1607;"	d
-OP_CBOOL_TO_DOUBLE_CAST	src/common.h	1570;"	d
-OP_CBOOL_TO_FLOAT_CAST	src/common.h	1546;"	d
-OP_CBOOL_TO_INT_CAST	src/common.h	1392;"	d
-OP_CBOOL_TO_LONG_CAST	src/common.h	1418;"	d
-OP_CBOOL_TO_SHORT_CAST	src/common.h	1366;"	d
-OP_CBOOL_TO_UBYTE_CAST	src/common.h	1444;"	d
-OP_CBOOL_TO_UINT_CAST	src/common.h	1496;"	d
-OP_CBOOL_TO_ULONG_CAST	src/common.h	1522;"	d
-OP_CBOOL_TO_USHORT_CAST	src/common.h	1470;"	d
-OP_CBYTE_TO_BYTE_CAST	src/common.h	1328;"	d
-OP_CBYTE_TO_CHAR_CAST	src/common.h	1595;"	d
-OP_CBYTE_TO_DOUBLE_CAST	src/common.h	1559;"	d
-OP_CBYTE_TO_FLOAT_CAST	src/common.h	1535;"	d
-OP_CBYTE_TO_INT_CAST	src/common.h	1380;"	d
-OP_CBYTE_TO_LONG_CAST	src/common.h	1406;"	d
-OP_CBYTE_TO_SHORT_CAST	src/common.h	1354;"	d
-OP_CBYTE_TO_UBYTE_CAST	src/common.h	1432;"	d
-OP_CBYTE_TO_UINT_CAST	src/common.h	1484;"	d
-OP_CBYTE_TO_ULONG_CAST	src/common.h	1510;"	d
-OP_CBYTE_TO_USHORT_CAST	src/common.h	1458;"	d
-OP_CCHAR_TO_BYTE_CAST	src/common.h	1339;"	d
-OP_CCHAR_TO_CHAR_CAST	src/common.h	1606;"	d
-OP_CCHAR_TO_DOUBLE_CAST	src/common.h	1569;"	d
-OP_CCHAR_TO_FLOAT_CAST	src/common.h	1545;"	d
-OP_CCHAR_TO_INT_CAST	src/common.h	1391;"	d
-OP_CCHAR_TO_LONG_CAST	src/common.h	1417;"	d
-OP_CCHAR_TO_SHORT_CAST	src/common.h	1365;"	d
-OP_CCHAR_TO_UBYTE_CAST	src/common.h	1443;"	d
-OP_CCHAR_TO_UINT_CAST	src/common.h	1495;"	d
-OP_CCHAR_TO_ULONG_CAST	src/common.h	1521;"	d
-OP_CCHAR_TO_USHORT_CAST	src/common.h	1469;"	d
-OP_CDOUBLE_TO_BYTE_CAST	src/common.h	1337;"	d
-OP_CDOUBLE_TO_CHAR_CAST	src/common.h	1604;"	d
-OP_CDOUBLE_TO_DOUBLE_CAST	src/common.h	1568;"	d
-OP_CDOUBLE_TO_FLOAT_CAST	src/common.h	1544;"	d
-OP_CDOUBLE_TO_INT_CAST	src/common.h	1389;"	d
-OP_CDOUBLE_TO_LONG_CAST	src/common.h	1415;"	d
-OP_CDOUBLE_TO_SHORT_CAST	src/common.h	1363;"	d
-OP_CDOUBLE_TO_UBYTE_CAST	src/common.h	1441;"	d
-OP_CDOUBLE_TO_UINT_CAST	src/common.h	1493;"	d
-OP_CDOUBLE_TO_ULONG_CAST	src/common.h	1519;"	d
-OP_CDOUBLE_TO_USHORT_CAST	src/common.h	1467;"	d
-OP_CEQ	src/common.h	1243;"	d
-OP_CFLOAT_TO_BYTE_CAST	src/common.h	1336;"	d
-OP_CFLOAT_TO_CHAR_CAST	src/common.h	1603;"	d
-OP_CFLOAT_TO_DOUBLE_CAST	src/common.h	1567;"	d
-OP_CFLOAT_TO_FLOAT_CAST	src/common.h	1543;"	d
-OP_CFLOAT_TO_INT_CAST	src/common.h	1388;"	d
-OP_CFLOAT_TO_LONG_CAST	src/common.h	1414;"	d
-OP_CFLOAT_TO_SHORT_CAST	src/common.h	1362;"	d
-OP_CFLOAT_TO_UBYTE_CAST	src/common.h	1440;"	d
-OP_CFLOAT_TO_UINT_CAST	src/common.h	1492;"	d
-OP_CFLOAT_TO_ULONG_CAST	src/common.h	1518;"	d
-OP_CFLOAT_TO_USHORT_CAST	src/common.h	1466;"	d
-OP_CGT	src/common.h	1245;"	d
-OP_CGTEQ	src/common.h	1247;"	d
-OP_CHAR_LOWERCASE	src/common.h	1816;"	d
-OP_CHAR_TO_BYTE_CAST	src/common.h	1326;"	d
-OP_CHAR_TO_CBOOL_CAST	src/common.h	1798;"	d
-OP_CHAR_TO_CBYTE_CAST	src/common.h	1662;"	d
-OP_CHAR_TO_CCHAR_CAST	src/common.h	1784;"	d
-OP_CHAR_TO_CDOUBLE_CAST	src/common.h	1759;"	d
-OP_CHAR_TO_CFLOAT_CAST	src/common.h	1746;"	d
-OP_CHAR_TO_CLONG_CAST	src/common.h	1718;"	d
-OP_CHAR_TO_CPOINTER_CAST	src/common.h	1770;"	d
-OP_CHAR_TO_CSHORT_CAST	src/common.h	1690;"	d
-OP_CHAR_TO_CUBYTE_CAST	src/common.h	1676;"	d
-OP_CHAR_TO_CULONG_CAST	src/common.h	1732;"	d
-OP_CHAR_TO_CUSHORT_CAST	src/common.h	1704;"	d
-OP_CHAR_TO_DOUBLE_CAST	src/common.h	1557;"	d
-OP_CHAR_TO_FLOAT_CAST	src/common.h	1533;"	d
-OP_CHAR_TO_INTEGER_CAST	src/common.h	1634;"	d
-OP_CHAR_TO_INT_CAST	src/common.h	1378;"	d
-OP_CHAR_TO_LONG_CAST	src/common.h	1404;"	d
-OP_CHAR_TO_POINTER_CAST	src/common.h	1580;"	d
-OP_CHAR_TO_SHORT_CAST	src/common.h	1352;"	d
-OP_CHAR_TO_STRING_CAST	src/common.h	1622;"	d
-OP_CHAR_TO_UBYTE_CAST	src/common.h	1430;"	d
-OP_CHAR_TO_UINTEGER_CAST	src/common.h	1648;"	d
-OP_CHAR_TO_UINT_CAST	src/common.h	1482;"	d
-OP_CHAR_TO_ULONG_CAST	src/common.h	1508;"	d
-OP_CHAR_TO_USHORT_CAST	src/common.h	1456;"	d
-OP_CHAR_UPPERCASE	src/common.h	1815;"	d
-OP_CLASSNAME	src/common.h	1255;"	d
-OP_CLE	src/common.h	1246;"	d
-OP_CLEEQ	src/common.h	1248;"	d
-OP_CLONG_TO_BYTE_CAST	src/common.h	1334;"	d
-OP_CLONG_TO_CHAR_CAST	src/common.h	1601;"	d
-OP_CLONG_TO_DOUBLE_CAST	src/common.h	1565;"	d
-OP_CLONG_TO_FLOAT_CAST	src/common.h	1541;"	d
-OP_CLONG_TO_INT_CAST	src/common.h	1386;"	d
-OP_CLONG_TO_LONG_CAST	src/common.h	1412;"	d
-OP_CLONG_TO_SHORT_CAST	src/common.h	1360;"	d
-OP_CLONG_TO_UBYTE_CAST	src/common.h	1438;"	d
-OP_CLONG_TO_UINT_CAST	src/common.h	1490;"	d
-OP_CLONG_TO_ULONG_CAST	src/common.h	1516;"	d
-OP_CLONG_TO_USHORT_CAST	src/common.h	1464;"	d
-OP_CNOTEQ	src/common.h	1244;"	d
-OP_COND_JUMP	src/common.h	1000;"	d
-OP_COND_NOT_JUMP	src/common.h	1001;"	d
-OP_CPOINTER_TO_BYTE_CAST	src/common.h	1338;"	d
-OP_CPOINTER_TO_CHAR_CAST	src/common.h	1605;"	d
-OP_CPOINTER_TO_INT_CAST	src/common.h	1390;"	d
-OP_CPOINTER_TO_LONG_CAST	src/common.h	1416;"	d
-OP_CPOINTER_TO_SHORT_CAST	src/common.h	1364;"	d
-OP_CPOINTER_TO_UBYTE_CAST	src/common.h	1442;"	d
-OP_CPOINTER_TO_UINT_CAST	src/common.h	1494;"	d
-OP_CPOINTER_TO_ULONG_CAST	src/common.h	1520;"	d
-OP_CPOINTER_TO_USHORT_CAST	src/common.h	1468;"	d
-OP_CREATE_ARRAY	src/common.h	1821;"	d
-OP_CREATE_BLOCK_OBJECT	src/common.h	1830;"	d
-OP_CREATE_BUFFER	src/common.h	1819;"	d
-OP_CREATE_CARRAY	src/common.h	1822;"	d
-OP_CREATE_EQUALABLE_CARRAY	src/common.h	1824;"	d
-OP_CREATE_EQUALABLE_LIST	src/common.h	1827;"	d
-OP_CREATE_HASH	src/common.h	1829;"	d
-OP_CREATE_LIST	src/common.h	1825;"	d
-OP_CREATE_PATH	src/common.h	1820;"	d
-OP_CREATE_REGEX	src/common.h	1831;"	d
-OP_CREATE_SORTABLE_CARRAY	src/common.h	1823;"	d
-OP_CREATE_SORTALBE_LIST	src/common.h	1826;"	d
-OP_CREATE_STRING	src/common.h	1818;"	d
-OP_CREATE_TUPLE	src/common.h	1828;"	d
-OP_CSHORT_TO_BYTE_CAST	src/common.h	1330;"	d
-OP_CSHORT_TO_CHAR_CAST	src/common.h	1597;"	d
-OP_CSHORT_TO_DOUBLE_CAST	src/common.h	1561;"	d
-OP_CSHORT_TO_FLOAT_CAST	src/common.h	1537;"	d
-OP_CSHORT_TO_INT_CAST	src/common.h	1382;"	d
-OP_CSHORT_TO_LONG_CAST	src/common.h	1408;"	d
-OP_CSHORT_TO_SHORT_CAST	src/common.h	1356;"	d
-OP_CSHORT_TO_UBYTE_CAST	src/common.h	1434;"	d
-OP_CSHORT_TO_UINT_CAST	src/common.h	1486;"	d
-OP_CSHORT_TO_ULONG_CAST	src/common.h	1512;"	d
-OP_CSHORT_TO_USHORT_CAST	src/common.h	1460;"	d
-OP_CSUB	src/common.h	1164;"	d
-OP_CUBYTE_TO_BYTE_CAST	src/common.h	1329;"	d
-OP_CUBYTE_TO_CHAR_CAST	src/common.h	1596;"	d
-OP_CUBYTE_TO_DOUBLE_CAST	src/common.h	1560;"	d
-OP_CUBYTE_TO_FLOAT_CAST	src/common.h	1536;"	d
-OP_CUBYTE_TO_INT_CAST	src/common.h	1381;"	d
-OP_CUBYTE_TO_LONG_CAST	src/common.h	1407;"	d
-OP_CUBYTE_TO_SHORT_CAST	src/common.h	1355;"	d
-OP_CUBYTE_TO_UBYTE_CAST	src/common.h	1433;"	d
-OP_CUBYTE_TO_UINT_CAST	src/common.h	1485;"	d
-OP_CUBYTE_TO_ULONG_CAST	src/common.h	1511;"	d
-OP_CUBYTE_TO_USHORT_CAST	src/common.h	1459;"	d
-OP_CULONG_TO_BYTE_CAST	src/common.h	1335;"	d
-OP_CULONG_TO_CHAR_CAST	src/common.h	1602;"	d
-OP_CULONG_TO_DOUBLE_CAST	src/common.h	1566;"	d
-OP_CULONG_TO_FLOAT_CAST	src/common.h	1542;"	d
-OP_CULONG_TO_INT_CAST	src/common.h	1387;"	d
-OP_CULONG_TO_LONG_CAST	src/common.h	1413;"	d
-OP_CULONG_TO_SHORT_CAST	src/common.h	1361;"	d
-OP_CULONG_TO_UBYTE_CAST	src/common.h	1439;"	d
-OP_CULONG_TO_UINT_CAST	src/common.h	1491;"	d
-OP_CULONG_TO_ULONG_CAST	src/common.h	1517;"	d
-OP_CULONG_TO_USHORT_CAST	src/common.h	1465;"	d
-OP_CUSHORT_TO_BYTE_CAST	src/common.h	1331;"	d
-OP_CUSHORT_TO_CHAR_CAST	src/common.h	1598;"	d
-OP_CUSHORT_TO_DOUBLE_CAST	src/common.h	1562;"	d
-OP_CUSHORT_TO_FLOAT_CAST	src/common.h	1538;"	d
-OP_CUSHORT_TO_INT_CAST	src/common.h	1383;"	d
-OP_CUSHORT_TO_LONG_CAST	src/common.h	1409;"	d
-OP_CUSHORT_TO_SHORT_CAST	src/common.h	1357;"	d
-OP_CUSHORT_TO_UBYTE_CAST	src/common.h	1435;"	d
-OP_CUSHORT_TO_UINT_CAST	src/common.h	1487;"	d
-OP_CUSHORT_TO_ULONG_CAST	src/common.h	1513;"	d
-OP_CUSHORT_TO_USHORT_CAST	src/common.h	1461;"	d
-OP_DADD	src/common.h	1154;"	d
-OP_DDIV	src/common.h	1157;"	d
-OP_DEC_ANDAND_OROR_ARRAY	src/common.h	1026;"	d
-OP_DEQ	src/common.h	1229;"	d
-OP_DGT	src/common.h	1231;"	d
-OP_DGTEQ	src/common.h	1233;"	d
-OP_DLE	src/common.h	1232;"	d
-OP_DLEEQ	src/common.h	1234;"	d
-OP_DMULT	src/common.h	1156;"	d
-OP_DNOTEQ	src/common.h	1230;"	d
-OP_DOUBLE_TO_BYTE_CAST	src/common.h	1324;"	d
-OP_DOUBLE_TO_CBOOL_CAST	src/common.h	1797;"	d
-OP_DOUBLE_TO_CBYTE_CAST	src/common.h	1661;"	d
-OP_DOUBLE_TO_CCHAR_CAST	src/common.h	1783;"	d
-OP_DOUBLE_TO_CDOUBLE_CAST	src/common.h	1758;"	d
-OP_DOUBLE_TO_CFLOAT_CAST	src/common.h	1745;"	d
-OP_DOUBLE_TO_CHAR_CAST	src/common.h	1592;"	d
-OP_DOUBLE_TO_CLONG_CAST	src/common.h	1717;"	d
-OP_DOUBLE_TO_CSHORT_CAST	src/common.h	1689;"	d
-OP_DOUBLE_TO_CUBYTE_CAST	src/common.h	1675;"	d
-OP_DOUBLE_TO_CULONG_CAST	src/common.h	1731;"	d
-OP_DOUBLE_TO_CUSHORT_CAST	src/common.h	1703;"	d
-OP_DOUBLE_TO_FLOAT_CAST	src/common.h	1532;"	d
-OP_DOUBLE_TO_INTEGER_CAST	src/common.h	1633;"	d
-OP_DOUBLE_TO_INT_CAST	src/common.h	1376;"	d
-OP_DOUBLE_TO_LONG_CAST	src/common.h	1402;"	d
-OP_DOUBLE_TO_SHORT_CAST	src/common.h	1350;"	d
-OP_DOUBLE_TO_STRING_CAST	src/common.h	1618;"	d
-OP_DOUBLE_TO_UBYTE_CAST	src/common.h	1428;"	d
-OP_DOUBLE_TO_UINTEGER_CAST	src/common.h	1647;"	d
-OP_DOUBLE_TO_UINT_CAST	src/common.h	1480;"	d
-OP_DOUBLE_TO_ULONG_CAST	src/common.h	1506;"	d
-OP_DOUBLE_TO_USHORT_CAST	src/common.h	1454;"	d
-OP_DSUB	src/common.h	1155;"	d
-OP_DUPE	src/common.h	999;"	d
-OP_FADD	src/common.h	1149;"	d
-OP_FDIV	src/common.h	1152;"	d
-OP_FEQ	src/common.h	1222;"	d
-OP_FGT	src/common.h	1224;"	d
-OP_FGTEQ	src/common.h	1226;"	d
-OP_FLE	src/common.h	1225;"	d
-OP_FLEEQ	src/common.h	1227;"	d
-OP_FLOAT_TO_BYTE_CAST	src/common.h	1323;"	d
-OP_FLOAT_TO_CBOOL_CAST	src/common.h	1796;"	d
-OP_FLOAT_TO_CBYTE_CAST	src/common.h	1660;"	d
-OP_FLOAT_TO_CCHAR_CAST	src/common.h	1782;"	d
-OP_FLOAT_TO_CDOUBLE_CAST	src/common.h	1757;"	d
-OP_FLOAT_TO_CFLOAT_CAST	src/common.h	1744;"	d
-OP_FLOAT_TO_CHAR_CAST	src/common.h	1591;"	d
-OP_FLOAT_TO_CLONG_CAST	src/common.h	1716;"	d
-OP_FLOAT_TO_CSHORT_CAST	src/common.h	1688;"	d
-OP_FLOAT_TO_CUBYTE_CAST	src/common.h	1674;"	d
-OP_FLOAT_TO_CULONG_CAST	src/common.h	1730;"	d
-OP_FLOAT_TO_CUSHORT_CAST	src/common.h	1702;"	d
-OP_FLOAT_TO_DOUBLE_CAST	src/common.h	1556;"	d
-OP_FLOAT_TO_INTEGER_CAST	src/common.h	1632;"	d
-OP_FLOAT_TO_INT_CAST	src/common.h	1375;"	d
-OP_FLOAT_TO_LONG_CAST	src/common.h	1401;"	d
-OP_FLOAT_TO_SHORT_CAST	src/common.h	1349;"	d
-OP_FLOAT_TO_STRING_CAST	src/common.h	1617;"	d
-OP_FLOAT_TO_UBYTE_CAST	src/common.h	1427;"	d
-OP_FLOAT_TO_UINTEGER_CAST	src/common.h	1646;"	d
-OP_FLOAT_TO_UINT_CAST	src/common.h	1479;"	d
-OP_FLOAT_TO_ULONG_CAST	src/common.h	1505;"	d
-OP_FLOAT_TO_USHORT_CAST	src/common.h	1453;"	d
-OP_FMULT	src/common.h	1151;"	d
-OP_FNOTEQ	src/common.h	1223;"	d
-OP_FSUB	src/common.h	1150;"	d
-OP_GET_ANDAND_OROR_RESULT_LEFT	src/common.h	1023;"	d
-OP_GET_ANDAND_OROR_RESULT_RIGHT	src/common.h	1024;"	d
-OP_GET_ARRAY_LENGTH	src/common.h	1804;"	d
-OP_GET_REGEX_ANCHORED	src/common.h	1811;"	d
-OP_GET_REGEX_DOLLAR_ENDONLY	src/common.h	1812;"	d
-OP_GET_REGEX_DOTALL	src/common.h	1810;"	d
-OP_GET_REGEX_EXTENDED	src/common.h	1809;"	d
-OP_GET_REGEX_GLOBAL	src/common.h	1806;"	d
-OP_GET_REGEX_IGNORE_CASE	src/common.h	1807;"	d
-OP_GET_REGEX_MULTILINE	src/common.h	1808;"	d
-OP_GET_REGEX_UNGREEDY	src/common.h	1813;"	d
-OP_GOTO	src/common.h	1002;"	d
-OP_HEAD_OF_EXPRESSION	src/common.h	1009;"	d
-OP_IADD	src/common.h	1096;"	d
-OP_IAND	src/common.h	1103;"	d
-OP_ICOMPLEMENT	src/common.h	1144;"	d
-OP_IDIV	src/common.h	1099;"	d
-OP_IEQ	src/common.h	1194;"	d
-OP_IGT	src/common.h	1196;"	d
-OP_IGTEQ	src/common.h	1198;"	d
-OP_ILE	src/common.h	1197;"	d
-OP_ILEEQ	src/common.h	1199;"	d
-OP_ILSHIFT	src/common.h	1101;"	d
-OP_IMOD	src/common.h	1100;"	d
-OP_IMPLEMENTS	src/common.h	1257;"	d
-OP_IMULT	src/common.h	1098;"	d
-OP_INC_ANDAND_OROR_ARRAY	src/common.h	1025;"	d
-OP_INOTEQ	src/common.h	1195;"	d
-OP_INTEGER_TO_BYTE_CAST	src/common.h	1332;"	d
-OP_INTEGER_TO_CHAR_CAST	src/common.h	1599;"	d
-OP_INTEGER_TO_DOUBLE_CAST	src/common.h	1563;"	d
-OP_INTEGER_TO_FLOAT_CAST	src/common.h	1539;"	d
-OP_INTEGER_TO_INT_CAST	src/common.h	1384;"	d
-OP_INTEGER_TO_LONG_CAST	src/common.h	1410;"	d
-OP_INTEGER_TO_SHORT_CAST	src/common.h	1358;"	d
-OP_INTEGER_TO_UBYTE_CAST	src/common.h	1436;"	d
-OP_INTEGER_TO_UINT_CAST	src/common.h	1488;"	d
-OP_INTEGER_TO_ULONG_CAST	src/common.h	1514;"	d
-OP_INTEGER_TO_USHORT_CAST	src/common.h	1462;"	d
-OP_INT_TO_BYTE_CAST	src/common.h	1319;"	d
-OP_INT_TO_CBOOL_CAST	src/common.h	1792;"	d
-OP_INT_TO_CBYTE_CAST	src/common.h	1656;"	d
-OP_INT_TO_CCHAR_CAST	src/common.h	1778;"	d
-OP_INT_TO_CDOUBLE_CAST	src/common.h	1753;"	d
-OP_INT_TO_CFLOAT_CAST	src/common.h	1740;"	d
-OP_INT_TO_CHAR_CAST	src/common.h	1587;"	d
-OP_INT_TO_CLONG_CAST	src/common.h	1712;"	d
-OP_INT_TO_CPOINTER_CAST	src/common.h	1766;"	d
-OP_INT_TO_CSHORT_CAST	src/common.h	1684;"	d
-OP_INT_TO_CUBYTE_CAST	src/common.h	1670;"	d
-OP_INT_TO_CULONG_CAST	src/common.h	1726;"	d
-OP_INT_TO_CUSHORT_CAST	src/common.h	1698;"	d
-OP_INT_TO_DOUBLE_CAST	src/common.h	1552;"	d
-OP_INT_TO_FLOAT_CAST	src/common.h	1528;"	d
-OP_INT_TO_INTEGER_CAST	src/common.h	1628;"	d
-OP_INT_TO_LONG_CAST	src/common.h	1398;"	d
-OP_INT_TO_POINTER_CAST	src/common.h	1576;"	d
-OP_INT_TO_SHORT_CAST	src/common.h	1344;"	d
-OP_INT_TO_STRING_CAST	src/common.h	1611;"	d
-OP_INT_TO_UBYTE_CAST	src/common.h	1423;"	d
-OP_INT_TO_UINTEGER_CAST	src/common.h	1642;"	d
-OP_INT_TO_UINT_CAST	src/common.h	1476;"	d
-OP_INT_TO_ULONG_CAST	src/common.h	1502;"	d
-OP_INT_TO_USHORT_CAST	src/common.h	1449;"	d
-OP_INVOKE_BLOCK	src/common.h	1271;"	d
-OP_INVOKE_DYNAMIC_METHOD	src/common.h	1270;"	d
-OP_INVOKE_METHOD	src/common.h	1268;"	d
-OP_INVOKE_VIRTUAL_METHOD	src/common.h	1269;"	d
-OP_IOR	src/common.h	1105;"	d
-OP_IRSHIFT	src/common.h	1102;"	d
-OP_IS	src/common.h	1256;"	d
-OP_ISUB	src/common.h	1097;"	d
-OP_IXOR	src/common.h	1104;"	d
-OP_JIT_POP	src/common.h	1020;"	d
-OP_LABEL	src/common.h	1013;"	d
-OP_LADD	src/common.h	1118;"	d
-OP_LAND	src/common.h	1125;"	d
-OP_LCOMPLEMENT	src/common.h	1146;"	d
-OP_LDCBOOL	src/common.h	1050;"	d
-OP_LDCBYTE	src/common.h	1038;"	d
-OP_LDCDOUBLE	src/common.h	1049;"	d
-OP_LDCFLOAT	src/common.h	1048;"	d
-OP_LDCINT	src/common.h	1042;"	d
-OP_LDCLONG	src/common.h	1044;"	d
-OP_LDCNULL	src/common.h	1046;"	d
-OP_LDCPOINTER	src/common.h	1047;"	d
-OP_LDCSHORT	src/common.h	1040;"	d
-OP_LDCUBYTE	src/common.h	1039;"	d
-OP_LDCUINT	src/common.h	1043;"	d
-OP_LDCULONG	src/common.h	1045;"	d
-OP_LDCUSHORT	src/common.h	1041;"	d
-OP_LDIV	src/common.h	1121;"	d
-OP_LEQ	src/common.h	1208;"	d
-OP_LGT	src/common.h	1210;"	d
-OP_LGTEQ	src/common.h	1212;"	d
-OP_LLE	src/common.h	1211;"	d
-OP_LLEEQ	src/common.h	1213;"	d
-OP_LLSHIFT	src/common.h	1123;"	d
-OP_LMOD	src/common.h	1122;"	d
-OP_LMULT	src/common.h	1120;"	d
-OP_LNOTEQ	src/common.h	1209;"	d
-OP_LOAD	src/common.h	1034;"	d
-OP_LOAD_ADDRESS	src/common.h	1261;"	d
-OP_LOAD_CLASS_FIELD	src/common.h	1278;"	d
-OP_LOAD_CLASS_FIELD_ADDRESS	src/common.h	1279;"	d
-OP_LOAD_ELEMENT	src/common.h	1282;"	d
-OP_LOAD_FIELD	src/common.h	1274;"	d
-OP_LOAD_FIELD_ADDRESS	src/common.h	1275;"	d
-OP_LOAD_VALUE_FROM_BOOL_ADDRESS	src/common.h	1313;"	d
-OP_LOAD_VALUE_FROM_BYTE_ADDRESS	src/common.h	1303;"	d
-OP_LOAD_VALUE_FROM_CHAR_ADDRESS	src/common.h	1312;"	d
-OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS	src/common.h	1310;"	d
-OP_LOAD_VALUE_FROM_FLOAT_ADDRESS	src/common.h	1309;"	d
-OP_LOAD_VALUE_FROM_INT_ADDRESS	src/common.h	1301;"	d
-OP_LOAD_VALUE_FROM_LONG_ADDRESS	src/common.h	1307;"	d
-OP_LOAD_VALUE_FROM_OBJECT_ADDRESS	src/common.h	1314;"	d
-OP_LOAD_VALUE_FROM_POINTER_ADDRESS	src/common.h	1311;"	d
-OP_LOAD_VALUE_FROM_SHORT_ADDRESS	src/common.h	1305;"	d
-OP_LOAD_VALUE_FROM_UBYTE_ADDRESS	src/common.h	1304;"	d
-OP_LOAD_VALUE_FROM_UINT_ADDRESS	src/common.h	1302;"	d
-OP_LOAD_VALUE_FROM_ULONG_ADDRESS	src/common.h	1308;"	d
-OP_LOAD_VALUE_FROM_USHORT_ADDRESS	src/common.h	1306;"	d
-OP_LOGICAL_DENIAL	src/common.h	1266;"	d
-OP_LONG_TO_BYTE_CAST	src/common.h	1321;"	d
-OP_LONG_TO_CBOOL_CAST	src/common.h	1794;"	d
-OP_LONG_TO_CBYTE_CAST	src/common.h	1658;"	d
-OP_LONG_TO_CCHAR_CAST	src/common.h	1780;"	d
-OP_LONG_TO_CDOUBLE_CAST	src/common.h	1755;"	d
-OP_LONG_TO_CFLOAT_CAST	src/common.h	1742;"	d
-OP_LONG_TO_CHAR_CAST	src/common.h	1589;"	d
-OP_LONG_TO_CLONG_CAST	src/common.h	1714;"	d
-OP_LONG_TO_CPOINTER_CAST	src/common.h	1768;"	d
-OP_LONG_TO_CSHORT_CAST	src/common.h	1686;"	d
-OP_LONG_TO_CUBYTE_CAST	src/common.h	1672;"	d
-OP_LONG_TO_CULONG_CAST	src/common.h	1728;"	d
-OP_LONG_TO_CUSHORT_CAST	src/common.h	1700;"	d
-OP_LONG_TO_DOUBLE_CAST	src/common.h	1554;"	d
-OP_LONG_TO_FLOAT_CAST	src/common.h	1530;"	d
-OP_LONG_TO_INTEGER_CAST	src/common.h	1630;"	d
-OP_LONG_TO_INT_CAST	src/common.h	1372;"	d
-OP_LONG_TO_POINTER_CAST	src/common.h	1578;"	d
-OP_LONG_TO_SHORT_CAST	src/common.h	1346;"	d
-OP_LONG_TO_STRING_CAST	src/common.h	1612;"	d
-OP_LONG_TO_UBYTE_CAST	src/common.h	1425;"	d
-OP_LONG_TO_UINTEGER_CAST	src/common.h	1644;"	d
-OP_LONG_TO_UINT_CAST	src/common.h	1477;"	d
-OP_LONG_TO_ULONG_CAST	src/common.h	1504;"	d
-OP_LONG_TO_USHORT_CAST	src/common.h	1451;"	d
-OP_LOR	src/common.h	1127;"	d
-OP_LRSHIFT	src/common.h	1124;"	d
-OP_LSUB	src/common.h	1119;"	d
-OP_LXOR	src/common.h	1126;"	d
-OP_MARK_SOURCE_CODE_POSITION	src/common.h	1010;"	d
-OP_MARK_SOURCE_CODE_POSITION2	src/common.h	1011;"	d
-OP_NEW	src/common.h	1273;"	d
-OP_NOP	src/common.h	1028;"	d
-OP_OBJ_ALLOCATED_SIZE	src/common.h	1258;"	d
-OP_OBJ_HEAD_OF_MEMORY	src/common.h	1259;"	d
-OP_OBJ_IDENTIFY	src/common.h	1253;"	d
-OP_OBJ_IDENTIFY_NOT	src/common.h	1254;"	d
-OP_OROR	src/common.h	1265;"	d
-OP_PADD	src/common.h	1159;"	d
-OP_PEQ	src/common.h	1236;"	d
-OP_PGT	src/common.h	1238;"	d
-OP_PGTEQ	src/common.h	1240;"	d
-OP_PLE	src/common.h	1239;"	d
-OP_PLEEQ	src/common.h	1241;"	d
-OP_PNOTEQ	src/common.h	1237;"	d
-OP_POINTER_TO_BYTE_CAST	src/common.h	1325;"	d
-OP_POINTER_TO_CBOOL_CAST	src/common.h	1799;"	d
-OP_POINTER_TO_CBYTE_CAST	src/common.h	1663;"	d
-OP_POINTER_TO_CCHAR_CAST	src/common.h	1785;"	d
-OP_POINTER_TO_CHAR_CAST	src/common.h	1593;"	d
-OP_POINTER_TO_CLONG_CAST	src/common.h	1719;"	d
-OP_POINTER_TO_CPOINTER_CAST	src/common.h	1771;"	d
-OP_POINTER_TO_CSHORT_CAST	src/common.h	1691;"	d
-OP_POINTER_TO_CUBYTE_CAST	src/common.h	1677;"	d
-OP_POINTER_TO_CULONG_CAST	src/common.h	1733;"	d
-OP_POINTER_TO_CUSHORT_CAST	src/common.h	1705;"	d
-OP_POINTER_TO_INTEGER_CAST	src/common.h	1635;"	d
-OP_POINTER_TO_INT_CAST	src/common.h	1377;"	d
-OP_POINTER_TO_LONG_CAST	src/common.h	1403;"	d
-OP_POINTER_TO_SHORT_CAST	src/common.h	1351;"	d
-OP_POINTER_TO_STRING_CAST	src/common.h	1621;"	d
-OP_POINTER_TO_UBYTE_CAST	src/common.h	1429;"	d
-OP_POINTER_TO_UINTEGER_CAST	src/common.h	1649;"	d
-OP_POINTER_TO_UINT_CAST	src/common.h	1481;"	d
-OP_POINTER_TO_ULONG_CAST	src/common.h	1507;"	d
-OP_POINTER_TO_USHORT_CAST	src/common.h	1455;"	d
-OP_POP	src/common.h	996;"	d
-OP_POP_FOR_MACHINE_STACK	src/common.h	1017;"	d
-OP_POP_N	src/common.h	997;"	d
-OP_POP_VALUE_FROM_GLOBAL	src/common.h	1031;"	d
-OP_PPSUB	src/common.h	1161;"	d
-OP_PSUB	src/common.h	1160;"	d
-OP_REGEQ	src/common.h	1250;"	d
-OP_REGEX_TO_STRING_CAST	src/common.h	1620;"	d
-OP_REGNOTEQ	src/common.h	1251;"	d
-OP_RESTORE_VALUE_FROM_MACHINE_STACK	src/common.h	1016;"	d
-OP_RETURN	src/common.h	1003;"	d
-OP_REVERSE	src/common.h	998;"	d
-OP_SADD	src/common.h	1074;"	d
-OP_SAND	src/common.h	1081;"	d
-OP_SCOMPLEMENT	src/common.h	1142;"	d
-OP_SDIV	src/common.h	1077;"	d
-OP_SEQ	src/common.h	1180;"	d
-OP_SGT	src/common.h	1182;"	d
-OP_SGTEQ	src/common.h	1184;"	d
-OP_SHORT_TO_BYTE_CAST	src/common.h	1317;"	d
-OP_SHORT_TO_CBOOL_CAST	src/common.h	1790;"	d
-OP_SHORT_TO_CBYTE_CAST	src/common.h	1654;"	d
-OP_SHORT_TO_CCHAR_CAST	src/common.h	1776;"	d
-OP_SHORT_TO_CDOUBLE_CAST	src/common.h	1751;"	d
-OP_SHORT_TO_CFLOAT_CAST	src/common.h	1738;"	d
-OP_SHORT_TO_CHAR_CAST	src/common.h	1585;"	d
-OP_SHORT_TO_CLONG_CAST	src/common.h	1710;"	d
-OP_SHORT_TO_CPOINTER_CAST	src/common.h	1764;"	d
-OP_SHORT_TO_CSHORT_CAST	src/common.h	1682;"	d
-OP_SHORT_TO_CUBYTE_CAST	src/common.h	1668;"	d
-OP_SHORT_TO_CULONG_CAST	src/common.h	1724;"	d
-OP_SHORT_TO_CUSHORT_CAST	src/common.h	1696;"	d
-OP_SHORT_TO_DOUBLE_CAST	src/common.h	1550;"	d
-OP_SHORT_TO_FLOAT_CAST	src/common.h	1526;"	d
-OP_SHORT_TO_INTEGER_CAST	src/common.h	1626;"	d
-OP_SHORT_TO_INT_CAST	src/common.h	1370;"	d
-OP_SHORT_TO_LONG_CAST	src/common.h	1396;"	d
-OP_SHORT_TO_POINTER_CAST	src/common.h	1574;"	d
-OP_SHORT_TO_STRING_CAST	src/common.h	1610;"	d
-OP_SHORT_TO_UBYTE_CAST	src/common.h	1421;"	d
-OP_SHORT_TO_UINTEGER_CAST	src/common.h	1640;"	d
-OP_SHORT_TO_UINT_CAST	src/common.h	1474;"	d
-OP_SHORT_TO_ULONG_CAST	src/common.h	1500;"	d
-OP_SHORT_TO_USHORT_CAST	src/common.h	1448;"	d
-OP_SIGINT	src/common.h	1012;"	d
-OP_SLE	src/common.h	1183;"	d
-OP_SLEEQ	src/common.h	1185;"	d
-OP_SLSHIFT	src/common.h	1079;"	d
-OP_SMOD	src/common.h	1078;"	d
-OP_SMULT	src/common.h	1076;"	d
-OP_SNOTEQ	src/common.h	1181;"	d
-OP_SOR	src/common.h	1083;"	d
-OP_SPLIT_TUPLE	src/common.h	1262;"	d
-OP_SRSHIFT	src/common.h	1080;"	d
-OP_SSUB	src/common.h	1075;"	d
-OP_STORE	src/common.h	1033;"	d
-OP_STORE_ANDAND_OROR_VALUE_LEFT	src/common.h	1021;"	d
-OP_STORE_ANDAND_OROR_VALUE_RIGHT	src/common.h	1022;"	d
-OP_STORE_CLASS_FIELD	src/common.h	1280;"	d
-OP_STORE_CLASS_FIELD_OF_BUFFER	src/common.h	1281;"	d
-OP_STORE_ELEMENT	src/common.h	1283;"	d
-OP_STORE_ELEMENT_OF_BUFFER	src/common.h	1284;"	d
-OP_STORE_FIELD	src/common.h	1276;"	d
-OP_STORE_FIELD_OF_BUFFER	src/common.h	1277;"	d
-OP_STORE_TO_BUFFER	src/common.h	1036;"	d
-OP_STORE_VALUE_FOR_MACHINE_STACK	src/common.h	1015;"	d
-OP_STORE_VALUE_TO_BOOL_ADDRESS	src/common.h	1298;"	d
-OP_STORE_VALUE_TO_BYTE_ADDRESS	src/common.h	1288;"	d
-OP_STORE_VALUE_TO_CHAR_ADDRESS	src/common.h	1297;"	d
-OP_STORE_VALUE_TO_DOUBLE_ADDRESS	src/common.h	1295;"	d
-OP_STORE_VALUE_TO_FLOAT_ADDRESS	src/common.h	1294;"	d
-OP_STORE_VALUE_TO_GLOBAL	src/common.h	1030;"	d
-OP_STORE_VALUE_TO_INT_ADDRESS	src/common.h	1286;"	d
-OP_STORE_VALUE_TO_LONG_ADDRESS	src/common.h	1292;"	d
-OP_STORE_VALUE_TO_OBJECT_ADDRESS	src/common.h	1299;"	d
-OP_STORE_VALUE_TO_POINTER_ADDRESS	src/common.h	1296;"	d
-OP_STORE_VALUE_TO_SHORT_ADDRESS	src/common.h	1290;"	d
-OP_STORE_VALUE_TO_UBYTE_ADDRESS	src/common.h	1289;"	d
-OP_STORE_VALUE_TO_UINT_ADDRESS	src/common.h	1287;"	d
-OP_STORE_VALUE_TO_ULONG_ADDRESS	src/common.h	1293;"	d
-OP_STORE_VALUE_TO_USHORT_ADDRESS	src/common.h	1291;"	d
-OP_SXOR	src/common.h	1082;"	d
-OP_THROW	src/common.h	1004;"	d
-OP_TRY	src/common.h	1005;"	d
-OP_TRY_END	src/common.h	1006;"	d
-OP_UBADD	src/common.h	1063;"	d
-OP_UBAND	src/common.h	1070;"	d
-OP_UBCOMPLEMENT	src/common.h	1141;"	d
-OP_UBDIV	src/common.h	1066;"	d
-OP_UBEQ	src/common.h	1173;"	d
-OP_UBGT	src/common.h	1175;"	d
-OP_UBGTEQ	src/common.h	1177;"	d
-OP_UBLE	src/common.h	1176;"	d
-OP_UBLEEQ	src/common.h	1178;"	d
-OP_UBLSHIFT	src/common.h	1068;"	d
-OP_UBMOD	src/common.h	1067;"	d
-OP_UBMULT	src/common.h	1065;"	d
-OP_UBNOTEQ	src/common.h	1174;"	d
-OP_UBOR	src/common.h	1072;"	d
-OP_UBRSHIFT	src/common.h	1069;"	d
-OP_UBSUB	src/common.h	1064;"	d
-OP_UBXOR	src/common.h	1071;"	d
-OP_UBYTE_TO_BYTE_CAST	src/common.h	1316;"	d
-OP_UBYTE_TO_CBOOL_CAST	src/common.h	1789;"	d
-OP_UBYTE_TO_CBYTE_CAST	src/common.h	1653;"	d
-OP_UBYTE_TO_CCHAR_CAST	src/common.h	1775;"	d
-OP_UBYTE_TO_CDOUBLE_CAST	src/common.h	1750;"	d
-OP_UBYTE_TO_CFLOAT_CAST	src/common.h	1737;"	d
-OP_UBYTE_TO_CHAR_CAST	src/common.h	1584;"	d
-OP_UBYTE_TO_CLONG_CAST	src/common.h	1709;"	d
-OP_UBYTE_TO_CPOINTER_CAST	src/common.h	1763;"	d
-OP_UBYTE_TO_CSHORT_CAST	src/common.h	1681;"	d
-OP_UBYTE_TO_CUBYTE_CAST	src/common.h	1667;"	d
-OP_UBYTE_TO_CULONG_CAST	src/common.h	1723;"	d
-OP_UBYTE_TO_CUSHORT_CAST	src/common.h	1695;"	d
-OP_UBYTE_TO_DOUBLE_CAST	src/common.h	1549;"	d
-OP_UBYTE_TO_FLOAT_CAST	src/common.h	1525;"	d
-OP_UBYTE_TO_INTEGER_CAST	src/common.h	1625;"	d
-OP_UBYTE_TO_INT_CAST	src/common.h	1369;"	d
-OP_UBYTE_TO_LONG_CAST	src/common.h	1395;"	d
-OP_UBYTE_TO_POINTER_CAST	src/common.h	1573;"	d
-OP_UBYTE_TO_SHORT_CAST	src/common.h	1343;"	d
-OP_UBYTE_TO_STRING_CAST	src/common.h	1613;"	d
-OP_UBYTE_TO_UINTEGER_CAST	src/common.h	1639;"	d
-OP_UBYTE_TO_UINT_CAST	src/common.h	1473;"	d
-OP_UBYTE_TO_ULONG_CAST	src/common.h	1499;"	d
-OP_UBYTE_TO_USHORT_CAST	src/common.h	1447;"	d
-OP_UIADD	src/common.h	1108;"	d
-OP_UIAND	src/common.h	1114;"	d
-OP_UICOMPLEMENT	src/common.h	1145;"	d
-OP_UIDIV	src/common.h	1110;"	d
-OP_UIEQ	src/common.h	1201;"	d
-OP_UIGT	src/common.h	1203;"	d
-OP_UIGTEQ	src/common.h	1205;"	d
-OP_UILE	src/common.h	1204;"	d
-OP_UILEEQ	src/common.h	1206;"	d
-OP_UILSHIFT	src/common.h	1112;"	d
-OP_UIMOD	src/common.h	1111;"	d
-OP_UIMULT	src/common.h	1109;"	d
-OP_UINOTEQ	src/common.h	1202;"	d
-OP_UINTEGER_TO_BYTE_CAST	src/common.h	1333;"	d
-OP_UINTEGER_TO_CHAR_CAST	src/common.h	1600;"	d
-OP_UINTEGER_TO_DOUBLE_CAST	src/common.h	1564;"	d
-OP_UINTEGER_TO_FLOAT_CAST	src/common.h	1540;"	d
-OP_UINTEGER_TO_INT_CAST	src/common.h	1385;"	d
-OP_UINTEGER_TO_LONG_CAST	src/common.h	1411;"	d
-OP_UINTEGER_TO_SHORT_CAST	src/common.h	1359;"	d
-OP_UINTEGER_TO_UBYTE_CAST	src/common.h	1437;"	d
-OP_UINTEGER_TO_UINT_CAST	src/common.h	1489;"	d
-OP_UINTEGER_TO_ULONG_CAST	src/common.h	1515;"	d
-OP_UINTEGER_TO_USHORT_CAST	src/common.h	1463;"	d
-OP_UINT_TO_BYTE_CAST	src/common.h	1320;"	d
-OP_UINT_TO_CBOOL_CAST	src/common.h	1793;"	d
-OP_UINT_TO_CBYTE_CAST	src/common.h	1657;"	d
-OP_UINT_TO_CCHAR_CAST	src/common.h	1779;"	d
-OP_UINT_TO_CDOUBLE_CAST	src/common.h	1754;"	d
-OP_UINT_TO_CFLOAT_CAST	src/common.h	1741;"	d
-OP_UINT_TO_CHAR_CAST	src/common.h	1588;"	d
-OP_UINT_TO_CLONG_CAST	src/common.h	1713;"	d
-OP_UINT_TO_CPOINTER_CAST	src/common.h	1767;"	d
-OP_UINT_TO_CSHORT_CAST	src/common.h	1685;"	d
-OP_UINT_TO_CUBYTE_CAST	src/common.h	1671;"	d
-OP_UINT_TO_CULONG_CAST	src/common.h	1727;"	d
-OP_UINT_TO_CUSHORT_CAST	src/common.h	1699;"	d
-OP_UINT_TO_DOUBLE_CAST	src/common.h	1553;"	d
-OP_UINT_TO_FLOAT_CAST	src/common.h	1529;"	d
-OP_UINT_TO_INTEGER_CAST	src/common.h	1629;"	d
-OP_UINT_TO_INT_CAST	src/common.h	1374;"	d
-OP_UINT_TO_LONG_CAST	src/common.h	1399;"	d
-OP_UINT_TO_POINTER_CAST	src/common.h	1577;"	d
-OP_UINT_TO_SHORT_CAST	src/common.h	1345;"	d
-OP_UINT_TO_STRING_CAST	src/common.h	1615;"	d
-OP_UINT_TO_UBYTE_CAST	src/common.h	1424;"	d
-OP_UINT_TO_UINTEGER_CAST	src/common.h	1643;"	d
-OP_UINT_TO_ULONG_CAST	src/common.h	1503;"	d
-OP_UINT_TO_USHORT_CAST	src/common.h	1450;"	d
-OP_UIOR	src/common.h	1116;"	d
-OP_UIRSHIFT	src/common.h	1113;"	d
-OP_UISUB	src/common.h	1107;"	d
-OP_UIXOR	src/common.h	1115;"	d
-OP_ULADD	src/common.h	1129;"	d
-OP_ULAND	src/common.h	1136;"	d
-OP_ULCOMPLEMENT	src/common.h	1147;"	d
-OP_ULDIV	src/common.h	1132;"	d
-OP_ULEQ	src/common.h	1215;"	d
-OP_ULGT	src/common.h	1217;"	d
-OP_ULGTEQ	src/common.h	1219;"	d
-OP_ULLE	src/common.h	1218;"	d
-OP_ULLEEQ	src/common.h	1220;"	d
-OP_ULLSHIFT	src/common.h	1134;"	d
-OP_ULMOD	src/common.h	1133;"	d
-OP_ULMULT	src/common.h	1131;"	d
-OP_ULNOTEQ	src/common.h	1216;"	d
-OP_ULONG_TO_BYTE_CAST	src/common.h	1322;"	d
-OP_ULONG_TO_CBOOL_CAST	src/common.h	1795;"	d
-OP_ULONG_TO_CBYTE_CAST	src/common.h	1659;"	d
-OP_ULONG_TO_CCHAR_CAST	src/common.h	1781;"	d
-OP_ULONG_TO_CDOUBLE_CAST	src/common.h	1756;"	d
-OP_ULONG_TO_CFLOAT_CAST	src/common.h	1743;"	d
-OP_ULONG_TO_CHAR_CAST	src/common.h	1590;"	d
-OP_ULONG_TO_CLONG_CAST	src/common.h	1715;"	d
-OP_ULONG_TO_CPOINTER_CAST	src/common.h	1769;"	d
-OP_ULONG_TO_CSHORT_CAST	src/common.h	1687;"	d
-OP_ULONG_TO_CUBYTE_CAST	src/common.h	1673;"	d
-OP_ULONG_TO_CULONG_CAST	src/common.h	1729;"	d
-OP_ULONG_TO_CUSHORT_CAST	src/common.h	1701;"	d
-OP_ULONG_TO_DOUBLE_CAST	src/common.h	1555;"	d
-OP_ULONG_TO_FLOAT_CAST	src/common.h	1531;"	d
-OP_ULONG_TO_INTEGER_CAST	src/common.h	1631;"	d
-OP_ULONG_TO_INT_CAST	src/common.h	1373;"	d
-OP_ULONG_TO_LONG_CAST	src/common.h	1400;"	d
-OP_ULONG_TO_POINTER_CAST	src/common.h	1579;"	d
-OP_ULONG_TO_SHORT_CAST	src/common.h	1347;"	d
-OP_ULONG_TO_STRING_CAST	src/common.h	1616;"	d
-OP_ULONG_TO_UBYTE_CAST	src/common.h	1426;"	d
-OP_ULONG_TO_UINTEGER_CAST	src/common.h	1645;"	d
-OP_ULONG_TO_UINT_CAST	src/common.h	1478;"	d
-OP_ULONG_TO_USHORT_CAST	src/common.h	1452;"	d
-OP_ULOR	src/common.h	1138;"	d
-OP_ULRSHIFT	src/common.h	1135;"	d
-OP_ULSUB	src/common.h	1130;"	d
-OP_ULXOR	src/common.h	1137;"	d
-OP_USADD	src/common.h	1085;"	d
-OP_USAND	src/common.h	1092;"	d
-OP_USCOMPLEMENT	src/common.h	1143;"	d
-OP_USDIV	src/common.h	1088;"	d
-OP_USEQ	src/common.h	1187;"	d
-OP_USGT	src/common.h	1189;"	d
-OP_USGTEQ	src/common.h	1191;"	d
-OP_USHORT_TO_BYTE_CAST	src/common.h	1318;"	d
-OP_USHORT_TO_CBOOL_CAST	src/common.h	1791;"	d
-OP_USHORT_TO_CBYTE_CAST	src/common.h	1655;"	d
-OP_USHORT_TO_CCHAR_CAST	src/common.h	1777;"	d
-OP_USHORT_TO_CDOUBLE_CAST	src/common.h	1752;"	d
-OP_USHORT_TO_CFLOAT_CAST	src/common.h	1739;"	d
-OP_USHORT_TO_CHAR_CAST	src/common.h	1586;"	d
-OP_USHORT_TO_CLONG_CAST	src/common.h	1711;"	d
-OP_USHORT_TO_CPOINTER_CAST	src/common.h	1765;"	d
-OP_USHORT_TO_CSHORT_CAST	src/common.h	1683;"	d
-OP_USHORT_TO_CUBYTE_CAST	src/common.h	1669;"	d
-OP_USHORT_TO_CULONG_CAST	src/common.h	1725;"	d
-OP_USHORT_TO_CUSHORT_CAST	src/common.h	1697;"	d
-OP_USHORT_TO_DOUBLE_CAST	src/common.h	1551;"	d
-OP_USHORT_TO_FLOAT_CAST	src/common.h	1527;"	d
-OP_USHORT_TO_INTEGER_CAST	src/common.h	1627;"	d
-OP_USHORT_TO_INT_CAST	src/common.h	1371;"	d
-OP_USHORT_TO_LONG_CAST	src/common.h	1397;"	d
-OP_USHORT_TO_POINTER_CAST	src/common.h	1575;"	d
-OP_USHORT_TO_SHORT_CAST	src/common.h	1348;"	d
-OP_USHORT_TO_STRING_CAST	src/common.h	1614;"	d
-OP_USHORT_TO_UBYTE_CAST	src/common.h	1422;"	d
-OP_USHORT_TO_UINTEGER_CAST	src/common.h	1641;"	d
-OP_USHORT_TO_UINT_CAST	src/common.h	1475;"	d
-OP_USHORT_TO_ULONG_CAST	src/common.h	1501;"	d
-OP_USLE	src/common.h	1190;"	d
-OP_USLEEQ	src/common.h	1192;"	d
-OP_USLSHIFT	src/common.h	1090;"	d
-OP_USMOD	src/common.h	1089;"	d
-OP_USMULT	src/common.h	1087;"	d
-OP_USNOTEQ	src/common.h	1188;"	d
-OP_USOR	src/common.h	1094;"	d
-OP_USRSHIFT	src/common.h	1091;"	d
-OP_USSUB	src/common.h	1086;"	d
-OP_USXOR	src/common.h	1093;"	d
+OP_ANDAND	src/common.h	1302;"	d
+OP_ARRAY_TO_CARRAY_CAST	src/common.h	1840;"	d
+OP_BADD	src/common.h	1090;"	d
+OP_BAND	src/common.h	1097;"	d
+OP_BCOMPLEMENT	src/common.h	1178;"	d
+OP_BDIV	src/common.h	1093;"	d
+OP_BEQ	src/common.h	1204;"	d
+OP_BGT	src/common.h	1206;"	d
+OP_BGTEQ	src/common.h	1208;"	d
+OP_BLE	src/common.h	1207;"	d
+OP_BLEEQ	src/common.h	1209;"	d
+OP_BLSHIFT	src/common.h	1095;"	d
+OP_BMOD	src/common.h	1094;"	d
+OP_BMULT	src/common.h	1092;"	d
+OP_BNOTEQ	src/common.h	1205;"	d
+OP_BOOL_TO_CBOOL_CAST	src/common.h	1838;"	d
+OP_BOOL_TO_CBYTE_CAST	src/common.h	1702;"	d
+OP_BOOL_TO_CCHAR_CAST	src/common.h	1824;"	d
+OP_BOOL_TO_CDOUBLE_CAST	src/common.h	1798;"	d
+OP_BOOL_TO_CFLOAT_CAST	src/common.h	1785;"	d
+OP_BOOL_TO_CLONG_CAST	src/common.h	1758;"	d
+OP_BOOL_TO_CPOINTER_CAST	src/common.h	1810;"	d
+OP_BOOL_TO_CSHORT_CAST	src/common.h	1730;"	d
+OP_BOOL_TO_CUBYTE_CAST	src/common.h	1716;"	d
+OP_BOOL_TO_CULONG_CAST	src/common.h	1772;"	d
+OP_BOOL_TO_CUSHORT_CAST	src/common.h	1744;"	d
+OP_BOOL_TO_INTEGER_CAST	src/common.h	1674;"	d
+OP_BOOL_TO_STRING_CAST	src/common.h	1657;"	d
+OP_BOOL_TO_UINTEGER_CAST	src/common.h	1688;"	d
+OP_BOR	src/common.h	1099;"	d
+OP_BRSHIFT	src/common.h	1096;"	d
+OP_BSUB	src/common.h	1091;"	d
+OP_BUFFER_TO_POINTER_CAST	src/common.h	1619;"	d
+OP_BXOR	src/common.h	1098;"	d
+OP_BYTE_TO_CBOOL_CAST	src/common.h	1826;"	d
+OP_BYTE_TO_CBYTE_CAST	src/common.h	1690;"	d
+OP_BYTE_TO_CCHAR_CAST	src/common.h	1812;"	d
+OP_BYTE_TO_CDOUBLE_CAST	src/common.h	1787;"	d
+OP_BYTE_TO_CFLOAT_CAST	src/common.h	1774;"	d
+OP_BYTE_TO_CHAR_CAST	src/common.h	1621;"	d
+OP_BYTE_TO_CLONG_CAST	src/common.h	1746;"	d
+OP_BYTE_TO_CPOINTER_CAST	src/common.h	1800;"	d
+OP_BYTE_TO_CSHORT_CAST	src/common.h	1718;"	d
+OP_BYTE_TO_CUBYTE_CAST	src/common.h	1704;"	d
+OP_BYTE_TO_CULONG_CAST	src/common.h	1760;"	d
+OP_BYTE_TO_CUSHORT_CAST	src/common.h	1732;"	d
+OP_BYTE_TO_DOUBLE_CAST	src/common.h	1586;"	d
+OP_BYTE_TO_FLOAT_CAST	src/common.h	1562;"	d
+OP_BYTE_TO_INTEGER_CAST	src/common.h	1662;"	d
+OP_BYTE_TO_INT_CAST	src/common.h	1406;"	d
+OP_BYTE_TO_LONG_CAST	src/common.h	1432;"	d
+OP_BYTE_TO_POINTER_CAST	src/common.h	1610;"	d
+OP_BYTE_TO_SHORT_CAST	src/common.h	1380;"	d
+OP_BYTE_TO_STRING_CAST	src/common.h	1647;"	d
+OP_BYTE_TO_UBYTE_CAST	src/common.h	1458;"	d
+OP_BYTE_TO_UINTEGER_CAST	src/common.h	1676;"	d
+OP_BYTE_TO_UINT_CAST	src/common.h	1510;"	d
+OP_BYTE_TO_ULONG_CAST	src/common.h	1536;"	d
+OP_BYTE_TO_USHORT_CAST	src/common.h	1484;"	d
+OP_CADD	src/common.h	1201;"	d
+OP_CATCH_POP	src/common.h	1045;"	d
+OP_CATCH_STORE	src/common.h	1046;"	d
+OP_CBOOL_TO_BYTE_CAST	src/common.h	1378;"	d
+OP_CBOOL_TO_CHAR_CAST	src/common.h	1645;"	d
+OP_CBOOL_TO_DOUBLE_CAST	src/common.h	1608;"	d
+OP_CBOOL_TO_FLOAT_CAST	src/common.h	1584;"	d
+OP_CBOOL_TO_INT_CAST	src/common.h	1430;"	d
+OP_CBOOL_TO_LONG_CAST	src/common.h	1456;"	d
+OP_CBOOL_TO_SHORT_CAST	src/common.h	1404;"	d
+OP_CBOOL_TO_UBYTE_CAST	src/common.h	1482;"	d
+OP_CBOOL_TO_UINT_CAST	src/common.h	1534;"	d
+OP_CBOOL_TO_ULONG_CAST	src/common.h	1560;"	d
+OP_CBOOL_TO_USHORT_CAST	src/common.h	1508;"	d
+OP_CBYTE_TO_BYTE_CAST	src/common.h	1366;"	d
+OP_CBYTE_TO_CHAR_CAST	src/common.h	1633;"	d
+OP_CBYTE_TO_DOUBLE_CAST	src/common.h	1597;"	d
+OP_CBYTE_TO_FLOAT_CAST	src/common.h	1573;"	d
+OP_CBYTE_TO_INT_CAST	src/common.h	1418;"	d
+OP_CBYTE_TO_LONG_CAST	src/common.h	1444;"	d
+OP_CBYTE_TO_SHORT_CAST	src/common.h	1392;"	d
+OP_CBYTE_TO_UBYTE_CAST	src/common.h	1470;"	d
+OP_CBYTE_TO_UINT_CAST	src/common.h	1522;"	d
+OP_CBYTE_TO_ULONG_CAST	src/common.h	1548;"	d
+OP_CBYTE_TO_USHORT_CAST	src/common.h	1496;"	d
+OP_CCHAR_TO_BYTE_CAST	src/common.h	1377;"	d
+OP_CCHAR_TO_CHAR_CAST	src/common.h	1644;"	d
+OP_CCHAR_TO_DOUBLE_CAST	src/common.h	1607;"	d
+OP_CCHAR_TO_FLOAT_CAST	src/common.h	1583;"	d
+OP_CCHAR_TO_INT_CAST	src/common.h	1429;"	d
+OP_CCHAR_TO_LONG_CAST	src/common.h	1455;"	d
+OP_CCHAR_TO_SHORT_CAST	src/common.h	1403;"	d
+OP_CCHAR_TO_UBYTE_CAST	src/common.h	1481;"	d
+OP_CCHAR_TO_UINT_CAST	src/common.h	1533;"	d
+OP_CCHAR_TO_ULONG_CAST	src/common.h	1559;"	d
+OP_CCHAR_TO_USHORT_CAST	src/common.h	1507;"	d
+OP_CDOUBLE_TO_BYTE_CAST	src/common.h	1375;"	d
+OP_CDOUBLE_TO_CHAR_CAST	src/common.h	1642;"	d
+OP_CDOUBLE_TO_DOUBLE_CAST	src/common.h	1606;"	d
+OP_CDOUBLE_TO_FLOAT_CAST	src/common.h	1582;"	d
+OP_CDOUBLE_TO_INT_CAST	src/common.h	1427;"	d
+OP_CDOUBLE_TO_LONG_CAST	src/common.h	1453;"	d
+OP_CDOUBLE_TO_SHORT_CAST	src/common.h	1401;"	d
+OP_CDOUBLE_TO_UBYTE_CAST	src/common.h	1479;"	d
+OP_CDOUBLE_TO_UINT_CAST	src/common.h	1531;"	d
+OP_CDOUBLE_TO_ULONG_CAST	src/common.h	1557;"	d
+OP_CDOUBLE_TO_USHORT_CAST	src/common.h	1505;"	d
+OP_CEQ	src/common.h	1281;"	d
+OP_CFLOAT_TO_BYTE_CAST	src/common.h	1374;"	d
+OP_CFLOAT_TO_CHAR_CAST	src/common.h	1641;"	d
+OP_CFLOAT_TO_DOUBLE_CAST	src/common.h	1605;"	d
+OP_CFLOAT_TO_FLOAT_CAST	src/common.h	1581;"	d
+OP_CFLOAT_TO_INT_CAST	src/common.h	1426;"	d
+OP_CFLOAT_TO_LONG_CAST	src/common.h	1452;"	d
+OP_CFLOAT_TO_SHORT_CAST	src/common.h	1400;"	d
+OP_CFLOAT_TO_UBYTE_CAST	src/common.h	1478;"	d
+OP_CFLOAT_TO_UINT_CAST	src/common.h	1530;"	d
+OP_CFLOAT_TO_ULONG_CAST	src/common.h	1556;"	d
+OP_CFLOAT_TO_USHORT_CAST	src/common.h	1504;"	d
+OP_CGT	src/common.h	1283;"	d
+OP_CGTEQ	src/common.h	1285;"	d
+OP_CHAR_LOWERCASE	src/common.h	1854;"	d
+OP_CHAR_TO_BYTE_CAST	src/common.h	1364;"	d
+OP_CHAR_TO_CBOOL_CAST	src/common.h	1836;"	d
+OP_CHAR_TO_CBYTE_CAST	src/common.h	1700;"	d
+OP_CHAR_TO_CCHAR_CAST	src/common.h	1822;"	d
+OP_CHAR_TO_CDOUBLE_CAST	src/common.h	1797;"	d
+OP_CHAR_TO_CFLOAT_CAST	src/common.h	1784;"	d
+OP_CHAR_TO_CLONG_CAST	src/common.h	1756;"	d
+OP_CHAR_TO_CPOINTER_CAST	src/common.h	1808;"	d
+OP_CHAR_TO_CSHORT_CAST	src/common.h	1728;"	d
+OP_CHAR_TO_CUBYTE_CAST	src/common.h	1714;"	d
+OP_CHAR_TO_CULONG_CAST	src/common.h	1770;"	d
+OP_CHAR_TO_CUSHORT_CAST	src/common.h	1742;"	d
+OP_CHAR_TO_DOUBLE_CAST	src/common.h	1595;"	d
+OP_CHAR_TO_FLOAT_CAST	src/common.h	1571;"	d
+OP_CHAR_TO_INTEGER_CAST	src/common.h	1672;"	d
+OP_CHAR_TO_INT_CAST	src/common.h	1416;"	d
+OP_CHAR_TO_LONG_CAST	src/common.h	1442;"	d
+OP_CHAR_TO_POINTER_CAST	src/common.h	1618;"	d
+OP_CHAR_TO_SHORT_CAST	src/common.h	1390;"	d
+OP_CHAR_TO_STRING_CAST	src/common.h	1660;"	d
+OP_CHAR_TO_UBYTE_CAST	src/common.h	1468;"	d
+OP_CHAR_TO_UINTEGER_CAST	src/common.h	1686;"	d
+OP_CHAR_TO_UINT_CAST	src/common.h	1520;"	d
+OP_CHAR_TO_ULONG_CAST	src/common.h	1546;"	d
+OP_CHAR_TO_USHORT_CAST	src/common.h	1494;"	d
+OP_CHAR_UPPERCASE	src/common.h	1853;"	d
+OP_CLASSNAME	src/common.h	1293;"	d
+OP_CLE	src/common.h	1284;"	d
+OP_CLEEQ	src/common.h	1286;"	d
+OP_CLONG_TO_BYTE_CAST	src/common.h	1372;"	d
+OP_CLONG_TO_CHAR_CAST	src/common.h	1639;"	d
+OP_CLONG_TO_DOUBLE_CAST	src/common.h	1603;"	d
+OP_CLONG_TO_FLOAT_CAST	src/common.h	1579;"	d
+OP_CLONG_TO_INT_CAST	src/common.h	1424;"	d
+OP_CLONG_TO_LONG_CAST	src/common.h	1450;"	d
+OP_CLONG_TO_SHORT_CAST	src/common.h	1398;"	d
+OP_CLONG_TO_UBYTE_CAST	src/common.h	1476;"	d
+OP_CLONG_TO_UINT_CAST	src/common.h	1528;"	d
+OP_CLONG_TO_ULONG_CAST	src/common.h	1554;"	d
+OP_CLONG_TO_USHORT_CAST	src/common.h	1502;"	d
+OP_CNOTEQ	src/common.h	1282;"	d
+OP_COND_JUMP	src/common.h	1038;"	d
+OP_COND_NOT_JUMP	src/common.h	1039;"	d
+OP_CPOINTER_TO_BYTE_CAST	src/common.h	1376;"	d
+OP_CPOINTER_TO_CHAR_CAST	src/common.h	1643;"	d
+OP_CPOINTER_TO_INT_CAST	src/common.h	1428;"	d
+OP_CPOINTER_TO_LONG_CAST	src/common.h	1454;"	d
+OP_CPOINTER_TO_SHORT_CAST	src/common.h	1402;"	d
+OP_CPOINTER_TO_UBYTE_CAST	src/common.h	1480;"	d
+OP_CPOINTER_TO_UINT_CAST	src/common.h	1532;"	d
+OP_CPOINTER_TO_ULONG_CAST	src/common.h	1558;"	d
+OP_CPOINTER_TO_USHORT_CAST	src/common.h	1506;"	d
+OP_CREATE_ARRAY	src/common.h	1859;"	d
+OP_CREATE_BLOCK_OBJECT	src/common.h	1868;"	d
+OP_CREATE_BUFFER	src/common.h	1857;"	d
+OP_CREATE_CARRAY	src/common.h	1860;"	d
+OP_CREATE_EQUALABLE_CARRAY	src/common.h	1862;"	d
+OP_CREATE_EQUALABLE_LIST	src/common.h	1865;"	d
+OP_CREATE_HASH	src/common.h	1867;"	d
+OP_CREATE_LIST	src/common.h	1863;"	d
+OP_CREATE_PATH	src/common.h	1858;"	d
+OP_CREATE_REGEX	src/common.h	1869;"	d
+OP_CREATE_SORTABLE_CARRAY	src/common.h	1861;"	d
+OP_CREATE_SORTALBE_LIST	src/common.h	1864;"	d
+OP_CREATE_STRING	src/common.h	1856;"	d
+OP_CREATE_TUPLE	src/common.h	1866;"	d
+OP_CSHORT_TO_BYTE_CAST	src/common.h	1368;"	d
+OP_CSHORT_TO_CHAR_CAST	src/common.h	1635;"	d
+OP_CSHORT_TO_DOUBLE_CAST	src/common.h	1599;"	d
+OP_CSHORT_TO_FLOAT_CAST	src/common.h	1575;"	d
+OP_CSHORT_TO_INT_CAST	src/common.h	1420;"	d
+OP_CSHORT_TO_LONG_CAST	src/common.h	1446;"	d
+OP_CSHORT_TO_SHORT_CAST	src/common.h	1394;"	d
+OP_CSHORT_TO_UBYTE_CAST	src/common.h	1472;"	d
+OP_CSHORT_TO_UINT_CAST	src/common.h	1524;"	d
+OP_CSHORT_TO_ULONG_CAST	src/common.h	1550;"	d
+OP_CSHORT_TO_USHORT_CAST	src/common.h	1498;"	d
+OP_CSUB	src/common.h	1202;"	d
+OP_CUBYTE_TO_BYTE_CAST	src/common.h	1367;"	d
+OP_CUBYTE_TO_CHAR_CAST	src/common.h	1634;"	d
+OP_CUBYTE_TO_DOUBLE_CAST	src/common.h	1598;"	d
+OP_CUBYTE_TO_FLOAT_CAST	src/common.h	1574;"	d
+OP_CUBYTE_TO_INT_CAST	src/common.h	1419;"	d
+OP_CUBYTE_TO_LONG_CAST	src/common.h	1445;"	d
+OP_CUBYTE_TO_SHORT_CAST	src/common.h	1393;"	d
+OP_CUBYTE_TO_UBYTE_CAST	src/common.h	1471;"	d
+OP_CUBYTE_TO_UINT_CAST	src/common.h	1523;"	d
+OP_CUBYTE_TO_ULONG_CAST	src/common.h	1549;"	d
+OP_CUBYTE_TO_USHORT_CAST	src/common.h	1497;"	d
+OP_CULONG_TO_BYTE_CAST	src/common.h	1373;"	d
+OP_CULONG_TO_CHAR_CAST	src/common.h	1640;"	d
+OP_CULONG_TO_DOUBLE_CAST	src/common.h	1604;"	d
+OP_CULONG_TO_FLOAT_CAST	src/common.h	1580;"	d
+OP_CULONG_TO_INT_CAST	src/common.h	1425;"	d
+OP_CULONG_TO_LONG_CAST	src/common.h	1451;"	d
+OP_CULONG_TO_SHORT_CAST	src/common.h	1399;"	d
+OP_CULONG_TO_UBYTE_CAST	src/common.h	1477;"	d
+OP_CULONG_TO_UINT_CAST	src/common.h	1529;"	d
+OP_CULONG_TO_ULONG_CAST	src/common.h	1555;"	d
+OP_CULONG_TO_USHORT_CAST	src/common.h	1503;"	d
+OP_CUSHORT_TO_BYTE_CAST	src/common.h	1369;"	d
+OP_CUSHORT_TO_CHAR_CAST	src/common.h	1636;"	d
+OP_CUSHORT_TO_DOUBLE_CAST	src/common.h	1600;"	d
+OP_CUSHORT_TO_FLOAT_CAST	src/common.h	1576;"	d
+OP_CUSHORT_TO_INT_CAST	src/common.h	1421;"	d
+OP_CUSHORT_TO_LONG_CAST	src/common.h	1447;"	d
+OP_CUSHORT_TO_SHORT_CAST	src/common.h	1395;"	d
+OP_CUSHORT_TO_UBYTE_CAST	src/common.h	1473;"	d
+OP_CUSHORT_TO_UINT_CAST	src/common.h	1525;"	d
+OP_CUSHORT_TO_ULONG_CAST	src/common.h	1551;"	d
+OP_CUSHORT_TO_USHORT_CAST	src/common.h	1499;"	d
+OP_DADD	src/common.h	1192;"	d
+OP_DDIV	src/common.h	1195;"	d
+OP_DEC_ANDAND_OROR_ARRAY	src/common.h	1064;"	d
+OP_DEQ	src/common.h	1267;"	d
+OP_DGT	src/common.h	1269;"	d
+OP_DGTEQ	src/common.h	1271;"	d
+OP_DLE	src/common.h	1270;"	d
+OP_DLEEQ	src/common.h	1272;"	d
+OP_DMULT	src/common.h	1194;"	d
+OP_DNOTEQ	src/common.h	1268;"	d
+OP_DOUBLE_TO_BYTE_CAST	src/common.h	1362;"	d
+OP_DOUBLE_TO_CBOOL_CAST	src/common.h	1835;"	d
+OP_DOUBLE_TO_CBYTE_CAST	src/common.h	1699;"	d
+OP_DOUBLE_TO_CCHAR_CAST	src/common.h	1821;"	d
+OP_DOUBLE_TO_CDOUBLE_CAST	src/common.h	1796;"	d
+OP_DOUBLE_TO_CFLOAT_CAST	src/common.h	1783;"	d
+OP_DOUBLE_TO_CHAR_CAST	src/common.h	1630;"	d
+OP_DOUBLE_TO_CLONG_CAST	src/common.h	1755;"	d
+OP_DOUBLE_TO_CSHORT_CAST	src/common.h	1727;"	d
+OP_DOUBLE_TO_CUBYTE_CAST	src/common.h	1713;"	d
+OP_DOUBLE_TO_CULONG_CAST	src/common.h	1769;"	d
+OP_DOUBLE_TO_CUSHORT_CAST	src/common.h	1741;"	d
+OP_DOUBLE_TO_FLOAT_CAST	src/common.h	1570;"	d
+OP_DOUBLE_TO_INTEGER_CAST	src/common.h	1671;"	d
+OP_DOUBLE_TO_INT_CAST	src/common.h	1414;"	d
+OP_DOUBLE_TO_LONG_CAST	src/common.h	1440;"	d
+OP_DOUBLE_TO_SHORT_CAST	src/common.h	1388;"	d
+OP_DOUBLE_TO_STRING_CAST	src/common.h	1656;"	d
+OP_DOUBLE_TO_UBYTE_CAST	src/common.h	1466;"	d
+OP_DOUBLE_TO_UINTEGER_CAST	src/common.h	1685;"	d
+OP_DOUBLE_TO_UINT_CAST	src/common.h	1518;"	d
+OP_DOUBLE_TO_ULONG_CAST	src/common.h	1544;"	d
+OP_DOUBLE_TO_USHORT_CAST	src/common.h	1492;"	d
+OP_DSUB	src/common.h	1193;"	d
+OP_DUPE	src/common.h	1037;"	d
+OP_FADD	src/common.h	1187;"	d
+OP_FDIV	src/common.h	1190;"	d
+OP_FEQ	src/common.h	1260;"	d
+OP_FGT	src/common.h	1262;"	d
+OP_FGTEQ	src/common.h	1264;"	d
+OP_FLE	src/common.h	1263;"	d
+OP_FLEEQ	src/common.h	1265;"	d
+OP_FLOAT_TO_BYTE_CAST	src/common.h	1361;"	d
+OP_FLOAT_TO_CBOOL_CAST	src/common.h	1834;"	d
+OP_FLOAT_TO_CBYTE_CAST	src/common.h	1698;"	d
+OP_FLOAT_TO_CCHAR_CAST	src/common.h	1820;"	d
+OP_FLOAT_TO_CDOUBLE_CAST	src/common.h	1795;"	d
+OP_FLOAT_TO_CFLOAT_CAST	src/common.h	1782;"	d
+OP_FLOAT_TO_CHAR_CAST	src/common.h	1629;"	d
+OP_FLOAT_TO_CLONG_CAST	src/common.h	1754;"	d
+OP_FLOAT_TO_CSHORT_CAST	src/common.h	1726;"	d
+OP_FLOAT_TO_CUBYTE_CAST	src/common.h	1712;"	d
+OP_FLOAT_TO_CULONG_CAST	src/common.h	1768;"	d
+OP_FLOAT_TO_CUSHORT_CAST	src/common.h	1740;"	d
+OP_FLOAT_TO_DOUBLE_CAST	src/common.h	1594;"	d
+OP_FLOAT_TO_INTEGER_CAST	src/common.h	1670;"	d
+OP_FLOAT_TO_INT_CAST	src/common.h	1413;"	d
+OP_FLOAT_TO_LONG_CAST	src/common.h	1439;"	d
+OP_FLOAT_TO_SHORT_CAST	src/common.h	1387;"	d
+OP_FLOAT_TO_STRING_CAST	src/common.h	1655;"	d
+OP_FLOAT_TO_UBYTE_CAST	src/common.h	1465;"	d
+OP_FLOAT_TO_UINTEGER_CAST	src/common.h	1684;"	d
+OP_FLOAT_TO_UINT_CAST	src/common.h	1517;"	d
+OP_FLOAT_TO_ULONG_CAST	src/common.h	1543;"	d
+OP_FLOAT_TO_USHORT_CAST	src/common.h	1491;"	d
+OP_FMULT	src/common.h	1189;"	d
+OP_FNOTEQ	src/common.h	1261;"	d
+OP_FSUB	src/common.h	1188;"	d
+OP_GET_ANDAND_OROR_RESULT_LEFT	src/common.h	1061;"	d
+OP_GET_ANDAND_OROR_RESULT_RIGHT	src/common.h	1062;"	d
+OP_GET_ARRAY_LENGTH	src/common.h	1842;"	d
+OP_GET_REGEX_ANCHORED	src/common.h	1849;"	d
+OP_GET_REGEX_DOLLAR_ENDONLY	src/common.h	1850;"	d
+OP_GET_REGEX_DOTALL	src/common.h	1848;"	d
+OP_GET_REGEX_EXTENDED	src/common.h	1847;"	d
+OP_GET_REGEX_GLOBAL	src/common.h	1844;"	d
+OP_GET_REGEX_IGNORE_CASE	src/common.h	1845;"	d
+OP_GET_REGEX_MULTILINE	src/common.h	1846;"	d
+OP_GET_REGEX_UNGREEDY	src/common.h	1851;"	d
+OP_GOTO	src/common.h	1040;"	d
+OP_HEAD_OF_EXPRESSION	src/common.h	1047;"	d
+OP_IADD	src/common.h	1134;"	d
+OP_IAND	src/common.h	1141;"	d
+OP_ICOMPLEMENT	src/common.h	1182;"	d
+OP_IDIV	src/common.h	1137;"	d
+OP_IEQ	src/common.h	1232;"	d
+OP_IGT	src/common.h	1234;"	d
+OP_IGTEQ	src/common.h	1236;"	d
+OP_ILE	src/common.h	1235;"	d
+OP_ILEEQ	src/common.h	1237;"	d
+OP_ILSHIFT	src/common.h	1139;"	d
+OP_IMOD	src/common.h	1138;"	d
+OP_IMPLEMENTS	src/common.h	1295;"	d
+OP_IMULT	src/common.h	1136;"	d
+OP_INC_ANDAND_OROR_ARRAY	src/common.h	1063;"	d
+OP_INOTEQ	src/common.h	1233;"	d
+OP_INTEGER_TO_BYTE_CAST	src/common.h	1370;"	d
+OP_INTEGER_TO_CHAR_CAST	src/common.h	1637;"	d
+OP_INTEGER_TO_DOUBLE_CAST	src/common.h	1601;"	d
+OP_INTEGER_TO_FLOAT_CAST	src/common.h	1577;"	d
+OP_INTEGER_TO_INT_CAST	src/common.h	1422;"	d
+OP_INTEGER_TO_LONG_CAST	src/common.h	1448;"	d
+OP_INTEGER_TO_SHORT_CAST	src/common.h	1396;"	d
+OP_INTEGER_TO_UBYTE_CAST	src/common.h	1474;"	d
+OP_INTEGER_TO_UINT_CAST	src/common.h	1526;"	d
+OP_INTEGER_TO_ULONG_CAST	src/common.h	1552;"	d
+OP_INTEGER_TO_USHORT_CAST	src/common.h	1500;"	d
+OP_INT_TO_BYTE_CAST	src/common.h	1357;"	d
+OP_INT_TO_CBOOL_CAST	src/common.h	1830;"	d
+OP_INT_TO_CBYTE_CAST	src/common.h	1694;"	d
+OP_INT_TO_CCHAR_CAST	src/common.h	1816;"	d
+OP_INT_TO_CDOUBLE_CAST	src/common.h	1791;"	d
+OP_INT_TO_CFLOAT_CAST	src/common.h	1778;"	d
+OP_INT_TO_CHAR_CAST	src/common.h	1625;"	d
+OP_INT_TO_CLONG_CAST	src/common.h	1750;"	d
+OP_INT_TO_CPOINTER_CAST	src/common.h	1804;"	d
+OP_INT_TO_CSHORT_CAST	src/common.h	1722;"	d
+OP_INT_TO_CUBYTE_CAST	src/common.h	1708;"	d
+OP_INT_TO_CULONG_CAST	src/common.h	1764;"	d
+OP_INT_TO_CUSHORT_CAST	src/common.h	1736;"	d
+OP_INT_TO_DOUBLE_CAST	src/common.h	1590;"	d
+OP_INT_TO_FLOAT_CAST	src/common.h	1566;"	d
+OP_INT_TO_INTEGER_CAST	src/common.h	1666;"	d
+OP_INT_TO_LONG_CAST	src/common.h	1436;"	d
+OP_INT_TO_POINTER_CAST	src/common.h	1614;"	d
+OP_INT_TO_SHORT_CAST	src/common.h	1382;"	d
+OP_INT_TO_STRING_CAST	src/common.h	1649;"	d
+OP_INT_TO_UBYTE_CAST	src/common.h	1461;"	d
+OP_INT_TO_UINTEGER_CAST	src/common.h	1680;"	d
+OP_INT_TO_UINT_CAST	src/common.h	1514;"	d
+OP_INT_TO_ULONG_CAST	src/common.h	1540;"	d
+OP_INT_TO_USHORT_CAST	src/common.h	1487;"	d
+OP_INVOKE_BLOCK	src/common.h	1309;"	d
+OP_INVOKE_DYNAMIC_METHOD	src/common.h	1308;"	d
+OP_INVOKE_METHOD	src/common.h	1306;"	d
+OP_INVOKE_VIRTUAL_METHOD	src/common.h	1307;"	d
+OP_IOR	src/common.h	1143;"	d
+OP_IRSHIFT	src/common.h	1140;"	d
+OP_IS	src/common.h	1294;"	d
+OP_ISUB	src/common.h	1135;"	d
+OP_IXOR	src/common.h	1142;"	d
+OP_JIT_POP	src/common.h	1058;"	d
+OP_LABEL	src/common.h	1051;"	d
+OP_LADD	src/common.h	1156;"	d
+OP_LAND	src/common.h	1163;"	d
+OP_LCOMPLEMENT	src/common.h	1184;"	d
+OP_LDCBOOL	src/common.h	1088;"	d
+OP_LDCBYTE	src/common.h	1076;"	d
+OP_LDCDOUBLE	src/common.h	1087;"	d
+OP_LDCFLOAT	src/common.h	1086;"	d
+OP_LDCINT	src/common.h	1080;"	d
+OP_LDCLONG	src/common.h	1082;"	d
+OP_LDCNULL	src/common.h	1084;"	d
+OP_LDCPOINTER	src/common.h	1085;"	d
+OP_LDCSHORT	src/common.h	1078;"	d
+OP_LDCUBYTE	src/common.h	1077;"	d
+OP_LDCUINT	src/common.h	1081;"	d
+OP_LDCULONG	src/common.h	1083;"	d
+OP_LDCUSHORT	src/common.h	1079;"	d
+OP_LDIV	src/common.h	1159;"	d
+OP_LEQ	src/common.h	1246;"	d
+OP_LGT	src/common.h	1248;"	d
+OP_LGTEQ	src/common.h	1250;"	d
+OP_LLE	src/common.h	1249;"	d
+OP_LLEEQ	src/common.h	1251;"	d
+OP_LLSHIFT	src/common.h	1161;"	d
+OP_LMOD	src/common.h	1160;"	d
+OP_LMULT	src/common.h	1158;"	d
+OP_LNOTEQ	src/common.h	1247;"	d
+OP_LOAD	src/common.h	1072;"	d
+OP_LOAD_ADDRESS	src/common.h	1299;"	d
+OP_LOAD_CLASS_FIELD	src/common.h	1316;"	d
+OP_LOAD_CLASS_FIELD_ADDRESS	src/common.h	1317;"	d
+OP_LOAD_ELEMENT	src/common.h	1320;"	d
+OP_LOAD_FIELD	src/common.h	1312;"	d
+OP_LOAD_FIELD_ADDRESS	src/common.h	1313;"	d
+OP_LOAD_VALUE_FROM_BOOL_ADDRESS	src/common.h	1351;"	d
+OP_LOAD_VALUE_FROM_BYTE_ADDRESS	src/common.h	1341;"	d
+OP_LOAD_VALUE_FROM_CHAR_ADDRESS	src/common.h	1350;"	d
+OP_LOAD_VALUE_FROM_DOUBLE_ADDRESS	src/common.h	1348;"	d
+OP_LOAD_VALUE_FROM_FLOAT_ADDRESS	src/common.h	1347;"	d
+OP_LOAD_VALUE_FROM_INT_ADDRESS	src/common.h	1339;"	d
+OP_LOAD_VALUE_FROM_LONG_ADDRESS	src/common.h	1345;"	d
+OP_LOAD_VALUE_FROM_OBJECT_ADDRESS	src/common.h	1352;"	d
+OP_LOAD_VALUE_FROM_POINTER_ADDRESS	src/common.h	1349;"	d
+OP_LOAD_VALUE_FROM_SHORT_ADDRESS	src/common.h	1343;"	d
+OP_LOAD_VALUE_FROM_UBYTE_ADDRESS	src/common.h	1342;"	d
+OP_LOAD_VALUE_FROM_UINT_ADDRESS	src/common.h	1340;"	d
+OP_LOAD_VALUE_FROM_ULONG_ADDRESS	src/common.h	1346;"	d
+OP_LOAD_VALUE_FROM_USHORT_ADDRESS	src/common.h	1344;"	d
+OP_LOGICAL_DENIAL	src/common.h	1304;"	d
+OP_LONG_TO_BYTE_CAST	src/common.h	1359;"	d
+OP_LONG_TO_CBOOL_CAST	src/common.h	1832;"	d
+OP_LONG_TO_CBYTE_CAST	src/common.h	1696;"	d
+OP_LONG_TO_CCHAR_CAST	src/common.h	1818;"	d
+OP_LONG_TO_CDOUBLE_CAST	src/common.h	1793;"	d
+OP_LONG_TO_CFLOAT_CAST	src/common.h	1780;"	d
+OP_LONG_TO_CHAR_CAST	src/common.h	1627;"	d
+OP_LONG_TO_CLONG_CAST	src/common.h	1752;"	d
+OP_LONG_TO_CPOINTER_CAST	src/common.h	1806;"	d
+OP_LONG_TO_CSHORT_CAST	src/common.h	1724;"	d
+OP_LONG_TO_CUBYTE_CAST	src/common.h	1710;"	d
+OP_LONG_TO_CULONG_CAST	src/common.h	1766;"	d
+OP_LONG_TO_CUSHORT_CAST	src/common.h	1738;"	d
+OP_LONG_TO_DOUBLE_CAST	src/common.h	1592;"	d
+OP_LONG_TO_FLOAT_CAST	src/common.h	1568;"	d
+OP_LONG_TO_INTEGER_CAST	src/common.h	1668;"	d
+OP_LONG_TO_INT_CAST	src/common.h	1410;"	d
+OP_LONG_TO_POINTER_CAST	src/common.h	1616;"	d
+OP_LONG_TO_SHORT_CAST	src/common.h	1384;"	d
+OP_LONG_TO_STRING_CAST	src/common.h	1650;"	d
+OP_LONG_TO_UBYTE_CAST	src/common.h	1463;"	d
+OP_LONG_TO_UINTEGER_CAST	src/common.h	1682;"	d
+OP_LONG_TO_UINT_CAST	src/common.h	1515;"	d
+OP_LONG_TO_ULONG_CAST	src/common.h	1542;"	d
+OP_LONG_TO_USHORT_CAST	src/common.h	1489;"	d
+OP_LOR	src/common.h	1165;"	d
+OP_LRSHIFT	src/common.h	1162;"	d
+OP_LSUB	src/common.h	1157;"	d
+OP_LXOR	src/common.h	1164;"	d
+OP_MARK_SOURCE_CODE_POSITION	src/common.h	1048;"	d
+OP_MARK_SOURCE_CODE_POSITION2	src/common.h	1049;"	d
+OP_NEW	src/common.h	1311;"	d
+OP_NOP	src/common.h	1066;"	d
+OP_OBJ_ALLOCATED_SIZE	src/common.h	1296;"	d
+OP_OBJ_HEAD_OF_MEMORY	src/common.h	1297;"	d
+OP_OBJ_IDENTIFY	src/common.h	1291;"	d
+OP_OBJ_IDENTIFY_NOT	src/common.h	1292;"	d
+OP_OROR	src/common.h	1303;"	d
+OP_PADD	src/common.h	1197;"	d
+OP_PEQ	src/common.h	1274;"	d
+OP_PGT	src/common.h	1276;"	d
+OP_PGTEQ	src/common.h	1278;"	d
+OP_PLE	src/common.h	1277;"	d
+OP_PLEEQ	src/common.h	1279;"	d
+OP_PNOTEQ	src/common.h	1275;"	d
+OP_POINTER_TO_BYTE_CAST	src/common.h	1363;"	d
+OP_POINTER_TO_CBOOL_CAST	src/common.h	1837;"	d
+OP_POINTER_TO_CBYTE_CAST	src/common.h	1701;"	d
+OP_POINTER_TO_CCHAR_CAST	src/common.h	1823;"	d
+OP_POINTER_TO_CHAR_CAST	src/common.h	1631;"	d
+OP_POINTER_TO_CLONG_CAST	src/common.h	1757;"	d
+OP_POINTER_TO_CPOINTER_CAST	src/common.h	1809;"	d
+OP_POINTER_TO_CSHORT_CAST	src/common.h	1729;"	d
+OP_POINTER_TO_CUBYTE_CAST	src/common.h	1715;"	d
+OP_POINTER_TO_CULONG_CAST	src/common.h	1771;"	d
+OP_POINTER_TO_CUSHORT_CAST	src/common.h	1743;"	d
+OP_POINTER_TO_INTEGER_CAST	src/common.h	1673;"	d
+OP_POINTER_TO_INT_CAST	src/common.h	1415;"	d
+OP_POINTER_TO_LONG_CAST	src/common.h	1441;"	d
+OP_POINTER_TO_SHORT_CAST	src/common.h	1389;"	d
+OP_POINTER_TO_STRING_CAST	src/common.h	1659;"	d
+OP_POINTER_TO_UBYTE_CAST	src/common.h	1467;"	d
+OP_POINTER_TO_UINTEGER_CAST	src/common.h	1687;"	d
+OP_POINTER_TO_UINT_CAST	src/common.h	1519;"	d
+OP_POINTER_TO_ULONG_CAST	src/common.h	1545;"	d
+OP_POINTER_TO_USHORT_CAST	src/common.h	1493;"	d
+OP_POP	src/common.h	1034;"	d
+OP_POP_FOR_MACHINE_STACK	src/common.h	1055;"	d
+OP_POP_N	src/common.h	1035;"	d
+OP_POP_VALUE_FROM_GLOBAL	src/common.h	1069;"	d
+OP_PPSUB	src/common.h	1199;"	d
+OP_PSUB	src/common.h	1198;"	d
+OP_REGEQ	src/common.h	1288;"	d
+OP_REGEX_TO_STRING_CAST	src/common.h	1658;"	d
+OP_REGNOTEQ	src/common.h	1289;"	d
+OP_RESTORE_VALUE_FROM_MACHINE_STACK	src/common.h	1054;"	d
+OP_RETURN	src/common.h	1041;"	d
+OP_REVERSE	src/common.h	1036;"	d
+OP_SADD	src/common.h	1112;"	d
+OP_SAND	src/common.h	1119;"	d
+OP_SCOMPLEMENT	src/common.h	1180;"	d
+OP_SDIV	src/common.h	1115;"	d
+OP_SEQ	src/common.h	1218;"	d
+OP_SGT	src/common.h	1220;"	d
+OP_SGTEQ	src/common.h	1222;"	d
+OP_SHORT_TO_BYTE_CAST	src/common.h	1355;"	d
+OP_SHORT_TO_CBOOL_CAST	src/common.h	1828;"	d
+OP_SHORT_TO_CBYTE_CAST	src/common.h	1692;"	d
+OP_SHORT_TO_CCHAR_CAST	src/common.h	1814;"	d
+OP_SHORT_TO_CDOUBLE_CAST	src/common.h	1789;"	d
+OP_SHORT_TO_CFLOAT_CAST	src/common.h	1776;"	d
+OP_SHORT_TO_CHAR_CAST	src/common.h	1623;"	d
+OP_SHORT_TO_CLONG_CAST	src/common.h	1748;"	d
+OP_SHORT_TO_CPOINTER_CAST	src/common.h	1802;"	d
+OP_SHORT_TO_CSHORT_CAST	src/common.h	1720;"	d
+OP_SHORT_TO_CUBYTE_CAST	src/common.h	1706;"	d
+OP_SHORT_TO_CULONG_CAST	src/common.h	1762;"	d
+OP_SHORT_TO_CUSHORT_CAST	src/common.h	1734;"	d
+OP_SHORT_TO_DOUBLE_CAST	src/common.h	1588;"	d
+OP_SHORT_TO_FLOAT_CAST	src/common.h	1564;"	d
+OP_SHORT_TO_INTEGER_CAST	src/common.h	1664;"	d
+OP_SHORT_TO_INT_CAST	src/common.h	1408;"	d
+OP_SHORT_TO_LONG_CAST	src/common.h	1434;"	d
+OP_SHORT_TO_POINTER_CAST	src/common.h	1612;"	d
+OP_SHORT_TO_STRING_CAST	src/common.h	1648;"	d
+OP_SHORT_TO_UBYTE_CAST	src/common.h	1459;"	d
+OP_SHORT_TO_UINTEGER_CAST	src/common.h	1678;"	d
+OP_SHORT_TO_UINT_CAST	src/common.h	1512;"	d
+OP_SHORT_TO_ULONG_CAST	src/common.h	1538;"	d
+OP_SHORT_TO_USHORT_CAST	src/common.h	1486;"	d
+OP_SIGINT	src/common.h	1050;"	d
+OP_SLE	src/common.h	1221;"	d
+OP_SLEEQ	src/common.h	1223;"	d
+OP_SLSHIFT	src/common.h	1117;"	d
+OP_SMOD	src/common.h	1116;"	d
+OP_SMULT	src/common.h	1114;"	d
+OP_SNOTEQ	src/common.h	1219;"	d
+OP_SOR	src/common.h	1121;"	d
+OP_SPLIT_TUPLE	src/common.h	1300;"	d
+OP_SRSHIFT	src/common.h	1118;"	d
+OP_SSUB	src/common.h	1113;"	d
+OP_STORE	src/common.h	1071;"	d
+OP_STORE_ANDAND_OROR_VALUE_LEFT	src/common.h	1059;"	d
+OP_STORE_ANDAND_OROR_VALUE_RIGHT	src/common.h	1060;"	d
+OP_STORE_CLASS_FIELD	src/common.h	1318;"	d
+OP_STORE_CLASS_FIELD_OF_BUFFER	src/common.h	1319;"	d
+OP_STORE_ELEMENT	src/common.h	1321;"	d
+OP_STORE_ELEMENT_OF_BUFFER	src/common.h	1322;"	d
+OP_STORE_FIELD	src/common.h	1314;"	d
+OP_STORE_FIELD_OF_BUFFER	src/common.h	1315;"	d
+OP_STORE_TO_BUFFER	src/common.h	1074;"	d
+OP_STORE_VALUE_FOR_MACHINE_STACK	src/common.h	1053;"	d
+OP_STORE_VALUE_TO_BOOL_ADDRESS	src/common.h	1336;"	d
+OP_STORE_VALUE_TO_BYTE_ADDRESS	src/common.h	1326;"	d
+OP_STORE_VALUE_TO_CHAR_ADDRESS	src/common.h	1335;"	d
+OP_STORE_VALUE_TO_DOUBLE_ADDRESS	src/common.h	1333;"	d
+OP_STORE_VALUE_TO_FLOAT_ADDRESS	src/common.h	1332;"	d
+OP_STORE_VALUE_TO_GLOBAL	src/common.h	1068;"	d
+OP_STORE_VALUE_TO_INT_ADDRESS	src/common.h	1324;"	d
+OP_STORE_VALUE_TO_LONG_ADDRESS	src/common.h	1330;"	d
+OP_STORE_VALUE_TO_OBJECT_ADDRESS	src/common.h	1337;"	d
+OP_STORE_VALUE_TO_POINTER_ADDRESS	src/common.h	1334;"	d
+OP_STORE_VALUE_TO_SHORT_ADDRESS	src/common.h	1328;"	d
+OP_STORE_VALUE_TO_UBYTE_ADDRESS	src/common.h	1327;"	d
+OP_STORE_VALUE_TO_UINT_ADDRESS	src/common.h	1325;"	d
+OP_STORE_VALUE_TO_ULONG_ADDRESS	src/common.h	1331;"	d
+OP_STORE_VALUE_TO_USHORT_ADDRESS	src/common.h	1329;"	d
+OP_SXOR	src/common.h	1120;"	d
+OP_THROW	src/common.h	1042;"	d
+OP_TRY	src/common.h	1043;"	d
+OP_TRY_END	src/common.h	1044;"	d
+OP_UBADD	src/common.h	1101;"	d
+OP_UBAND	src/common.h	1108;"	d
+OP_UBCOMPLEMENT	src/common.h	1179;"	d
+OP_UBDIV	src/common.h	1104;"	d
+OP_UBEQ	src/common.h	1211;"	d
+OP_UBGT	src/common.h	1213;"	d
+OP_UBGTEQ	src/common.h	1215;"	d
+OP_UBLE	src/common.h	1214;"	d
+OP_UBLEEQ	src/common.h	1216;"	d
+OP_UBLSHIFT	src/common.h	1106;"	d
+OP_UBMOD	src/common.h	1105;"	d
+OP_UBMULT	src/common.h	1103;"	d
+OP_UBNOTEQ	src/common.h	1212;"	d
+OP_UBOR	src/common.h	1110;"	d
+OP_UBRSHIFT	src/common.h	1107;"	d
+OP_UBSUB	src/common.h	1102;"	d
+OP_UBXOR	src/common.h	1109;"	d
+OP_UBYTE_TO_BYTE_CAST	src/common.h	1354;"	d
+OP_UBYTE_TO_CBOOL_CAST	src/common.h	1827;"	d
+OP_UBYTE_TO_CBYTE_CAST	src/common.h	1691;"	d
+OP_UBYTE_TO_CCHAR_CAST	src/common.h	1813;"	d
+OP_UBYTE_TO_CDOUBLE_CAST	src/common.h	1788;"	d
+OP_UBYTE_TO_CFLOAT_CAST	src/common.h	1775;"	d
+OP_UBYTE_TO_CHAR_CAST	src/common.h	1622;"	d
+OP_UBYTE_TO_CLONG_CAST	src/common.h	1747;"	d
+OP_UBYTE_TO_CPOINTER_CAST	src/common.h	1801;"	d
+OP_UBYTE_TO_CSHORT_CAST	src/common.h	1719;"	d
+OP_UBYTE_TO_CUBYTE_CAST	src/common.h	1705;"	d
+OP_UBYTE_TO_CULONG_CAST	src/common.h	1761;"	d
+OP_UBYTE_TO_CUSHORT_CAST	src/common.h	1733;"	d
+OP_UBYTE_TO_DOUBLE_CAST	src/common.h	1587;"	d
+OP_UBYTE_TO_FLOAT_CAST	src/common.h	1563;"	d
+OP_UBYTE_TO_INTEGER_CAST	src/common.h	1663;"	d
+OP_UBYTE_TO_INT_CAST	src/common.h	1407;"	d
+OP_UBYTE_TO_LONG_CAST	src/common.h	1433;"	d
+OP_UBYTE_TO_POINTER_CAST	src/common.h	1611;"	d
+OP_UBYTE_TO_SHORT_CAST	src/common.h	1381;"	d
+OP_UBYTE_TO_STRING_CAST	src/common.h	1651;"	d
+OP_UBYTE_TO_UINTEGER_CAST	src/common.h	1677;"	d
+OP_UBYTE_TO_UINT_CAST	src/common.h	1511;"	d
+OP_UBYTE_TO_ULONG_CAST	src/common.h	1537;"	d
+OP_UBYTE_TO_USHORT_CAST	src/common.h	1485;"	d
+OP_UIADD	src/common.h	1146;"	d
+OP_UIAND	src/common.h	1152;"	d
+OP_UICOMPLEMENT	src/common.h	1183;"	d
+OP_UIDIV	src/common.h	1148;"	d
+OP_UIEQ	src/common.h	1239;"	d
+OP_UIGT	src/common.h	1241;"	d
+OP_UIGTEQ	src/common.h	1243;"	d
+OP_UILE	src/common.h	1242;"	d
+OP_UILEEQ	src/common.h	1244;"	d
+OP_UILSHIFT	src/common.h	1150;"	d
+OP_UIMOD	src/common.h	1149;"	d
+OP_UIMULT	src/common.h	1147;"	d
+OP_UINOTEQ	src/common.h	1240;"	d
+OP_UINTEGER_TO_BYTE_CAST	src/common.h	1371;"	d
+OP_UINTEGER_TO_CHAR_CAST	src/common.h	1638;"	d
+OP_UINTEGER_TO_DOUBLE_CAST	src/common.h	1602;"	d
+OP_UINTEGER_TO_FLOAT_CAST	src/common.h	1578;"	d
+OP_UINTEGER_TO_INT_CAST	src/common.h	1423;"	d
+OP_UINTEGER_TO_LONG_CAST	src/common.h	1449;"	d
+OP_UINTEGER_TO_SHORT_CAST	src/common.h	1397;"	d
+OP_UINTEGER_TO_UBYTE_CAST	src/common.h	1475;"	d
+OP_UINTEGER_TO_UINT_CAST	src/common.h	1527;"	d
+OP_UINTEGER_TO_ULONG_CAST	src/common.h	1553;"	d
+OP_UINTEGER_TO_USHORT_CAST	src/common.h	1501;"	d
+OP_UINT_TO_BYTE_CAST	src/common.h	1358;"	d
+OP_UINT_TO_CBOOL_CAST	src/common.h	1831;"	d
+OP_UINT_TO_CBYTE_CAST	src/common.h	1695;"	d
+OP_UINT_TO_CCHAR_CAST	src/common.h	1817;"	d
+OP_UINT_TO_CDOUBLE_CAST	src/common.h	1792;"	d
+OP_UINT_TO_CFLOAT_CAST	src/common.h	1779;"	d
+OP_UINT_TO_CHAR_CAST	src/common.h	1626;"	d
+OP_UINT_TO_CLONG_CAST	src/common.h	1751;"	d
+OP_UINT_TO_CPOINTER_CAST	src/common.h	1805;"	d
+OP_UINT_TO_CSHORT_CAST	src/common.h	1723;"	d
+OP_UINT_TO_CUBYTE_CAST	src/common.h	1709;"	d
+OP_UINT_TO_CULONG_CAST	src/common.h	1765;"	d
+OP_UINT_TO_CUSHORT_CAST	src/common.h	1737;"	d
+OP_UINT_TO_DOUBLE_CAST	src/common.h	1591;"	d
+OP_UINT_TO_FLOAT_CAST	src/common.h	1567;"	d
+OP_UINT_TO_INTEGER_CAST	src/common.h	1667;"	d
+OP_UINT_TO_INT_CAST	src/common.h	1412;"	d
+OP_UINT_TO_LONG_CAST	src/common.h	1437;"	d
+OP_UINT_TO_POINTER_CAST	src/common.h	1615;"	d
+OP_UINT_TO_SHORT_CAST	src/common.h	1383;"	d
+OP_UINT_TO_STRING_CAST	src/common.h	1653;"	d
+OP_UINT_TO_UBYTE_CAST	src/common.h	1462;"	d
+OP_UINT_TO_UINTEGER_CAST	src/common.h	1681;"	d
+OP_UINT_TO_ULONG_CAST	src/common.h	1541;"	d
+OP_UINT_TO_USHORT_CAST	src/common.h	1488;"	d
+OP_UIOR	src/common.h	1154;"	d
+OP_UIRSHIFT	src/common.h	1151;"	d
+OP_UISUB	src/common.h	1145;"	d
+OP_UIXOR	src/common.h	1153;"	d
+OP_ULADD	src/common.h	1167;"	d
+OP_ULAND	src/common.h	1174;"	d
+OP_ULCOMPLEMENT	src/common.h	1185;"	d
+OP_ULDIV	src/common.h	1170;"	d
+OP_ULEQ	src/common.h	1253;"	d
+OP_ULGT	src/common.h	1255;"	d
+OP_ULGTEQ	src/common.h	1257;"	d
+OP_ULLE	src/common.h	1256;"	d
+OP_ULLEEQ	src/common.h	1258;"	d
+OP_ULLSHIFT	src/common.h	1172;"	d
+OP_ULMOD	src/common.h	1171;"	d
+OP_ULMULT	src/common.h	1169;"	d
+OP_ULNOTEQ	src/common.h	1254;"	d
+OP_ULONG_TO_BYTE_CAST	src/common.h	1360;"	d
+OP_ULONG_TO_CBOOL_CAST	src/common.h	1833;"	d
+OP_ULONG_TO_CBYTE_CAST	src/common.h	1697;"	d
+OP_ULONG_TO_CCHAR_CAST	src/common.h	1819;"	d
+OP_ULONG_TO_CDOUBLE_CAST	src/common.h	1794;"	d
+OP_ULONG_TO_CFLOAT_CAST	src/common.h	1781;"	d
+OP_ULONG_TO_CHAR_CAST	src/common.h	1628;"	d
+OP_ULONG_TO_CLONG_CAST	src/common.h	1753;"	d
+OP_ULONG_TO_CPOINTER_CAST	src/common.h	1807;"	d
+OP_ULONG_TO_CSHORT_CAST	src/common.h	1725;"	d
+OP_ULONG_TO_CUBYTE_CAST	src/common.h	1711;"	d
+OP_ULONG_TO_CULONG_CAST	src/common.h	1767;"	d
+OP_ULONG_TO_CUSHORT_CAST	src/common.h	1739;"	d
+OP_ULONG_TO_DOUBLE_CAST	src/common.h	1593;"	d
+OP_ULONG_TO_FLOAT_CAST	src/common.h	1569;"	d
+OP_ULONG_TO_INTEGER_CAST	src/common.h	1669;"	d
+OP_ULONG_TO_INT_CAST	src/common.h	1411;"	d
+OP_ULONG_TO_LONG_CAST	src/common.h	1438;"	d
+OP_ULONG_TO_POINTER_CAST	src/common.h	1617;"	d
+OP_ULONG_TO_SHORT_CAST	src/common.h	1385;"	d
+OP_ULONG_TO_STRING_CAST	src/common.h	1654;"	d
+OP_ULONG_TO_UBYTE_CAST	src/common.h	1464;"	d
+OP_ULONG_TO_UINTEGER_CAST	src/common.h	1683;"	d
+OP_ULONG_TO_UINT_CAST	src/common.h	1516;"	d
+OP_ULONG_TO_USHORT_CAST	src/common.h	1490;"	d
+OP_ULOR	src/common.h	1176;"	d
+OP_ULRSHIFT	src/common.h	1173;"	d
+OP_ULSUB	src/common.h	1168;"	d
+OP_ULXOR	src/common.h	1175;"	d
+OP_USADD	src/common.h	1123;"	d
+OP_USAND	src/common.h	1130;"	d
+OP_USCOMPLEMENT	src/common.h	1181;"	d
+OP_USDIV	src/common.h	1126;"	d
+OP_USEQ	src/common.h	1225;"	d
+OP_USGT	src/common.h	1227;"	d
+OP_USGTEQ	src/common.h	1229;"	d
+OP_USHORT_TO_BYTE_CAST	src/common.h	1356;"	d
+OP_USHORT_TO_CBOOL_CAST	src/common.h	1829;"	d
+OP_USHORT_TO_CBYTE_CAST	src/common.h	1693;"	d
+OP_USHORT_TO_CCHAR_CAST	src/common.h	1815;"	d
+OP_USHORT_TO_CDOUBLE_CAST	src/common.h	1790;"	d
+OP_USHORT_TO_CFLOAT_CAST	src/common.h	1777;"	d
+OP_USHORT_TO_CHAR_CAST	src/common.h	1624;"	d
+OP_USHORT_TO_CLONG_CAST	src/common.h	1749;"	d
+OP_USHORT_TO_CPOINTER_CAST	src/common.h	1803;"	d
+OP_USHORT_TO_CSHORT_CAST	src/common.h	1721;"	d
+OP_USHORT_TO_CUBYTE_CAST	src/common.h	1707;"	d
+OP_USHORT_TO_CULONG_CAST	src/common.h	1763;"	d
+OP_USHORT_TO_CUSHORT_CAST	src/common.h	1735;"	d
+OP_USHORT_TO_DOUBLE_CAST	src/common.h	1589;"	d
+OP_USHORT_TO_FLOAT_CAST	src/common.h	1565;"	d
+OP_USHORT_TO_INTEGER_CAST	src/common.h	1665;"	d
+OP_USHORT_TO_INT_CAST	src/common.h	1409;"	d
+OP_USHORT_TO_LONG_CAST	src/common.h	1435;"	d
+OP_USHORT_TO_POINTER_CAST	src/common.h	1613;"	d
+OP_USHORT_TO_SHORT_CAST	src/common.h	1386;"	d
+OP_USHORT_TO_STRING_CAST	src/common.h	1652;"	d
+OP_USHORT_TO_UBYTE_CAST	src/common.h	1460;"	d
+OP_USHORT_TO_UINTEGER_CAST	src/common.h	1679;"	d
+OP_USHORT_TO_UINT_CAST	src/common.h	1513;"	d
+OP_USHORT_TO_ULONG_CAST	src/common.h	1539;"	d
+OP_USLE	src/common.h	1228;"	d
+OP_USLEEQ	src/common.h	1230;"	d
+OP_USLSHIFT	src/common.h	1128;"	d
+OP_USMOD	src/common.h	1127;"	d
+OP_USMULT	src/common.h	1125;"	d
+OP_USNOTEQ	src/common.h	1226;"	d
+OP_USOR	src/common.h	1132;"	d
+OP_USRSHIFT	src/common.h	1129;"	d
+OP_USSUB	src/common.h	1124;"	d
+OP_USXOR	src/common.h	1131;"	d
 OS	Makefile	/^OS=LINUX$/;"	m
 PARAMS_MAX	src/common.h	56;"	d
-PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1851;"	d
-PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1853;"	d
-PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1849;"	d
-PARSE_PHASE_ALLOC_CLASSES	src/common.h	1848;"	d
-PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1850;"	d
-PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1854;"	d
-PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1855;"	d
-PARSE_PHASE_MAX	src/common.h	1856;"	d
+PARSE_PHASE_ADD_GENERICS_TYPES	src/common.h	1889;"	d
+PARSE_PHASE_ADD_METHODS_AND_FIELDS	src/common.h	1891;"	d
+PARSE_PHASE_ADD_SUPER_CLASSES	src/common.h	1887;"	d
+PARSE_PHASE_ALLOC_CLASSES	src/common.h	1886;"	d
+PARSE_PHASE_CALCULATE_SUPER_CLASSES	src/common.h	1888;"	d
+PARSE_PHASE_COMPILE_PARAM_INITIALIZER	src/common.h	1892;"	d
+PARSE_PHASE_DO_COMPILE_CODE	src/common.h	1893;"	d
+PARSE_PHASE_MAX	src/common.h	1894;"	d
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/AllocSize.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/AndAndOrOrTest.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/AnonymousTest.clcl$/;"	m
@@ -998,6 +1002,7 @@ PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/PointerTest.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/PointerTest2.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/PointerTest3.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/PrintfTest.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/QuetionOperator.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/RangeTest.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/ReflectionTest.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/RegexTest.clcl$/;"	m
@@ -1033,12 +1038,25 @@ PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/getopt_long.cl && .\/clover2 code\/g
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/getopt_long_only.cl && .\/clover2 code\/getopt_long_only.cl -add --break --clear aaa --delete=ggg xxx yyy zzz$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/cclover2 code\/reflection.cl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/clover2 code\/MultiLineString.cl$/;"	m
-PWD	Makefile	/^	PWD=`pwd` .\/clover2 code\/main.cl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/clover2 code\/reflection.cl$/;"	m
 PWD	Makefile	/^	PWD=`pwd` .\/clover2 code\/try.cl$/;"	m
+PWD	Makefile	/^	PWD=`pwd` time .\/clover2 code\/main.cl$/;"	m
+PWD	Makefile	/^	PWD=`pwd` time .\/clover2 code\/main2.cl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core CGI.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core CLibrary.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Command.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Container.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core File.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Fundamental.clcl$/;"	m
 PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core MyOwnLibrary.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Range.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Reflection.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Socket.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core String.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core SystemCalls.clcl$/;"	m
+PWD	Makefile	/^	PWD=`pwd`; .\/cclover2 -core Thread.clcl$/;"	m
 SIGMAX	src/common.h	82;"	d
-STACK_TRACE_MAX	src/common.h	232;"	d
+STACK_TRACE_MAX	src/common.h	234;"	d
 STRING_EXPRESSION_MAX	src/common.h	73;"	d
 Self_convertion_of_method_name_and_params	src/vm.c	/^void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)$/;"	f
 System_FD_CLR	src/class_system.c	/^BOOL System_FD_CLR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1054,6 +1072,7 @@ System_WIFSTOPPED	src/class_system.c	/^BOOL System_WIFSTOPPED(CLVALUE** stack_pt
 System_WSTOPSIG	src/class_system.c	/^BOOL System_WSTOPSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_WTERMSIG	src/class_system.c	/^BOOL System_WTERMSIG(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_accept	src/class_system.c	/^BOOL System_accept(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_accept2	src/class_system.c	/^BOOL System_accept2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_access	src/class_system.c	/^BOOL System_access(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_alarm	src/class_system.c	/^BOOL System_alarm(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_assert	src/class_system.c	/^BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1115,6 +1134,7 @@ System_fread	src/class_system.c	/^BOOL System_fread(CLVALUE** stack_ptr, CLVALUE
 System_free	src/class_system.c	/^BOOL System_free(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_ftruncate	src/class_system.c	/^BOOL System_ftruncate(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_fwrite	src/class_system.c	/^BOOL System_fwrite(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_getEscapeDelay	src/class_system.c	/^BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_getbsize	src/class_system.c	/^BOOL System_getbsize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_getch	src/class_system.c	/^BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_getchar	src/class_system.c	/^BOOL System_getchar(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1183,6 +1203,7 @@ System_mvwin	src/class_system.c	/^BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE
 System_nanosleep	src/class_system.c	/^BOOL System_nanosleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_newwin	src/class_system.c	/^BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_nocbreak	src/class_system.c	/^BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_nodelay	src/class_system.c	/^BOOL System_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_noecho	src/class_system.c	/^BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_noraw	src/class_system.c	/^BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_open	src/class_system.c	/^BOOL System_open(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1220,10 +1241,17 @@ System_readdir	src/class_system.c	/^BOOL System_readdir(CLVALUE** stack_ptr, CLV
 System_readlink	src/class_system.c	/^BOOL System_readlink(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_realloc	src/class_system.c	/^BOOL System_realloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_realpath	src/class_system.c	/^BOOL System_realpath(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_recv	src/class_system.c	/^BOOL System_recv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_recvfrom	src/class_system.c	/^BOOL System_recvfrom(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_recvfrom2	src/class_system.c	/^BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_refresh	src/class_system.c	/^BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_rename	src/class_system.c	/^BOOL System_rename(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_rmdir	src/class_system.c	/^BOOL System_rmdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_select	src/class_system.c	/^BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_send	src/class_system.c	/^BOOL System_send(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_sendto	src/class_system.c	/^BOOL System_sendto(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_sendto2	src/class_system.c	/^BOOL System_sendto2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_setEscapeDelay	src/class_system.c	/^BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_setenv	src/class_system.c	/^BOOL System_setenv(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_setlocale	src/class_system.c	/^BOOL System_setlocale(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_setpgid	src/class_system.c	/^BOOL System_setpgid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1287,23 +1315,19 @@ VAR_NAME_MAX	src/common.h	52;"	d
 WHEN_BLOCK_MAX	src/common.h	80;"	d
 XFUNC_H	src/clover2-xfunc.h	2;"	d
 _GNU_SOURCE	src/common.h	5;"	d
+_GNU_SOURCE	src/get_type.c	3;"	d	file:
 _GNU_SOURCE	src/interpreter.c	3;"	d	file:
 _USE_MISC	src/common.h	27;"	d
-__32BIT_CPU__	config.h	18;"	d
+__64BIT_CPU__	config.h	17;"	d
 __LINUX__	config.h	15;"	d
 __USE_BSD	src/common.h	30;"	d
 __USE_XOPEN	src/common.h	24;"	d
-ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
-ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
-ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
-ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
-ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
-ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
+add_block_object_to_class	src/klass_compile_time.c	/^int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda)$/;"	f
 add_class_field_to_class	src/klass_compile_time.c	/^BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path)$/;"	f
 add_class_field_to_class_with_class_name	src/klass_compile_time.c	/^BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value)$/;"	f
 add_code_to_method	src/klass_compile_time.c	/^void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num)$/;"	f
-add_field_to_class	src/klass_compile_time.c	/^BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type)$/;"	f
-add_field_to_class_with_class_name	src/klass_compile_time.c	/^BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name)$/;"	f
+add_field_to_class	src/klass_compile_time.c	/^BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, sNodeType* result_type)$/;"	f
+add_field_to_class_with_class_name	src/klass_compile_time.c	/^BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, char* field_type_name)$/;"	f
 add_method_to_class	src/klass_compile_time.c	/^BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)$/;"	f
 add_typedef_to_class	src/klass_compile_time.c	/^BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)$/;"	f
 add_variable_to_table	src/vtable.c	/^BOOL add_variable_to_table(sVarTable* table, char* name, sNodeType* type_, BOOL readonly)$/;"	f
@@ -1337,7 +1361,7 @@ append_methods_to_buffer	src/klass_compile_time.c	/^static void append_methods_t
 append_module_to_table	src/module.c	/^static BOOL append_module_to_table(char* name, sCLModule* module)$/;"	f	file:
 append_node_to_node_block	src/node_block.c	/^static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)$/;"	f	file:
 append_opecode_to_code	src/code.c	/^void append_opecode_to_code(sByteCode* code, unsigned int op, BOOL no_output)$/;"	f
-append_stack_to_stack_list	src/stack.c	/^sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr)$/;"	f
+append_stack_to_stack_list	src/stack.c	/^sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr, BOOL global)$/;"	f
 append_str_to_constant_pool	src/constant.c	/^int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output)$/;"	f
 append_str_to_constant_pool_and_code	src/constant.c	/^void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output)$/;"	f
 append_str_to_module	src/module.c	/^void append_str_to_module(sCLModule* self, char* str)$/;"	f
@@ -1348,26 +1372,10 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_fn_append	config.status	/^  as_fn_append ()$/;"	f
-as_fn_append	configure	/^  as_fn_append ()$/;"	f
-as_fn_arith	config.status	/^  as_fn_arith ()$/;"	f
-as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
-as_fn_error	config.status	/^as_fn_error ()$/;"	f
-as_fn_error	configure	/^as_fn_error ()$/;"	f
-as_fn_executable_p	config.status	/^as_fn_executable_p ()$/;"	f
-as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
-as_fn_exit	config.status	/^as_fn_exit ()$/;"	f
-as_fn_exit	configure	/^as_fn_exit ()$/;"	f
-as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
-as_fn_mkdir_p	config.status	/^as_fn_mkdir_p ()$/;"	f
-as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
-as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
-as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
-as_fn_set_status	config.status	/^as_fn_set_status ()$/;"	f
-as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
-as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
-as_fn_unset	config.status	/^as_fn_unset ()$/;"	f
-as_fn_unset	configure	/^as_fn_unset ()$/;"	f
+as_func_failure	configure	/^as_func_failure () {$/;"	f
+as_func_ret_failure	configure	/^as_func_ret_failure () {$/;"	f
+as_func_ret_success	configure	/^as_func_ret_success () {$/;"	f
+as_func_success	configure	/^as_func_success () {$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info, BOOL* plus_plus, BOOL* minus_minus)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, int object_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
 binary_operator_for_bool	src/node.c	/^static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)$/;"	f	file:
@@ -1447,6 +1455,7 @@ cl_block_type_to_buffer	src/interpreter.c	/^static char* ALLOC cl_block_type_to_
 cl_type_to_buffer	src/interpreter.c	/^static ALLOC char* cl_type_to_buffer(sCLType* cl_type, sCLClass* klass)$/;"	f	file:
 cl_type_to_string	src/type.c	/^ALLOC char* cl_type_to_string(sCLType* cl_type, sCLClass* klass)$/;"	f
 cl_type_to_string_core	src/type.c	/^static void cl_type_to_string_core(sCLType* cl_type, sCLClass* klass, sBuf* buf)$/;"	f	file:
+classNameCompletion	src/interpreter.c	/^void classNameCompletion()$/;"	f
 class_compiler	src/compiler.c	/^static BOOL class_compiler(char* fname)$/;"	f	file:
 class_field_name_existance	src/klass_compile_time.c	/^BOOL class_field_name_existance(sCLClass* klass, char* field_name)$/;"	f
 class_final	src/klass.c	/^void class_final()$/;"	f
@@ -1462,20 +1471,23 @@ clone_node_block_type	src/node_block_type.c	/^ALLOC sNodeBlockType* clone_node_b
 clone_node_type	src/node_type.c	/^sNodeType* clone_node_type(sNodeType* node_type)$/;"	f
 clone_var_table	src/vtable.c	/^sVarTable* clone_var_table(sVarTable* lv_table)$/;"	f
 clover2_final	src/compiler.c	/^static void clover2_final()$/;"	f	file:
+clover2_final	src/get_type.c	/^static void clover2_final()$/;"	f	file:
 clover2_final	src/interpreter.c	/^static void clover2_final()$/;"	f	file:
 clover2_final	src/main.c	/^static void clover2_final()$/;"	f	file:
 clover2_init	src/compiler.c	/^static void clover2_init()$/;"	f	file:
+clover2_init	src/get_type.c	/^static void clover2_init()$/;"	f	file:
 clover2_init	src/interpreter.c	/^static void clover2_init()$/;"	f	file:
 clover2_init	src/main.c	/^static void clover2_init()$/;"	f	file:
 clover_termios_to_c_termios	src/clover_to_clang.c	/^void clover_termios_to_c_termios(CLObject terminfo_object, struct termios* terminfo_value)$/;"	f
 code	src/class_thread.c	/^    sByteCode* code;$/;"	m	struct:sThreadFuncArg	file:
 code	src/common.h	/^    sByteCode* code;$/;"	m	struct:sCompileInfoStruct
-command_completion	src/interpreter.c	/^void command_completion(char* line, char** candidates, int num_candidates)$/;"	f
+commandCompletion	src/interpreter.c	/^void commandCompletion()$/;"	f
+command_completion	src/interpreter.c	/^void command_completion()$/;"	f
 compaction	src/heap.c	/^void compaction()$/;"	f
 compile	src/node.c	/^BOOL compile(unsigned int node, sCompileInfo* info)$/;"	f
 compile_and_and	src/node.c	/^static BOOL compile_and_and(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_array_value	src/node.c	/^BOOL compile_array_value(unsigned int node, sCompileInfo* info)$/;"	f
-compile_block	src/node_block.c	/^BOOL compile_block(sNodeBlock* block, sCompileInfo* info, BOOL result_type_boxing, sNodeType** block_last_type)$/;"	f
+compile_block	src/node_block.c	/^BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type, sNodeType** block_last_type)$/;"	f
 compile_block_call	src/node.c	/^BOOL compile_block_call(unsigned int node, sCompileInfo* info)$/;"	f
 compile_block_object	src/node.c	/^BOOL compile_block_object(unsigned int node, sCompileInfo* info)$/;"	f
 compile_block_with_result	src/node_block.c	/^BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)$/;"	f
@@ -1545,12 +1557,12 @@ compile_store_value_to_pointer	src/node.c	/^BOOL compile_store_value_to_pointer(
 compile_store_variable	src/node.c	/^static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_string_value	src/node.c	/^BOOL compile_string_value(unsigned int node, sCompileInfo* info)$/;"	f
 compile_throw_expression	src/node.c	/^static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
-compile_to_native_code	src/jit.cpp	/^BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2)$/;"	f
-compile_to_native_code2	src/jit_bop.cpp	/^BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
-compile_to_native_code3	src/jit_eqop.cpp	/^BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
-compile_to_native_code4	src/jit_method_call.cpp	/^BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
-compile_to_native_code5	src/jit_load_address.cpp	/^BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
-compile_to_native_code6	src/jit_cast.cpp	/^BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, sCLMethod* method, char* method_path2, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)$/;"	f
+compile_to_native_code	src/jit.cpp	/^BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block)$/;"	f
+compile_to_native_code2	src/jit_bop.cpp	/^BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)$/;"	f
+compile_to_native_code3	src/jit_eqop.cpp	/^BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)$/;"	f
+compile_to_native_code4	src/jit_method_call.cpp	/^BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)$/;"	f
+compile_to_native_code5	src/jit_load_address.cpp	/^BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)$/;"	f
+compile_to_native_code6	src/jit_cast.cpp	/^BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)$/;"	f
 compile_true_expression	src/node.c	/^static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_try_expression	src/node.c	/^static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compile_tuple_value	src/node.c	/^static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)$/;"	f	file:
@@ -1563,13 +1575,16 @@ compile_while_expression	src/node.c	/^static BOOL compile_while_expression(unsig
 compile_wildcard_expression	src/node.c	/^static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)$/;"	f	file:
 compiler	src/compiler.c	/^static BOOL compiler(char* fname)$/;"	f	file:
 compiler_final	src/compiler.c	/^static void compiler_final()$/;"	f	file:
+compiler_final	src/get_type.c	/^static void compiler_final()$/;"	f	file:
 compiler_final	src/interpreter.c	/^static void compiler_final()$/;"	f	file:
 compiler_init	src/compiler.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
+compiler_init	src/get_type.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 compiler_init	src/interpreter.c	/^static void compiler_init(BOOL no_load_fudamental_classes)$/;"	f	file:
 constant	src/class_thread.c	/^    sConst* constant;$/;"	m	struct:sThreadFuncArg	file:
 constant	src/common.h	/^    sConst* constant;$/;"	m	struct:sCompileInfoStruct
 create_array_object	src/array.c	/^CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)$/;"	f
-create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, sVMInfo* info)$/;"	f
+create_block_object	src/block.c	/^CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent_stack, int parent_var_num, int block_var_num, BOOL lambda, int block_id, sCLClass* klass, sVMInfo* info)$/;"	f
+create_block_path_for_jit	src/jit_common.hpp	/^inline void create_block_path_for_jit(sCLClass* klass, int block_id, char* result, int size_result)$/;"	f
 create_bool	src/bool.c	/^CLObject create_bool(BOOL value, sVMInfo* info)$/;"	f
 create_buffer_object	src/string.c	/^CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info)$/;"	f
 create_byte	src/byte.c	/^CLObject create_byte(char value, sVMInfo* info)$/;"	f
@@ -1591,7 +1606,6 @@ create_hostent_object	src/class_system.c	/^static CLObject create_hostent_object
 create_integer	src/integer.c	/^CLObject create_integer(int value, sVMInfo* info)$/;"	f
 create_internal_functions	src/jit_declare.cpp	/^void create_internal_functions()$/;"	f
 create_internal_functions2	src/jit_declare.cpp	/^void create_internal_functions2()$/;"	f
-create_internal_functions2	src/jit_declare2.cpp	/^void create_internal_functions2()$/;"	f
 create_label_name	src/node.c	/^static void create_label_name(char* prefix, char* result, size_t result_size, int num)$/;"	f	file:
 create_label_name2	src/node.c	/^static void create_label_name2(char* prefix, char* result, size_t result_size, int num, int num2)$/;"	f	file:
 create_list_object	src/list.c	/^CLObject create_list_object(char* type_name, sVMInfo* info)$/;"	f
@@ -1656,6 +1670,7 @@ eval_str	src/interpreter.c	/^static BOOL eval_str(char* source, char* fname, sVa
 exception_message	src/common.h	/^    char exception_message[EXCEPTION_MESSAGE_MAX];$/;"	m	struct:sVMInfoStruct
 exec_prefix	Makefile	/^exec_prefix=${prefix}$/;"	m
 exist_block_object_err	src/common.h	/^    BOOL exist_block_object_err;$/;"	m	struct:sParserInfoStruct
+exist_brace_unclosed	src/common.h	/^    BOOL exist_brace_unclosed;$/;"	m	struct:sParserInfoStruct
 expect_next_character	src/parser.c	/^BOOL expect_next_character(char* characters, sParserInfo* info)$/;"	f
 expect_next_character_with_one_forward	src/parser.c	/^void expect_next_character_with_one_forward(char* characters, sParserInfo* info)$/;"	f
 expect_next_word	src/parser.c	/^static BOOL expect_next_word(char* word, sParserInfo* info)$/;"	f	file:
@@ -1683,7 +1698,7 @@ file_completion	src/interpreter.c	/^static void file_completion(char* line)$/;"	
 file_completion_command_line	src/interpreter.c	/^static void file_completion_command_line(char* text)$/;"	f	file:
 final_vtable	src/vtable.c	/^void final_vtable()$/;"	f
 finalize_class	src/vm.c	/^static BOOL finalize_class(sCLClass* klass)$/;"	f	file:
-finish_method_call	src/jit_sub.cpp	/^void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name)$/;"	f
+finish_method_call	src/jit_sub.cpp	/^void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, BOOL closure, LVALUE* llvm_stack, int var_num)$/;"	f
 for_expression	src/parser.c	/^static BOOL for_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
 free_array	src/array.c	/^void free_array(CLObject self)$/;"	f
 free_block	src/block.c	/^void free_block(CLObject self)$/;"	f
@@ -1701,14 +1716,17 @@ free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
 free_objects	src/heap.c	/^static void free_objects(unsigned char* mark_flg)$/;"	f	file:
 gARGC	src/compiler.c	/^int gARGC;$/;"	v
+gARGC	src/get_type.c	/^int gARGC;$/;"	v
 gARGC	src/interpreter.c	/^int gARGC;$/;"	v
 gARGC	src/main.c	/^int gARGC;$/;"	v
 gARGV	src/compiler.c	/^char** gARGV;$/;"	v
+gARGV	src/get_type.c	/^char** gARGV;$/;"	v
 gARGV	src/interpreter.c	/^char** gARGV;$/;"	v
 gARGV	src/main.c	/^char** gARGV;$/;"	v
 gAndAndOrOrValue	src/jit_declare.cpp	/^GlobalVariable* gAndAndOrOrValue;$/;"	v
 gCLHeap	src/heap.c	/^static sCLHeapManager gCLHeap;$/;"	v	file:
 gCLPointerAndBoolStructMemory	src/jit_runtime.cpp	/^struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;$/;"	v	typeref:struct:sPointerAndBoolResult
+gCLStacks	src/stack.c	/^static sCLStack gCLStacks[NUM_STACK_MAX];$/;"	v	file:
 gCLValueAndBoolStruct	src/jit_declare.cpp	/^StructType* gCLValueAndBoolStruct;$/;"	v
 gCLValueAndBoolStructMemory	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;$/;"	v	typeref:struct:sCLVALUEAndBoolResult
 gCandidates	src/interpreter.c	/^char** gCandidates = NULL;$/;"	v
@@ -1717,6 +1735,7 @@ gClassTable	src/klass.c	/^static sClassTable gClassTable[CLASS_NUM_MAX];$/;"	v	f
 gCodes	src/interpreter.c	/^static sByteCode gCodes[MAX_CODES];$/;"	v	file:
 gCommandNames	src/parser.c	/^char** gCommandNames = NULL;$/;"	v
 gCompilingCore	src/compiler.c	/^BOOL gCompilingCore = FALSE;$/;"	v
+gCompilingCore	src/get_type.c	/^BOOL gCompilingCore = FALSE;$/;"	v
 gCompilingCore	src/interpreter.c	/^BOOL gCompilingCore = FALSE;$/;"	v
 gCompilingCore	src/main.c	/^BOOL gCompilingCore = FALSE;$/;"	v
 gConditional	src/jit_runtime.cpp	/^BOOL gConditional = FALSE;$/;"	v
@@ -1726,9 +1745,14 @@ gHeadClassTable	src/klass.c	/^sClassTable* gHeadClassTable = NULL;$/;"	v
 gHeadStack	src/stack.c	/^sCLStack* gHeadStack;$/;"	v
 gHeadVTable	src/vtable.c	/^sVarTable* gHeadVTable;$/;"	v
 gHeapPages	src/heap.c	/^sHeapPage* gHeapPages;$/;"	v
+gInitInputCursorPosition	src/get_type.c	/^static int gInitInputCursorPosition;$/;"	v	file:
+gInitInputCursorPosition	src/interpreter.c	/^static int gInitInputCursorPosition;$/;"	v	file:
+gInitInputString	src/get_type.c	/^static char gInitInputString[1024];$/;"	v	file:
+gInitInputString	src/interpreter.c	/^static char gInitInputString[1024];$/;"	v	file:
 gInputingCommandPath	src/interpreter.c	/^BOOL gInputingCommandPath = FALSE;$/;"	v
 gInputingMethod	src/interpreter.c	/^BOOL gInputingMethod = FALSE;$/;"	v
 gInputingPath	src/interpreter.c	/^BOOL gInputingPath = FALSE;$/;"	v
+gInputingTopLevel	src/interpreter.c	/^BOOL gInputingTopLevel = FALSE;$/;"	v
 gInterpreter	src/parser.c	/^BOOL gInterpreter = FALSE;$/;"	v
 gLVTable	src/interpreter.c	/^sVarTable* gLVTable = NULL;$/;"	v
 gLabelNum	src/node.c	/^static unsigned int gLabelNum = 0;$/;"	v	file:
@@ -1744,16 +1768,20 @@ gNumCodes	src/interpreter.c	/^static int gNumCodes;$/;"	v	file:
 gNumCommandNames	src/parser.c	/^int gNumCommandNames = 0;$/;"	v
 gNumHeapPages	src/heap.c	/^int gNumHeapPages;$/;"	v
 gNumThread	src/class_thread.c	/^int gNumThread = 0;$/;"	v
+gOntTimeCommand	src/interpreter.c	/^static BOOL gOntTimeCommand;$/;"	v	file:
 gPointerAndBoolStruct	src/jit_declare.cpp	/^StructType* gPointerAndBoolStruct;$/;"	v
 gRunningCompiler	src/compiler.c	/^BOOL gRunningCompiler = TRUE;$/;"	v
+gRunningCompiler	src/get_type.c	/^BOOL gRunningCompiler = FALSE;$/;"	v
 gRunningCompiler	src/interpreter.c	/^BOOL gRunningCompiler = FALSE;$/;"	v
 gRunningCompiler	src/main.c	/^BOOL gRunningCompiler = FALSE;$/;"	v
 gRunningInitializer	src/vm.c	/^BOOL gRunningInitializer = FALSE;$/;"	v
 gScriptDirPath	src/compiler.c	/^char gScriptDirPath[PATH_MAX];$/;"	v
+gScriptDirPath	src/get_type.c	/^char gScriptDirPath[PATH_MAX];$/;"	v
 gScriptDirPath	src/interpreter.c	/^char gScriptDirPath[PATH_MAX];$/;"	v
 gScriptDirPath	src/main.c	/^char gScriptDirPath[PATH_MAX];$/;"	v
 gSigInt	src/vm.c	/^BOOL gSigInt = FALSE;$/;"	v
 gSigIntValue	src/jit_declare.cpp	/^GlobalVariable* gSigIntValue;$/;"	v
+gSizeCandidates	src/interpreter.c	/^int gSizeCandidates = 0;$/;"	v
 gSizeHeapPages	src/heap.c	/^int gSizeHeapPages;$/;"	v
 gSizeNodes	src/node.c	/^static unsigned int gSizeNodes = 0;$/;"	v	file:
 gSizePageNodeBlockTypes	src/node_block_type.c	/^static int gSizePageNodeBlockTypes = 0;$/;"	v	file:
@@ -1767,9 +1795,10 @@ gUsedPageNodeBlockTypes	src/node_block_type.c	/^static int gUsedPageNodeBlockTyp
 gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
 gVMMutex	src/class_thread.c	/^static pthread_mutex_t gVMMutex;$/;"	v	file:
 gVMMutexFlg	src/class_thread.c	/^BOOL gVMMutexFlg = FALSE;$/;"	v
-gVersion	src/compiler.c	/^char* gVersion = "5.0.9";$/;"	v
-gVersion	src/interpreter.c	/^char* gVersion = "5.0.9";$/;"	v
-gVersion	src/main.c	/^char* gVersion = "5.0.9";$/;"	v
+gVersion	src/compiler.c	/^char* gVersion = "7.1.4";$/;"	v
+gVersion	src/get_type.c	/^char* gVersion = "7.1.4";$/;"	v
+gVersion	src/interpreter.c	/^char* gVersion = "7.1.4";$/;"	v
+gVersion	src/main.c	/^char* gVersion = "7.1.4";$/;"	v
 gc	src/heap.c	/^void gc(sVMInfo* info)$/;"	f
 generics_info	src/common.h	/^    sGenericsParamInfo generics_info;$/;"	m	struct:sParserInfoStruct
 getStr	ExtensionTest.c	/^char* getStr(char* x, char* y) $/;"	f
@@ -1797,6 +1826,7 @@ get_global_method_names	src/interpreter.c	/^void get_global_method_names(char** 
 get_hash_key	src/klass.c	/^unsigned int get_hash_key(char* name, unsigned int max)$/;"	f
 get_hash_key_for_native_method	src/native_method.c	/^static unsigned int get_hash_key_for_native_method(char* path)$/;"	f	file:
 get_hex_number	src/parser.c	/^static BOOL get_hex_number(unsigned int* node, sParserInfo* info)$/;"	f	file:
+get_in_the_shell_mode	src/common.h	/^    BOOL get_in_the_shell_mode;$/;"	m	struct:sParserInfoStruct
 get_llvm_value_from_lvar_with_offset	src/jit_sub.cpp	/^void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index)$/;"	f
 get_methocs_generics_type	src/node.c	/^static sNodeType* get_methocs_generics_type(sParserInfo* info)$/;"	f	file:
 get_method_call_result	src/jit_sub.cpp	/^LVALUE get_method_call_result(std::map<std::string, Value*>& params, BasicBlock* current_block)$/;"	f
@@ -1807,11 +1837,12 @@ get_module_body	src/module.c	/^char* get_module_body(sCLModule* module)$/;"	f
 get_native_method	src/native_method.c	/^fNativeMethod get_native_method(char* path, char** fun_name)$/;"	f
 get_number	src/parser.c	/^static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)$/;"	f	file:
 get_object_allocated_size	src/jit_runtime.cpp	/^int get_object_allocated_size(CLObject object)$/;"	f
-get_object_head_of_memory	src/jit_runtime.cpp	/^void* get_object_head_of_memory(CLObject object)$/;"	f
+get_object_head_of_memory	src/jit_runtime.cpp	/^char* get_object_head_of_memory(CLObject object)$/;"	f
 get_object_pointer	src/heap.c	/^sCLHeapMem* get_object_pointer(CLObject obj)$/;"	f
 get_oct_number	src/parser.c	/^static BOOL get_oct_number(unsigned int* node, sParserInfo* info)$/;"	f	file:
 get_one_expression	src/interpreter.c	/^static char* get_one_expression(char* source)$/;"	f	file:
 get_parent_var_num_of_sum	src/vtable.c	/^int get_parent_var_num_of_sum(sVarTable* table)$/;"	f
+get_path_object	src/common.h	/^    BOOL get_path_object;$/;"	m	struct:sParserInfoStruct
 get_pointer_from_buffer_object	src/clover_to_clang.c	/^void* get_pointer_from_buffer_object(CLObject buffer)$/;"	f
 get_regex_anchored	src/jit_runtime.cpp	/^BOOL get_regex_anchored(CLObject regex)$/;"	f
 get_regex_dollar_endonly	src/jit_runtime.cpp	/^BOOL get_regex_dollar_endonly(CLObject regex)$/;"	f
@@ -1829,7 +1860,8 @@ get_sum_of_parent_var_num	src/vtable.c	/^static int get_sum_of_parent_var_num(sV
 get_system_class_field_names	src/interpreter.c	/^void get_system_class_field_names(char** candidates, int *num_candidates, int max_candidates)$/;"	f
 get_system_method_names	src/interpreter.c	/^void get_system_method_names(char** candidates, int *num_candidates, int max_candidates)$/;"	f
 get_try_catch_label_name	src/jit_runtime.cpp	/^char* get_try_catch_label_name(sVMInfo* info)$/;"	f
-get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, CLVALUE* stack, sNodeType** type_, sVarTable** result_lv_table)$/;"	f	file:
+get_type	src/get_type.c	/^static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)$/;"	f	file:
+get_type	src/interpreter.c	/^static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)$/;"	f	file:
 get_type_for_interpreter	src/common.h	/^    BOOL get_type_for_interpreter;$/;"	m	struct:sParserInfoStruct
 get_value_from_Bool	src/clover_to_clang.c	/^BOOL get_value_from_Bool(CLObject object)$/;"	f
 get_value_from_Byte	src/clover_to_clang.c	/^char get_value_from_Byte(CLObject object)$/;"	f
@@ -1854,12 +1886,13 @@ get_variable_index	src/vtable.c	/^int get_variable_index(sVarTable* table, char*
 get_vm_info_struct_type	src/jit_sub.cpp	/^StructType* get_vm_info_struct_type()$/;"	f
 get_vm_stack_ptr_value_from_index_with_aligned	src/jit_sub.cpp	/^LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align)$/;"	f
 gettid	src/class_thread.c	/^pid_t gettid()$/;"	f
+globalMethodCompletion	src/interpreter.c	/^void globalMethodCompletion() $/;"	f
 heap_final	src/heap.c	/^void heap_final()$/;"	f
 heap_init	src/heap.c	/^void heap_init(int heap_size, int size_handles)$/;"	f
 if_expression	src/parser.c	/^static BOOL if_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
-if_value_is_null_ret_zero	src/jit_sub.cpp	/^void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
-if_value_is_zero_entry_exception_object	src/jit_sub.cpp	/^void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message)$/;"	f
-if_value_is_zero_ret_zero	src/jit_sub.cpp	/^void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block)$/;"	f
+if_value_is_null_ret_zero	src/jit_sub.cpp	/^void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num)$/;"	f
+if_value_is_zero_entry_exception_object	src/jit_sub.cpp	/^void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message, BOOL closure, LVALUE* llvm_stack, int var_num)$/;"	f
+if_value_is_zero_ret_zero	src/jit_sub.cpp	/^void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num)$/;"	f
 in_block	src/common.h	/^    BOOL in_block;$/;"	m	struct:sCompileInfoStruct
 inc_andand_oror_array	src/jit_runtime.cpp	/^void inc_andand_oror_array(sVMInfo* info)$/;"	f
 inc_andand_oror_array	src/vm.c	/^static void inc_andand_oror_array(sVMInfo* info)$/;"	f	file:
@@ -1887,6 +1920,8 @@ initialize_sortable_carray_object	src/carray.c	/^BOOL initialize_sortable_carray
 initialize_sortable_list_object	src/list.c	/^BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)$/;"	f
 initialize_tuple_object	src/tuple.c	/^BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 inputing_block_or_paren	src/interpreter.c	/^static BOOL inputing_block_or_paren()$/;"	f	file:
+inputing_path_object	src/common.h	/^    BOOL inputing_path_object;$/;"	m	struct:sParserInfoStruct
+inputing_shell_mode	src/common.h	/^    BOOL inputing_shell_mode;$/;"	m	struct:sParserInfoStruct
 insert_value_to_stack_ptr_with_offset	src/jit_sub.cpp	/^void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset)$/;"	f
 interpreter_final	src/interpreter.c	/^static void interpreter_final()$/;"	f	file:
 interpreter_init	src/interpreter.c	/^static void interpreter_init()$/;"	f	file:
@@ -1894,16 +1929,21 @@ invoke_block	src/vm.c	/^BOOL invoke_block(CLObject block_object, CLVALUE* stack,
 invoke_block_in_jit	src/jit_runtime.cpp	/^BOOL invoke_block_in_jit(int num_params, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 invoke_method	src/vm.c	/^BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)$/;"	f
 is_assign_operator	src/parser.c	/^static BOOL is_assign_operator(sParserInfo* info) $/;"	f	file:
+is_class_file_existance	src/klass.c	/^BOOL is_class_file_existance(char* class_name)$/;"	f
 is_command_name	src/parser.c	/^static BOOL is_command_name(char* name)$/;"	f	file:
+is_delegated_class	src/node_type.c	/^BOOL is_delegated_class(sNodeType* left_type, sNodeType* right_type)$/;"	f
 is_exception_type	src/node_type.c	/^BOOL is_exception_type(sNodeType* exception_type)$/;"	f
 is_method_param_name	src/klass_compile_time.c	/^BOOL is_method_param_name(char* name)$/;"	f
 is_numeric_type	src/node_type.c	/^static BOOL is_numeric_type(sNodeType* type_)$/;"	f	file:
 is_numeric_type_without_float	src/node_type.c	/^static BOOL is_numeric_type_without_float(sNodeType* type_)$/;"	f	file:
+is_path_object	src/interpreter.c	/^static BOOL is_path_object(char* source, char* fname, sVarTable* lv_table)$/;"	f	file:
+is_shell_mode	src/get_type.c	/^static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)$/;"	f	file:
+is_shell_mode	src/interpreter.c	/^static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)$/;"	f	file:
 is_this_class_with_class_name	src/type.c	/^BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name)$/;"	f
 is_valid_class	src/klass.c	/^BOOL is_valid_class(sCLClass* klass)$/;"	f
 is_valid_object	src/heap.c	/^BOOL is_valid_object(CLObject obj)$/;"	f
 is_void_type	src/type.c	/^BOOL is_void_type(sCLType* cl_type, sCLClass* klass)$/;"	f
-jit	src/jit_runtime.cpp	/^BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, sVMInfo* info, CLVALUE** stack_ptr)$/;"	f
+jit	src/jit_runtime.cpp	/^BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr)$/;"	f
 jit_compile_all_classes	src/jit_compile_method.cpp	/^BOOL jit_compile_all_classes()$/;"	f
 jit_final	src/jit.cpp	/^void jit_final()$/;"	f
 jit_final_on_runtime	src/jit_runtime.cpp	/^void jit_final_on_runtime()$/;"	f
@@ -2051,6 +2091,7 @@ load_class_with_initialize	src/vm.c	/^static BOOL load_class_with_initialize(cha
 load_element	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* load_element(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, int element_num, int size)$/;"	f
 load_fundamental_classes_on_runtime	src/vm.c	/^BOOL load_fundamental_classes_on_runtime()$/;"	f
 load_module_from_file	src/module.c	/^BOOL load_module_from_file(ALLOC sCLModule** self, char* module_name)$/;"	f
+localVariableCompletion	src/interpreter.c	/^void localVariableCompletion(char* line)$/;"	f
 local_variable_completion	src/interpreter.c	/^static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)$/;"	f	file:
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sCompileInfoStruct
 lv_table	src/common.h	/^    sVarTable* lv_table;$/;"	m	struct:sParserInfoStruct
@@ -2065,15 +2106,17 @@ mArray	src/common.h	/^    BOOL mArray;$/;"	m	struct:sCLTypeStruct
 mArray	src/common.h	/^    BOOL mArray;$/;"	m	struct:sNodeTypeStruct
 mArrayElements	src/common.h	/^            unsigned int mArrayElements[ARRAY_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon18
 mArrayNum	src/common.h	/^            unsigned int mArrayNum;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon10
-mArrayNum	src/common.h	/^        short mArrayNum;$/;"	m	union:sCLObjectStruct::__anon23
-mArrayNum	src/common.h	/^    short mArrayNum;$/;"	m	struct:sBlockObjectStruct
-mArrayNum	src/common.h	/^    short mArrayNum;$/;"	m	struct:sCLHeapMemStruct
-mArrayNum	src/common.h	/^    short mArrayNum;$/;"	m	struct:sRegexObjectStruct
+mArrayNum	src/common.h	/^        int mArrayNum;$/;"	m	union:sCLObjectStruct::__anon23
+mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sBlockObjectStruct
+mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sCLHeapMemStruct
+mArrayNum	src/common.h	/^    int mArrayNum;$/;"	m	struct:sRegexObjectStruct
 mBlock	src/common.h	/^        sNodeBlock* mBlock;$/;"	m	union:sNodeTreeStruct::__anon1
+mBlockID	src/common.h	/^    int mBlockID;$/;"	m	struct:sBlockObjectStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarStruct
 mBlockLevel	src/common.h	/^    int mBlockLevel;$/;"	m	struct:sVarTableStruct
 mBlockObjectCode	src/common.h	/^            sNodeBlock* mBlockObjectCode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon14
 mBlockObjectCode	src/common.h	/^            sNodeBlock* mBlockObjectCode;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon15
+mBlockObjects	src/common.h	/^    sCLBlockObject* mBlockObjects;$/;"	m	struct:sCLClassStruct
 mBlockType	src/common.h	/^    MANAGED struct sNodeBlockTypeStruct* mBlockType;$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeBlockTypeStruct
 mBlockType	src/common.h	/^    sCLBlockType* mBlockType;$/;"	m	struct:sCLTypeStruct
 mBlockVarNum	src/common.h	/^    int mBlockVarNum;$/;"	m	struct:sBlockObjectStruct
@@ -2082,6 +2125,7 @@ mBoolValue	src/common.h	/^    BOOL mBoolValue;$/;"	m	union:CLVALUEUnion
 mBoxingClass	src/common.h	/^    struct sCLClassStruct* mBoxingClass; \/\/ This requires on the run time $/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sCLClassStruct
 mBuf	src/clover2-buffer.h	/^    char* mBuf;$/;"	m	struct:sBufStruct
 mBuffer	src/common.h	/^            char* mBuffer;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon13
+mByteCodes	src/common.h	/^    sByteCode mByteCodes;$/;"	m	struct:sCLBlockObjectStruct
 mByteCodes	src/common.h	/^    sByteCode mByteCodes;$/;"	m	struct:sCLMethodStruct
 mByteValue	src/common.h	/^        char mByteValue;$/;"	m	union:sNodeTreeStruct::__anon1
 mByteValue	src/common.h	/^    char mByteValue;$/;"	m	union:CLVALUEUnion
@@ -2093,6 +2137,8 @@ mCatchNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mCatchNodeBlock;$
 mCharValue	src/common.h	/^    wchar_t mCharValue;$/;"	m	union:CLVALUEUnion
 mCharacter	src/common.h	/^        wchar_t mCharacter;$/;"	m	union:sNodeTreeStruct::__anon1
 mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon11
+mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon14
+mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon15
 mClass	src/common.h	/^            sCLClass* mClass;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
 mClass	src/common.h	/^            sNodeType* mClass;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sBlockObjectStruct
@@ -2100,6 +2146,7 @@ mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only me
 mClass	src/common.h	/^    sCLClass* mClass;       \/\/ NULL --> no class only memory$/;"	m	struct:sRegexObjectStruct
 mClass	src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sCLObjectStruct
 mClass	src/common.h	/^    sCLClass* mClass;$/;"	m	struct:sNodeTypeStruct
+mClass2	src/common.h	/^    sCLClass* mClass2;$/;"	m	struct:sBlockObjectStruct
 mClassFields	src/common.h	/^    sCLField* mClassFields;$/;"	m	struct:sCLClassStruct
 mClassFinalizeMethodIndex	src/common.h	/^    int mClassFinalizeMethodIndex;$/;"	m	struct:sCLClassStruct
 mClassInitializeMethodIndex	src/common.h	/^    int mClassInitializeMethodIndex;$/;"	m	struct:sCLClassStruct
@@ -2108,6 +2155,7 @@ mClassNameOffset	src/common.h	/^    int mClassNameOffset;$/;"	m	struct:sCLTypeSt
 mCodes	src/common.h	/^    char* mCodes;$/;"	m	struct:sByteCodeStruct
 mCodes	src/common.h	/^    sByteCode mCodes;$/;"	m	struct:sBlockObjectStruct
 mConst	src/common.h	/^    char* mConst;$/;"	m	struct:sConstStruct
+mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLBlockObjectStruct
 mConst	src/common.h	/^    sConst mConst;$/;"	m	struct:sCLClassStruct
 mConstant	src/common.h	/^    sConst mConstant;$/;"	m	struct:sBlockObjectStruct
 mDefaultValue	src/common.h	/^    char mDefaultValue[METHOD_DEFAULT_PARAM_MAX];$/;"	m	struct:sParserParamStruct
@@ -2123,6 +2171,7 @@ mDynamicLibrary	src/common.h	/^    void* mDynamicLibrary;  \/\/ This requires on
 mElifExpressionNodes	src/common.h	/^            unsigned int mElifExpressionNodes[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
 mElifNodeBlocks	src/common.h	/^            MANAGED sNodeBlock* mElifNodeBlocks[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
 mElifNum	src/common.h	/^            int mElifNum;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
+mElifUnclosed	src/common.h	/^            BOOL mElifUnclosed[ELIF_NUM_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
 mElseBlock	src/common.h	/^            sNodeBlock* mElseBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon4
 mElseNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mElseNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
 mExceptionVarName	src/common.h	/^            char mExceptionVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon7
@@ -2159,6 +2208,7 @@ mGenericsTypes	src/common.h	/^    struct sCLTypeStruct* mGenericsTypes[GENERICS_
 mGenericsTypes	src/common.h	/^    struct sNodeTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];$/;"	m	struct:sNodeTypeStruct	typeref:struct:sNodeTypeStruct::sNodeTypeStruct
 mGlobal	src/common.h	/^            BOOL mGlobal;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon22
 mGlobal	src/common.h	/^    BOOL mGlobal;$/;"	m	struct:sRegexObjectStruct
+mGlobalStack	src/common.h	/^    BOOL mGlobalStack;$/;"	m	struct:sCLStackStruct
 mGlobalStack	src/common.h	/^    CLVALUE* mGlobalStack;$/;"	m	struct:sVMInfoStruct
 mGlobalStackID	src/common.h	/^    sCLStack* mGlobalStackID;$/;"	m	struct:sVMInfoStruct
 mGlobalStackPtr	src/common.h	/^    CLVALUE* mGlobalStackPtr;$/;"	m	struct:sVMInfoStruct
@@ -2167,9 +2217,11 @@ mHashItems	src/common.h	/^            unsigned int mHashItems[HASH_VALUE_ELEMENT
 mHashKeys	src/common.h	/^            unsigned int mHashKeys[HASH_VALUE_ELEMENT_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon21
 mHeadOfMemory	src/common.h	/^        int mHeadOfMemory;$/;"	m	union:sCLObjectStruct::__anon24
 mIfNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mIfNodeBlock;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
+mIfUnclosed	src/common.h	/^            BOOL mIfUnclosed;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon3
 mIgnoreCase	src/common.h	/^            BOOL mIgnoreCase;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon22
 mIgnoreCase	src/common.h	/^    BOOL mIgnoreCase;$/;"	m	struct:sRegexObjectStruct
 mIndex	src/common.h	/^    int mIndex;$/;"	m	struct:sVarStruct
+mInitMethodIndexOnCompileTime	src/common.h	/^    int mInitMethodIndexOnCompileTime;              \/\/ This requires on the compile time$/;"	m	struct:sCLClassStruct
 mInitializeValue	src/common.h	/^    int mInitializeValue; \/\/ -1 is none initialized value. This is for enum or C bridge.$/;"	m	struct:sCLFieldStruct
 mInitialized	src/common.h	/^    BOOL mInitialized;   \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
 mInitialized	src/common.h	/^    BOOL mInitialized;$/;"	m	struct:sClassTableStruct
@@ -2177,11 +2229,13 @@ mIntValue	src/common.h	/^        int mIntValue;$/;"	m	union:sNodeTreeStruct::__a
 mIntValue	src/common.h	/^    int mIntValue;$/;"	m	union:CLVALUEUnion
 mInterface	src/common.h	/^    sCLClass* mInterface[GENERICS_TYPES_MAX];$/;"	m	struct:sGenericsParamInfoStruct
 mItem	src/common.h	/^    sCLClass* mItem;$/;"	m	struct:sClassTableStruct
+mJITDynamicSym	src/common.h	/^    void* mJITDynamicSym;       \/\/ this requires runtime$/;"	m	struct:sBlockObjectStruct
 mJITDynamicSym	src/common.h	/^    void* mJITDynamicSym;       \/\/ this requires runtime$/;"	m	struct:sCLMethodStruct
 mLVTable	src/common.h	/^    sVarTable* mLVTable;$/;"	m	struct:sNodeBlockStruct
 mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon14
 mLambda	src/common.h	/^            BOOL mLambda;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon15
 mLambda	src/common.h	/^    BOOL mLambda;$/;"	m	struct:sBlockObjectStruct
+mLambda	src/common.h	/^    BOOL mLambda;$/;"	m	struct:sCLBlockObjectStruct
 mLambda	src/common.h	/^    BOOL mLambda;$/;"	m	struct:sNodeBlockTypeStruct
 mLeft	src/common.h	/^    unsigned int mLeft;$/;"	m	struct:sNodeTreeStruct
 mLen	src/clover2-buffer.h	/^    int mLen;$/;"	m	struct:sBufStruct
@@ -2234,9 +2288,11 @@ mNoneFreeHandle	src/heap.c	/^    unsigned char mNoneFreeHandle:1;$/;"	m	struct:s
 mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sCLTypeStruct
 mNullable	src/common.h	/^    BOOL mNullable;$/;"	m	struct:sNodeTypeStruct
 mNumArrayElements	src/common.h	/^            int mNumArrayElements;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon18
+mNumBlockObject	src/common.h	/^    int mNumBlockObject;$/;"	m	struct:sCompileInfoStruct
+mNumBlockObjects	src/common.h	/^    int mNumBlockObjects;$/;"	m	struct:sCLClassStruct
 mNumClassFields	src/common.h	/^    int mNumClassFields;$/;"	m	struct:sCLClassStruct
 mNumDelegatedMethod	src/common.h	/^    int mNumDelegatedMethod;$/;"	m	struct:sCLFieldStruct
-mNumFields	src/common.h	/^        short mNumFields;$/;"	m	union:sCLObjectStruct::__anon23
+mNumFields	src/common.h	/^        int mNumFields;$/;"	m	union:sCLObjectStruct::__anon23
 mNumFields	src/common.h	/^    int mNumFields;$/;"	m	struct:sCLClassStruct
 mNumGenerics	src/common.h	/^    int mNumGenerics;$/;"	m	struct:sCLClassStruct
 mNumGenerics	src/common.h	/^    int mNumGenerics;$/;"	m	struct:sCLMethodStruct
@@ -2255,6 +2311,7 @@ mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStru
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon17
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon8
 mNumParams	src/common.h	/^            int mNumParams;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon9
+mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLBlockObjectStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLBlockTypeStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sCLMethodStruct
 mNumParams	src/common.h	/^    int mNumParams;$/;"	m	struct:sGenericsParamInfoStruct
@@ -2311,13 +2368,14 @@ mSName	src/common.h	/^    char* mSName;$/;"	m	struct:sNodeTreeStruct
 mShortValue	src/common.h	/^        short mShortValue;$/;"	m	union:sNodeTreeStruct::__anon1
 mShortValue	src/common.h	/^    short mShortValue;$/;"	m	union:CLVALUEUnion
 mSize	src/clover2-buffer.h	/^    int mSize;$/;"	m	struct:sBufStruct
+mSize	src/common.h	/^    int mSize;$/;"	m	struct:sBlockObjectStruct
+mSize	src/common.h	/^    int mSize;$/;"	m	struct:sCLHeapMemStruct
+mSize	src/common.h	/^    int mSize;$/;"	m	struct:sCLObjectStruct
 mSize	src/common.h	/^    int mSize;$/;"	m	struct:sConstStruct
-mSize	src/common.h	/^    short mSize;$/;"	m	struct:sBlockObjectStruct
-mSize	src/common.h	/^    short mSize;$/;"	m	struct:sCLHeapMemStruct
-mSize	src/common.h	/^    short mSize;$/;"	m	struct:sCLObjectStruct
-mSize	src/common.h	/^    short mSize;$/;"	m	struct:sRegexObjectStruct
+mSize	src/common.h	/^    int mSize;$/;"	m	struct:sRegexObjectStruct
 mSize	src/common.h	/^    size_t mSize;$/;"	m	struct:sByteCodeStruct
 mSize	src/heap.c	/^    unsigned short mSize;$/;"	m	struct:sHandle_	file:
+mSizeBlockObjects	src/common.h	/^    int mSizeBlockObjects;$/;"	m	struct:sCLClassStruct
 mSizeClassFields	src/common.h	/^    int mSizeClassFields;$/;"	m	struct:sCLClassStruct
 mSizeFields	src/common.h	/^    int mSizeFields;$/;"	m	struct:sCLClassStruct
 mSizeGlobalStack	src/common.h	/^    int mSizeGlobalStack;$/;"	m	struct:sVMInfoStruct
@@ -2362,6 +2420,7 @@ mUShortValue	src/common.h	/^        unsigned short mUShortValue;$/;"	m	union:sNo
 mUShortValue	src/common.h	/^    unsigned short mUShortValue;$/;"	m	union:CLVALUEUnion
 mUnClosedBlock	src/common.h	/^    BOOL mUnClosedBlock;$/;"	m	struct:sNodeBlockStruct
 mUnboxingClass	src/common.h	/^    struct sCLClassStruct* mUnboxingClass; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct	typeref:struct:sCLClassStruct::sCLClassStruct
+mUnboxingClassNameOffset	src/common.h	/^    int mUnboxingClassNameOffset;$/;"	m	struct:sCLClassStruct
 mUngreedy	src/common.h	/^            BOOL mUngreedy;$/;"	m	struct:sNodeTreeStruct::__anon1::__anon22
 mUngreedy	src/common.h	/^    BOOL mUngreedy;$/;"	m	struct:sRegexObjectStruct
 mVMInfo	src/class_thread.c	/^    sVMInfo mVMInfo;$/;"	m	struct:sThreadFuncArg	file:
@@ -2370,6 +2429,7 @@ mValueNodes	src/common.h	/^            int mValueNodes[WHEN_BLOCK_MAX][WHEN_BLOC
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon11
 mVarName	src/common.h	/^            char mVarName[VAR_NAME_MAX];$/;"	m	struct:sNodeTreeStruct::__anon1::__anon2
 mVarName	src/common.h	/^        char mVarName[VAR_NAME_MAX];$/;"	m	union:sNodeTreeStruct::__anon1
+mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLBlockObjectStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sCLMethodStruct
 mVarNum	src/common.h	/^    int mVarNum;$/;"	m	struct:sVarTableStruct
 mVirtualMethodTable	src/common.h	/^    sCLMethod* mVirtualMethodTable[METHOD_NUM_MAX]; \/\/ This requires on the run time$/;"	m	struct:sCLClassStruct
@@ -2380,6 +2440,7 @@ mWhileNodeBlock	src/common.h	/^            MANAGED sNodeBlock* mWhileNodeBlock;$
 main	examples/a.c	/^int main()$/;"	f
 main	server1.c	/^int main()$/;"	f
 main	src/compiler.c	/^int main(int argc, char** argv)$/;"	f
+main	src/get_type.c	/^int main(int argc, char** argv)$/;"	f
 main	src/interpreter.c	/^int main(int argc, char** argv)$/;"	f
 main	src/main.c	/^int main(int argc, char** argv, char* const * envp)$/;"	f
 make_boxing_type	src/node_type.c	/^void make_boxing_type(sNodeType* type, sNodeType** result)$/;"	f
@@ -2391,6 +2452,7 @@ mark_object	src/heap.c	/^void mark_object(CLObject obj, unsigned char* mark_flg)
 mark_sighandlers	src/heap.c	/^static void mark_sighandlers(unsigned char* mark_flg)$/;"	f	file:
 mark_source_position	src/jit_runtime.cpp	/^void mark_source_position(sVMInfo* info, char* sname, int sline)$/;"	f
 method	src/common.h	/^    sCLMethod* method;$/;"	m	struct:sCompileInfoStruct
+methodNameCompletion	src/interpreter.c	/^void methodNameCompletion(char* line)$/;"	f
 method_generics_info	src/common.h	/^    sGenericsParamInfo method_generics_info;$/;"	m	struct:sParserInfoStruct
 method_name	src/node.c	/^    char* method_name;$/;"	m	struct:sCastMethods	file:
 mgetmaxx	src/interpreter.c	/^static int mgetmaxx()$/;"	f	file:
@@ -2436,25 +2498,26 @@ parent_var_num	src/jit_common.hpp	/^    int parent_var_num;$/;"	m	struct:LVALUES
 parent_vm_stack_to_parent_llvm_stack	src/jit_sub.cpp	/^void parent_vm_stack_to_parent_llvm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num)$/;"	f
 parse_array_value_or_hash_value	src/parser.c	/^static BOOL parse_array_value_or_hash_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_block	src/node_block.c	/^BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression)$/;"	f
-parse_block_object	src/parser.c	/^static BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f	file:
-parse_carray_value	src/parser.c	/^static BOOL parse_carray_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
-parse_class	src/class_compiler.c	/^static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)$/;"	f	file:
+parse_block_object	src/parser.c	/^BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f
+parse_carray_value	src/parser.c	/^static BOOL parse_carray_value(unsigned int* node, sParserInfo* info, char tail_char) $/;"	f	file:
+parse_class	src/class_compiler.c	/^static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)$/;"	f	file:
 parse_class_name	src/node_type.c	/^static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParserInfoStruct* info)$/;"	f	file:
 parse_class_name_and_attributes	src/class_compiler.c	/^static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class)$/;"	f	file:
 parse_class_on_add_methods_and_fields	src/class_compiler.c	/^static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)$/;"	f	file:
-parse_class_on_alloc_classes_phase	src/class_compiler.c	/^static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)$/;"	f	file:
+parse_class_on_alloc_classes_phase	src/class_compiler.c	/^static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)$/;"	f	file:
 parse_class_on_compile_code	src/class_compiler.c	/^static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)$/;"	f	file:
 parse_class_source	src/class_compiler.c	/^static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)$/;"	f	file:
 parse_class_type	src/parser.c	/^BOOL parse_class_type(sCLClass** klass, sParserInfo* info)$/;"	f
 parse_command_method_params	src/parser.c	/^static BOOL parse_command_method_params(int* num_params, unsigned int* params, sParserInfo* info, BOOL class_method, char* method_name)$/;"	f	file:
+parse_command_param	src/parser.c	/^static BOOL parse_command_param(sBuf* param, BOOL* quoted_string, sParserInfo* info)$/;"	f	file:
 parse_equalable_carray_value	src/parser.c	/^static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
-parse_equalable_list_value	src/parser.c	/^static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_equalable_list_value	src/parser.c	/^static BOOL parse_equalable_list_value(unsigned int* node, sParserInfo* info, char tail_char) $/;"	f	file:
 parse_field_attributes_and_type	src/class_compiler.c	/^static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo, char* header_path, int header_path_size)$/;"	f	file:
 parse_function	src/parser.c	/^static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f	file:
 parse_generics_params	src/class_compiler.c	/^static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info)$/;"	f	file:
 parse_hash_value	src/parser.c	/^static BOOL parse_hash_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
 parse_iniherit	src/parser.c	/^BOOL parse_iniherit(unsigned int* node, sParserInfo* info)$/;"	f
-parse_list_value	src/parser.c	/^static BOOL parse_list_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_list_value	src/parser.c	/^static BOOL parse_list_value(unsigned int* node, sParserInfo* info, char tail_char) $/;"	f	file:
 parse_method_name_and_params	src/class_compiler.c	/^BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)$/;"	f
 parse_method_params	src/parser.c	/^BOOL parse_method_params(int* num_params, unsigned int* params, sParserInfo* info)$/;"	f
 parse_methods_and_fields	src/class_compiler.c	/^static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)$/;"	f	file:
@@ -2466,9 +2529,10 @@ parse_params	src/parser.c	/^BOOL parse_params(sParserParam* params, int* num_par
 parse_params_and_entry_to_lvtable	src/parser.c	/^BOOL parse_params_and_entry_to_lvtable(struct sParserParamStruct* params, int* num_params, sParserInfo* info, sVarTable** new_table, sVarTable* parent_lv_table, int character_type)$/;"	f
 parse_phase	src/common.h	/^    int parse_phase;$/;"	m	struct:sParserInfoStruct
 parse_question_operator_block	src/node_block.c	/^BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info)$/;"	f
-parse_simple_lambda_params	src/parser.c	/^static BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f	file:
+parse_regex	src/parser.c	/^static BOOL parse_regex(unsigned int* node, sParserInfo* info)$/;"	f	file:
+parse_simple_lambda_params	src/parser.c	/^BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lambda)$/;"	f
 parse_sortable_carray_value	src/parser.c	/^static BOOL parse_sortable_carray_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
-parse_sortable_list_value	src/parser.c	/^static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
+parse_sortable_list_value	src/parser.c	/^static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info, char tail_char) $/;"	f	file:
 parse_string_expression	src/parser.c	/^static BOOL parse_string_expression(sNodeBlock** string_expressions, int* string_expression_offsets, int* num_string_expression, sBuf* value, sParserInfo* info)$/;"	f	file:
 parse_throws_and_clibrary	src/class_compiler.c	/^static BOOL parse_throws_and_clibrary(sParserInfo* info, BOOL* throw_existance, char* clibrary_path, size_t clibrary_path_size)$/;"	f	file:
 parse_tuple_value	src/parser.c	/^static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) $/;"	f	file:
@@ -2482,6 +2546,7 @@ parser_err_msg	src/parser.c	/^void parser_err_msg(sParserInfo* info, const char*
 parser_final	src/parser.c	/^void parser_final()$/;"	f
 parser_init	src/parser.c	/^void parser_init()$/;"	f
 parser_param_to_cl_param	src/klass_compile_time.c	/^static void parser_param_to_cl_param(sParserParam* param, sCLParam* type, sCLClass* klass)$/;"	f	file:
+pathObjectCompletion	src/interpreter.c	/^void pathObjectCompletion(char* line)$/;"	f
 pinfo	src/common.h	/^    struct sParserInfoStruct* pinfo;$/;"	m	struct:sCompileInfoStruct	typeref:struct:sCompileInfoStruct::sParserInfoStruct
 pop_global_stack	src/stack.c	/^CLVALUE pop_global_stack(sVMInfo* info)$/;"	f
 postposition_operator	src/parser.c	/^static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* num_method_chains, unsigned int max_method_chains_node[METHOD_CHAIN_MAX])$/;"	f	file:
@@ -2511,6 +2576,8 @@ read_int_from_file	src/klass.c	/^static BOOL read_int_from_file(int fd, int* n)$
 read_long_from_file	src/klass.c	/^static BOOL read_long_from_file(int fd, clint64* n)$/;"	f	file:
 read_methods_from_file	src/klass.c	/^static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods, int* size_methods, sCLClass* klass)$/;"	f	file:
 read_source	src/script_ctime.c	/^BOOL read_source(char* fname, sBuf* source)$/;"	f
+readline_init_text	src/interpreter.c	/^int readline_init_text()$/;"	f
+readline_insert_text	src/interpreter.c	/^static void readline_insert_text(char* cmdline, int cursor_point)$/;"	f	file:
 ready_for_typedef	src/klass.c	/^static BOOL ready_for_typedef(sCLClass* klass)$/;"	f	file:
 regex_equals	src/regex.c	/^BOOL regex_equals(CLObject left, CLObject right)$/;"	f
 regex_free_fun	src/regex.c	/^void regex_free_fun(CLObject obj)$/;"	f
@@ -2539,7 +2606,7 @@ run_char_to_string_cast	src/jit_runtime.cpp	/^CLObject run_char_to_string_cast(w
 run_clong_to_long_cast	src/jit_runtime.cpp	/^clint64 run_clong_to_long_cast(CLObject obj)$/;"	f
 run_cpointer_to_pointer_cast	src/jit_runtime.cpp	/^char* run_cpointer_to_pointer_cast(CLObject obj)$/;"	f
 run_create_array	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, sConst* constant)$/;"	f
-run_create_block_object	src/jit_runtime.cpp	/^CLObject run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, sVMInfo* info)$/;"	f
+run_create_block_object	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* constant, int code_offset, int code_len, int constant_offset, int constant_len, int block_var_num, int parent_var_num, BOOL lambda, int block_id, int class_name_offset, sVMInfo* info, int var_num)$/;"	f
 run_create_carray	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)$/;"	f
 run_create_equalable_carray	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)$/;"	f
 run_create_equalable_list	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int num_elements, int class_name_offset, int type_name_offset, sConst* constant)$/;"	f
@@ -2598,6 +2665,8 @@ sByteCode_clone	src/code.c	/^void sByteCode_clone(sByteCode* self, sByteCode* co
 sByteCode_free	src/code.c	/^void sByteCode_free(sByteCode* code)$/;"	f
 sByteCode_init	src/code.c	/^void sByteCode_init(sByteCode* code)$/;"	f
 sByteCode_init_with_size	src/code.c	/^void sByteCode_init_with_size(sByteCode* code, int size)$/;"	f
+sCLBlockObject	src/common.h	/^typedef struct sCLBlockObjectStruct sCLBlockObject;$/;"	t	typeref:struct:sCLBlockObjectStruct
+sCLBlockObjectStruct	src/common.h	/^struct sCLBlockObjectStruct {$/;"	s
 sCLBlockType	src/common.h	/^typedef struct sCLBlockTypeStruct sCLBlockType;$/;"	t	typeref:struct:sCLBlockTypeStruct
 sCLBlockTypeStruct	src/common.h	/^struct sCLBlockTypeStruct {$/;"	s
 sCLClass	src/common.h	/^typedef struct sCLClassStruct sCLClass;$/;"	t	typeref:struct:sCLClassStruct
@@ -2727,7 +2796,7 @@ sNodeTree_create_ulong_value	src/node.c	/^unsigned int sNodeTree_create_ulong_va
 sNodeTree_create_ushort_value	src/node.c	/^unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info)$/;"	f
 sNodeTree_false_expression	src/node.c	/^unsigned int sNodeTree_false_expression(sParserInfo* info)$/;"	f
 sNodeTree_for_expression	src/node.c	/^unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned int expression_node2, unsigned int expression_node3, MANAGED sNodeBlock* for_node_block, sParserInfo* info)$/;"	f
-sNodeTree_if_expression	src/node.c	/^unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, sParserInfo* info)$/;"	f
+sNodeTree_if_expression	src/node.c	/^unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info)$/;"	f
 sNodeTree_null_expression	src/node.c	/^unsigned int sNodeTree_null_expression(sParserInfo* info)$/;"	f
 sNodeTree_true_expression	src/node.c	/^unsigned int sNodeTree_true_expression(sParserInfo* info)$/;"	f
 sNodeTree_try_expression	src/node.c	/^unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info)$/;"	f
@@ -2772,7 +2841,6 @@ set_andand_oror_left_value	src/vm.c	/^static void set_andand_oror_left_value(BOO
 set_andand_oror_right_value	src/jit_runtime.cpp	/^void set_andand_oror_right_value(BOOL flag, sVMInfo* info)$/;"	f
 set_andand_oror_right_value	src/vm.c	/^static void set_andand_oror_right_value(BOOL flag, sVMInfo* info)$/;"	f	file:
 set_boxing_and_unboxing_class	src/klass.c	/^static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)$/;"	f	file:
-set_boxing_and_unboxing_classes	src/klass.c	/^void set_boxing_and_unboxing_classes()$/;"	f
 set_free_fun_to_classes	src/vm.c	/^void set_free_fun_to_classes()$/;"	f
 set_max_block_var_num	src/vtable.c	/^void set_max_block_var_num(sVarTable* lv_table, sVarTable* old_table)$/;"	f
 set_method_index_to_class	src/klass_compile_time.c	/^void set_method_index_to_class(sCLClass* klass)$/;"	f
@@ -2781,6 +2849,7 @@ set_signal_for_interpreter	src/interpreter.c	/^static void set_signal_for_interp
 setter_and_getter	src/class_compiler.c	/^static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field, char* field_name, BOOL private_)$/;"	f	file:
 setter_and_getter_on_compile_time	src/class_compiler.c	/^static BOOL setter_and_getter_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, sCLClass* klass, sCLField* field, char* field_name, BOOL private_)$/;"	f	file:
 sharedstatedir	Makefile	/^sharedstatedir=${prefix}\/com$/;"	m
+shellModeCompletion	src/interpreter.c	/^void shellModeCompletion(char* line)$/;"	f
 show_double	src/jit_debug_runtime.cpp	/^void show_double(double number)$/;"	f
 show_float	src/jit_debug_runtime.cpp	/^void show_float(float number)$/;"	f
 show_inst	src/vm.c	/^static void show_inst(unsigned inst)$/;"	f	file:
@@ -2835,26 +2904,29 @@ stack_id	src/common.h	/^    sCLStack* stack_id;$/;"	m	struct:sVMInfoStruct
 stack_init	src/stack.c	/^void stack_init()$/;"	f
 stack_num	src/common.h	/^    int stack_num;$/;"	m	struct:sCompileInfoStruct
 stack_trace_sline	src/common.h	/^    int stack_trace_sline[STACK_TRACE_MAX];$/;"	m	struct:sVMInfoStruct
-stack_trace_sname	src/common.h	/^    char* stack_trace_sname[STACK_TRACE_MAX];$/;"	m	struct:sVMInfoStruct
+stack_trace_sname	src/common.h	/^    char stack_trace_sname[STACK_TRACE_MAX][128];$/;"	m	struct:sVMInfoStruct
 store_class_field	src/jit_runtime.cpp	/^BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)$/;"	f
 store_class_field_of_buffer	src/jit_runtime.cpp	/^BOOL store_class_field_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)$/;"	f
+store_delegated_varialbe	src/node.c	/^void store_delegated_varialbe(sNodeType* left_type, sNodeType* right_type, sCompileInfo* info)$/;"	f
 store_field	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index, int field_class_name_offset, sConst* constant)$/;"	f
 store_field_of_buffer	src/jit_runtime.cpp	/^struct sCLVALUEAndBoolResult* store_field_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject obj, CLVALUE value, int field_index)$/;"	f
 store_llvm_value_to_lvar_with_offset	src/jit_sub.cpp	/^void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value, BOOL except_parent_stack)$/;"	f
 store_value_to_lvar_with_offset	src/jit_sub.cpp	/^void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value)$/;"	f
 store_value_to_vm_lvar	src/jit_sub.cpp	/^void store_value_to_vm_lvar(std::map<std::string, Value*>& params, BasicBlock* current_block, int offset, LVALUE* llvm_value)$/;"	f
-string_expression	src/vm.c	/^static BOOL string_expression(char* str, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f	file:
+string_expression	src/vm.c	/^static BOOL string_expression(char* str, int str_len, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)$/;"	f	file:
 string_object_to_char_array	src/clover_to_clang.c	/^ALLOC char* string_object_to_char_array(CLObject string_object)$/;"	f
 string_object_to_wchar_array	src/clover_to_clang.c	/^ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object)$/;"	f
 substitution_posibility	src/node_type.c	/^BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message)$/;"	f
 substitution_posibility_for_node_block_type	src/node_block_type.c	/^BOOL substitution_posibility_for_node_block_type(sNodeBlockType* left_block, sNodeBlockType* right_block, sNodeType* left_generics_types, sNodeType* right_generics_types, BOOL output_message)$/;"	f
 substitution_posibility_with_class_name	src/node_type.c	/^BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL output_message)$/;"	f
 sysconfdir	Makefile	/^sysconfdir=${prefix}\/etc\/clover2$/;"	m
+systemMethodCompletion	src/interpreter.c	/^void systemMethodCompletion()$/;"	f
 this_module_is_modified	src/module.c	/^void this_module_is_modified(sCLModule* self)$/;"	f
 thread_final	src/class_thread.c	/^void thread_final()$/;"	f
 thread_func	src/class_thread.c	/^void* thread_func(void* param)$/;"	f
 thread_init	src/class_thread.c	/^void thread_init()$/;"	f
 throw_expression	src/parser.c	/^static BOOL throw_expression(unsigned int* node, sParserInfo* info)$/;"	f	file:
+topLevelCompletion	src/interpreter.c	/^void topLevelCompletion(char* line)$/;"	f
 trunc_value	src/jit_sub.cpp	/^LVALUE trunc_value(LVALUE* llvm_value, int size)$/;"	f
 trunc_value_from_inst	src/jit_sub.cpp	/^void trunc_value_from_inst(LVALUE* value, int inst) $/;"	f
 trunc_value_to_float_or_double	src/jit_sub.cpp	/^LVALUE trunc_value_to_float_or_double(LVALUE* llvm_value, int size)$/;"	f
@@ -2870,6 +2942,8 @@ try_function	src/jit_runtime.cpp	/^void try_function(sVMInfo* info, int catch_la
 try_offset	src/common.h	/^    int try_offset;$/;"	m	struct:sVMInfoStruct
 try_offset_before	src/common.h	/^    int try_offset_before;$/;"	m	struct:sVMInfoStruct
 try_pc	src/common.h	/^    char** try_pc;$/;"	m	struct:sVMInfoStruct
+tyclover_get_type	src/get_type.c	/^static void tyclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name)$/;"	f	file:
+tyclover_print_local_variable	src/get_type.c	/^static void tyclover_print_local_variable(char* source_value, char* fname_object_value, char* class_name)$/;"	f	file:
 type	src/common.h	/^    sNodeType* type;$/;"	m	struct:sCompileInfoStruct
 type_	src/node.c	/^    char* type_;$/;"	m	struct:sCastMethods	file:
 type_identify	src/node_type.c	/^BOOL type_identify(sNodeType* left, sNodeType* right)$/;"	f

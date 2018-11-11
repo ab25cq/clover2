@@ -72,7 +72,9 @@ static void remove_class(char* class_name)
 
 BOOL put_class_to_table(char* class_name, sCLClass* klass)
 {
-    remove_class(class_name);
+    if(get_class(class_name)) {
+        return TRUE;
+    }
 
     unsigned int hash_key = get_hash_key(class_name, CLASS_NUM_MAX);
     sClassTable* p = gClassTable + hash_key;
@@ -318,9 +320,16 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
     }
-    *size_methods = *num_methods = n;
 
-    *methods = MCALLOC(1, sizeof(sCLMethod)*(*num_methods));
+    if(n == 0) {
+        *size_methods = 4;
+        *num_methods = 0;
+    }
+    else {
+        *size_methods = *num_methods = n;
+    }
+
+    *methods = MCALLOC(1, sizeof(sCLMethod)*(*size_methods));
 
     int i;
     for(i=0; i<*num_methods; i++) {
@@ -445,9 +454,15 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
     }
-    *size_fields = *num_fields = n;
+    if(n == 0) {
+        *size_fields = 4;
+        *num_fields = 0;
+    }
+    else {
+        *size_fields = *num_fields = n;
+    }
 
-    *fields = MCALLOC(1, sizeof(sCLField)*(*num_fields));
+    *fields = MCALLOC(1, sizeof(sCLField)*(*size_fields));
 
     int i;
     for(i=0; i<*num_fields; i++) {
@@ -612,6 +627,13 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         klass->mTypedefClassName2Offsets[i] = n;
     }
 
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+
+    klass->mUnboxingClassNameOffset = n;
+
     return klass;
 }
 
@@ -720,6 +742,20 @@ static BOOL ready_for_typedef(sCLClass* klass)
     return TRUE;
 }
 
+static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)
+{
+    sCLClass* klass = get_class(primitive_class_name);
+
+    MASSERT(klass != NULL || klass == NULL);            // when compiling Fundamental.clc, klass is NULL
+
+    sCLClass* klass2 = get_class(lapper_class_name);
+
+    MASSERT(klass2 != NULL || klass2 == NULL);
+
+    if(klass) { klass->mBoxingClass = klass2; }
+    if(klass2) { klass2->mUnboxingClass = klass; }
+}
+
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
 {
     /// check the existance of the load class ///
@@ -770,9 +806,23 @@ sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
     klass->mDynamicLibrary = NULL;
     klass->mInitialized = FALSE;
 
+    if(klass->mUnboxingClassNameOffset != -1) {
+        char* primitive_class_name = CONS_str(&klass->mConst, klass->mUnboxingClassNameOffset);
+        char* lapper_class_name = CLASS_NAME(klass);
+
+        set_boxing_and_unboxing_class(primitive_class_name, lapper_class_name);
+    }
+
     klass->mFreeFun = NULL;
+    klass->mInitMethodIndexOnCompileTime = klass->mNumMethods;
 
     return klass;
+}
+
+BOOL is_class_file_existance(char* class_name)
+{
+    char class_file_name[PATH_MAX+1];
+    return search_for_class_file(class_name, class_file_name, PATH_MAX);
 }
 
 sCLClass* load_class(char* class_name)
@@ -780,7 +830,6 @@ sCLClass* load_class(char* class_name)
     sCLClass* klass = get_class(class_name);
     if(klass != NULL) {
         return klass;
-        //remove_class(class_name);
     }
 
     char class_file_name[PATH_MAX+1];
@@ -861,6 +910,15 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     memset(klass->mTypedefClassName1Offsets, 0, sizeof(int)*TYPEDEF_MAX);
     memset(klass->mTypedefClassName2Offsets, 0, sizeof(int)*TYPEDEF_MAX);
     klass->mInitialized = FALSE;
+
+    if(unboxing_class) {
+        klass->mUnboxingClassNameOffset = append_str_to_constant_pool(&klass->mConst, CLASS_NAME(klass->mUnboxingClass), FALSE);
+    }
+    else {
+        klass->mUnboxingClassNameOffset = -1;
+    }
+
+    klass->mInitMethodIndexOnCompileTime = 0;
 
     return klass;
 }
@@ -1061,33 +1119,3 @@ BOOL is_valid_class(sCLClass* klass)
     return FALSE;
 }
 
-static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapper_class_name)
-{
-    sCLClass* klass = get_class(primitive_class_name);
-
-    MASSERT(klass != NULL || klass == NULL);            // when compiling Fundamental.clc, klass is NULL
-
-    sCLClass* klass2 = get_class(lapper_class_name);
-
-    MASSERT(klass2 != NULL || klass2 == NULL);
-
-    if(klass) { klass->mBoxingClass = klass2; }
-    if(klass2) { klass2->mUnboxingClass = klass; }
-}
-
-void set_boxing_and_unboxing_classes()
-{
-    set_boxing_and_unboxing_class("int", "Integer");
-    set_boxing_and_unboxing_class("uint", "UInteger");
-    set_boxing_and_unboxing_class("byte", "Byte");
-    set_boxing_and_unboxing_class("ubyte", "UByte");
-    set_boxing_and_unboxing_class("short", "Short");
-    set_boxing_and_unboxing_class("ushort", "UShort");
-    set_boxing_and_unboxing_class("long", "Long");
-    set_boxing_and_unboxing_class("ulong", "ULong");
-    set_boxing_and_unboxing_class("float", "Float");
-    set_boxing_and_unboxing_class("double", "Double");
-    set_boxing_and_unboxing_class("pointer", "Pointer");
-    set_boxing_and_unboxing_class("char", "Char");
-    set_boxing_and_unboxing_class("bool", "Bool");
-}

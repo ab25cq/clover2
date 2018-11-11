@@ -1,4 +1,3 @@
-include "Container.clcl"
 
 class Range<T:IIteratorable>
 {
@@ -107,22 +106,22 @@ module MListWithRange
     }
 }
 
-class List <T:Object>
+inherit List <T:Object>
 {
     include MListWithRange;
 }
 
-class EqualableList<T:IEqualable>
+inherit EqualableList<T:IEqualable>
 {
     include MListWithRange;
 }
 
-class SortableList<T:ISortable>
+inherit SortableList<T:ISortable>
 {
     include MListWithRange;
 }
 
-class String 
+inherit String 
 {
     def subString(range:Range<Integer>):  String {
         return self.subString(range.head.value, range.tail.value);
@@ -132,7 +131,7 @@ class String
     }
 }
 
-class Buffer
+inherit Buffer
 {
     def subBuffer(range:Range<Integer>): Buffer {
         return self.subBuffer(range.head.value, range.tail.value);

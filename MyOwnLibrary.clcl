@@ -1,6 +1,5 @@
-include "Socket.clcl"
 
-class SortableList<T:ISortable>
+inherit SortableList<T:ISortable>
 {
     def grep(reg:regex) {
         self.each(closure(file_name:T) {

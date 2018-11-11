@@ -57,10 +57,22 @@ tyclover2: config.h src/get_type.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT
 	if test $(JIT) = 1; then $(CXX) -o tyclover2 src/get_type.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o tyclover2 src/get_type.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
 SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl
+	PWD=`pwd`; ./cclover2 -core Fundamental.clcl
+	PWD=`pwd`; ./cclover2 -core Thread.clcl
+	PWD=`pwd`; ./cclover2 -core String.clcl
+	PWD=`pwd`; ./cclover2 -core Container.clcl
+	PWD=`pwd`; ./cclover2 -core Reflection.clcl
+	PWD=`pwd`; ./cclover2 -core Range.clcl
+	PWD=`pwd`; ./cclover2 -core File.clcl
+	PWD=`pwd`; ./cclover2 -core Command.clcl
+	PWD=`pwd`; ./cclover2 -core SystemCalls.clcl
+	PWD=`pwd`; ./cclover2 -core CLibrary.clcl
+	PWD=`pwd`; ./cclover2 -core CGI.clcl
+	PWD=`pwd`; ./cclover2 -core Socket.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
 
 libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
-	clang -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS) $(JIT_RUNTIME_OBJS)
+	$(CC) -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS) $(JIT_RUNTIME_OBJS)
 	ln -s -f libclover2.so.1.0.0 libclover2.so.1
 	ln -s -f libclover2.so.1.0.0 libclover2.so
 

@@ -14,7 +14,7 @@ class ExtensionClassTest
 
             str := getStr(b"ABC", b"DEF");
 
-            Clover.test("Extension Test3", strcmp(str, b"ABCDEF") == 0);
+            Clover.test("Extension Test3", str->byte =='A' && (str+1)->byte == 'B' && (str+2)->byte == 'C' && (str+3)->byte == 'D' && (str+4)->byte == 'E' && (str+5)->byte == 'F');
 
             free(str);
 

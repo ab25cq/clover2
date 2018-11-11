@@ -1,6 +1,5 @@
-include "CLibrary.clcl"
 
-class System
+inherit System
 {
     LC_ALL: static int;
     LC_ADDRESS: static int;
@@ -62,22 +61,22 @@ module MCSVFileToList
     }
 }
 
-class List <T:Object>
+inherit List <T:Object>
 {
     include MCSVFileToList;
 }
 
-class EqualableList <T:IEqualable>
+inherit EqualableList <T:IEqualable>
 {
     include MCSVFileToList;
 }
 
-class SortableList<T:ISortable>
+inherit SortableList<T:ISortable>
 {
     include MCSVFileToList;
 }
 
-class File
+inherit File
 {
     def createListFromCSV(fname:String): static SortableList<String> {
         result := SortableList<String>();
@@ -170,7 +169,7 @@ class File
     }
 }
 
-class String
+inherit String
 {
     def quotedString():String {
         result := "";

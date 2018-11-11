@@ -1,6 +1,5 @@
-include "SystemCalls.clcl"
 
-class System
+inherit System
 {
     def strcmp(x:pointer, y:pointer): int from libc.so.6
 }

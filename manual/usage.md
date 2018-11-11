@@ -127,6 +127,41 @@ d.clclでフィールドが追加されてメソッドが上書きされてい�
 
 Clover2のオープンクラスは単にincudeしたファイルに含まれるクラスももう一度コンパイルすることによって実現されています。なので、メソッドやフィールドを追加することで特に遅くなったりなどの影響は全くありません。inheritもメソッドがコンパイル時には呼び出すメソッドが確定されているので、ただのメソッドコールと同じ実行コストです。安心してmixin-layersスタイルのコーディングを楽しんでください。同名で同引数のメソッドが追加できる秘密は単にそれを許していて、コンパイル時のメソッド検索時にメソッドの配列の末尾から検索をしているので上書きできるだけです。コストは全くかかりません。凄く単純な仕組みで実現しています。
 
+## 分割コンパイルとmixin-lyers
+
+version 7.5.0より以下が可能になっています。
+
+```
+    > vim a.clcl
+    class ClassA {
+        field1:int;
+
+        def initialize(value:int) {
+            field1 = value;
+        }
+
+        def method(a:int, b:int) {
+            return a + b + field1;
+        }
+    }
+    > cclover2 a.clcl
+    > vim b.clcl
+    inherit ClassA {
+        field2:int;
+
+        def initialize(value:int, value2:int) {
+            field1 = value;
+            field2 = value2;
+        }
+
+        def method(a:int, b:int) {
+            return a + b + field1 + field2;
+        }
+    }
+```
+
+コンパイル済みのクラスファイルにinherit クラス名でメソッドやフィールドが追加できます。これによってmixin-layersはより厳密となりリファクタリングなどを行って変更を加えた場合、後方のレイヤーのみ気をつければいいようになってます。基礎クラスに機能を追加する場合もinherit Stringとすれば、Stringクラスにフィールドやメソッドが追加できます。Stringクラスさえロードできれば、それが可能です。ただし、コンパイル順に気をつけてください。
+
 ## クラスファイルの登録
 
 クラスファイルの検索パスはカレントディレクトリと$HOME/.clover2となります。どのディレクトリからでもクラスを参照したい場合はoclclファイルを$HOME/.clover2にコピーしてください。あとJITを有効にしている場合はダイナミックライブラリのコピーも必要になります。lib[クラス名].so, lib[クラス名].so.1.0.0を$HOME/.clover2にコピーしてください。無くても動いてしまいますがJITが有効にならずに動いてしまいます。あとはダイナミックライブラリの検索のためにexport LD_LIBRARY_PATH=~/.clover2:$LIBRARY_PATHを.bashrcなどに登録してください。

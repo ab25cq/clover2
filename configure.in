@@ -191,7 +191,8 @@ fi
 
 if test $DEBUGGING = 1
 then
-    CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
+    CFLAGS="$CFLAGS -g -DMDEBUG"
+    #CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
 fi
 
 if test $LOGGING = 1
@@ -446,6 +447,8 @@ CXXFLAGS="$CXXFLAGS -Qunused-arguments"
 AC_SUBST(JIT)
 AC_SUBST(CXXFLAGS)
 AC_SUBST(CFLAGS)
+
+AC_CHECK_FUNCS(execvpe)
 
 COMMON_OBJS="src/buffer.o src/debug.o src/xfunc.o src/klass.o src/constant.o src/code.o src/alignment.o src/utf.o"
 

@@ -209,7 +209,7 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     return TRUE;
 }
 
-static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)
+static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
@@ -220,6 +220,12 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     }
 
     info->klass = get_class(class_name);
+
+    if(inherit && info->klass == NULL) {
+        if(is_class_file_existance(class_name)) {
+            info->klass = load_class(class_name);
+        }
+    }
 
     if(info->klass == NULL) {
         info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class);
@@ -1374,11 +1380,11 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     return TRUE;
 }
 
-static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class)
+static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)
 {
     switch(info->parse_phase) {
         case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic_class)) {
+            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic_class, inherit)) {
                 return FALSE;
             }
             break;
@@ -1660,17 +1666,22 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
 
         if(strcmp(buf, "class") == 0) {
-            if(!parse_class(info, cinfo, FALSE, FALSE)) {
+            if(!parse_class(info, cinfo, FALSE, FALSE, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "inherit") == 0) {
+            if(!parse_class(info, cinfo, FALSE, FALSE, TRUE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "dynamic_class") == 0) {
-            if(!parse_class(info, cinfo, FALSE, TRUE)) {
+            if(!parse_class(info, cinfo, FALSE, TRUE, FALSE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "interface") == 0) {
-            if(!parse_class(info, cinfo, TRUE, FALSE)) {
+            if(!parse_class(info, cinfo, TRUE, FALSE, FALSE)) {
                 return FALSE;
             }
         }
@@ -1749,7 +1760,7 @@ static void reset_method_index_on_compile_time()
     sClassTable* p = gHeadClassTable;
 
     while(p) {
-        p->mItem->mMethodIndexOnCompileTime = 0;
+        p->mItem->mMethodIndexOnCompileTime = p->mItem->mInitMethodIndexOnCompileTime;
         p = p->mNextClass;
     }
 }

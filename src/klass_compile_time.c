@@ -290,6 +290,11 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     char method_path[METHOD_PATH_MAX+1];
     create_method_path(method_path, METHOD_PATH_MAX, &klass->mMethods[num_methods], klass);
     klass->mMethods[num_methods].mPathOffset = append_str_to_constant_pool(&klass->mConst, method_path, FALSE);
+
+    if(result_type == NULL) {
+        fprintf(stderr, "Invalid result type of method(%s.%s)\n", CLASS_NAME(klass), method_name);
+        return FALSE;
+    }
     node_type_to_cl_type(result_type, ALLOC &klass->mMethods[num_methods].mResultType, klass);
 
     int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
@@ -982,6 +987,8 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
         sBuf_append_int(buf, klass->mTypedefClassName1Offsets[i]);
         sBuf_append_int(buf, klass->mTypedefClassName2Offsets[i]);
     }
+
+    sBuf_append_int(buf, klass->mUnboxingClassNameOffset);
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)

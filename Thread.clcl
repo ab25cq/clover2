@@ -1,4 +1,3 @@
-include "Fundamental.clcl"
 
 class pthread_mutex_t 
 {
@@ -64,20 +63,13 @@ class timespec
 
         return result;
     }
-
-    def toString():String {
-        return sprintf("%lu.%09lu sec", array { self.tv_sec.toULong, self.tv_nsec.toULong });
-    }
 }
 
-class System
+inherit System
 {
-    include MObjectBase;
-
     typedef pid_t int;
 
     def gettid():static native pid_t;
-
     typedef pthread_mutexattr_t uint;
     typedef pthread_condattr_t uint;
 

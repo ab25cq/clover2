@@ -4095,6 +4095,7 @@ BOOL System_execvpe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MFREE(envp_objects);
 
     /// go ///
+#ifdef HAVE_EXECVPE
     int result = execvpe(method_name_value, params_value, envp_value);
 
     if(result < 0) {
@@ -4121,6 +4122,18 @@ BOOL System_execvpe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     MFREE(envp_value);
 
     return TRUE;
+#else
+    for(i=0; i<num_elements+1; i++) {
+        MFREE(params_value[i]);
+    }
+    MFREE(params_value);
+    for(i=0; i<num_elements2; i++) {
+        MFREE(envp_value[i]);
+    }
+    MFREE(envp_value);
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "execvpe(2) is not supported.");
+    return FALSE;
+#endif
 }
 
 BOOL System_fopen(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
@@ -6151,7 +6164,9 @@ BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+8].mValue.mIntValue = AF_ATMPVC;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+9].mValue.mIntValue = AF_APPLETALK;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+10].mValue.mIntValue = AF_PACKET;
+#ifdef AF_ALG
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+11].mValue.mIntValue = AF_ALG;
+#endif
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+12].mValue.mIntValue = SOCK_STREAM;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+13].mValue.mIntValue = SOCK_DGRAM;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+14].mValue.mIntValue = SOCK_SEQPACKET;

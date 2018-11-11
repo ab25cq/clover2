@@ -35,4 +35,3 @@ while(true) {
 for(i := optind; i<Clover.ARGC; i++) {
     println("other option \{Clover.ARGV[i]}");
 }
-

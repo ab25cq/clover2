@@ -2165,7 +2165,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
         }
 
         unsigned int params[PARAMS_MAX];
-        memset(params, 0, sizeof(sParserParam)*PARAMS_MAX);
+        memset(params, 0, sizeof(unsigned int)*PARAMS_MAX);
         int num_params = 0;
 
         node = sNodeTree_create_method_call(node, "toString", params, num_params, 0, &info);
@@ -2273,7 +2273,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.1.4";
+char* gVersion = "7.5.0";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

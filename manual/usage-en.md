@@ -126,6 +126,42 @@ For example, if the name of the source file that extended String and Hash is MyO
 Compile with. Please copy the original String.oclcl and Array.oclcl created to $HOME/.clover2. Regardless of the current directory, you can use that String or Array.
 
 The open class of Clover2 is realized simply by compiling the class included in the incued file. So, adding methods and fields does not have any impact, such as being particularly slow. Also inherit is the same execution cost as just a method call, since the method that the method calls at compile time is fixed. Please relax and enjoy the coding of mixin-layers style. The secret that can add a method with the same argument with the same argument simply allows it and since it searches from the end of the method array at compile time method search it can only overwrite it. It does not cost anything. It is realized with a very simple mechanism.
+1
+
+## Split compilation and mixin-lyers 
+
+Beginning with version 7.5.0 the following is possible. 
+
+```
+    > vim a.clcl
+    class ClassA {
+        field1:int;
+
+        def initialize(value:int) {
+            field1 = value;
+        }
+
+        def method(a:int, b:int) {
+            return a + b + field1;
+        }
+    }
+    > cclover2 a.clcl
+    > vim b.clcl
+    inherit ClassA {
+        field2:int;
+
+        def initialize(value:int, value2:int) {
+            field1 = value;
+            field2 = value2;
+        }
+
+        def method(a:int, b:int) {
+            return a + b + field1 + field2;
+        }
+    }
+```
+
+You can add methods and fields with compiled class file inherit class name.  This makes mixin-layers more rigorous, so if you make refactoring and make changes, you only need to be careful about the layer behind.  You can also add fields and methods to the String class by adding inherit String to add functionality to the base class.  If you can load even the String class it is possible.  However, please be careful in order of compilation. 
 
 ## Registering class files
 
