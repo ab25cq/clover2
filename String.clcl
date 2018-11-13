@@ -108,6 +108,8 @@ inherit System
     def wcstombs(src:char[]): static native byte[] throws Exception;
         # always null-terminated byte[] returns
 
+    def memset(str:pointer, value:int, size:size_t): static native;
+
     MB_LEN_MAX:static int;
 
     def initialize_string_system(): static native;
@@ -667,6 +669,25 @@ inherit Buffer
         wcs:char[] = mbstowcs(self.p, self.len - (self.p - self.buffer));
         result:String = String(wcs);
         return result;
+    }
+
+    # same: 0, self > str: > 0, self < str: < 0
+    def compare(str:Buffer):  int {
+        return memcmp(self.head(), str.head(), self.len);
+    }
+
+    def add(right:Buffer): Buffer {
+        result := Buffer();
+        result.append(self);
+        result.append(right);
+        return result;
+    }
+
+    def clear(): Buffer {
+        self.len = 0;
+        memset(self.buffer, 0, self.size);
+
+        return self;
     }
 }
 

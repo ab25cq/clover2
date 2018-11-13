@@ -647,5 +647,11 @@ class BufferTest {
         c:Buffer = b"ABC\0ABC";
 
         Clover.test("buffer test3", b.equals(b"ABC\0ABC"));
+
+        d := b"ABC\nDEF\nGHI\n";
+
+        Clover.test("bufrer test4", d.split('\n').equals({b"ABC", b"DEF", b"GHI"}));
+
+        Clover.test("buffer test5", b"ABC".compare(b"DEF") < 0 && b"ABC".compare(b"ABC") == 0 && b"DEF".compare(b"ABC") > 0);
     }
 }

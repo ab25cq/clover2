@@ -118,13 +118,13 @@ JIT	Makefile	/^JIT=0$/;"	m
 JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
 JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
 LABEL_NAME_MAX	src/node.c	402;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_CGI	src/class_system.c	5807;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	2370;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1717;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_SOCKET	src/class_system.c	6180;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1598;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS	src/class_system.c	5727;"	d	file:
-LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM	src/class_system.c	817;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_CGI	src/class_system.c	5818;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	2381;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM	src/class_system.c	1728;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_SOCKET	src/class_system.c	6191;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM	src/class_system.c	1609;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS	src/class_system.c	5738;"	d	file:
+LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM	src/class_system.c	828;"	d	file:
 LIBS	Makefile	/^LIBS= -lutil -lncursesw -lreadline -lbsd -ldl -lm -lpcre -lrt$/;"	m
 LIST_VALUE_ELEMENT_MAX	src/common.h	65;"	d
 LLVMValue	src/common.h	/^    void* LLVMValue;$/;"	m	union:CLVALUEUnion
@@ -1196,6 +1196,7 @@ System_malloc	src/class_system.c	/^BOOL System_malloc(CLVALUE** stack_ptr, CLVAL
 System_mbstowcs	src/class_system.c	/^BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_memcmp	src/class_system.c	/^BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_memcpy	src/class_system.c	/^BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
+System_memset	src/class_system.c	/^BOOL System_memset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_mkdir	src/class_system.c	/^BOOL System_mkdir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_mktime	src/class_system.c	/^BOOL System_mktime(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 System_move	src/class_system.c	/^BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -1715,6 +1716,7 @@ free_node_types	src/node_type.c	/^void free_node_types()$/;"	f
 free_nodes	src/node.c	/^void free_nodes()$/;"	f
 free_object	src/object.c	/^BOOL free_object(CLObject self)$/;"	f
 free_objects	src/heap.c	/^static void free_objects(unsigned char* mark_flg)$/;"	f	file:
+func	src/a.c	/^int func() {$/;"	f
 gARGC	src/compiler.c	/^int gARGC;$/;"	v
 gARGC	src/get_type.c	/^int gARGC;$/;"	v
 gARGC	src/interpreter.c	/^int gARGC;$/;"	v
@@ -1795,10 +1797,10 @@ gUsedPageNodeBlockTypes	src/node_block_type.c	/^static int gUsedPageNodeBlockTyp
 gUsedPageNodeTypes	src/node_type.c	/^static int gUsedPageNodeTypes = 0;$/;"	v	file:
 gVMMutex	src/class_thread.c	/^static pthread_mutex_t gVMMutex;$/;"	v	file:
 gVMMutexFlg	src/class_thread.c	/^BOOL gVMMutexFlg = FALSE;$/;"	v
-gVersion	src/compiler.c	/^char* gVersion = "7.1.4";$/;"	v
-gVersion	src/get_type.c	/^char* gVersion = "7.1.4";$/;"	v
-gVersion	src/interpreter.c	/^char* gVersion = "7.1.4";$/;"	v
-gVersion	src/main.c	/^char* gVersion = "7.1.4";$/;"	v
+gVersion	src/compiler.c	/^char* gVersion = "7.5.2";$/;"	v
+gVersion	src/get_type.c	/^char* gVersion = "7.5.2";$/;"	v
+gVersion	src/interpreter.c	/^char* gVersion = "7.5.2";$/;"	v
+gVersion	src/main.c	/^char* gVersion = "7.5.2";$/;"	v
 gc	src/heap.c	/^void gc(sVMInfo* info)$/;"	f
 generics_info	src/common.h	/^    sGenericsParamInfo generics_info;$/;"	m	struct:sParserInfoStruct
 getStr	ExtensionTest.c	/^char* getStr(char* x, char* y) $/;"	f

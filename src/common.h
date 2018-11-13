@@ -2150,6 +2150,7 @@ BOOL System_sleep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_pcre_exec(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_sprintf(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_memset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

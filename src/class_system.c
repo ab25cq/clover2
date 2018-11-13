@@ -174,6 +174,17 @@ BOOL System_memcpy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_memset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+    CLVALUE* value = lvar + 1;
+    CLVALUE* size = lvar + 2;
+
+    memset(str->mPointerValue, value->mIntValue, size->mULongValue);
+
+    return TRUE;
+}
+
 BOOL System_memcmp(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* str1 = lvar;

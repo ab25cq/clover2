@@ -1,4 +1,12 @@
 
+version 7.5.2
+
+    Fixed bug of BuferTest
+
+version 7.5.1
+
+    Added Buffer.clear, Buffer.split, Buffer.add, Buffer.compare, System.memset.
+
 version 7.5.0
 
     I put in class divide compile function.  If you want to add methods and fields to a compiled class file, the inherit class name is better.  When used as mixin-layers, mixin-layers becomes more rigorous and you can not access the fields and methods of the backward layer.  It will be effective at refactoring.

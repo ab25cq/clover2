@@ -3060,3 +3060,64 @@ inherit String
         return scan(regex_).length();
     }
 }
+
+inherit Buffer 
+{
+/*
+    def split(c:byte): SortableList<Buffer> {
+        result := SortableList<Buffer>();
+
+        head := self.head();
+        p := self.head();
+
+        buf_head := self.head();
+
+        while(p - head < self.len) {
+            if(p->byte == c) {
+                buf := Buffer(buf_head, p-buf_head, false);
+                result.add(buf);
+                p++;
+
+                buf_head = p;
+            }
+            else {
+                p++;
+            }
+        }
+
+        if(p-buf_head > 0) {
+            buf := Buffer(buf_head, p-buf_head, false);
+            result.add(buf);
+        }
+
+        return result;
+    }
+*/
+    def split(c:byte): SortableList<Buffer> {
+        result := SortableList<Buffer>();
+
+        head := self.head();
+        p := self.head();
+
+        buf := b"";
+
+        while(p - head < self.len) {
+            if(p->byte == c) {
+                result.add(buf);
+                p++;
+
+                buf = b"";
+            }
+            else {
+                buf.append(p->byte);
+                p++;
+            }
+        }
+
+        if(buf.len > 0) {
+            result.add(buf);
+        }
+
+        return result;
+    }
+}

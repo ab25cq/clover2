@@ -381,6 +381,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.recv(int,Buffer,ulong,int)", "System_recv", System_recv },
     { "System.recvfrom(int,Buffer,ulong,int,sockaddr_un)", "System_recvfrom", System_recvfrom },
     { "System.recvfrom(int,Buffer,ulong,int,sockaddr_in)", "System_recvfrom2", System_recvfrom2 },
+    { "System.memset(pointer,int,ulong)", "System_memset", System_memset },
 
     { "", "", 0 }  // sentinel
 };

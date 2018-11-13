@@ -44,7 +44,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "7.5.0";
+char* gVersion = "7.5.2";
 BOOL gCompilingCore = FALSE;
 
 char gScriptDirPath[PATH_MAX];
@@ -56,7 +56,7 @@ int main(int argc, char** argv, char* const * envp)
 
     CHECKML_BEGIN;
     setlocale(LC_ALL, "");
-
+    
     gARGC = argc;
     gARGV = argv;
 
@@ -119,7 +119,7 @@ int main(int argc, char** argv, char* const * envp)
                 exit(1);
             }
         }
-
+        
         /// get dir path of script file ///
         if(strstr(object_file_name, "/")) {
             char tmp[PATH_MAX];
@@ -145,7 +145,6 @@ int main(int argc, char** argv, char* const * envp)
         break;
     }
     CHECKML_END;
-
+    
     return 0;
 }
-
