@@ -4425,12 +4425,14 @@ then
     fi
 
 cat <<'EOF' > bclover2
-CLASS_NAME=${1%.*}
+if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    if test -e ./cclover2; then ./cclover2 -jit $CLASS_NAME.oclcl; else cclover2 -jit $CLASS_NAME.oclcl; fi
+    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
     /usr/bin/llvm-dis-6.0 $CLASS_NAME.bc
     /usr/bin/llc-6.0 -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
@@ -4450,12 +4452,14 @@ then
     fi
 
 cat <<'EOF' > bclover2
-CLASS_NAME=${1%.*}
+if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    if test -e ./cclover2; then ./cclover2 -jit $CLASS_NAME.oclcl; else cclover2 -jit $CLASS_NAME.oclcl; fi
+    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
     /usr/bin/llvm-dis-5.0 $CLASS_NAME.bc
     /usr/bin/llc-5.0 -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
@@ -4475,12 +4479,14 @@ then
     fi
 
 cat <<'EOF' > bclover2
-CLASS_NAME=${1%.*}
+if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    if test -e ./cclover2; then ./cclover2 -jit $CLASS_NAME.oclcl; else cclover2 -jit $CLASS_NAME.oclcl; fi
+    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
     /usr/bin/llvm-dis-4.0 $CLASS_NAME.bc
     /usr/bin/llc-4.0 -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
@@ -4501,12 +4507,14 @@ then
     fi
 
 cat <<'EOF' > bclover2
-CLASS_NAME=${1%.*}
+if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    if test -e ./cclover2; then ./cclover2 -jit $CLASS_NAME.oclcl; else cclover2 -jit $CLASS_NAME.oclcl; fi
+    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
     /usr/bin/llvm-dis-3.8 $CLASS_NAME.bc
     /usr/bin/llc-3.8 -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
@@ -4525,12 +4533,14 @@ else
     fi
 
 cat <<'EOF' > bclover2
-CLASS_NAME=${1%.*}
+if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
 if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
 then
-    if test -e ./cclover2; then ./cclover2 -jit $CLASS_NAME.oclcl; else cclover2 -jit $CLASS_NAME.oclcl; fi
+    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
     /usr/bin/llvm-dis $CLASS_NAME.bc
     /usr/bin/llc -relocation-model=pic $CLASS_NAME.bc
     /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s

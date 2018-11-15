@@ -91,6 +91,7 @@ static BOOL compiler(char* fname)
 static BOOL jit_class_compiler(char* class_name) 
 {
     sCLClass* klass = get_class_with_load(class_name);
+
     if(!jit_compile_class(klass)) {
         fprintf(stderr, "faield in jit compile\n");
         return FALSE;
@@ -241,8 +242,6 @@ int main(int argc, char** argv)
             *p = '\0';
         }
 
-printf("sname %s\n", sname);
-        
         if(!jit_class_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             clover2_final();

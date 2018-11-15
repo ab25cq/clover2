@@ -72,9 +72,13 @@ static void remove_class(char* class_name)
 
 BOOL put_class_to_table(char* class_name, sCLClass* klass)
 {
+    remove_class(class_name);
+
+/*
     if(get_class(class_name)) {
         return TRUE;
     }
+*/
 
     unsigned int hash_key = get_hash_key(class_name, CLASS_NUM_MAX);
     sClassTable* p = gClassTable + hash_key;

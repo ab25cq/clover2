@@ -12,7 +12,6 @@ extern "C"
 
 static BOOL compile_jit_methods(sCLClass* klass)
 {
-printf("klass %s\n", CLASS_NAME(klass));
     char module_name[PATH_MAX + 128];
     snprintf(module_name, PATH_MAX, "Module %s", CLASS_NAME(klass));
     TheModule = new Module(module_name, TheContext);
@@ -52,8 +51,6 @@ printf("klass %s\n", CLASS_NAME(klass));
             {
                 char method_path2[METHOD_NAME_MAX + 128];
                 create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-
-printf("(%s)\n", method_path2);
 
                 sByteCode* code = &method->mByteCodes;
                 sConst* constant = &klass->mConst;
