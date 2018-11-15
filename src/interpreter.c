@@ -25,7 +25,7 @@ static int mgetmaxx()
 {
     struct winsize ws;
     ioctl(1, TIOCGWINSZ, &ws);
-
+    
     return ws.ws_col;
 }
 
@@ -33,7 +33,7 @@ static int mgetmaxy()
 {
     struct winsize ws;
     ioctl(1, TIOCGWINSZ, &ws);
-
+    
     return ws.ws_row;
 }
 
@@ -45,11 +45,11 @@ void display_candidates(char** candidates)
     int maxx;
     int cols;
     int n;
-
+    
     p = candidates;
-
+    
     max_len = -1;
-
+    
     while((candidate = *p) != NULL) {
         int len;
 
@@ -68,7 +68,7 @@ void display_candidates(char** candidates)
     if(cols == 0) {
         cols = 1;
     }
-
+    
     n = 0;
 
     puts("");

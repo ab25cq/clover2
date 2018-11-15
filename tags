@@ -16,7 +16,7 @@ BUFFER_H	src/clover2-buffer.h	2;"	d
 BYTE_CODE_INIT_SIZE	src/code.c	3;"	d	file:
 CC	Makefile	/^CC=ccache clang$/;"	m
 CFFI	Makefile	/^CFFI=0$/;"	m
-CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -O3 -DENABLE_INTERPRETER -Qunused-arguments$/;"	m
+CFLAGS	Makefile	/^CFLAGS=-Isrc\/ -I. -L . -fPIC -rdynamic -DPREFIX="\\"${DESTDIR}\/\\"" -I\/usr\/local\/include -L \/usr\/local\/lib -DENABLE_INTERPRETER -g -DMDEBUG -Qunused-arguments -DENABLE_JIT$/;"	m
 CHECKML_BEGIN	src/clover2-debug.h	13;"	d
 CHECKML_END	src/clover2-debug.h	14;"	d
 CLASS_FLAGS_ALLOCATED	src/common.h	187;"	d
@@ -49,7 +49,7 @@ COMPACTION_TIMING	src/heap.c	527;"	d	file:
 COMPILER_OBJS	Makefile	/^COMPILER_OBJS=src\/parser.o src\/node_type.o src\/node.o src\/cast.o src\/vtable.o src\/script_ctime.o src\/node_block.o src\/node_block_type.o src\/class_compiler.o src\/klass_compile_time.o src\/method_compiler.o src\/module.o src\/class_clover_compile_time.o$/;"	m
 CONS_str	src/common.h	137;"	d
 CXX	Makefile	/^CXX=ccache clang++$/;"	m
-CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs all` -lffi -O3 -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS=`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g -I . -DPREFIX="\\"${DESTDIR}\/\\"" -Qunused-arguments$/;"	m
 Clover_appendClass	src/class_clover_compile_time.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClass	src/class_clover_runtime.c	/^BOOL Clover_appendClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
 Clover_appendClassField	src/class_clover_compile_time.c	/^BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)$/;"	f
@@ -114,9 +114,9 @@ HEAP_HANDLE_INIT_SIZE	src/common.h	50;"	d
 HEAP_INIT_SIZE	src/common.h	49;"	d
 INSTALL	Makefile	/^INSTALL=\/usr\/bin\/install -c$/;"	m
 INTERPRETER	Makefile	/^INTERPRETER=iclover2$/;"	m
-JIT	Makefile	/^JIT=0$/;"	m
-JIT_OBJS	Makefile	/^JIT_OBJS=$/;"	m
-JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=$/;"	m
+JIT	Makefile	/^JIT=1$/;"	m
+JIT_OBJS	Makefile	/^JIT_OBJS=src\/jit.o src\/jit_bop.o src\/jit_eqop.o src\/jit_method_call.o src\/jit_load_address.o src\/jit_cast.o src\/jit_compile_method.o src\/jit_debug.o src\/jit_declare.o src\/jit_sub.o$/;"	m
+JIT_RUNTIME_OBJS	Makefile	/^JIT_RUNTIME_OBJS=src\/jit_runtime.o src\/jit_debug_runtime.o$/;"	m
 LABEL_NAME_MAX	src/node.c	402;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_CGI	src/class_system.c	5818;"	d	file:
 LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM	src/class_system.c	2381;"	d	file:
@@ -136,7 +136,7 @@ MACROS_H	src/clover2-macros.h	2;"	d
 MANAGED	src/clover2-macros.h	21;"	d
 MASSERT	src/clover2-debug.h	28;"	d
 MAX_CODES	src/interpreter.c	2095;"	d	file:
-MAX_COND_JUMP	src/jit_common.hpp	120;"	d
+MAX_COND_JUMP	src/jit_common.hpp	119;"	d
 MCALLOC	src/clover2-debug.h	25;"	d
 METHOD_BLOCK_PARAM_MAX	src/common.h	76;"	d
 METHOD_CHAIN_MAX	src/common.h	72;"	d
@@ -1323,6 +1323,13 @@ __64BIT_CPU__	config.h	17;"	d
 __LINUX__	config.h	15;"	d
 __USE_BSD	src/common.h	30;"	d
 __USE_XOPEN	src/common.h	24;"	d
+ac_fn_c_check_func	configure	/^ac_fn_c_check_func ()$/;"	f
+ac_fn_c_check_header_compile	configure	/^ac_fn_c_check_header_compile ()$/;"	f
+ac_fn_c_check_header_mongrel	configure	/^ac_fn_c_check_header_mongrel ()$/;"	f
+ac_fn_c_try_compile	configure	/^ac_fn_c_try_compile ()$/;"	f
+ac_fn_c_try_cpp	configure	/^ac_fn_c_try_cpp ()$/;"	f
+ac_fn_c_try_link	configure	/^ac_fn_c_try_link ()$/;"	f
+ac_fn_c_try_run	configure	/^ac_fn_c_try_run ()$/;"	f
 add_block_object_to_class	src/klass_compile_time.c	/^int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda)$/;"	f
 add_class_field_to_class	src/klass_compile_time.c	/^BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path)$/;"	f
 add_class_field_to_class_with_class_name	src/klass_compile_time.c	/^BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value)$/;"	f
@@ -1373,10 +1380,18 @@ arrange_alignment	src/code.c	/^static void arrange_alignment(sByteCode* code)$/;
 arrange_alignment	src/constant.c	/^static void arrange_alignment(sConst* self)$/;"	f	file:
 arrange_stack	src/node.c	/^void arrange_stack(sCompileInfo* cinfo)$/;"	f
 array_mark_fun	src/array.c	/^void array_mark_fun(CLObject self, unsigned char* mark_flg)$/;"	f
-as_func_failure	configure	/^as_func_failure () {$/;"	f
-as_func_ret_failure	configure	/^as_func_ret_failure () {$/;"	f
-as_func_ret_success	configure	/^as_func_ret_success () {$/;"	f
-as_func_success	configure	/^as_func_success () {$/;"	f
+as_fn_append	configure	/^  as_fn_append ()$/;"	f
+as_fn_arith	configure	/^  as_fn_arith ()$/;"	f
+as_fn_error	configure	/^as_fn_error ()$/;"	f
+as_fn_executable_p	configure	/^as_fn_executable_p ()$/;"	f
+as_fn_exit	configure	/^as_fn_exit ()$/;"	f
+as_fn_failure	configure	/^as_fn_failure () { as_fn_return 1; }$/;"	f
+as_fn_mkdir_p	configure	/^as_fn_mkdir_p ()$/;"	f
+as_fn_ret_failure	configure	/^as_fn_ret_failure () { return 1; }$/;"	f
+as_fn_ret_success	configure	/^as_fn_ret_success () { return 0; }$/;"	f
+as_fn_set_status	configure	/^as_fn_set_status ()$/;"	f
+as_fn_success	configure	/^as_fn_success () { as_fn_return 0; }$/;"	f
+as_fn_unset	configure	/^as_fn_unset ()$/;"	f
 assign_operator	src/parser.c	/^static BOOL assign_operator(unsigned int* node, sParserInfo* info, BOOL* plus_plus, BOOL* minus_minus)$/;"	f	file:
 binary_operator	src/node.c	/^static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byte_operand, int ubyte_operand, int short_operand, int ushort_operand, int int_operand, int uint_operand, int long_operand, int ulong_operand, int float_operand, int double_operand, int pointer_operand, int null_operand, int char_operand, int bool_operand, int regex_operand, int object_operand, char* op_string, sCompileInfo* info)$/;"	f	file:
 binary_operator_for_bool	src/node.c	/^static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompileInfo* info)$/;"	f	file:
@@ -1946,7 +1961,8 @@ is_valid_class	src/klass.c	/^BOOL is_valid_class(sCLClass* klass)$/;"	f
 is_valid_object	src/heap.c	/^BOOL is_valid_object(CLObject obj)$/;"	f
 is_void_type	src/type.c	/^BOOL is_void_type(sCLType* cl_type, sCLClass* klass)$/;"	f
 jit	src/jit_runtime.cpp	/^BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr)$/;"	f
-jit_compile_all_classes	src/jit_compile_method.cpp	/^BOOL jit_compile_all_classes()$/;"	f
+jit_class_compiler	src/compiler.c	/^static BOOL jit_class_compiler(char* class_name) $/;"	f	file:
+jit_compile_class	src/jit_compile_method.cpp	/^BOOL jit_compile_class(sCLClass* klass)$/;"	f
 jit_final	src/jit.cpp	/^void jit_final()$/;"	f
 jit_final_on_runtime	src/jit_runtime.cpp	/^void jit_final_on_runtime()$/;"	f
 jit_init	src/jit.cpp	/^void jit_init()$/;"	f

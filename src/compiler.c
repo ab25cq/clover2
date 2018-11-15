@@ -87,6 +87,18 @@ static BOOL compiler(char* fname)
     return TRUE;
 }
 
+#ifdef ENABLE_JIT
+static BOOL jit_class_compiler(char* class_name) 
+{
+    sCLClass* klass = get_class_with_load(class_name);
+    if(!jit_compile_class(klass)) {
+        fprintf(stderr, "faield in jit compile\n");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+#endif
 
 static BOOL class_compiler(char* fname)
 {
@@ -125,15 +137,6 @@ static BOOL class_compiler(char* fname)
 
     write_all_modified_modules();
 
-#ifdef ENABLE_JIT
-    if(!jit_compile_all_classes()) {
-        fprintf(stderr, "faield in jit compile\n");
-        MFREE(source.mBuf);
-        MFREE(source2.mBuf);
-        return FALSE;
-    }
-#endif
-
     MFREE(source.mBuf);
     MFREE(source2.mBuf);
 
@@ -163,6 +166,7 @@ int main(int argc, char** argv)
     BOOL clcl_compile = FALSE;
     char sname[PATH_MAX];
     xstrncpy(sname, "", PATH_MAX);
+    BOOL jit_compile = FALSE;
 
     for(i=1; i<argc; i++) {
         if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
@@ -174,6 +178,9 @@ int main(int argc, char** argv)
         }
         else if(strcmp(argv[i], "-class") == 0) {
             clcl_compile = TRUE;
+        }
+        else if(strcmp(argv[i], "-jit") == 0) {
+            jit_compile = TRUE;
         }
         else if(strcmp(argv[i], "--version") == 0 || strcmp(argv[i], "-version") == 0 || strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "-V") == 0)
         {
@@ -217,6 +224,33 @@ int main(int argc, char** argv)
             return 1;
         }
     }
+#ifdef ENABLE_JIT
+    else if(jit_compile) {
+        char* p = sname + strlen(sname);
+
+        while(p >= sname) {
+            if(*p == '.') {
+                break;
+            }
+            else {
+                p--;
+            }
+        }
+
+        if(p != sname) {
+            *p = '\0';
+        }
+
+printf("sname %s\n", sname);
+        
+        if(!jit_class_compiler(sname)) {
+            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+            clover2_final();
+            compiler_final();
+            return 1;
+        }
+    }
+#endif
     else {
         if(!compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);

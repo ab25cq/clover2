@@ -157,6 +157,8 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
 
+show_inst_in_jit(inst);
+
 /*
 if(inst != OP_HEAD_OF_EXPRESSION && inst != OP_SIGINT) {
 call_show_inst_in_jit(inst);
@@ -270,13 +272,15 @@ call_show_inst_in_jit(inst);
 
             case OP_GOTO: {
                 //int jump_value = *(int*)pc;
-                pc += sizeof(int);
+                //pc += sizeof(int);
 
                 int label_offset = *(int*)pc;
                 pc += sizeof(int);
 
                 char* label_name = CONS_str(constant, label_offset);
                 std::string label_name_string(label_name);
+
+printf("label_name %s\n", label_name);
 
                 BasicBlock* label = TheLabels[label_name_string];
                 if(label == nullptr) {

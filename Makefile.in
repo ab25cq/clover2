@@ -39,7 +39,7 @@ ENABLE_THREAD=@ENABLE_THREAD@
 # main
 ##########################################################
 all: cclover2 clover2 tyclover2 $(INTERPRETER) SortableArray.oclcl libclover2.so.1.0.0 jit-compile
-	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
+#	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(JIT_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o cclover2 src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS); fi
@@ -85,79 +85,56 @@ $(OBJ): src/*.h Makefile configure
 # JIT compile
 #########################################################
 jit-compile: 
-	if test -e Clover.bc; then ./bclover2 Clover.bc; fi
-	if test -e PcreOVec.bc; then ./bclover2 PcreOVec.bc; fi
-	if test -e System.bc; then ./bclover2 System.bc; fi
-	if test -e Global.bc; then ./bclover2 Global.bc; fi
-	if test -e String.bc; then ./bclover2 String.bc; fi
-	if test -e Bufffer.bc; then ./bclover2 Buffer.bc; fi
-	if test -e Exception.bc; then ./bclover2 Exception.bc; fi
-	if test -e Object.bc; then ./bclover2 Object.bc; fi
-	if test -e Byte.bc; then ./bclover2 Byte.bc; fi
-	if test -e UByte.bc; then ./bclover2 UByte.bc; fi
-	if test -e Short.bc; then ./bclover2 Short.bc; fi
-	if test -e UShort.bc; then ./bclover2 UShort.bc; fi
-	if test -e Integer.bc; then ./bclover2 Integer.bc; fi
-	if test -e UInteger.bc; then ./bclover2 UInteger.bc; fi
-	if test -e Long.bc; then ./bclover2 Long.bc; fi
-	if test -e ULong.bc; then ./bclover2 ULong.bc; fi
-	if test -e Float.bc; then ./bclover2 Float.bc; fi
-	if test -e Double.bc; then ./bclover2 Double.bc; fi
-	if test -e Pointer.bc; then ./bclover2 Pointer.bc; fi
-	if test -e Char.bc; then ./bclover2 Char.bc; fi
-	if test -e Bool.bc; then ./bclover2 Bool.bc; fi
-	if test -e Array.bc; then ./bclover2 Array.bc; fi
-	if test -e EqualableArray.bc; then ./bclover2 EqualableArray.bc; fi
-	if test -e SortableArray.bc; then ./bclover2 SortableArray.bc; fi
-	if test -e IHashKey.bc; then ./bclover2 IHashKey.bc; fi
-	if test -e IEqualable.bc; then ./bclover2 IEqualable.bc; fi
-	if test -e ISortable.bc; then ./bclover2 ISortable.bc; fi
-	if test -e IIteratorable.bc; then ./bclover2 IIteratorable.bc; fi
-	if test -e HashItem.bc; then ./bclover2 HashItem.bc; fi
-	if test -e Hash.bc; then ./bclover2 Hash.bc; fi
-	if test -e ListItem.bc; then ./bclover2 ListItem.bc; fi
-	if test -e List.bc; then ./bclover2 List.bc; fi
-	if test -e EqualableList.bc; then ./bclover2 EqualableList.bc; fi
-	if test -e SortableList.bc; then ./bclover2 SortableList.bc; fi
-	if test -e Tuple1.bc; then ./bclover2 Tuple1.bc; fi
-	if test -e Tuple2.bc; then ./bclover2 Tuple2.bc; fi
-	if test -e Tuple3.bc; then ./bclover2 Tuple3.bc; fi
-	if test -e Tuple4.bc; then ./bclover2 Tuple4.bc; fi
-	if test -e Tuple5.bc; then ./bclover2 Tuple5.bc; fi
-	if test -e Tuple6.bc; then ./bclover2 Tuple6.bc; fi
-	if test -e Tuple7.bc; then ./bclover2 Tuple7.bc; fi
-	if test -e Tuple8.bc; then ./bclover2 Tuple8.bc; fi
-	if test -e Tuple9.bc; then ./bclover2 Tuple9.bc; fi
-	if test -e Tuple10.bc; then ./bclover2 Tuple10.bc; fi
-	if test -e File.bc; then ./bclover2 File.bc; fi
-	if test -e Path.bc; then ./bclover2 Path.bc; fi
-	if test -e Directory.bc; then ./bclover2 Directory.bc; fi
-	if test -e termios.bc; then ./bclover2 termios.bc; fi
-	if test -e Job.bc; then ./bclover2 Job.bc; fi
-	if test -e Command.bc; then ./bclover2 Command.bc; fi
-	if test -e tm.bc; then ./bclover2 tm.bc; fi
-	if test -e timespec.bc; then ./bclover2 timespec.bc; fi
-	if test -e stat.bc; then ./bclover2 stat.bc; fi
-	if test -e Class.bc; then ./bclover2 Class.bc; fi
-	if test -e Field.bc; then ./bclover2 Field.bc; fi
-	if test -e Method.bc; then ./bclover2 Method.bc; fi
-	if test -e MethodParam.bc; then ./bclover2 MethodParam.bc; fi
-	if test -e Mutex.bc; then ./bclover2 Mutex.bc; fi
-	if test -e Range.bc; then ./bclover2 Range.bc; fi
-	if test -e Thread.bc; then ./bclover2 Thread.bc; fi
-	if test -e fd_set.bc; then ./bclover2 fd_set.bc; fi
-	if test -e getopt_long_option.bc; then ./bclover2 getopt_long_option.bc; fi
-	if test -e hostent.bc; then ./bclover2 hostent.bc; fi
-	if test -e in_addr.bc; then ./bclover2 in_addr.bc; fi
-	if test -e pthread_cond_t.bc; then ./bclover2 pthread_cond_t.bc; fi
-	if test -e pthread_mutex_t.bc; then ./bclover2 pthread_mutex_t.bc; fi
-	if test -e servent.bc; then ./bclover2 servent.bc; fi
-	if test -e sockaddr.bc; then ./bclover2 sockaddr.bc; fi
-	if test -e sockaddr_in.bc; then ./bclover2 sockaddr_in.bc; fi
-	if test -e sockaddr_un.bc; then ./bclover2 sockaddr_un.bc; fi
-	if test -e timeval.bc; then ./bclover2 timeval.bc; fi
-	if test -e Null.bc; then ./bclover2 Null.bc; fi
-	if test -e Buffer.bc; then ./bclover2 Buffer.bc; fi
+	if test $(JIT) = 1; then ./bclover2 Clover; fi
+	if test $(JIT) = 1; then ./bclover2 PcreOVec; fi
+	if test $(JIT) = 1; then ./bclover2 System; fi
+	if test $(JIT) = 1; then ./bclover2 Global; fi
+	if test $(JIT) = 1; then ./bclover2 String; fi
+	if test $(JIT) = 1; then ./bclover2 Buffer; fi
+	if test $(JIT) = 1; then ./bclover2 Exception; fi
+	if test $(JIT) = 1; then ./bclover2 Object; fi
+	if test $(JIT) = 1; then ./bclover2 Byte; fi
+	if test $(JIT) = 1; then ./bclover2 UByte; fi
+	if test $(JIT) = 1; then ./bclover2 Short; fi
+	if test $(JIT) = 1; then ./bclover2 UShort; fi
+	if test $(JIT) = 1; then ./bclover2 Integer; fi
+	if test $(JIT) = 1; then ./bclover2 UInteger; fi
+	if test $(JIT) = 1; then ./bclover2 Long; fi
+	if test $(JIT) = 1; then ./bclover2 ULong; fi
+	if test $(JIT) = 1; then ./bclover2 Float; fi
+	if test $(JIT) = 1; then ./bclover2 Double; fi
+	if test $(JIT) = 1; then ./bclover2 Pointer; fi
+	if test $(JIT) = 1; then ./bclover2 Char; fi
+	if test $(JIT) = 1; then ./bclover2 Bool; fi
+	if test $(JIT) = 1; then ./bclover2 Array; fi
+	if test $(JIT) = 1; then ./bclover2 EqualableArray; fi
+	if test $(JIT) = 1; then ./bclover2 SortableArray; fi
+	if test $(JIT) = 1; then ./bclover2 IHashKey; fi
+	if test $(JIT) = 1; then ./bclover2 IEqualable; fi
+	if test $(JIT) = 1; then ./bclover2 ISortable; fi
+	if test $(JIT) = 1; then ./bclover2 IIteratorable; fi
+	if test $(JIT) = 1; then ./bclover2 HashItem; fi
+	if test $(JIT) = 1; then ./bclover2 Hash; fi
+	if test $(JIT) = 1; then ./bclover2 ListItem; fi
+	if test $(JIT) = 1; then ./bclover2 List; fi
+	if test $(JIT) = 1; then ./bclover2 EqualableList; fi
+	if test $(JIT) = 1; then ./bclover2 SortableList; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple1; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple2; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple3; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple4; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple5; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple6; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple7; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple8; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple9; fi
+	if test $(JIT) = 1; then ./bclover2 Tuple10; fi
+	if test $(JIT) = 1; then ./bclover2 File; fi
+	if test $(JIT) = 1; then ./bclover2 Path; fi
+	if test $(JIT) = 1; then ./bclover2 Directory; fi
+	if test $(JIT) = 1; then ./bclover2 termios; fi
+	if test $(JIT) = 1; then ./bclover2 Job; fi
+	if test $(JIT) = 1; then ./bclover2 Command; fi
 
 #########################################################
 # install
@@ -180,220 +157,220 @@ install:
 	$(INSTALL) -m 644 ./Thread.clcl $(DESTDIR)/share/clover2
 
 	$(INSTALL) -m 644 ./Clover.oclcl $(DESTDIR)/share/clover2
-	if test -e libClover.so; then $(INSTALL) -m 755 ./libClover.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libClover.so $(DESTDIR)/share/clover2; fi
+	if test -e Clover.so; then $(INSTALL) -m 755 ./Clover.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Clover.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./PcreOVec.oclcl $(DESTDIR)/share/clover2
-	if test -e libPcreOVec.so; then $(INSTALL) -m 755 ./libPcreOVec.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libPcreOVec.so $(DESTDIR)/share/clover2; fi
+	if test -e PcreOVec.so; then $(INSTALL) -m 755 ./PcreOVec.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./PcreOVec.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./System.oclcl $(DESTDIR)/share/clover2
-	if test -e libSystem.so; then $(INSTALL) -m 755 ./libSystem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libSystem.so $(DESTDIR)/share/clover2; fi
+	if test -e System.so; then $(INSTALL) -m 755 ./System.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./System.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Global.oclcl $(DESTDIR)/share/clover2
-	if test -e libGlobal.so; then $(INSTALL) -m 755 ./libGlobal.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libGlobal.so $(DESTDIR)/share/clover2; fi
+	if test -e Global.so; then $(INSTALL) -m 755 ./Global.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Global.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./String.oclcl $(DESTDIR)/share/clover2
-	if test -e libString.so; then $(INSTALL) -m 755 ./libString.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libString.so $(DESTDIR)/share/clover2; fi
+	if test -e String.so; then $(INSTALL) -m 755 ./String.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./String.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Buffer.oclcl $(DESTDIR)/share/clover2
-	if test -e libBuffer.so; then $(INSTALL) -m 755 ./libBuffer.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libBuffer.so $(DESTDIR)/share/clover2; fi
+	if test -e Buffer.so; then $(INSTALL) -m 755 ./Buffer.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Buffer.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Exception.oclcl $(DESTDIR)/share/clover2
-	if test -e libException.so; then $(INSTALL) -m 755 ./libException.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libException.so $(DESTDIR)/share/clover2; fi
+	if test -e Exception.so; then $(INSTALL) -m 755 ./Exception.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Exception.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Object.oclcl $(DESTDIR)/share/clover2
-	if test -e libObject.so; then $(INSTALL) -m 755 ./libObject.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libObject.so $(DESTDIR)/share/clover2; fi
+	if test -e Object.so; then $(INSTALL) -m 755 ./Object.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Object.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Byte.oclcl $(DESTDIR)/share/clover2
-	if test -e libByte.so; then $(INSTALL) -m 755 ./libByte.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libByte.so $(DESTDIR)/share/clover2; fi
+	if test -e Byte.so; then $(INSTALL) -m 755 ./Byte.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Byte.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./UByte.oclcl $(DESTDIR)/share/clover2
-	if test -e libUByte.so; then $(INSTALL) -m 755 ./libUByte.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libUByte.so $(DESTDIR)/share/clover2; fi
+	if test -e UByte.so; then $(INSTALL) -m 755 ./UByte.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./UByte.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Short.oclcl $(DESTDIR)/share/clover2
-	if test -e libShort.so; then $(INSTALL) -m 755 ./libShort.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libShort.so $(DESTDIR)/share/clover2; fi
+	if test -e Short.so; then $(INSTALL) -m 755 ./Short.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Short.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./UShort.oclcl $(DESTDIR)/share/clover2
-	if test -e libUShort.so; then $(INSTALL) -m 755 ./libUShort.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libUShort.so $(DESTDIR)/share/clover2; fi
+	if test -e UShort.so; then $(INSTALL) -m 755 ./UShort.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./UShort.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Integer.oclcl $(DESTDIR)/share/clover2
-	if test -e libInteger.so; then $(INSTALL) -m 755 ./libInteger.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libInteger.so $(DESTDIR)/share/clover2; fi
+	if test -e Integer.so; then $(INSTALL) -m 755 ./Integer.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Integer.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./UInteger.oclcl $(DESTDIR)/share/clover2
-	if test -e libUInteger.so; then $(INSTALL) -m 755 ./libUInteger.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libUInteger.so $(DESTDIR)/share/clover2; fi
+	if test -e UInteger.so; then $(INSTALL) -m 755 ./UInteger.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./UInteger.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Long.oclcl $(DESTDIR)/share/clover2
-	if test -e libLong.so; then $(INSTALL) -m 755 ./libLong.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libLong.so $(DESTDIR)/share/clover2; fi
+	if test -e Long.so; then $(INSTALL) -m 755 ./Long.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Long.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./ULong.oclcl $(DESTDIR)/share/clover2
-	if test -e libULong.so; then $(INSTALL) -m 755 ./libULong.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libULong.so $(DESTDIR)/share/clover2; fi
+	if test -e ULong.so; then $(INSTALL) -m 755 ./ULong.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./ULong.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Float.oclcl $(DESTDIR)/share/clover2
-	if test -e libFloat.so; then $(INSTALL) -m 755 ./libFloat.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libFloat.so $(DESTDIR)/share/clover2; fi
+	if test -e Float.so; then $(INSTALL) -m 755 ./Float.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Float.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Double.oclcl $(DESTDIR)/share/clover2
-	if test -e libDouble.so; then $(INSTALL) -m 755 ./libDouble.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libDouble.so $(DESTDIR)/share/clover2; fi
+	if test -e Double.so; then $(INSTALL) -m 755 ./Double.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Double.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Pointer.oclcl $(DESTDIR)/share/clover2
-	if test -e libPointer.so; then $(INSTALL) -m 755 ./libPointer.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libPointer.so $(DESTDIR)/share/clover2; fi
+	if test -e Pointer.so; then $(INSTALL) -m 755 ./Pointer.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Pointer.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Char.oclcl $(DESTDIR)/share/clover2
-	if test -e libChar.so; then $(INSTALL) -m 755 ./libChar.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libChar.so $(DESTDIR)/share/clover2; fi
+	if test -e Char.so; then $(INSTALL) -m 755 ./Char.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Char.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Bool.oclcl $(DESTDIR)/share/clover2
-	if test -e libBool.so; then $(INSTALL) -m 755 ./libBool.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libBool.so $(DESTDIR)/share/clover2; fi
+	if test -e Bool.so; then $(INSTALL) -m 755 ./Bool.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Bool.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Array.oclcl $(DESTDIR)/share/clover2
-	if test -e libArray.so; then $(INSTALL) -m 755 ./libArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libArray.so $(DESTDIR)/share/clover2; fi
+	if test -e Array.so; then $(INSTALL) -m 755 ./Array.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Array.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./EqualableArray.oclcl $(DESTDIR)/share/clover2
-	if test -e libEqualableArray.so; then $(INSTALL) -m 755 ./libEqualableArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libEqualableArray.so $(DESTDIR)/share/clover2; fi
+	if test -e EqualableArray.so; then $(INSTALL) -m 755 ./EqualableArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./EqualableArray.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./SortableArray.oclcl $(DESTDIR)/share/clover2
-	if test -e libSortableArray.so; then $(INSTALL) -m 755 ./libSortableArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libSortableArray.so $(DESTDIR)/share/clover2; fi
+	if test -e SortableArray.so; then $(INSTALL) -m 755 ./SortableArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./SortableArray.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./IHashKey.oclcl $(DESTDIR)/share/clover2
-	if test -e libIHashKey.so; then $(INSTALL) -m 755 ./libIHashKey.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libIHashKey.so $(DESTDIR)/share/clover2; fi
+	if test -e IHashKey.so; then $(INSTALL) -m 755 ./IHashKey.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IHashKey.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./IEqualable.oclcl $(DESTDIR)/share/clover2
-	if test -e libIEqualable.so; then $(INSTALL) -m 755 ./libIEqualable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libIEqualable.so $(DESTDIR)/share/clover2; fi
+	if test -e IEqualable.so; then $(INSTALL) -m 755 ./IEqualable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IEqualable.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./ISortable.oclcl $(DESTDIR)/share/clover2
-	if test -e libISortable.so; then $(INSTALL) -m 755 ./libISortable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libISortable.so $(DESTDIR)/share/clover2; fi
+	if test -e ISortable.so; then $(INSTALL) -m 755 ./ISortable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./ISortable.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./IIteratorable.oclcl $(DESTDIR)/share/clover2
-	if test -e libIIteratorable.so; then $(INSTALL) -m 755 ./libIIteratorable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libIIteratorable.so $(DESTDIR)/share/clover2; fi
+	if test -e IIteratorable.so; then $(INSTALL) -m 755 ./IIteratorable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IIteratorable.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./HashItem.oclcl $(DESTDIR)/share/clover2
-	if test -e libHashItem.so; then $(INSTALL) -m 755 ./libHashItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libHashItem.so $(DESTDIR)/share/clover2; fi
+	if test -e HashItem.so; then $(INSTALL) -m 755 ./HashItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./HashItem.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Hash.oclcl $(DESTDIR)/share/clover2
-	if test -e libHash.so; then $(INSTALL) -m 755 ./libHash.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libHash.so $(DESTDIR)/share/clover2; fi
+	if test -e Hash.so; then $(INSTALL) -m 755 ./Hash.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Hash.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./ListItem.oclcl $(DESTDIR)/share/clover2
-	if test -e libListItem.so; then $(INSTALL) -m 755 ./libListItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libListItem.so $(DESTDIR)/share/clover2; fi
+	if test -e ListItem.so; then $(INSTALL) -m 755 ./ListItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./ListItem.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./List.oclcl $(DESTDIR)/share/clover2
-	if test -e libList.so; then $(INSTALL) -m 755 ./libList.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libList.so $(DESTDIR)/share/clover2; fi
+	if test -e List.so; then $(INSTALL) -m 755 ./List.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./List.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./EqualableList.oclcl $(DESTDIR)/share/clover2
-	if test -e libEqualableList.so; then $(INSTALL) -m 755 ./libEqualableList.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libEqualableList.so $(DESTDIR)/share/clover2; fi
+	if test -e EqualableList.so; then $(INSTALL) -m 755 ./EqualableList.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./EqualableList.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./SortableList.oclcl $(DESTDIR)/share/clover2
-	if test -e libSortableList.so; then $(INSTALL) -m 755 ./libSortableList.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libSortableList.so $(DESTDIR)/share/clover2; fi
+	if test -e SortableList.so; then $(INSTALL) -m 755 ./SortableList.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./SortableList.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple1.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple1.so; then $(INSTALL) -m 755 ./libTuple1.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple1.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple1.so; then $(INSTALL) -m 755 ./Tuple1.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple1.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple2.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple2.so; then $(INSTALL) -m 755 ./libTuple2.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple2.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple2.so; then $(INSTALL) -m 755 ./Tuple2.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple2.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple3.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple3.so; then $(INSTALL) -m 755 ./libTuple3.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple3.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple3.so; then $(INSTALL) -m 755 ./Tuple3.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple3.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple4.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple4.so; then $(INSTALL) -m 755 ./libTuple4.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple4.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple4.so; then $(INSTALL) -m 755 ./Tuple4.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple4.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple5.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple5.so; then $(INSTALL) -m 755 ./libTuple5.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple5.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple5.so; then $(INSTALL) -m 755 ./Tuple5.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple5.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple6.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple6.so; then $(INSTALL) -m 755 ./libTuple6.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple6.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple6.so; then $(INSTALL) -m 755 ./Tuple6.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple6.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple7.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple7.so; then $(INSTALL) -m 755 ./libTuple7.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple7.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple7.so; then $(INSTALL) -m 755 ./Tuple7.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple7.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple8.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple8.so; then $(INSTALL) -m 755 ./libTuple8.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple8.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple8.so; then $(INSTALL) -m 755 ./Tuple8.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple8.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple9.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple9.so; then $(INSTALL) -m 755 ./libTuple9.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple9.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple9.so; then $(INSTALL) -m 755 ./Tuple9.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple9.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Tuple10.oclcl $(DESTDIR)/share/clover2
-	if test -e libTuple10.so; then $(INSTALL) -m 755 ./libTuple10.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libTuple10.so $(DESTDIR)/share/clover2; fi
+	if test -e Tuple10.so; then $(INSTALL) -m 755 ./Tuple10.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Tuple10.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./File.oclcl $(DESTDIR)/share/clover2
-	if test -e libFile.so; then $(INSTALL) -m 755 ./libFile.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libFile.so $(DESTDIR)/share/clover2; fi
+	if test -e File.so; then $(INSTALL) -m 755 ./File.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./File.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Path.oclcl $(DESTDIR)/share/clover2
-	if test -e libPath.so; then $(INSTALL) -m 755 ./libPath.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libPath.so $(DESTDIR)/share/clover2; fi
+	if test -e Path.so; then $(INSTALL) -m 755 ./Path.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Path.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Directory.oclcl $(DESTDIR)/share/clover2
-	if test -e libDirectory.so; then $(INSTALL) -m 755 ./libDirectory.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libDirectory.so $(DESTDIR)/share/clover2; fi
+	if test -e Directory.so; then $(INSTALL) -m 755 ./Directory.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Directory.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./termios.oclcl $(DESTDIR)/share/clover2
-	if test -e libtermios.so; then $(INSTALL) -m 755 ./libtermios.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libtermios.so $(DESTDIR)/share/clover2; fi
+	if test -e termios.so; then $(INSTALL) -m 755 ./termios.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./termios.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Job.oclcl $(DESTDIR)/share/clover2
-	if test -e libJob.so; then $(INSTALL) -m 755 ./libJob.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libJob.so $(DESTDIR)/share/clover2; fi
+	if test -e Job.so; then $(INSTALL) -m 755 ./Job.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Job.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Command.oclcl $(DESTDIR)/share/clover2
-	if test -e libCommand.so; then $(INSTALL) -m 755 ./libCommand.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libCommand.so $(DESTDIR)/share/clover2; fi
+	if test -e Command.so; then $(INSTALL) -m 755 ./Command.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Command.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./tm.oclcl $(DESTDIR)/share/clover2
-	if test -e libtm.so; then $(INSTALL) -m 755 ./libtm.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libtm.so $(DESTDIR)/share/clover2; fi
+	if test -e tm.so; then $(INSTALL) -m 755 ./tm.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./tm.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./timespec.oclcl $(DESTDIR)/share/clover2
-	if test -e libtimespec.so; then $(INSTALL) -m 755 ./libtimespec.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libtimespec.so $(DESTDIR)/share/clover2; fi
+	if test -e timespec.so; then $(INSTALL) -m 755 ./timespec.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./timespec.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./stat.oclcl $(DESTDIR)/share/clover2
-	if test -e libstat.so; then $(INSTALL) -m 755 ./libstat.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libstat.so $(DESTDIR)/share/clover2; fi
+	if test -e stat.so; then $(INSTALL) -m 755 ./stat.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./stat.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Class.oclcl $(DESTDIR)/share/clover2
-	if test -e libClass.so; then $(INSTALL) -m 755 ./libClass.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libClass.so $(DESTDIR)/share/clover2; fi
+	if test -e Class.so; then $(INSTALL) -m 755 ./Class.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Class.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Field.oclcl $(DESTDIR)/share/clover2
-	if test -e libField.so; then $(INSTALL) -m 755 ./libField.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libField.so $(DESTDIR)/share/clover2; fi
+	if test -e Field.so; then $(INSTALL) -m 755 ./Field.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Field.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Method.oclcl $(DESTDIR)/share/clover2
-	if test -e libMethod.so; then $(INSTALL) -m 755 ./libMethod.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libMethod.so $(DESTDIR)/share/clover2; fi
+	if test -e Method.so; then $(INSTALL) -m 755 ./Method.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Method.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./MethodParam.oclcl $(DESTDIR)/share/clover2
-	if test -e libMethodParam.so; then $(INSTALL) -m 755 ./libMethodParam.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libMethodParam.so $(DESTDIR)/share/clover2; fi
+	if test -e MethodParam.so; then $(INSTALL) -m 755 ./MethodParam.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./MethodParam.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Mutex.oclcl $(DESTDIR)/share/clover2
-	if test -e libMutex.so; then $(INSTALL) -m 755 ./libMutex.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libMutex.so $(DESTDIR)/share/clover2; fi
+	if test -e Mutex.so; then $(INSTALL) -m 755 ./Mutex.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Mutex.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Range.oclcl $(DESTDIR)/share/clover2
-	if test -e libRange.so; then $(INSTALL) -m 755 ./libRange.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libRange.so $(DESTDIR)/share/clover2; fi
+	if test -e Range.so; then $(INSTALL) -m 755 ./Range.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Range.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Thread.oclcl $(DESTDIR)/share/clover2
-	if test -e libThread.so; then $(INSTALL) -m 755 ./libThread.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libThread.so $(DESTDIR)/share/clover2; fi
+	if test -e Thread.so; then $(INSTALL) -m 755 ./Thread.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Thread.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./fd_set.oclcl $(DESTDIR)/share/clover2
-	if test -e libfd_set.so; then $(INSTALL) -m 755 ./libfd_set.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libfd_set.so $(DESTDIR)/share/clover2; fi
+	if test -e fd_set.so; then $(INSTALL) -m 755 ./fd_set.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./fd_set.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./getopt_long_option.oclcl $(DESTDIR)/share/clover2
-	if test -e libgetopt_long_option.so; then $(INSTALL) -m 755 ./libgetopt_long_option.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libgetopt_long_option.so $(DESTDIR)/share/clover2; fi
+	if test -e getopt_long_option.so; then $(INSTALL) -m 755 ./getopt_long_option.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./getopt_long_option.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./hostent.oclcl $(DESTDIR)/share/clover2
-	if test -e libhostent.so; then $(INSTALL) -m 755 ./libhostent.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libhostent.so $(DESTDIR)/share/clover2; fi
+	if test -e hostent.so; then $(INSTALL) -m 755 ./hostent.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./hostent.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./in_addr.oclcl $(DESTDIR)/share/clover2
-	if test -e libin_addr.so; then $(INSTALL) -m 755 ./libin_addr.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libin_addr.so $(DESTDIR)/share/clover2; fi
+	if test -e in_addr.so; then $(INSTALL) -m 755 ./in_addr.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./in_addr.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./pthread_cond_t.oclcl $(DESTDIR)/share/clover2
-	if test -e libpthread_cond_t.so; then $(INSTALL) -m 755 ./libpthread_cond_t.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libpthread_cond_t.so $(DESTDIR)/share/clover2; fi
+	if test -e pthread_cond_t.so; then $(INSTALL) -m 755 ./pthread_cond_t.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./pthread_cond_t.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./pthread_mutex_t.oclcl $(DESTDIR)/share/clover2
-	if test -e libpthread_mutex_t.so; then $(INSTALL) -m 755 ./libpthread_mutex_t.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libpthread_mutex_t.so $(DESTDIR)/share/clover2; fi
+	if test -e pthread_mutex_t.so; then $(INSTALL) -m 755 ./pthread_mutex_t.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./pthread_mutex_t.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./servent.oclcl $(DESTDIR)/share/clover2
-	if test -e libservent.so; then $(INSTALL) -m 755 ./libservent.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libservent.so $(DESTDIR)/share/clover2; fi
+	if test -e servent.so; then $(INSTALL) -m 755 ./servent.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./servent.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./sockaddr.oclcl $(DESTDIR)/share/clover2
-	if test -e libsockaddr.so; then $(INSTALL) -m 755 ./libsockaddr.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libsockaddr.so $(DESTDIR)/share/clover2; fi
+	if test -e sockaddr.so; then $(INSTALL) -m 755 ./sockaddr.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./sockaddr.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./sockaddr_in.oclcl $(DESTDIR)/share/clover2
-	if test -e libsockaddr_in.so; then $(INSTALL) -m 755 ./libsockaddr_in.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libsockaddr_in.so $(DESTDIR)/share/clover2; fi
+	if test -e sockaddr_in.so; then $(INSTALL) -m 755 ./sockaddr_in.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./sockaddr_in.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./sockaddr_un.oclcl $(DESTDIR)/share/clover2
-	if test -e libsockaddr_un.so; then $(INSTALL) -m 755 ./libsockaddr_un.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libsockaddr_un.so $(DESTDIR)/share/clover2; fi
+	if test -e sockaddr_un.so; then $(INSTALL) -m 755 ./sockaddr_un.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./sockaddr_un.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./timeval.oclcl $(DESTDIR)/share/clover2
-	if test -e libtimeval.so; then $(INSTALL) -m 755 ./libtimeval.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libtimeval.so $(DESTDIR)/share/clover2; fi
+	if test -e timeval.so; then $(INSTALL) -m 755 ./timeval.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./timeval.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Null.oclcl $(DESTDIR)/share/clover2
-	if test -e libNull.so; then $(INSTALL) -m 755 ./libNull.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./libNull.so $(DESTDIR)/share/clover2; fi
+	if test -e Null.so; then $(INSTALL) -m 755 ./Null.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Null.so $(DESTDIR)/share/clover2; fi
 
 
 	$(INSTALL) -m 644 ./MArray.clm $(DESTDIR)/share/clover2
@@ -579,7 +556,7 @@ test:
 
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; PWD=`pwd` ./cclover2 ext.clcl && PWD=`pwd` ./clover2 ext.cl; fi
 
-	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtensionTest.so.1 -o libExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs libExtensionTest.so.1.0.0 libExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
+	if test `uname` != Darwin; then gcc -shared -Wl,-soname=ExtensionTest.so.1 -o ExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs ExtensionTest.so.1.0.0 ExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
 
 	PWD=`pwd` ./cclover2 code/getopt.cl && ./clover2 code/getopt.cl -a -b -c aaa xxxx gggg
 	PWD=`pwd` ./cclover2 code/getopt_long.cl && ./clover2 code/getopt_long.cl -a --break --clear aaa --delete=ggg xxx yyy zzz

@@ -109,7 +109,6 @@ struct sPointerAndBoolResult {
     char* result1;
     BOOL result2;
 };
-BOOL jit_compile_all_classes();
 
 extern LLVMContext TheContext;
 extern IRBuilder<> Builder;

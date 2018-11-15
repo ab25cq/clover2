@@ -719,7 +719,7 @@ static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, siz
 {
     /// script file directory ///
     if(gScriptDirPath[0] != '\0') {
-        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", gScriptDirPath, class_name);
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/%s.so", gScriptDirPath, class_name);
 
         if(access(dynamic_library_path, F_OK) == 0) {
             return TRUE;
@@ -730,7 +730,7 @@ static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, siz
     char* cwd = getenv("PWD");
 
     if(cwd) {
-        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", cwd, class_name);
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/%s.so", cwd, class_name);
 
         if(access(dynamic_library_path, F_OK) == 0) {
             return TRUE;
@@ -741,7 +741,7 @@ static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, siz
     char* home = getenv("HOME");
 
     if(home) {
-        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/.clover2/lib%s.so", home, class_name);
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/.clover2/%s.so", home, class_name);
 
         if(access(dynamic_library_path, F_OK) == 0) {
             return TRUE;
@@ -749,7 +749,7 @@ static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, siz
     }
 
     /// system shared directory ///
-    snprintf(dynamic_library_path, dynamic_library_path_size, "%s/share/clover2/lib%s.so", PREFIX, class_name);
+    snprintf(dynamic_library_path, dynamic_library_path_size, "%s/share/clover2/%s.so", PREFIX, class_name);
 
     if(access(dynamic_library_path, F_OK) == 0) {
         return TRUE;
@@ -814,7 +814,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE* stack_ptr = stack + var_num;
             CLVALUE* lvar = stack;
 
-            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
 
             info->current_stack = stack;        // for invoking_block in native method
             info->current_var_num = var_num;
@@ -835,12 +835,19 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             remove_stack_to_stack_list(stack_id);
         }
         else {
+            BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+            if(!result) {
+                return FALSE;
+            }
+/*
             char block_path[METHOD_NAME_MAX + 128];
 
             create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
 
             fprintf(stderr, "Not found Symbol(%s)\n", block_path);
             exit(2);
+*/
         }
     }
     /// none native code method ///
@@ -875,7 +882,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE* stack_ptr = stack + var_num;
             CLVALUE* lvar = stack;
 
-            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr);
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
 
             info->current_stack = stack;        // for invoking_block in native method
             info->current_var_num = var_num;
@@ -896,19 +903,19 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             remove_stack_to_stack_list(stack_id);
         }
         else {
+/*
             char method_path2[METHOD_NAME_MAX + 128];
 
             create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
             fprintf(stderr, "Not found Symbol(%s)\n", method_path2);
             exit(2);
-            /*
+*/
             BOOL result = vm(code, constant, stack, var_num, klass, info);
 
             if(!result) {
                 return FALSE;
             }
-            */
         }
     }
 

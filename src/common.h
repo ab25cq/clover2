@@ -2484,6 +2484,7 @@ BOOL compile_jit_method(sCLClass* klass, sCLMethod* method);
 void jit_init_on_runtime();
 void jit_final_on_runtime();
 BOOL load_bc_file(sCLClass* klass);
+BOOL jit_compile_class(sCLClass* klass);
 #endif
 
 /// class_parser.c ///

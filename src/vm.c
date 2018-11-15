@@ -497,7 +497,7 @@ static void show_inst(unsigned inst)
         case OP_CHAR_TO_STRING_CAST:
             puts("OP_CHAR_TO_STRING_CAST");
             break;
-
+            
         default:
             printf("inst %d\n", inst);
             break;
@@ -1188,7 +1188,7 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
     MFREE(info->running_method_name);
     info->running_method_name = running_method_name;
     info->running_class_name = running_class_name;
-
+    
     return TRUE;
 }
 
@@ -1825,7 +1825,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     pc += sizeof(int);
                     int label_offset = *(int*)pc;
                     pc += sizeof(int);
-
 
                     pc = code->mCodes + jump_value;
                 }
