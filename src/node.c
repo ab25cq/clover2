@@ -4,12 +4,10 @@ sNodeTree* gNodes;
 
 static unsigned int gSizeNodes = 0;
 static unsigned int gUsedNodes = 0;
-static unsigned int gLabelNum = 0;
 
 void init_nodes()
 {
     const int node_size = 32;
-    gLabelNum = 0;
 
     if(gUsedNodes == 0) {
         gNodes = MCALLOC(1, sizeof(sNodeTree)*node_size);
@@ -1153,7 +1151,10 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -1275,7 +1276,10 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
 
     /// compile expression ///
     unsigned int left_node = gNodes[node].mLeft;
@@ -1793,7 +1797,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
     char* method_name = "initialize";
 
     append_opecode_to_code(info->code, OP_LDCUBYTE, info->no_output);
-    append_double_value_to_code(info->code, ubvalue, info->no_output);
+    append_int_value_to_code(info->code, ubvalue, info->no_output);
 
     info->stack_num++;
     param_types[0] = create_node_type_with_class_name("ubyte");
@@ -2744,7 +2748,10 @@ unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNode
 
 static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
     sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
 
     char label_name_elif[LABEL_NAME_MAX];
@@ -3062,7 +3069,11 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
     }
 
     char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_when_end", label_end_point, LABEL_NAME_MAX, gLabelNum++);
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
+    create_label_name("label_when_end", label_end_point, LABEL_NAME_MAX, label_num);
 
     sNodeType* when_result_type = NULL;
 
@@ -3176,7 +3187,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             int goto_point = info->code->mLen;
             append_int_value_to_code(info->code, 0, info->no_output);
 
-            int label_num = gLabelNum++;
+            int label_num = 0;
+            if(info->pinfo->klass) {
+                label_num = info->pinfo->klass->mLabelNum++;
+            }
 
             char label_name_next_when[LABEL_NAME_MAX];
             create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
@@ -3304,7 +3318,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 int goto_point = info->code->mLen;
                 append_int_value_to_code(info->code, 0, info->no_output);
 
-                int label_num = gLabelNum++;
+                int label_num = 0;
+                if(info->pinfo->klass) {
+                    label_num = info->pinfo->klass->mLabelNum++;
+                }
 
                 char label_name_next_when[LABEL_NAME_MAX];
                 create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
@@ -3554,7 +3571,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 int goto_point = info->code->mLen;
                 append_int_value_to_code(info->code, 0, info->no_output);
 
-                int label_num = gLabelNum++;
+                int label_num = 0;
+                if(info->pinfo->klass) {
+                    label_num = info->pinfo->klass->mLabelNum++;
+                }
 
                 char label_name_next_when[LABEL_NAME_MAX];
                 create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
@@ -3674,7 +3694,10 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sN
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
@@ -3790,7 +3813,10 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
 static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
 
     /// compile expression ///
     unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
@@ -5596,7 +5622,10 @@ unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGE
 
 static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = gLabelNum++;
+    int label_num = 0;
+    if(info->pinfo->klass) {
+        label_num = info->pinfo->klass->mLabelNum++;
+    }
 
     /// try ///
     append_opecode_to_code(info->code, OP_TRY, info->no_output);
@@ -8700,7 +8729,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
         boxing_to_lapper_class(&info->type, info);
 
         sCLClass* isortable = get_class("ISortable");
-        if(!check_implemented_methods_for_interface(isortable, info->type->mClass, TRUE)) 
+        if(isortable && !check_implemented_methods_for_interface(isortable, info->type->mClass, TRUE)) 
         {
             compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(info->type->mClass));
             info->err_num++;

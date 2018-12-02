@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.0.0
+
+    JITが今度こそ安定したと思います。JITを書き直しました。
+
 version 7.5.2
 
     Fixed bug of BuferTest

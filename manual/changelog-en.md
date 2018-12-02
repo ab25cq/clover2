@@ -1,4 +1,8 @@
 
+version 8.0.0
+
+    I think that JIT has stabilized this time.  I rewrote JIT. 
+
 version 7.5.2
 
     Fixed bug of BuferTest

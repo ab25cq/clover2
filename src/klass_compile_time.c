@@ -855,7 +855,7 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
 /// write class to a class file 
 ////////////////////////////////////////////////////////////////////////////////
 
-static void append_const_to_buffer(sBuf* buf, sConst* constant, sCLClass* klass)
+static void append_const_to_buffer(sBuf* buf, sConst* constant)
 {
     sBuf_append_int(buf, constant->mLen);
     sBuf_append(buf, constant->mConst, sizeof(char)*constant->mLen);
@@ -959,6 +959,15 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
     }
 }
 
+static void append_block_to_buffer(sBuf* buf, sCLBlockObject* block_object)
+{
+    append_byte_codes_to_buffer(buf, &block_object->mByteCodes);
+    append_const_to_buffer(buf, &block_object->mConst);
+    sBuf_append_int(buf, block_object->mVarNum);
+    sBuf_append_int(buf, block_object->mNumParams);
+    sBuf_append_int(buf, block_object->mLambda);
+}
+
 static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 {
     sBuf_append_int(buf, klass->mNumGenerics);
@@ -970,7 +979,7 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     sBuf_append_int(buf, klass->mGenericsParamClassNum);
     sBuf_append_int(buf, klass->mMethodGenericsParamClassNum);
     sBuf_append_long(buf, klass->mFlags);
-    append_const_to_buffer(buf, &klass->mConst,klass);
+    append_const_to_buffer(buf, &klass->mConst);
     sBuf_append_int(buf, klass->mClassNameOffset);
     append_methods_to_buffer(buf, klass->mMethods, klass, klass->mNumMethods);
     append_fields_to_buffer(buf, klass->mFields, klass->mNumFields);
@@ -989,6 +998,16 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
     }
 
     sBuf_append_int(buf, klass->mUnboxingClassNameOffset);
+
+    sBuf_append_int(buf, klass->mLabelNum);
+
+    sBuf_append_int(buf, klass->mNumBlockObjects);
+
+    for(i=0; i<klass->mNumBlockObjects; i++) {
+        sCLBlockObject* block_object = klass->mBlockObjects + i;
+
+        append_block_to_buffer(buf, block_object);
+    }
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)

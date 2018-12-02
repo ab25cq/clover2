@@ -12,7 +12,7 @@ class HashTest {
 
         Clover.test("hash test3", a.get("ABC").getValue() == 3);
 
-        b:Hash<String, Integer> = hash { "ABC":123.toInteger, "DEF":234.toInteger };
+        b:Hash<String, Integer>? = hash { "ABC":123, "DEF":234 };
 
         Clover.test("hash test4", b.get("ABC").getValue() == 123);
         Clover.test("hash test5", b.get("DEF").getValue() == 234);

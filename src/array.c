@@ -58,10 +58,6 @@ CLObject create_array_object(sCLClass* klass, int array_num, sVMInfo* info)
 
     object_data->mType = MSTRDUP(type);
 
-#ifdef ENABLE_JIT
-    push_object_to_global_stack(obj, info);
-#endif
-
     return obj;
 }
 

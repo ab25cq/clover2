@@ -84,52 +84,145 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 # JIT compile
 #########################################################
-jit-compile: 
+jit-compile: Clover.so PcreOVec.so System.so Global.so Buffer.so Exception.so Byte.so UByte.so Short.so UShort.so Integer.so UInteger.so Long.so ULong.so Float.so Double.so Pointer.so Char.so Bool.so Array.so EqualableArray.so SortableArray.so HashItem.so Hash.so ListItem.so List.so EqualableList.so SortableList.so Tuple1.so Tuple2.so Tuple3.so Tuple4.so Tuple5.so Tuple6.so Tuple7.so Tuple8.so Tuple9.so Tuple10.so Path.so Directory.so termios.so Job.so Command.so String.so File.so Class.so
+
+Clover.so: Clover.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Clover; fi
+
+PcreOVec.so: PcreOVec.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core PcreOVec; fi
+
+System.so: System.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core System; fi
+
+Global.so: Global.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Global; fi
+
+Buffer.so: Buffer.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Buffer; fi
+
+Exception.so: Exception.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Exception; fi
+
+Byte.so: Byte.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Byte; fi
+
+UByte.so: UByte.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core UByte; fi
+
+Short.so: Short.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Short; fi
+
+UShort.so: UShort.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core UShort; fi
+
+Integer.so: Integer.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Integer; fi
+
+UInteger.so: UInteger.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core UInteger; fi
+
+Long.so: Long.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Long; fi
+
+ULong.so: ULong.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core ULong; fi
+
+Float.so: Float.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Float; fi
+
+Double.so: Double.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Double; fi
+
+Pointer.so: Pointer.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Pointer; fi
+
+Char.so: Char.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Char; fi
+
+Bool.so: Bool.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Bool; fi
+
+Array.so: Array.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Array; fi
+
+EqualableArray.so: EqualableArray.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core EqualableArray; fi
+
+SortableArray.so: SortableArray.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core SortableArray; fi
+
+HashItem.so: HashItem.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core HashItem; fi
+
+Hash.so: Hash.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Hash; fi
+
+ListItem.so: ListItem.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core ListItem; fi
+
+List.so: List.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core List; fi
+
+EqualableList.so: EqualableList.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core EqualableList; fi
+
+SortableList.so: SortableList.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core SortableList; fi
+
+Tuple1.so: Tuple1.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple1; fi
+
+Tuple2.so: Tuple2.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple2; fi
+
+Tuple3.so: Tuple3.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple3; fi
+
+Tuple4.so: Tuple4.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple4; fi
+
+Tuple5.so: Tuple5.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple5; fi
+
+Tuple6.so: Tuple6.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple6; fi
+
+Tuple7.so: Tuple7.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple7; fi
+
+Tuple8.so: Tuple8.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple8; fi
+
+Tuple9.so: Tuple9.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple9; fi
+
+Tuple10.so: Tuple10.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Tuple10; fi
+
+Path.so: Path.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Path; fi
+
+Directory.so: Directory.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Directory; fi
+
+termios.so: termios.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core termios; fi
+
+Job.so: Job.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Job; fi
+
+Command.so: Command.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Command; fi
+
+String.so: String.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core String; fi
+
+File.so: File.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core File; fi
+
+Class.so: Class.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Class; fi
 
 #########################################################
 # install
@@ -547,11 +640,11 @@ test:
 	PWD=`pwd` ./cclover2 code/ObjectCast.clcl
 	PWD=`pwd` ./cclover2 code/QuetionOperator.clcl
 
-	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./cclover2 code/CharTest.clcl; if test $(JIT) = 1; then bclover2 CharTest.oclcl; fi; PWD=`pwd` ./clover2 code/char.cl; fi
+#	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./cclover2 code/CharTest.clcl; if test $(JIT) = 1; then ./bclover2 CharTest.oclcl; fi; PWD=`pwd` ./clover2 code/char.cl; fi
 
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; PWD=`pwd` ./cclover2 ext.clcl && PWD=`pwd` ./clover2 ext.cl; fi
 
-	if test `uname` != Darwin; then gcc -shared -Wl,-soname=ExtensionTest.so.1 -o ExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs ExtensionTest.so.1.0.0 ExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
+	if test `uname` != Darwin; then gcc -shared -Wl,-soname=ExtensionTest.so.1 -o ExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs ExtensionTest.so.1.0.0 ExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then ./bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
 
 	PWD=`pwd` ./cclover2 code/getopt.cl && ./clover2 code/getopt.cl -a -b -c aaa xxxx gggg
 	PWD=`pwd` ./cclover2 code/getopt_long.cl && ./clover2 code/getopt_long.cl -a --break --clear aaa --delete=ggg xxx yyy zzz
@@ -571,6 +664,7 @@ test:
 	PWD=`pwd` ./clover2 code/reflection.cl
 	PWD=`pwd` ./clover2 code/MultiLineString.cl
 	PWD=`pwd` ./clover2 code/try.cl
+
 	PWD=`pwd` time ./clover2 code/main.cl
 	PWD=`pwd` time ./clover2 code/main2.cl
 

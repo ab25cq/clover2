@@ -1099,21 +1099,6 @@ Value* llvm_create_string(char* str)
     return value;
 }
 
-Value* llvm_create_buffer(char* str, int len)
-{
-    uint8_t* str2 = (uint8_t*)str;
-    ArrayRef<uint8_t> str_array(str2, len);
-    Constant* str_constant = ConstantDataArray::get(TheModule->getContext(), str_array);
-
-    GlobalVariable* gvar = new GlobalVariable(*TheModule, ArrayType::get(IntegerType::get(TheContext, 8), len) , true, GlobalValue::PrivateLinkage, 0, "global_buffer");
-    gvar->setAlignment(1);
-
-    gvar->setInitializer(str_constant);
-
-    Value* value = Builder.CreateCast(Instruction::BitCast, gvar, PointerType::get(IntegerType::get(TheContext, 8), 0));
-
-    return value;
-}
 
 LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)
 {
@@ -1499,50 +1484,6 @@ void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, Basi
     llvm_value2 = trunc_value(llvm_value, 64);
 
     Builder.CreateAlignedStore(llvm_value2.value, lvar_offset_value, 8);
-}
-
-StructType* get_vm_info_struct_type()
-{
-    StructType* result_type = StructType::create(TheContext, "vm_info_struct");
-    std::vector<Type*> fields;
-    Type* field_type1 = PointerType::get(IntegerType::get(TheContext, 8), 0); // try_catch_label_name
-    fields.push_back(field_type1);
-    Type* field_type2 = PointerType::get(IntegerType::get(TheContext, 64), 0); // current_stack
-    fields.push_back(field_type2);
-    Type* field_type3 = IntegerType::get(TheContext, 32); // current_var_num
-    fields.push_back(field_type3);
-    Type* field_type4 = PointerType::get(IntegerType::get(TheContext, 8), 0); // sname
-    fields.push_back(field_type4);
-    Type* field_type5 = IntegerType::get(TheContext, 32);                       // sline
-    fields.push_back(field_type5);
-    Type* field_type6 = PointerType::get(IntegerType::get(TheContext, 8), 0);   // sname2
-    fields.push_back(field_type6);
-    Type* field_type7 = IntegerType::get(TheContext, 32);                       // sline2
-    fields.push_back(field_type7);
-    Type* field_type8 = IntegerType::get(TheContext, 32);                       // try_offset
-    fields.push_back(field_type8);
-    Type* field_type9 = PointerType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), 0); // try_pc
-    fields.push_back(field_type9);
-    Type* field_type10 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // try_code
-    fields.push_back(field_type10);
-    Type* field_type11 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // running_class
-    fields.push_back(field_type11);
-    Type* field_type12 = PointerType::get(IntegerType::get(TheContext, 64), 0);      // running_method
-    fields.push_back(field_type12);
-    Type* field_type13 = IntegerType::get(TheContext, 64);                           // stack_id
-    fields.push_back(field_type13);
-    Type* field_type14 = ArrayType::get(IntegerType::get(TheContext, 8), EXCEPTION_MESSAGE_MAX);  // exception_message
-    fields.push_back(field_type14);
-    Type* field_type15 = ArrayType::get(PointerType::get(IntegerType::get(TheContext, 8), 0), STACK_TRACE_MAX);  // running_class_for_stack_trace
-    fields.push_back(field_type15);
-    Type* field_type16 = ArrayType::get(IntegerType::get(TheContext, 32), STACK_TRACE_MAX);  // running_method_for_stack_trace
-    fields.push_back(field_type16);
-
-    if(result_type->isOpaque()) {
-        result_type->setBody(fields, false);
-    }
-
-    return result_type;
 }
 
 AllocaInst* create_entry_block_alloca(Function* function, int index)

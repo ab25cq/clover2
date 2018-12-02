@@ -1,4 +1,8 @@
 
+clover2 (8.0.0-1) unstable; urgency=medium
+
+    * I think that JIT has stabilized this time.  I rewrote JIT. 
+
 clover2 (7.5.2-1) unstable; urgency=medium
 
     * Fixed bug of BuferTest

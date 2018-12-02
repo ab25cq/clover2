@@ -20,27 +20,27 @@ static void reset_andand_oror(sVMInfo* info)
     info->num_andand_oror = 0;
 }
 
-static int get_andand_oror_left_value(sVMInfo* info)
+int get_andand_oror_left_value(sVMInfo* info)
 {
     return info->andand_oror_left_value[info->num_andand_oror-1];
 }
 
-static void set_andand_oror_left_value(BOOL flag, sVMInfo* info)
+void set_andand_oror_left_value(BOOL flag, sVMInfo* info)
 {
     info->andand_oror_left_value[info->num_andand_oror-1] = flag;
 }
 
-static int get_andand_oror_right_value(sVMInfo* info)
+int get_andand_oror_right_value(sVMInfo* info)
 {
     return info->andand_oror_right_value[info->num_andand_oror-1];
 }
 
-static void set_andand_oror_right_value(BOOL flag, sVMInfo* info)
+void set_andand_oror_right_value(BOOL flag, sVMInfo* info)
 {
     info->andand_oror_right_value[info->num_andand_oror-1] = flag;
 }
 
-static void inc_andand_oror_array(sVMInfo* info)
+void inc_andand_oror_array(sVMInfo* info)
 {
     info->num_andand_oror++;
 
@@ -50,7 +50,7 @@ static void inc_andand_oror_array(sVMInfo* info)
     }
 }
 
-static void dec_andand_oror_array(sVMInfo* info)
+void dec_andand_oror_array(sVMInfo* info)
 {
     info->num_andand_oror--;
 
@@ -60,11 +60,35 @@ static void dec_andand_oror_array(sVMInfo* info)
     }
 }
 
-static void show_inst(unsigned inst)
+void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_CREATE_ARRAY:
+            puts("OP_CREATE_ARRAY");
+            break;
+
+        case OP_ARRAY_TO_CARRAY_CAST:
+            puts("OP_ARRAY_TO_CARRAY_CAST");
+            break;
+
+        case OP_CREATE_HASH:
+            puts("OP_CREATE_HASH");
+            break;
+
+        case OP_INT_TO_UINT_CAST:
+            puts("OP_INT_TO_UINT_CAST");
+            break;
+        
+        case OP_UILE:
+            puts("OP_UILE");
+            break;
+
         case OP_POP :
             puts("OP_POP");
+            break;
+
+        case OP_INT_TO_INTEGER_CAST:
+            puts("OP_INT_TO_INTEGER_CAST");
             break;
 
         case OP_POP_N :
@@ -81,6 +105,22 @@ static void show_inst(unsigned inst)
 
         case OP_STORE_TO_BUFFER:
             puts("OP_STORE_TO_BUFFER");
+            break;
+
+        case OP_BEQ:
+            puts("OP_BEQ");
+            break;
+
+        case OP_INT_TO_BYTE_CAST:
+            puts("OP_INT_TO_BYTE_CAST");
+            break;
+
+        case OP_BCOMPLEMENT:
+            puts("OP_BCOMPLEMENT");
+            break;
+
+        case OP_ULDIV:
+            puts("OP_ULDIV");
             break;
 
         case OP_BUFFER_TO_POINTER_CAST:
@@ -105,9 +145,6 @@ static void show_inst(unsigned inst)
 
         case OP_COND_NOT_JUMP :
             puts("OP_COND_NOT_JUMP");
-            break;
-        case OP_JIT_POP:
-            puts("OP_JIT_POP");
             break;
 
         case OP_STORE_ANDAND_OROR_VALUE_LEFT:
@@ -506,6 +543,7 @@ static void show_inst(unsigned inst)
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
+//printf("invoke_method %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
@@ -1060,8 +1098,9 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     return TRUE;
 }
 
-BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag)
+BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
 {
+//printf("invoke_block num_params %d var_num %d\n", num_params, var_num);
     sBlockObject* object_data = CLBLOCK(block_object);
 
     sByteCode code = object_data->mCodes;               // struct copy
@@ -1182,12 +1221,14 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
 
     **stack_ptr = *(new_stack + new_var_num);
+//printf("invoke block result %d new_var_num %d\n", (**stack_ptr).mIntValue, new_var_num);
     (*stack_ptr)++;
 
     MFREE(info->running_class_name);
     MFREE(info->running_method_name);
     info->running_method_name = running_method_name;
     info->running_class_name = running_class_name;
+
     
     return TRUE;
 }
@@ -1758,6 +1799,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
+
+//show_inst(inst);
         switch(inst) {
             case OP_NOP:
                 break;
@@ -1987,18 +2030,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                 *stack_ptr = value;
                 stack_ptr++;
-                }
-                break;
-
-            case OP_STORE_VALUE_FOR_MACHINE_STACK:
-                break;
-
-            case OP_POP_FOR_MACHINE_STACK:
-                break;
-
-            case OP_RESTORE_VALUE_FROM_MACHINE_STACK: {
-                int size = *(int*)pc;
-                pc += sizeof(int);
                 }
                 break;
 
@@ -5602,7 +5633,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
 
-                    if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info, FALSE)) 
+                    if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
                     {
                         if(info->try_code == code && info->try_offset != 0) {
                             pc = code->mCodes + info->try_offset;
@@ -12389,9 +12420,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* pointer_value = object_data->mFields[3].mPointerValue;
 
-                    CLVALUE cl_value;
-                    cl_value.mObjectValue = object;
-                    push_value_to_global_stack(cl_value, info);
+                    push_object_to_global_stack(object, info);
 
                     (stack_ptr-1)->mLongValue = 0;
                     (stack_ptr-1)->mPointerValue = pointer_value;
@@ -16945,9 +16974,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         if(!info->no_mutex_in_vm) {
             vm_mutex_off();
         }
-/*
-show_stack(stack, stack_ptr);
-*/
+//show_stack(stack, stack_ptr);
     }
 
 

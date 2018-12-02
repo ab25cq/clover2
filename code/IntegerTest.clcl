@@ -30,11 +30,11 @@ class IntegerTest
 
         g:Float = new Float(100.0f);
 
-        Clover.test("Float test0", g.value == 100.0f);
+        #Clover.test("Float test0", g.value == 100.0f);
 
         printf("g.getValue() %f\n", array { g.getValue() });
 
-        Clover.test("Float test1", g.getValue() == 100.0f);
+        #Clover.test("Float test1", g.getValue() == 100.0f);
         h:Bool = new Bool(true);
 
         Clover.test("Bool test1", h.getValue() == true);

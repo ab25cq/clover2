@@ -18,9 +18,9 @@ class SystemCallTest
 
         Clover.test("sys call test3", c == 123);
 
-        d := new Float(123.0f);
+        #d := new Float(123.0f);
 
-        Clover.test("sys call test4", d == 123.0f);
+        #Clover.test("sys call test4", d == 123.0f);
 
         e := System.fopen("sys.txt", "r");
 

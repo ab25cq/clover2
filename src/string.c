@@ -49,6 +49,8 @@ CLObject create_string_object(char* str, sVMInfo* info)
 
     MFREE(wstr);
 
+//printf("create_string_object %d %s\n", obj, str);
+
     return obj;
 }
 
