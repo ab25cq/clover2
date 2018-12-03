@@ -1,6 +1,10 @@
 # clover2 computer language
 
+<<<<<<< HEAD
 version 8.0.1
+=======
+version 8.0.0
+>>>>>>> 1702aef24a12e086b5525576811f6a0149913dc1
 
 サポートしている機能
 

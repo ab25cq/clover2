@@ -1,3 +1,9 @@
+<<<<<<< HEAD
 clover2-dbgsym_8.0.1-1_amd64.deb debug extra
 clover2_8.0.1-1_amd64.buildinfo unknown optional
 clover2_8.0.1-1_amd64.deb unknown optional
+=======
+clover2-dbgsym_8.0.0-1_amd64.deb debug extra
+clover2_8.0.0-1_amd64.buildinfo unknown optional
+clover2_8.0.0-1_amd64.deb unknown optional
+>>>>>>> 1702aef24a12e086b5525576811f6a0149913dc1

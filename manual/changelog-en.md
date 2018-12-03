@@ -1,8 +1,11 @@
 
+<<<<<<< HEAD
 version 8.0.1
 
     "ABC".sub (/.(.)./) {it2.items (0)} => B did not work with a slight mistake.  I got to move. 
 
+=======
+>>>>>>> 1702aef24a12e086b5525576811f6a0149913dc1
 version 8.0.0
 
     I think that JIT has stabilized this time.  I rewrote JIT. 
