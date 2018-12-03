@@ -1,12 +1,9 @@
 English page is here [>> English page](changelog-en)
 
-<<<<<<< HEAD
 version 8.0.1
 
     ちょっと手違いで"ABC".sub(/.(.)./) { it2.items(0) } => Bが動きませんでした。動くようになりました。
 
-=======
->>>>>>> 1702aef24a12e086b5525576811f6a0149913dc1
 version 8.0.0
 
     JITが今度こそ安定したと思います。JITを書き直しました。

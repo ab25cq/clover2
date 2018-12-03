@@ -3,11 +3,7 @@ Section: unknown
 Priority: optional
 Maintainer: Daisuke Minato <ab25cq@icloud.com>
 Build-Depends: debhelper (>= 9), autotools-dev, libpcre3-dev, libreadline-dev, clang, libreadline7
-<<<<<<< HEAD
 Standards-Version: 8.0.1
-=======
-Standards-Version: 8.0.0
->>>>>>> 1702aef24a12e086b5525576811f6a0149913dc1
 Homepage: https://github.com/ab25cq/clover2/wiki
 Vcs-Git: https://github.com/ab25cq/clover2.git
 
