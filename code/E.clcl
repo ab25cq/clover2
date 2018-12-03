@@ -1,3 +1,4 @@
+
 # E.clcl
 interface E {
     def eval():int;
@@ -40,3 +41,4 @@ class EMul {
         return self.l.eval() * self.r.eval();
     }
 }
+

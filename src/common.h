@@ -234,21 +234,7 @@ typedef struct sCLParamStruct sCLParam;
 #define STACK_TRACE_MAX 64
 
 struct sVMInfoStruct {
-    CLVALUE* mGlobalStack;
-    CLVALUE* mGlobalStackPtr;
-    int mSizeGlobalStack;
-    sCLStack* mGlobalStackID;
-
-    CLVALUE* mTmpGlobalStack;
-    CLVALUE* mTmpGlobalStackPtr;
-    int mTmpSizeGlobalStack;
-    sCLStack* mTmpGlobalStackID;
-
     char* try_catch_label_name;
-
-    char* try_catch_label_name_before;
-    int try_offset_before;
-    sByteCode* try_code_before;
 
     CLVALUE* current_stack;
     int current_var_num;
@@ -262,9 +248,6 @@ struct sVMInfoStruct {
 
     struct sCLClassStruct* running_class;
     struct sCLMethodStruct* running_method;
-
-    char* running_class_name;
-    char* running_method_name;
 
     sCLStack* stack_id;
     char exception_message[EXCEPTION_MESSAGE_MAX];
@@ -283,6 +266,23 @@ struct sVMInfoStruct {
     BOOL running_thread;
 
     BOOL prohibit_delete_global_stack;
+
+    CLVALUE* mGlobalStack;
+    CLVALUE* mGlobalStackPtr;
+    int mSizeGlobalStack;
+    sCLStack* mGlobalStackID;
+
+    CLVALUE* mTmpGlobalStack;
+    CLVALUE* mTmpGlobalStackPtr;
+    int mTmpSizeGlobalStack;
+    sCLStack* mTmpGlobalStackID;
+
+    char* try_catch_label_name_before;
+    int try_offset_before;
+    sByteCode* try_code_before;
+
+    char* running_class_name;
+    char* running_method_name;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -404,6 +404,8 @@ struct sCLClassStruct {
     int mUnboxingClassNameOffset;
 
     BOOL mInitialized;   // This requires on the run time
+
+    int mLabelNum;      // This requires on the compile time
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -1050,12 +1052,7 @@ extern int gBufferToPointerCastCount;
 #define OP_SIGINT 17
 #define OP_LABEL 18
 
-#define OP_STORE_VALUE_FOR_MACHINE_STACK 19
-#define OP_RESTORE_VALUE_FROM_MACHINE_STACK 20
-#define OP_POP_FOR_MACHINE_STACK 21
-
 // for native code machine, it don't need to Virtual Machine
-#define OP_JIT_POP 22
 #define OP_STORE_ANDAND_OROR_VALUE_LEFT 23
 #define OP_STORE_ANDAND_OROR_VALUE_RIGHT 24
 #define OP_GET_ANDAND_OROR_RESULT_LEFT 25
@@ -1875,12 +1872,13 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result);
 void callOnException(CLObject message, BOOL in_try, sVMInfo* info);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
-BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info, BOOL llvm_flag);
+BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL class_init_on_runtime();
 void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass, sVMInfo* info);
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name);
 void set_free_fun_to_classes();
 BOOL call_all_class_initializer();
+void show_inst(unsigned inst);
 
 /// class_compiler.c ///
 #define PARSE_PHASE_ALLOC_CLASSES 1

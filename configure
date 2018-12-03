@@ -4429,17 +4429,21 @@ if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
+if test ! -e $CLASS_NAME.s || test $CLASS_NAME.ocl -nt $CLASS_NAME.s
 then
     if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    /usr/bin/llvm-dis-6.0 $CLASS_NAME.bc
-    /usr/bin/llc-6.0 -relocation-model=pic $CLASS_NAME.bc
-    /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-    /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-    ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    if test -e $CLASS_NAME.bc
+    then
+        /usr/bin/llvm-dis-6.0 $CLASS_NAME.bc
+        /usr/bin/llc-6.0 -relocation-model=pic $CLASS_NAME.bc
+        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
+        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
 fi
 EOF
+
     chmod 755 bclover2
 
 elif which llvm-config-5.0 > /dev/null
@@ -4456,17 +4460,21 @@ if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
+if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
 then
     if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    /usr/bin/llvm-dis-5.0 $CLASS_NAME.bc
-    /usr/bin/llc-5.0 -relocation-model=pic $CLASS_NAME.bc
-    /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-    /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-    ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    if test -e $CLASS_NAME.bc
+    then
+        /usr/bin/llvm-dis-5.0 $CLASS_NAME.bc
+        /usr/bin/llc-5.0 -relocation-model=pic $CLASS_NAME.bc
+        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
+        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
 fi
 EOF
+
     chmod 755 bclover2
 
 elif which llvm-config-4.0 > /dev/null
@@ -4483,15 +4491,18 @@ if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
+if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
 then
     if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    /usr/bin/llvm-dis-4.0 $CLASS_NAME.bc
-    /usr/bin/llc-4.0 -relocation-model=pic $CLASS_NAME.bc
-    /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-    /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-    ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    if test -e $CLASS_NAME.bc
+    then
+        /usr/bin/llvm-dis-4.0 $CLASS_NAME.bc
+        /usr/bin/llc-4.0 -relocation-model=pic $CLASS_NAME.bc
+        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
+        /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
 fi
 EOF
 
@@ -4511,15 +4522,18 @@ if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
+if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
 then
     if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    /usr/bin/llvm-dis-3.8 $CLASS_NAME.bc
-    /usr/bin/llc-3.8 -relocation-model=pic $CLASS_NAME.bc
-    /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-    /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-    ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    if test -e $CLASS_NAME.bc
+    then
+        /usr/bin/llvm-dis-3.8 $CLASS_NAME.bc
+        /usr/bin/llc-3.8 -relocation-model=pic $CLASS_NAME.bc
+        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
+        /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
 fi
 EOF
     chmod 755 bclover2
@@ -4537,18 +4551,21 @@ if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.bc -nt $CLASS_NAME.s
+if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
 then
     if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    /usr/bin/llvm-dis $CLASS_NAME.bc
-    /usr/bin/llc -relocation-model=pic $CLASS_NAME.bc
-    /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-    /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-    ln -fs CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-fi
-    chmod 755 bclover2
+    if test -e $CLASS_NAME.bc
+    then
+        /usr/bin/llvm-dis $CLASS_NAME.bc
+        /usr/bin/llc -relocation-model=pic $CLASS_NAME.bc
+        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
+        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+        ln -fs CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
 EOF
+
+chmod 755 bclover2
 
 fi
 
@@ -4562,8 +4579,8 @@ then
     CFLAGS="$CFLAGS -DENABLE_JIT"
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
     COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
-    JIT_OBJS="src/jit.o src/jit_bop.o src/jit_eqop.o src/jit_method_call.o src/jit_load_address.o src/jit_cast.o src/jit_compile_method.o src/jit_debug.o src/jit_declare.o src/jit_sub.o"
-    JIT_RUNTIME_OBJS="src/jit_runtime.o src/jit_debug_runtime.o"
+    JIT_OBJS="src/jit.o src/jit2.o src/jit3.o src/jit4.o src/jit5.o src/jit6.o"
+    JIT_RUNTIME_OBJS="src/jit_runtime.o"
     JIT=1
 else
     OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_parser.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"

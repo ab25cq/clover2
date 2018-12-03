@@ -159,7 +159,7 @@ class String
         len := str.length();
 
         if(self.len+len+1 < self.size) {
-            for(i:int=self.len; i<self.len + len; i++) {
+            for(i:=self.len; i<self.len + len; i++) {
                 self.buffer[i] = str.buffer[i-self.len];
             }
             self.buffer[i] = '\0';
@@ -484,7 +484,7 @@ class Buffer
 
 class Exception
 {
-    include MObjectBase;
+#    include MObjectBase;
 
     message:String;
 

@@ -1,0 +1,840 @@
+#include "jit_common.hpp"
+
+#include <cerrno>
+
+using namespace llvm;
+
+BOOL gAndAndOrOr = FALSE;
+BOOL gConditional = FALSE;
+
+extern "C" 
+{
+struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
+struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
+
+//////////////////////////////////////////////////
+// JIT runtime functions
+//////////////////////////////////////////////////
+char* get_try_catch_label_name(sVMInfo* info)
+{
+    return info->try_catch_label_name;
+}
+
+void reset_andand_oror(sVMInfo* info)
+{
+    info->num_andand_oror = 0;
+}
+
+int get_andand_oror_left_value(sVMInfo* info)
+{
+    return info->andand_oror_left_value[info->num_andand_oror-1];
+}
+
+void set_andand_oror_left_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_left_value[info->num_andand_oror-1] = flag;
+}
+
+int get_andand_oror_right_value(sVMInfo* info)
+{
+    return info->andand_oror_right_value[info->num_andand_oror-1];
+}
+
+void set_andand_oror_right_value(BOOL flag, sVMInfo* info)
+{
+    info->andand_oror_right_value[info->num_andand_oror-1] = flag;
+}
+
+void inc_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror++;
+
+    if(info->num_andand_oror >= ANDAND_OROR_MAX) {
+        fprintf(stderr, "overflow and and or or value\n");
+        exit(1);
+    }
+}
+
+void dec_andand_oror_array(sVMInfo* info)
+{
+    info->num_andand_oror--;
+
+    if(info->num_andand_oror < 0) {
+        fprintf(stderr, "invalid and and or or value\n");
+        exit(1);
+    }
+}
+
+void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sByteCode* code, sConst* constant)
+{
+    info->try_catch_label_name_before = info->try_catch_label_name;
+    info->try_offset_before = info->try_offset;
+    info->try_code_before = info->try_code;
+
+    if(catch_label_name_offset != 0) {
+        info->try_catch_label_name = CONS_str(constant, catch_label_name_offset);
+    }
+    else {
+        info->try_catch_label_name = NULL;
+    }
+    info->try_offset = try_offset;
+    info->try_code = code;
+}
+
+
+int get_object_allocated_size(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    return object_data->mSize;
+}
+
+char* get_object_head_of_memory(CLObject object)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    return (char*)object_data->mFields;
+}
+
+BOOL call_invoke_method(sCLClass* klass, int method_index, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    sCLMethod* method = klass->mMethods + method_index;
+    return invoke_method(klass, method, stack, var_num, stack_ptr, info);
+}
+
+
+BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int static_, int num_method_chains, int max_method_chains, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sByteCode* code, sConst* constant)
+{
+    /// none static method ////
+    if(static_ == 0) {
+        int num_real_params = num_params + 1;
+        char* method_name = CONS_str(constant, offset2);
+
+        CLObject object = ((*stack_ptr)-num_real_params)->mObjectValue;
+
+        if(object == 0) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(3)");
+            return FALSE;
+        }
+
+        sCLObject* object_data = CLOBJECT(object);
+
+        sCLClass* klass = object_data->mClass;
+
+        MASSERT(klass != NULL);
+
+        if(klass->mCallingMethodIndex == -1) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"OP_INVOKE_DYNAMIC_METHOD: Method not found(1)");
+            return FALSE;
+        }
+
+        sCLMethod* method = klass->mMethods + klass->mCallingMethodIndex;
+
+        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
+
+            elements[i] = object;
+        }
+
+        CLObject carray = create_carray_object_with_elements(num_params, elements ,info);
+
+        inc_refference_count(carray, 0, FALSE);
+
+        CLVALUE cl_value;
+        cl_value.mObjectValue = carray;
+        push_value_to_global_stack(cl_value, info);
+
+        (*stack_ptr)-=num_params;
+
+        (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
+        inc_refference_count((*stack_ptr)->mObjectValue, 0, FALSE);
+        (*stack_ptr)++;
+        (*stack_ptr)->mObjectValue = carray;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = num_method_chains;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = max_method_chains;
+        (*stack_ptr)++;
+
+        pop_global_stack(info);
+
+        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
+            return FALSE;
+        }
+    }
+    /// static method ///
+    else {
+        char* class_name = CONS_str(constant, offset);
+        char* method_name = CONS_str(constant, offset2);
+
+        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+        if(klass == NULL) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(38)");
+            return FALSE;
+        }
+
+        if(klass->mCallingClassMethodIndex == -1) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"OP_INVOKE_DYNAMIC_METHOD: Method not found(2)");
+            return FALSE;
+        }
+
+        sCLMethod* method = klass->mMethods + klass->mCallingClassMethodIndex;
+
+        CLObject elements[ARRAY_VALUE_ELEMENT_MAX];
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            CLObject object = ((*stack_ptr)-num_params + i)->mObjectValue;
+
+            elements[i] = object;
+        }
+
+        CLObject carray = create_carray_object_with_elements(num_params, elements, info);
+        inc_refference_count(carray, 0, FALSE);
+
+        CLVALUE cl_value;
+        cl_value.mObjectValue = carray;
+
+        push_value_to_global_stack(cl_value, info);
+
+        (*stack_ptr)-=num_params;
+
+        (*stack_ptr)->mObjectValue = create_string_object(method_name, info);
+        inc_refference_count((*stack_ptr)->mObjectValue, 0, FALSE);
+        (*stack_ptr)++;
+        (*stack_ptr)->mObjectValue = carray;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = num_method_chains;
+        (*stack_ptr)++;
+        (*stack_ptr)->mIntValue = max_method_chains;
+        (*stack_ptr)++;
+
+        pop_global_stack(info);
+
+        if(!invoke_method(klass, method, stack, var_num, stack_ptr, info)) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+void catch_function(sVMInfo* info, sByteCode* code) 
+{
+    if(info->try_code == code && info->try_offset != 0) {
+        *info->try_pc = info->try_code->mCodes + info->try_offset;
+        info->try_offset = 0;
+        info->try_code = NULL;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////
+// JIT main
+////////////////////////////////////////
+static BOOL search_for_dl_file(char* class_name, char* dynamic_library_path, size_t dynamic_library_path_size)
+{
+    /// script file directory ///
+    if(gScriptDirPath[0] != '\0') {
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", gScriptDirPath, class_name);
+
+        if(access(dynamic_library_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// current working directory ///
+    char* cwd = getenv("PWD");
+
+    if(cwd) {
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/lib%s.so", cwd, class_name);
+
+        if(access(dynamic_library_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// home directory ///
+    char* home = getenv("HOME");
+
+    if(home) {
+        snprintf(dynamic_library_path, dynamic_library_path_size, "%s/.clover2/lib%s.so", home, class_name);
+
+        if(access(dynamic_library_path, F_OK) == 0) {
+            return TRUE;
+        }
+    }
+
+    /// system shared directory ///
+    snprintf(dynamic_library_path, dynamic_library_path_size, "%s/share/clover2/lib%s.so", PREFIX, class_name);
+
+    if(access(dynamic_library_path, F_OK) == 0) {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static void llvm_load_dynamic_library(sCLClass* klass)
+{
+    char* class_name = CLASS_NAME(klass);
+
+    char class_dynamic_library_path[PATH_MAX+1];
+    if(search_for_dl_file(class_name, class_dynamic_library_path, PATH_MAX)) 
+    {
+        klass->mDynamicLibrary = dlopen(class_dynamic_library_path, RTLD_LAZY);
+
+        if(klass->mDynamicLibrary == NULL) {
+            fprintf(stderr, "%s\n", dlerror());
+        }
+    }
+}
+
+sCLClass* get_class_with_load_and_initialize_in_jit(sConst* constant, int offset)
+{
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        fprintf(stderr, "class not found error %s(54)\n", class_name);
+        return NULL;
+    }
+
+    return klass;
+}
+
+BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr)
+{
+    /// block object ///
+    if(block_object != 0) {
+        if(klass->mDynamicLibrary == NULL) {
+            llvm_load_dynamic_library(klass);
+        }
+
+        sBlockObject* object_data = CLBLOCK(block_object);
+
+        if(klass->mDynamicLibrary && object_data->mJITDynamicSym == NULL) {
+            char block_path[METHOD_NAME_MAX + 128];
+
+            create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
+
+            object_data->mJITDynamicSym = dlsym(klass->mDynamicLibrary, block_path);
+
+            if(object_data->mJITDynamicSym == NULL) {
+                fprintf(stderr, "%s\n", dlerror());
+            }
+        }
+
+        if(object_data->mJITDynamicSym) 
+        {
+            CLVALUE* stack_ptr = stack + var_num;
+            CLVALUE* lvar = stack;
+
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
+
+            info->current_stack = stack;        // for invoking_block in native method
+            info->current_var_num = var_num;
+            info->stack_id = stack_id;
+
+            CLVALUE** stack_ptr_address = &stack_ptr;
+            fJITMethodType fun2 = (fJITMethodType)object_data->mJITDynamicSym;
+
+            CLVALUE** global_stack_ptr_address = &info->mTmpGlobalStackPtr;
+
+            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
+
+            if(!result) {
+                remove_stack_to_stack_list(stack_id);
+                return FALSE;
+            }
+
+            remove_stack_to_stack_list(stack_id);
+        }
+        else {
+/*
+            BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+            if(!result) {
+                return FALSE;
+            }
+*/
+            char block_path[METHOD_NAME_MAX + 128];
+
+            create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
+
+            fprintf(stderr, "Not found Symbol(%s)\n", block_path);
+            exit(2);
+        }
+    }
+    /// none native code method ///
+    else if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
+    {
+        BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+        if(!result) {
+            return FALSE;
+        }
+    }
+    /// native code method ///
+    else {
+        if(klass->mDynamicLibrary == NULL) {
+            llvm_load_dynamic_library(klass);
+        }
+
+        if(klass->mDynamicLibrary && method->mJITDynamicSym == NULL) {
+            char method_path2[METHOD_NAME_MAX + 128];
+
+            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
+
+            method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
+
+            if(method->mJITDynamicSym == NULL) {
+                fprintf(stderr, "%s\n", dlerror());
+            }
+        }
+
+        if(method->mJITDynamicSym) 
+        {
+            CLVALUE* stack_ptr = stack + var_num;
+            CLVALUE* lvar = stack;
+
+            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
+
+            info->current_stack = stack;        // for invoking_block in native method
+            info->current_var_num = var_num;
+            info->stack_id = stack_id;
+
+            CLVALUE** stack_ptr_address = &stack_ptr;
+            fJITMethodType fun2 = (fJITMethodType)method->mJITDynamicSym;
+
+            CLVALUE** global_stack_ptr_address = &info->mTmpGlobalStackPtr;
+
+            BOOL result = fun2(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
+
+            if(!result) {
+                remove_stack_to_stack_list(stack_id);
+                return FALSE;
+            }
+
+            remove_stack_to_stack_list(stack_id);
+        }
+        else {
+            char method_path2[METHOD_NAME_MAX + 128];
+
+            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
+
+            fprintf(stderr, "Not found Symbol(%s)\n", method_path2);
+            exit(2);
+/*
+            BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+            if(!result) {
+                return FALSE;
+            }
+*/
+        }
+    }
+
+    return TRUE;
+}
+
+void jit_init_on_runtime()
+{
+    gCLValueAndBoolStructMemory.result1.mIntValue = 0;
+    gCLValueAndBoolStructMemory.result2 = 0;
+
+    gCLPointerAndBoolStructMemory.result1 = NULL;
+    gCLPointerAndBoolStructMemory.result2 = FALSE;
+
+    char* env = getenv("LD_LIBRARY_PATH");
+    char buf[1024*2*2];
+    snprintf(buf, 1024*2*2, "%s/share/clover2:%s", PREFIX, env);
+
+    setenv("LD_LIBRARY_PATH", buf, 1);
+}
+
+void jit_final_on_runtime()
+{
+}
+
+
+} // extern "C"
+
+extern "C" 
+{
+
+//////////////////////////////////////////////////
+// JIT runtime functions
+//////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+struct sPointerAndBoolResult* run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant)
+{
+    struct sPointerAndBoolResult* result = &gCLPointerAndBoolStructMemory;
+
+    char* class_name = CONS_str(constant, offset);
+
+    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+
+    if(klass == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(52)");
+        result->result1 = NULL;
+        result->result2 = FALSE;
+        return result;
+    }
+
+    if(field_index < 0 || field_index >= klass->mNumClassFields) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"field index is invalid(6)");
+        result->result1 = NULL;
+        result->result2 = FALSE;
+        return result;
+    }
+
+    sCLField* field = klass->mClassFields + field_index;
+    char* value = (char*)&field->mValue;
+
+    result->result1 = value;
+    result->result2 = TRUE;
+
+    return result;
+}
+
+void* run_buffer_to_pointer_cast(CLObject object, sVMInfo* info)
+{
+    sCLObject* object_data = CLOBJECT(object);
+
+    char* pointer_value = object_data->mFields[3].mPointerValue;
+
+    push_object_to_global_stack(object, info);
+
+    return (void*)pointer_value;
+}
+
+
+CLObject run_uint_to_string_cast(unsigned int n, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%u", n);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_ulong_to_string_cast(clint64 l, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%lld", l);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_float_to_string_cast(float f, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%f", f);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_double_to_string_cast(double d, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%lf", d);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_char_to_string_cast(wchar_t c, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%lc", c);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_regex_to_string_cast(CLObject regex, sVMInfo* info)
+{
+    sRegexObject* object_data = CLREGEX(regex);
+
+    CLObject str = create_string_object(object_data->mRegexString, info);
+
+    return str;
+}
+
+CLObject run_bool_to_string_cast(BOOL b, sVMInfo* info)
+{
+    char buf[32];
+    if(b) {
+        snprintf(buf, 32, "true");
+    }
+    else {
+        snprintf(buf, 32, "false");
+    }
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+CLObject run_pointer_to_string_cast(char* p, sVMInfo* info)
+{
+    char buf[32];
+    snprintf(buf, 32, "%p", (void*)p);
+
+    CLObject str = create_string_object(buf, info);
+
+    return str;
+}
+
+int run_integer_to_int_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    int value = (int)obj_data->mFields[0].mIntValue;
+
+    return value;
+}
+
+unsigned int run_uinteger_to_uint_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned int value = (unsigned int)obj_data->mFields[0].mUIntValue;
+
+    return value;
+}
+
+char run_cbyte_to_byte_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    char value = (char)obj_data->mFields[0].mByteValue;
+
+    return value;
+}
+
+unsigned char run_cubyte_to_ubyte_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned char value = (unsigned char)obj_data->mFields[0].mUByteValue;
+
+    return value;
+}
+
+short run_cshort_to_short_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    short value = (short)obj_data->mFields[0].mShortValue;
+
+    return value;
+}
+
+unsigned short run_cushort_to_ushort_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned short value = (unsigned short)obj_data->mFields[0].mUShortValue;
+
+    return value;
+}
+
+clint64 run_clong_to_long_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    clint64 value = (clint64)obj_data->mFields[0].mLongValue;
+
+    return value;
+}
+
+unsigned clint64 run_culong_to_ulong_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    unsigned clint64 value = (unsigned clint64)obj_data->mFields[0].mLongValue;
+
+    return value;
+}
+
+char* run_cpointer_to_pointer_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    char* value = (char*)obj_data->mFields[0].mPointerValue;
+
+    return value;
+}
+
+int run_cfloat_to_int_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    int value = (int)obj_data->mFields[0].mFloatValue;
+
+    return value;
+}
+
+float run_cfloat_to_float_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    float value = (float)obj_data->mFields[0].mFloatValue;
+
+    return value;
+}
+
+int run_cdouble_to_int_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    int value = (int)obj_data->mFields[0].mDoubleValue;
+
+    return value;
+}
+
+double run_cdouble_to_double_cast(CLObject obj)
+{
+    sCLObject* obj_data = CLOBJECT(obj);
+
+    double value = (double)obj_data->mFields[0].mDoubleValue;
+
+    return value;
+}
+
+
+void show_method_parametor_address(CLVALUE* stack_ptr, CLVALUE* lvar, sVMInfo* info, CLVALUE* stack, CLVALUE** stack_ptr_address, int var_num, sConst* constant, sByteCode* code)
+{
+    printf("stack_ptr %p lvar %p info %p stack %p stack_ptr_address %p var_num %d constant %p code %p\n", (void*)stack_ptr, (void*)lvar, (void*)info, (void*)stack, (void*)stack_ptr_address, var_num, (void*)constant, (void*)code);
+}
+
+
+CLObject run_op_buffer_with_string_expression(char* str, int len, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, len - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject buffer_object = create_buffer_object(buf.mBuf, buf.mLen, info);
+
+    MFREE(buf.mBuf);
+
+    return buffer_object;
+}
+
+CLObject run_op_path_with_string_expression(char* str, int* string_expression_offsets, int num_string_expression, CLVALUE** stack_ptr, sVMInfo* info)
+{
+    CLObject string_expression_object[STRING_EXPRESSION_MAX];
+
+    sBuf buf;
+    sBuf_init(&buf);
+
+    int offset_before = 0;
+
+    int i;
+    for(i=0; i<num_string_expression; i++) {
+        int offset = string_expression_offsets[i];
+        string_expression_object[i] = ((*stack_ptr) - num_string_expression + i)->mObjectValue;
+
+        sBuf_append(&buf, str + offset_before, offset - offset_before);
+
+        char* str2 = ALLOC string_object_to_char_array(string_expression_object[i]);
+        sBuf_append_str(&buf, str2);
+        MFREE(str2);
+
+        offset_before = offset;
+    }
+
+    sBuf_append(&buf, str + offset_before, strlen(str) - offset_before);
+
+    (*stack_ptr) -= num_string_expression;
+
+    CLObject path_object = create_path_object(buf.mBuf, info);
+
+    MFREE(buf.mBuf);
+
+    return path_object;
+}
+
+
+void mark_source_position(sVMInfo* info, char* sname, int sline)
+{
+    info->sname2 = sname;
+    info->sline2 = sline;
+}
+
+
+
+void vm_mutex_on_in_jit(sVMInfo* info)
+{
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_on();
+    }
+}
+
+void vm_mutex_off_in_jit(sVMInfo* info)
+{
+    if(!info->no_mutex_in_vm) {
+        vm_mutex_off();
+    }
+}
+
+
+}

@@ -290,89 +290,15 @@ static void free_handle(unsigned int handle_num)
 
 void inc_refference_count(CLObject obj, CLObject prev_obj, BOOL value_is_object)
 {
-    //if(obj != prev_obj) {
-        if(is_valid_object(obj) && gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount == 0) {
-            gCLHeap.mHandles[obj - FIRST_OBJ].mRefferenceCount++;
-
-            sCLObject* object_data = CLOBJECT(obj);
-            sCLClass* klass = object_data->mClass;
-
-            int array_num = object_data->mArrayNum;
-
-            if(array_num == -2) { // block, regex
-            }
-            else if(array_num == -1) {
-                int i;
-                for(i=0; i<klass->mNumFields; i++) {
-                    CLObject obj2 = object_data->mFields[i].mObjectValue;
-                    inc_refference_count(obj2, 0, FALSE);
-                }
-            }
-            else {
-                int i;
-                for(i=0; i<array_num; i++) {
-                    CLObject obj2 = object_data->mFields[i].mObjectValue;
-                    inc_refference_count(obj2, 0, FALSE);
-                }
-            }
-        }
-/*
-        if(value_is_object && is_valid_object(prev_obj)) {
-            int handle_num = prev_obj - FIRST_OBJ;
-            gCLHeap.mHandles[handle_num].mRefferenceCount--;
-
-            if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0) {
-                free_handle(handle_num);
-            }
-        }
-*/
-    //}
 }
 
 void dec_refference_count(CLObject obj, BOOL value_is_object)
 {
-/*
-    if(value_is_object && is_valid_object(obj)) {
-        int handle_num = obj - FIRST_OBJ;
-        gCLHeap.mHandles[handle_num].mRefferenceCount--;
-
-        if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0) {
-            free_handle(handle_num);
-        }
-    }
-*/
 }
 
 void free_global_stack_objects(sVMInfo* info, CLObject result_object, int num_global_stack_ptr, CLVALUE* lvar, int num_params)
 {
-#ifdef ENABLE_JIT
-    if(!info->prohibit_delete_global_stack) {
-        inc_refference_count(result_object, 0, FALSE);
-
-        CLVALUE* p = info->mGlobalStack + num_global_stack_ptr;
-
-        while(p < info->mGlobalStackPtr) {
-            CLObject obj = p->mObjectValue;
-
-            if(is_valid_object(obj)) {
-                int handle_num = obj - FIRST_OBJ;
-
-                if(gCLHeap.mHandles[handle_num].mRefferenceCount <= 0 && obj != result_object) {
-                    free_handle(handle_num);
-                }
-            }
-
-            p++;
-
-        }
-    }
-
     info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
-
-    push_object_to_global_stack(result_object, info);
-#else
-    info->mGlobalStackPtr = info->mGlobalStack + num_global_stack_ptr;
-#endif
 }
 
 void mark_object(CLObject obj, unsigned char* mark_flg)
@@ -533,7 +459,6 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
     alignment(&size);
 
-#ifndef ENABLE_JIT
     static int gc_timing = 0;
 
     if(gCLHeap.mFreeMemHandles == -1) {
@@ -543,7 +468,6 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
         gc_timing++;
     }
-#endif
 
     /// get a free handle from linked list ///
     handle = gCLHeap.mFreeMemHandles;

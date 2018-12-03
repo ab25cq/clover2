@@ -1,0 +1,134 @@
+class JITTestClassA {
+    value:int;
+
+    def initialize() {
+        value = 123;
+    }
+}
+
+class JITTestException {
+    message:String;
+
+    def initialize(aaa:String) {
+        message = aaa;
+    }
+}
+
+class JITTest
+{
+    def initialize() {
+    }
+
+    def method():int {
+        1+1
+    }
+
+    def method2():bool {
+        true;
+    }
+
+    def method3():bool {
+        false;
+    }
+
+    def method4():int {
+        if(false || false || false || false) {
+            return 123
+        }
+        else {
+            return 245
+        }
+        return 1+1;
+    }
+
+    def method5(a:int, b:int):int {
+        return a + b;
+    }
+
+    def method6():int {
+        return method5(1, 2);
+    }
+
+    def method7():int {
+        a := JITTestClassA();
+
+        a.value = 234;
+
+        return a.value;
+    }
+
+    def method8(block_:lambda(int, int):int):int {
+        return block_(1, 2);
+    }
+    def clone(): JITTestException {
+        message := "ABC";
+
+        if(true) { #message.identifyWith(null)) {
+            111; #return JITTestException("");
+        }
+        else {
+            222
+            #return JITTestException("");
+        }
+    }
+    def method9():regex {
+        a := 1;
+        b := "BBB";
+
+        return regex "\{a} \{b}";
+    }
+    def getmaxy(): int {
+        return 21;
+    }
+    def getmaxx(): int {
+        return 22;
+    }
+
+    def getmaxx():int {
+        return 123;
+    }
+
+    def getmaxy():int {
+        return 123;
+    }
+
+    def mvprintw(y:int, x:int, str:String): static throws Exception {
+    }
+    def mvprintw(y:int, x:int, format:String, params:Array<Object>): static throws Exception {
+    }
+    def attron(a:int) {
+    }
+    def attroff(b:int) {
+    }
+    def refresh() {
+    }
+
+    def getch(): int {
+        return 123;
+    }
+
+    def endwin() {
+    }
+
+    A_REVERSE:static int;
+    KEY_UP:static int;
+    KEY_DOWN:static int;
+    KEY_ENTER:static int;
+
+    def initscr() {
+    }
+
+    stdscr:static int;
+
+    def keypad(stdscr_:int, bbb:bool) {
+    }
+
+    def noecho() {
+    }
+
+    def raw() {
+    }
+
+    data:String;
+}
+

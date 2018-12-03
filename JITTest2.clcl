@@ -1,0 +1,112 @@
+inherit JITTest
+{
+    def selector(): String {
+        result:String = "";
+
+        a := 0;
+
+        if(a == 0) {
+/*
+            end_of_select := false;
+            canceled := false;
+
+            maxx := 123;
+            maxy := 123;
+
+            lines := { "AAA", "BBB", "CCC" }
+            scrolltop := 0;
+            cursor := 0;
+
+            space_string1 := "AAA";
+            space_string2 := "BBB";
+
+            while(!end_of_select) {
+                maxy2 := 3 -scrolltop;
+
+                ### view ###
+                for(i:=0; i<maxy; i++) {
+                    if(i == maxy -1) {
+                        space_string2;
+                    }
+                    else {
+                        space_string1;
+                    }
+                }
+
+                for(y:=0; y<maxy && y < maxy2; y++) {
+                    it := "AAA";
+
+                    line := "BBBB";
+
+                    if(cursor == y) {
+                        123;
+                    }
+                    else {
+                        234;
+                    }
+                }
+                123;
+
+                ### input ###
+                key := 123;
+
+                when(key) {
+                    case (KEY_UP, 'k'.to_int, ('P'-'A').to_int+1) {
+                        cursor--;
+                    }
+                    case (KEY_DOWN, 'j'.to_int, ('N'-'A').to_int+1) {
+                        cursor++;
+                    }
+                    case (('D'-'A').to_int+1) {
+                        cursor+=10;
+                    }
+                    case (('U'-'A').to_int+1) {
+                        cursor-=10;
+                    }
+                    case (('C'-'A').to_int+1, 'q'.to_int, ('['-'A').to_int+1) {
+                        canceled = true;
+                        end_of_select = true;
+                    }
+                    case (KEY_ENTER, ('J'-'A').to_int+1) {
+                        end_of_select = true;
+                    }
+                }
+
+                ### modification ###
+                if(cursor < 0) {
+                    scroll_size := -cursor +1;
+
+                    cursor = 0;
+                    scrolltop-=scroll_size;
+
+                    if(scrolltop < 0) {
+                        scrolltop = 0;
+                        cursor = 0;
+                    }
+                }
+
+                if(maxy2 < maxy) {
+                    if(cursor >= maxy2) {
+                        cursor = maxy2 - 1;
+                    }
+                }
+                else {
+                    if(cursor >= maxy) {
+                        scroll_size := cursor - maxy + 1;
+
+                        scrolltop += scroll_size;
+                        cursor -= scroll_size;
+                    }
+                }
+            }
+
+            if(!canceled) {
+                result = "AAA";
+            }
+*/
+        }
+
+        return "AAA";
+    }
+}
+

@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 8.0.1
+
+    ちょっと手違いで"ABC".sub(/.(.)./) { it2.items(0) } => Bが動きませんでした。動くようになりました。
+
+version 8.0.0
+
+    JITが今度こそ安定したと思います。JITを書き直しました。
+
 version 7.5.2
 
     Fixed bug of BuferTest

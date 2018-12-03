@@ -2,10 +2,29 @@
 
 extern "C"
 {
-BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure)
+BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
 {
     switch(inst)
     {
+        case OP_IADD: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
+            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            *lvalue = trunc_value(lvalue, 32);
+            *rvalue = trunc_value(rvalue, 32);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "iaddtmp", false, true);
+            llvm_value.kind = kLVKindInt32;
+
+            dec_stack_ptr(llvm_stack_ptr, 2);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
         case OP_BADD: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
             LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
@@ -15,14 +34,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "baddtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -35,34 +53,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "saddtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
-            }
-            break;
 
-        case OP_IADD: {
-            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -2);
-            LVALUE* rvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
-
-            *lvalue = trunc_value(lvalue, 32);
-            *rvalue = trunc_value(rvalue, 32);
-
-            LVALUE llvm_value;
-            llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "iaddtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
-            llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
-
-            dec_stack_ptr(llvm_stack_ptr, 2);
-            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -75,14 +72,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAdd(lvalue->value, rvalue->value, "laddtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -95,14 +91,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "ubaddtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -115,14 +110,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -135,14 +129,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -155,14 +148,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -175,14 +167,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value  = Builder.CreateAdd(lvalue->value, rvalue->value, "usaddtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -200,17 +191,16 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = value;
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             LVALUE llvm_value2;
             llvm_value2 = trunc_value_to_pointer(&llvm_value);
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -223,14 +213,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -243,14 +232,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -261,17 +249,15 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             *lvalue = trunc_value(lvalue, 32);
             *rvalue = trunc_value(rvalue, 32);
 
-
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -284,14 +270,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -306,16 +291,15 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue2.value, "subtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindPointer8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -328,17 +312,16 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             LVALUE llvm_value2;
             llvm_value2 = trunc_value(&llvm_value, 64);
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value2);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -351,14 +334,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -371,14 +353,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -391,14 +372,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -411,14 +391,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -431,14 +410,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSub(lvalue->value, rvalue->value, "subtmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -451,14 +429,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -471,14 +448,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -491,14 +467,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -511,14 +486,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -531,14 +505,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -551,14 +524,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -571,14 +543,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -591,14 +562,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateMul(lvalue->value, rvalue->value, "multmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -611,18 +581,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -635,18 +604,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -659,18 +627,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -683,18 +650,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -707,18 +673,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -731,18 +696,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -755,18 +719,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -779,18 +742,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateUDiv(lvalue->value, rvalue->value, "divtmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -803,18 +765,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -827,18 +788,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -851,18 +811,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -875,18 +834,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateSRem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -899,18 +857,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 8;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -923,18 +880,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 16;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -947,18 +903,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 32;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -971,18 +926,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             int value_size = 64;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, value_size, FALSE, FALSE, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateURem(lvalue->value, rvalue->value, "remtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -995,14 +949,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1015,14 +968,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1035,14 +987,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1055,14 +1006,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", false, true);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1075,14 +1025,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1095,14 +1044,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1115,14 +1063,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1135,14 +1082,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateShl(lvalue->value, rvalue->value, "lshifttmp", true, false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1155,14 +1101,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1175,14 +1120,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1195,14 +1139,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1215,14 +1158,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1235,14 +1177,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1255,14 +1196,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1275,14 +1215,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1295,14 +1234,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateLShr(lvalue->value, rvalue->value, "rshifttmp", false);
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1315,14 +1253,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1335,14 +1272,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1355,14 +1291,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1375,14 +1310,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1395,14 +1329,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1415,14 +1348,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1435,14 +1367,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1455,14 +1386,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue->value, "andtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1475,14 +1405,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1495,14 +1424,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1515,14 +1443,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1535,14 +1462,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1555,14 +1481,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1575,14 +1500,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1595,14 +1519,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1615,14 +1538,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue->value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1635,14 +1557,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1655,14 +1576,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1675,14 +1595,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1695,14 +1614,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1715,14 +1633,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1735,14 +1652,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1755,14 +1671,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1775,14 +1690,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateOr(lvalue->value, rvalue->value, "ortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1796,14 +1710,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1817,14 +1730,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt8;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1838,14 +1750,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1859,14 +1770,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt16;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1880,14 +1790,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1901,14 +1810,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt32;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1922,14 +1830,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1943,14 +1850,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateXor(lvalue->value, rvalue.value, "xortmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindUInt64;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 1);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1963,14 +1869,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "faddtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -1983,14 +1888,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFAdd(lvalue->value, rvalue->value, "daddtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2003,14 +1907,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "fsubtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2023,12 +1926,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFSub(lvalue->value, rvalue->value, "fsubtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2041,12 +1945,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "fmulttmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2059,14 +1964,13 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFMul(lvalue->value, rvalue->value, "fmulttmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2080,17 +1984,17 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             BOOL value_is_float = inst == OP_FDIV;
             BOOL value_is_double = inst == OP_DDIV;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindFloat;
-            llvm_value.parent_var_num = 0;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
 
@@ -2104,20 +2008,25 @@ BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass,
             BOOL value_is_float = inst == OP_FDIV;
             BOOL value_is_double = inst == OP_DDIV;
 
-            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero", closure, llvm_stack, var_num);
+            if_value_is_zero_entry_exception_object(rvalue->value, 0, value_is_float, value_is_double, params, *function, current_block, (char*)"Exception", (char*)"division by zero", llvm_stack, var_num);
 
             LVALUE llvm_value;
             llvm_value.value = Builder.CreateFDiv(lvalue->value, rvalue->value, "fdivtmp");
-            llvm_value.lvar_address_index = -1;
-            llvm_value.lvar_stored = FALSE;
             llvm_value.kind = kLVKindDouble;
-            llvm_value.parent_var_num = 0;
-            llvm_value.parent_llvm_stack = NULL;
 
             dec_stack_ptr(llvm_stack_ptr, 2);
             push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -2);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
             }
             break;
+
+        default:
+            if(!compile_to_native_code3(code, constant, klass, inst, pc, llvm_stack_ptr, llvm_stack, params, current_block, function, var_num, try_catch_label_name))
+            {
+                return FALSE;
+            }
     }
 
     return TRUE;

@@ -1,4 +1,12 @@
 
+version 8.0.1
+
+    "ABC".sub (/.(.)./) {it2.items (0)} => B did not work with a slight mistake.  I got to move. 
+
+version 8.0.0
+
+    I think that JIT has stabilized this time.  I rewrote JIT. 
+
 version 7.5.2
 
     Fixed bug of BuferTest

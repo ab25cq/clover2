@@ -28,6 +28,7 @@ extern "C"
 #include "llvm/ExecutionEngine/Orc/CompileUtils.h"
 #include "llvm/ExecutionEngine/Orc/IRCompileLayer.h"
 #include "llvm/ExecutionEngine/Orc/LambdaResolver.h"
+#include "llvm/Passes/PassBuilder.h"
 #if LLVM_VERSION_MAJOR == 3
 #include "llvm/ExecutionEngine/Orc/ObjectLinkingLayer.h"
 #endif
@@ -48,6 +49,12 @@ extern "C"
 //#include "llvm/Bitcode/BitcodeWriter.h"
 #include <fstream>
 #include <iostream>
+
+#if LLVM_VERSION_MAJOR >= 4
+#include "llvm/Bitcode/BitcodeWriter.h"
+#else
+#include "llvm/Bitcode/ReaderWriter.h"
+#endif
 
 #include <algorithm>
 #include <memory>
@@ -74,7 +81,7 @@ extern "C"
 
 inline void create_method_path_for_jit(sCLClass* klass, sCLMethod* method, char* result, int size_result)
 {
-    snprintf(result, size_result, "%s.%s$$%d", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex);
+    snprintf(result, size_result, "%s.%s$$%d%s", CLASS_NAME(klass), METHOD_NAME_AND_PARAMS(klass, method), method->mMethodIndex, method->mFlags & METHOD_FLAGS_CLASS_METHOD ? "STATIC":"");
 }
 
 inline void create_block_path_for_jit(sCLClass* klass, int block_id, char* result, int size_result)
@@ -86,10 +93,8 @@ enum eLVALUEKind { kLVKindNone, kLVKindInt1, kLVKindInt8, kLVKindUInt8, kLVKindI
 
 struct LVALUEStruct {
     Value* value;
-    int lvar_address_index;
     BOOL lvar_stored;
     enum eLVALUEKind kind;
-    int parent_var_num;
     Value* parent_stack;
     struct LVALUEStruct* parent_llvm_stack;
 };
@@ -113,17 +118,17 @@ struct sPointerAndBoolResult {
 extern LLVMContext TheContext;
 extern IRBuilder<> Builder;
 extern Module* TheModule;
-extern std::unique_ptr<legacy::FunctionPassManager> TheFPM;
+extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern std::map<std::string, BasicBlock*> TheLabels;
+extern FunctionAnalysisManager TheFAM;
 
 #define MAX_COND_JUMP 128
 
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block);
-BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure);
-BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure);
-BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure);
-BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure);
-BOOL compile_to_native_code6(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name, BOOL closure);
+BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code4(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
+BOOL compile_to_native_code5(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
 
 
 /// jit_debug.h ///
@@ -160,7 +165,7 @@ LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index);
 void dec_stack_ptr(LVALUE** llvm_stack_ptr, int value);
 void push_value_to_stack_ptr(LVALUE** llvm_stack_ptr, LVALUE* value);
 void insert_value_to_stack_ptr_with_offset(LVALUE** llvm_stack_ptr, LVALUE* value, int offset);
-void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value, BOOL except_parent_stack);
+void store_llvm_value_to_lvar_with_offset(LVALUE* llvm_stack, int index, LVALUE* llvm_value);
 void get_llvm_value_from_lvar_with_offset(LVALUE* result, LVALUE* llvm_stack, int index);
 LVALUE get_vm_stack_ptr_value_from_index_with_aligned(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, int align);
 void inc_vm_stack_ptr(std::map<std::string, Value*> params, BasicBlock* current_block, int value);
@@ -171,14 +176,14 @@ void parent_llvm_stack_to_parent_vm_stack(Value* parent_stack, LVALUE* parent_ll
 void parent_vm_stack_to_parent_llvm_stack(Value* parent_stack, LVALUE* parent_llvm_stack, BasicBlock* current_block, int parent_var_num);
 void llvm_stack_to_vm_stack_of_parent(LVALUE* llvm_stack_ptr, Value* parent_stack, std::map<std::string, Value*> params, BasicBlock* current_block, int num);
 void if_value_is_zero_ret_zero(Value* value, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num);
-void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, BOOL closure, LVALUE* llvm_stack, int var_num);
+void if_value_is_null_ret_zero(Value* value, int value_bit, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, LVALUE* llvm_stack, int var_num);
 void store_value_to_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index, LVALUE* llvm_value);
 StructType* get_vm_info_struct_type();
 AllocaInst* create_entry_block_alloca(Function* function, int index);
 void call_entry_exception_object_with_class_name2(std::map<std::string, Value *> params, char* class_name, char* message);
-void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message, BOOL closure, LVALUE* llvm_stack, int var_num);
+void if_value_is_zero_entry_exception_object(Value* value, int value_size, BOOL value_is_float, BOOL value_is_double, std::map<std::string, Value *> params, Function* function, BasicBlock** current_block, char* class_name, char* message, LVALUE* llvm_stack, int var_num);
 void vm_lvar_to_llvm_lvar(LVALUE* llvm_stack,std::map<std::string, Value*>& params, BasicBlock* current_block, int var_num);
-void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, BOOL closure, LVALUE* llvm_stack, int var_num);
+void finish_method_call(Value* result, std::map<std::string, Value *> params, BasicBlock** current_block, Function* function, char** try_catch_label_name, LVALUE* llvm_stack, int var_num);
 void lvar_of_vm_to_lvar_of_llvm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num);
 void lvar_of_llvm_to_lvar_of_vm(std::map<std::string, Value *> params, BasicBlock* current_block, LVALUE* llvm_stack, int var_num);
 void trunc_value_from_inst(LVALUE* value, int inst);
@@ -196,8 +201,6 @@ extern GlobalVariable* gConditionalValue;
 extern StructType* gCLValueAndBoolStruct;
 extern StructType* gPointerAndBoolStruct;
 
-void create_internal_functions();
-void create_internal_functions2();
 Function* create_llvm_function(const std::string& name);
 
 /// jit_compile_method.cpp ///
@@ -206,5 +209,12 @@ BOOL jit_compile_all_classes();
 /// jit_runtime.cpp ///
 extern struct sCLVALUEAndBoolResult gCLValueAndBoolStructMemory;
 extern struct sPointerAndBoolResult gCLPointerAndBoolStructMemory;
+
+void create_internal_functions();
+LVALUE load_value_from_lvar_with_offset(std::map<std::string, Value*>& params, BasicBlock* current_block, int index);
+void show_value_on_runtime(Value* value) ;
+void show_int_value_on_runtime(int n);
+void show_str_value_on_runtime(char* str);
+void show_vm_stack_on_runtime(std::map<std::string, Value*>& params);
 }
 

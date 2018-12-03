@@ -208,7 +208,7 @@ static BOOL read_long_from_file(int fd, clint64* n)
     return read_from_file(fd, n, sizeof(clint64));
 }
 
-static BOOL read_const_from_file(int fd, sConst* constant, char* class_name)
+static BOOL read_const_from_file(int fd, sConst* constant)
 {
     int len;
     if(!read_int_from_file(fd, &len)) {
@@ -496,6 +496,27 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     return TRUE;
 }
 
+static BOOL read_block_from_file(int fd, sCLBlockObject* block_object)
+{
+    if(!read_code_from_file(fd, &block_object->mByteCodes)) {
+        return FALSE;
+    }
+    if(!read_const_from_file(fd, &block_object->mConst)) {
+        return FALSE;
+    }
+    if(!read_int_from_file(fd, &block_object->mVarNum)) {
+        return FALSE;
+    }
+    if(!read_int_from_file(fd, &block_object->mNumParams)) {
+        return FALSE;
+    }
+    if(!read_int_from_file(fd, &block_object->mLambda)) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
 static sCLClass* read_class_from_file(char* class_name, int fd)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
@@ -543,7 +564,7 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
     klass->mFlags = l;
     klass->mFlags &= ~CLASS_FLAGS_MODIFIED;
 
-    if(!read_const_from_file(fd, &klass->mConst, class_name)) {
+    if(!read_const_from_file(fd, &klass->mConst)) {
         MFREE(klass);
         return NULL;
     }
@@ -637,6 +658,39 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
     }
 
     klass->mUnboxingClassNameOffset = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+
+    klass->mLabelNum = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+
+    if(n > 0) {
+        klass->mNumBlockObjects = n;
+        klass->mSizeBlockObjects = n;
+
+        klass->mBlockObjects = MCALLOC(1, sizeof(sCLBlockObject)*n);
+
+        for(i=0; i<n; i++) {
+            sCLBlockObject* block_object = klass->mBlockObjects + i;
+
+            if(!read_block_from_file(fd, block_object)) {
+                MFREE(klass);
+                return NULL;
+            }
+        }
+    }
+    else {
+        klass->mBlockObjects = MCALLOC(1, sizeof(sCLBlockObject)*4);
+        klass->mSizeBlockObjects = 4;
+        klass->mNumBlockObjects = 0;
+    }
 
     return klass;
 }
@@ -923,6 +977,8 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     }
 
     klass->mInitMethodIndexOnCompileTime = 0;
+
+    klass->mLabelNum = 0;
 
     return klass;
 }

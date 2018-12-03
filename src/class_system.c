@@ -2436,7 +2436,7 @@ BOOL System_fork(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         int num_params = 0;
 
-        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info, FALSE)) 
+        if(!invoke_block(block_value, info->current_stack, info->current_var_num, num_params, stack_ptr, info)) 
         {
             //vm_mutex_off();
             return FALSE;
@@ -6920,7 +6920,7 @@ void signal_user_handler(int signum)
 
         stack->mIntValue = signum;
 
-        (void)invoke_block(block, stack, var_num, num_params, stack_ptr, &info, FALSE);
+        (void)invoke_block(block, stack, var_num, num_params, stack_ptr, &info);
         
         free_global_stack(&info);
 

@@ -2616,84 +2616,8 @@ inherit String
         return self.sub(regex_, replace, SortableList<String>());
     }
 
-    def sub(regex_:regex, group_strings:SortableList<String>?, replace_:lambda(String,SortableList<String>):String):  String 
-    {
-        result: String = String();
-        offset:int = 0;
 
-        buffer:Buffer = self.toBuffer();
-        ovec_max:int = 16;
-        ovec:PcreOVec = PcreOVec(ovec_max);
-
-        while(true) {
-            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
-
-            ### match and no group strings ###
-            if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
-                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
-                result.append(str);
-
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-
-                replace_string:String = replace_(match_string, SortableList<String>());
-                result.append(replace_string);
-
-                if(offset == ovec.end[0]) {
-                    offset++;
-                }
-                else {
-                    offset = ovec.end[0];
-                }
-
-                if(!regex_.global) {
-                    str:String = buffer.subBuffer(offset, -1).toString();
-                    result.append(str);
-                    break;
-                }
-            }
-            ### group strings ###
-            elif(regex_result > 1) {
-                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
-                result.append(str);
-
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-
-                if(!regex_.global) {
-                    group_strings.clear();
-                }
-
-                for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
-                    group_strings.add(match_string);
-                }
-
-                replace_string:String = replace_(match_string, group_strings);
-                result.append(replace_string);
-
-                if(offset == ovec.end[0]) {
-                    offset++;
-                }
-                else {
-                    offset = ovec.end[0];
-                }
-
-                if(!regex_.global) {
-                    str:String = buffer.subBuffer(offset, -1).toString();
-                    result.append(str);
-                    break;
-                }
-            }
-            ### no match ###
-            else {
-                str:String = buffer.subBuffer(offset, -1).toString();
-                result.append(str);
-                break;
-            }
-        }
-
-        return result;
-    }
-
+/*
     def sub(regex_:regex, group_strings:SortableList<String>?, replace_:lambda(String):String):  String 
     {
         result: String = String();
@@ -2771,15 +2695,95 @@ inherit String
 
         return result;
     }
+*/
+    def sub(regex_:regex, group_strings:SortableList<String>?, replace_:lambda(String,SortableList<String>):String):  String 
+    {
+        result: String = String();
+        offset:int = 0;
+
+        buffer:Buffer = self.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = PcreOVec(ovec_max);
+
+        while(true) {
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1 || group_strings.identifyWith(null) && regex_result > 0) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                replace_string:String = replace_(match_string, SortableList<String>());
+                result.append(replace_string);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                if(!regex_.global) {
+                    str:String = buffer.subBuffer(offset, -1).toString();
+                    result.append(str);
+                    break;
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                str:String = buffer.subBuffer(offset, ovec.start[0]).toString();
+                result.append(str);
+
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                if(!regex_.global) {
+                    group_strings.clear();
+                }
+
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(match_string);
+                }
+
+                replace_string:String = replace_(match_string, group_strings);
+                result.append(replace_string);
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                if(!regex_.global) {
+                    str:String = buffer.subBuffer(offset, -1).toString();
+                    result.append(str);
+                    break;
+                }
+            }
+            ### no match ###
+            else {
+                str:String = buffer.subBuffer(offset, -1).toString();
+                result.append(str);
+                break;
+            }
+        }
+
+        return result;
+    }
     
     def sub(regex_:regex, replace_:lambda(String,SortableList<String>):String):  String {
         return self.sub(regex_, SortableList<String>()@group_strings, replace_);
     }
 
+/*
     def sub(regex_:regex, replace_:lambda(String):String): String
     {
         return self.sub(regex_, SortableList<String>()@group_strings, replace_);
     }
+*/
 
     def scan(regex_:regex): SortableList<String> {
         result: SortableList<String> = SortableList<String>();
@@ -2830,6 +2834,60 @@ inherit String
         return result;
     }
 
+/*
+    def scan(regex_:regex, block_:lambda(String):String):  SortableList<String> {
+        result: SortableList<String> = SortableList<String>();
+        offset:int = 0;
+
+        buffer:Buffer = self.toBuffer();
+        ovec_max:int = 16;
+        ovec:PcreOVec = PcreOVec(ovec_max);
+
+        while(true) {
+            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
+
+            ### match and no group strings ###
+            if(regex_result == 1) {
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                result.add(block_(match_string));
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+            }
+            ### group strings ###
+            elif(regex_result > 1) {
+                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
+
+                group_strings: SortableList<String> = SortableList<String>();
+                for(i:int = 1; i<regex_result; i++) {
+                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
+                    group_strings.add(match_string);
+                }
+
+                if(offset == ovec.end[0]) {
+                    offset++;
+                }
+                else {
+                    offset = ovec.end[0];
+                }
+
+                result.add(block_(match_string));
+            }
+            ### no match ###
+            else {
+                break;
+            }
+        }
+
+        return result;
+    }
+*/
+
     def scan(regex_:regex, block_:lambda(String,SortableList<String>):String):  SortableList<String> {
         result: SortableList<String> = SortableList<String>();
         offset:int = 0;
@@ -2873,57 +2931,6 @@ inherit String
                 }
 
                 result.add(block_(match_string, group_strings));
-            }
-            ### no match ###
-            else {
-                break;
-            }
-        }
-
-        return result;
-    }
-    def scan(regex_:regex, block_:lambda(String):String):  SortableList<String> {
-        result: SortableList<String> = SortableList<String>();
-        offset:int = 0;
-
-        buffer:Buffer = self.toBuffer();
-        ovec_max:int = 16;
-        ovec:PcreOVec = PcreOVec(ovec_max);
-
-        while(true) {
-            regex_result:int = pcre_exec(regex_, buffer, offset, ovec_max, ovec);
-
-            ### match and no group strings ###
-            if(regex_result == 1) {
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-
-                result.add(block_(match_string));
-
-                if(offset == ovec.end[0]) {
-                    offset++;
-                }
-                else {
-                    offset = ovec.end[0];
-                }
-            }
-            ### group strings ###
-            elif(regex_result > 1) {
-                match_string:String = buffer.subBuffer(ovec.start[0], ovec.end[0]).toString();
-
-                group_strings: SortableList<String> = SortableList<String>();
-                for(i:int = 1; i<regex_result; i++) {
-                    match_string:String = buffer.subBuffer(ovec.start[i], ovec.end[i]).toString();
-                    group_strings.add(match_string);
-                }
-
-                if(offset == ovec.end[0]) {
-                    offset++;
-                }
-                else {
-                    offset = ovec.end[0];
-                }
-
-                result.add(block_(match_string));
             }
             ### no match ###
             else {

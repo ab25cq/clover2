@@ -53,9 +53,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
     object_data->mBlockID = block_id;
     object_data->mClass2 = klass;
 
-#ifdef ENABLE_JIT
-    push_object_to_global_stack(obj, info);
-#endif
+//printf("create_block_object %d\n", obj);
 
     return obj;
 }
