@@ -137,9 +137,9 @@ You can use C language libraries without creating extension libraries etc.
     eeeee
     rrrrr
 
-    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
-    > list{uname(), hostname(), pwd()}.each { it.less() }
+    > {uname(), hostname(), pwd()}.each { it.less() }
 ```
 
 # Operating environment $

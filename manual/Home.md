@@ -138,9 +138,9 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
     eeeee
     rrrrr
 
-    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
-    > list{uname(), hostname(), pwd()}.each { it.less() }
+    > {uname(), hostname(), pwd()}.each { it.less() }
 
 # 動作環境
 

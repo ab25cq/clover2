@@ -127,9 +127,9 @@ version 8.0.1
     eeeee
     rrrrr
 
-    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
-    > list{uname(), hostname(), pwd()}.each { it.less() }
+    > {uname(), hostname(), pwd()}.each { it.less() }
 
 Yet another compiler and a Virtual Machine.
 
@@ -258,7 +258,7 @@ Sample Code
     eeeee
     rrrrr
 
-    > list{1,2,3}.map { it.toString().toCommand() }.each { it.less() }
+    > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
-    > list{uname(), hostname(), pwd()}.each { it.less() }
+    > {uname(), hostname(), pwd()}.each { it.less() }
 
