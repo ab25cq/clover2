@@ -40,7 +40,7 @@ Method names, external command names, file names are also supplemented. Just lik
 9. You can type in method block types. The following code works.
 
 ```
-> a: SortableList <String> = slist {1,2,3} .map { it.toString() }
+> a: SortableList <String> = {1,2,3} .map { it.toString() }
 ```
 
 10. The script can perform motion reflection at compile time. Since it is done at compile time, the overhead of reflection is 0 at run time.
@@ -120,12 +120,12 @@ You can use C language libraries without creating extension libraries etc.
     "A,B,C".split(/,/) {it.append("X"); }
     { AX, BX, CX }
 
-    slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    {1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
     [2]
     [4]
     [6]
 
-    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    > {1,2,3,4,5,6,7}.select { it > 3 }.reverse()
     {7,6,5,4}
 
     > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
