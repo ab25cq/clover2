@@ -206,7 +206,7 @@ C言語のFFIが必要な場合はlibffcall1-devが必要になります。
 としてください。/usr/local/binにcclover2やclover2が登録されます。
 インタプリタが必要な場合は
 `--with-interpreter`オプションを`./configure`に追加してください。iclover2という実行ファイル名でインタプリタが入ります。ただし、実行コードは微妙に遅くなります。(Signal Interprruptの判定がコードに埋め込まれるため)。正直誤差の範囲だと思いますが。
-Methodのネイティブコードコンパイルが必要になる場合は`--with-jit`オプションを`./configure`に追加してください。--with-jitで動作が不安定な場合は--with-jitを外して実行してみてください。--with-jitはversion 3.5で安定しています。それでもバグが出るようなら--with-jitを外して使ってみてください。　
+Methodのネイティブコードコンパイルが必要になる場合は`--with-jit`オプションを`./configure`に追加してください。--with-jitで動作が不安定な場合は--with-jitを外して実行してみてください。--with-jitはversion 8.0.0で安定しています。それでもバグが出るようなら--with-jitを外して使ってみてください。　
 C言語へのFFIが必要な場合は`--with-c-ffi`オプションを`./configure`に追加してください。その場合libffcall1-devが必要になります。
 環境の違いよって`--with-optimize`でセグメンテーション違反が出る場合は`--with-optimize`を外してみて実行してください。かなり処理速度が遅くなりますが、セグメンテーション違反がでなくなるかもしれません。
 `--with-thread`でThreadが有効になります。その場合は`--with-optimize`がつけられません。スレッドのプログラムで最適化を行うとバグになるためです。
