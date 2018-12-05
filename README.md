@@ -33,7 +33,7 @@ version 8.0.1
 
     9.メソッドブロックの型推論が出来ます。以下のようなコードが動きます。
 
-    a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+    a:SortableList<String> = {1,2,3}.map { it.toString() }
 
     10.コンパイル時にスクリプトが動きリフレクションを行うことができます。コンパイル時に行うため実行時ではリフレクションのオーバーヘッドは0です。
 
@@ -110,12 +110,12 @@ version 8.0.1
     > "A,B,C".split(/,/) {it.append("X"); }
     { AX, BX, CX }
 
-    > slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    > {1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
     [2]
     [4]
     [6]
 
-    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    > {1,2,3,4,5,6,7}.select { it > 3 }.reverse()
     {7,6,5,4}
 
     > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
@@ -163,7 +163,7 @@ FEATURES
 
     9. You can type in method block types. The following code works.
 
-    a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+    a:SortableList<String> = {1,2,3}.map { it.toString() }
 
     10. The script can perform motion reflection at compile time. Since it is done at compile time, the overhead of reflection is 0 at run time.
 
@@ -241,12 +241,12 @@ Sample Code
     > "A,B,C".split(/,/) {it.append("X"); }
     { AX, BX, CX }
 
-    > slist{1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
+    > {1,2,3}.map { it * 2 }.each { it.printf("[%d]\n"); }
     [2]
     [4]
     [6]
 
-    > slist{1,2,3,4,5,6,7}.select { it > 3 }.reverse()
+    > {1,2,3,4,5,6,7}.select { it > 3 }.reverse()
     {7,6,5,4}
 
     > 2.className().scan(/./).map { it.multiply(5) }.join("\n")
