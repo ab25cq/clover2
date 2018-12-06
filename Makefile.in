@@ -489,7 +489,7 @@ install:
 	mkdir -p "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./clover2 "$(DESTDIR)/bin"
 	$(INSTALL) -m 755 ./cclover2 "$(DESTDIR)/bin"
-	$(INSTALL) -m 755 ./bclover2 "$(DESTDIR)/bin"
+	if test $(JIT) = 1; then $(INSTALL) -m 755 ./bclover2 "$(DESTDIR)/bin"; fi
 	if test -e ./iclover2; then $(INSTALL) -m 755 ./iclover2 "$(DESTDIR)/bin"; fi
 	if test -e ./tyclover2; then $(INSTALL) -m 755 ./tyclover2 "$(DESTDIR)/bin"; fi
 
@@ -503,6 +503,8 @@ uninstall:
 	rm -f "$(DESTDIR)"/bin/clover2
 	rm -f "$(DESTDIR)"/bin/cclover2
 	rm -f "$(DESTDIR)"/bin/iclover2
+	rm -f "$(DESTDIR)"/bin/bclover2
+	rm -f "$(DESTDIR)"/bin/tyclover2
 	rm -f "$(DESTDIR)"/share/clover2/*
 	rmdir "$(DESTDIR)"/share/clover2
 	rm -f "$(DESTDIR)"/share/doc/clover2/*
