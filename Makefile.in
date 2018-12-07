@@ -84,7 +84,7 @@ $(OBJ): src/*.h Makefile configure
 #########################################################
 # JIT compile
 #########################################################
-jit-compile: Clover.so PcreOVec.so System.so Global.so Buffer.so Exception.so Byte.so UByte.so Short.so UShort.so Integer.so UInteger.so Long.so ULong.so Float.so Double.so Pointer.so Char.so Bool.so Array.so EqualableArray.so SortableArray.so HashItem.so Hash.so ListItem.so List.so EqualableList.so SortableList.so Tuple1.so Tuple2.so Tuple3.so Tuple4.so Tuple5.so Tuple6.so Tuple7.so Tuple8.so Tuple9.so Tuple10.so Path.so Directory.so termios.so Job.so Command.so String.so File.so Class.so
+jit-compile: Clover.so PcreOVec.so System.so Global.so Buffer.so Exception.so Byte.so UByte.so Short.so UShort.so Integer.so UInteger.so Long.so ULong.so Float.so Double.so Pointer.so Char.so Bool.so Array.so EqualableArray.so SortableArray.so HashItem.so Hash.so ListItem.so List.so EqualableList.so SortableList.so Tuple1.so Tuple2.so Tuple3.so Tuple4.so Tuple5.so Tuple6.so Tuple7.so Tuple8.so Tuple9.so Tuple10.so Path.so Directory.so termios.so Job.so Command.so String.so File.so Class.so Field.so Method.so MethodParam.so Mutex.so Null.so Range.so Thread.so fd_set.so getopt_long_option.so timespec.so timeval.so tm.so hostent.so in_addr.so pthread_cond_t.so pthread_mutex_t.so servent.so sockaddr_in.so sockaddr_un.so stat.so
 
 Clover.so: Clover.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Clover; fi
