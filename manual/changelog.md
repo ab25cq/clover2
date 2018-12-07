@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.0.2
+
+    JITでインストールされていないクラスがあったため、修正。
+
 version 8.0.1
 
     ちょっと手違いで"ABC".sub(/.(.)./) { it2.items(0) } => Bが動きませんでした。動くようになりました。

@@ -1,4 +1,8 @@
 
+version 8.0.2
+
+    Fixed as there were classes not installed by JIT. 
+
 version 8.0.1
 
     "ABC".sub (/.(.)./) {it2.items (0)} => B did not work with a slight mistake.  I got to move. 

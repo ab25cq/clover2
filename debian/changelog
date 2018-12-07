@@ -1,4 +1,8 @@
 
+clover2 (8.0.2-1) unstable; urgency=medium
+
+    * Fixed as there were classes not installed by JIT. 
+
 clover2 (8.0.1-1) unstable; urgency=medium
 
     * "ABC".sub (/.(.)./) {it2.items (0)} => B did not work with a slight mistake.  I got to move. 

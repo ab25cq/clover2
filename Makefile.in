@@ -224,6 +224,69 @@ File.so: File.oclcl
 Class.so: Class.oclcl
 	if test $(JIT) = 1; then ./bclover2 -core Class; fi
 
+Field.so: Field.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Field; fi
+
+Method.so: Method.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Method; fi
+
+MethodParam.so: MethodParam.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core MethodParam; fi
+
+Mutex.so: Mutex.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Mutex; fi
+
+Thread.so: Thread.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Thread; fi
+
+fd_set.so: fd_set.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core fd_set; fi
+
+getopt_long_option.so: getopt_long_option.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core getopt_long_option; fi
+
+Range.so: Range.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Range; fi
+
+stat.so: stat.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core stat; fi
+
+tm.so: Command.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core tm; fi
+
+timespec.so: timespec.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core timespec; fi
+
+hostent.so: hostent.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core hostent; fi
+
+in_addr.so: in_addr.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core in_addr; fi
+
+pthread_cond_t.so: pthread_cond_t.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core pthread_cond_t; fi
+
+pthread_mutex_t.so: pthread_mutex_t.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core pthread_mutex_t; fi
+
+servent.so: servent.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core servent; fi
+
+sockaddr.so: sockaddr.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core sockaddr; fi
+
+sockaddr_in.so: sockaddr_in.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core sockaddr_in; fi
+
+sockaddr_un.so: sockaddr_un.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core sockaddr_un; fi
+
+timeval.so: timeval.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core timeval; fi
+
+Null.so: Null.oclcl
+	if test $(JIT) = 1; then ./bclover2 -core Null; fi
+
 #########################################################
 # install
 #########################################################
@@ -264,9 +327,6 @@ install:
 
 	$(INSTALL) -m 644 ./Exception.oclcl $(DESTDIR)/share/clover2
 	if test -e Exception.so; then $(INSTALL) -m 755 ./Exception.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Exception.so $(DESTDIR)/share/clover2; fi
-
-	$(INSTALL) -m 644 ./Object.oclcl $(DESTDIR)/share/clover2
-	if test -e Object.so; then $(INSTALL) -m 755 ./Object.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Object.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Byte.oclcl $(DESTDIR)/share/clover2
 	if test -e Byte.so; then $(INSTALL) -m 755 ./Byte.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Byte.so $(DESTDIR)/share/clover2; fi
@@ -315,18 +375,6 @@ install:
 
 	$(INSTALL) -m 644 ./SortableArray.oclcl $(DESTDIR)/share/clover2
 	if test -e SortableArray.so; then $(INSTALL) -m 755 ./SortableArray.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./SortableArray.so $(DESTDIR)/share/clover2; fi
-
-	$(INSTALL) -m 644 ./IHashKey.oclcl $(DESTDIR)/share/clover2
-	if test -e IHashKey.so; then $(INSTALL) -m 755 ./IHashKey.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IHashKey.so $(DESTDIR)/share/clover2; fi
-
-	$(INSTALL) -m 644 ./IEqualable.oclcl $(DESTDIR)/share/clover2
-	if test -e IEqualable.so; then $(INSTALL) -m 755 ./IEqualable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IEqualable.so $(DESTDIR)/share/clover2; fi
-
-	$(INSTALL) -m 644 ./ISortable.oclcl $(DESTDIR)/share/clover2
-	if test -e ISortable.so; then $(INSTALL) -m 755 ./ISortable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./ISortable.so $(DESTDIR)/share/clover2; fi
-
-	$(INSTALL) -m 644 ./IIteratorable.oclcl $(DESTDIR)/share/clover2
-	if test -e IIteratorable.so; then $(INSTALL) -m 755 ./IIteratorable.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./IIteratorable.so $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./HashItem.oclcl $(DESTDIR)/share/clover2
 	if test -e HashItem.so; then $(INSTALL) -m 755 ./HashItem.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./HashItem.so $(DESTDIR)/share/clover2; fi
@@ -460,6 +508,11 @@ install:
 	$(INSTALL) -m 644 ./Null.oclcl $(DESTDIR)/share/clover2
 	if test -e Null.so; then $(INSTALL) -m 755 ./Null.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Null.so $(DESTDIR)/share/clover2; fi
 
+	$(INSTALL) -m 644 ./Object.oclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./IEqualable.oclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./IHashKey.oclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./IIteratorable.oclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./ISortable.oclcl $(DESTDIR)/share/clover2
 
 	$(INSTALL) -m 644 ./MArray.clm $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MArray.clm $(DESTDIR)/share/clover2
