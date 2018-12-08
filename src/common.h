@@ -128,8 +128,8 @@ void append_float_value_to_code(sByteCode* code, float value, BOOL no_output);
 struct sConstStruct
 {
     char* mConst;
-    int mSize;
-    int mLen;
+    unsigned int mSize;
+    unsigned int mLen;
 };
 
 typedef struct sConstStruct sConst;
@@ -137,17 +137,17 @@ typedef struct sConstStruct sConst;
 #define CONS_str(constant, offset) (char*)((constant)->mConst + offset)
 
 void sConst_init(sConst* self);
-void sConst_init_with_size(sConst* self, int size);
+void sConst_init_with_size(sConst* self, unsigned int size);
 void sConst_free(sConst* self);
 void sConst_clone(sConst* self, sConst* constant);
 
-int sConst_append(sConst* self, void* data, int size, BOOL no_output);
-int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output);
-int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output);
-int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output);
-int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output);
+unsigned int sConst_append(sConst* self, void* data, int size, BOOL no_output);
+unsigned int append_int_value_to_constant_pool(sConst* constant, int n, BOOL no_output);
+unsigned int append_float_value_to_constant_pool(sConst* constant, float n, BOOL no_output);
+unsigned int append_double_value_to_constant_pool(sConst* constant, double n, BOOL no_output);
+unsigned int append_str_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_buffer_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* buf, int size, BOOL no_output);
-int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
+unsigned int append_wstr_to_constant_pool(sConst* constant, char* str, BOOL no_output);
 void append_str_to_constant_pool_and_code(sConst* constant, sByteCode* code, char* str, BOOL no_output);
 
 /// stack.c ///
@@ -201,7 +201,7 @@ struct sCLBlockTypeStruct {
 typedef struct sCLBlockTypeStruct sCLBlockType;
 
 struct sCLTypeStruct {
-    int mClassNameOffset;
+    unsigned int mClassNameOffset;
 
     int mNumGenericsTypes;
     struct sCLTypeStruct* mGenericsTypes[GENERICS_TYPES_MAX];
@@ -215,11 +215,11 @@ struct sCLTypeStruct {
 typedef struct sCLTypeStruct sCLType;
 
 struct sCLParamStruct {
-    int mNameOffset;                // variable name
+    unsigned int mNameOffset;                // variable name
 
     sCLType* mType;
 
-    int mDefaultValueOffset;
+    unsigned int mDefaultValueOffset;
 };
 
 typedef struct sCLParamStruct sCLParam;
@@ -238,10 +238,6 @@ struct sVMInfoStruct {
 
     CLVALUE* current_stack;
     int current_var_num;
-    char* sname;
-    int sline;
-    char* sname2;
-    int sline2;
     int try_offset;
     char** try_pc;
     sByteCode* try_code;
@@ -283,6 +279,11 @@ struct sVMInfoStruct {
 
     char* running_class_name;
     char* running_method_name;
+
+    char sname[128];
+    int sline;
+    char sname2[128];
+    int sline2;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -291,9 +292,9 @@ typedef BOOL (*fNativeMethod)(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 struct sCLMethodStruct {
     clint64 mFlags;
-    int mNameOffset;
-    int mPathOffset;
-    int mMethodNameAndParamsOffset;
+    unsigned int mNameOffset;
+    unsigned int mPathOffset;
+    unsigned int mMethodNameAndParamsOffset;
     int mMethodIndex;
 
     sCLParam mParams[PARAMS_MAX]; // +1 --> self
@@ -310,9 +311,9 @@ struct sCLMethodStruct {
     void* mJITDynamicSym;       // this requires runtime
 
     int mNumGenerics;
-    int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
 
-    int mCLibraryOffset;
+    unsigned int mCLibraryOffset;
     void* mCFunctionPointer;    // this requires runtime
 };
 
@@ -325,7 +326,7 @@ typedef struct sCLMethodStruct sCLMethod;
 
 struct sCLFieldStruct {
     clint64 mFlags;
-    int mNameOffset;
+    unsigned int mNameOffset;
 
     sCLType* mResultType;
     CLVALUE mValue;
@@ -357,12 +358,12 @@ struct sCLClassStruct {
     int mMethodGenericsParamClassNum;  // -1 is none geenrics param
     int mNumGenerics;
 
-    int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
-    int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
+    unsigned int mGenericsParamNameOffsets[GENERICS_TYPES_MAX];
+    unsigned int mGenericsParamTypeOffsets[GENERICS_TYPES_MAX];
 
     sConst mConst;
 
-    int mClassNameOffset;
+    unsigned int mClassNameOffset;
 
     sCLMethod* mMethods;
     int mNumMethods;
@@ -397,11 +398,11 @@ struct sCLClassStruct {
 
     fFreeFun mFreeFun;
 
-    int mTypedefClassName1Offsets[TYPEDEF_MAX];
-    int mTypedefClassName2Offsets[TYPEDEF_MAX];
+    unsigned int mTypedefClassName1Offsets[TYPEDEF_MAX];
+    unsigned int mTypedefClassName2Offsets[TYPEDEF_MAX];
     int mNumTypedef;
 
-    int mUnboxingClassNameOffset;
+    unsigned int mUnboxingClassNameOffset;
 
     BOOL mInitialized;   // This requires on the run time
 

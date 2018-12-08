@@ -1,4 +1,8 @@
 
+clover2 (8.1.0-1) unstable; urgency=medium
+
+    * Fixed a major bug that may be lost at run time.
+
 clover2 (8.0.2-1) unstable; urgency=medium
 
     * Fixed as there were classes not installed by JIT. 

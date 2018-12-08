@@ -232,7 +232,13 @@ void try_function(sVMInfo* info, int catch_label_name_offset, int try_offset, sB
 
 void mark_source_position(sVMInfo* info, char* sname, int sline)
 {
-    info->sname2 = sname;
+    xstrncpy(info->sname, sname, 128);
+    info->sline = sline;
+}
+
+void mark_source_position2(sVMInfo* info, char* sname, int sline)
+{
+    xstrncpy(info->sname2, sname, 128);
     info->sline2 = sline;
 }
 

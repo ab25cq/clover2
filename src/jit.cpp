@@ -926,24 +926,26 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* sname = CONS_str(constant, offset);
-
                 int sline = *(int*)pc;
                 pc += sizeof(int);
 
+                char* sname = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("mark_source_position");
+
+                std::vector<Value*> params2;
+
                 std::string info_value_name("info");
                 Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
-                StructType* vm_info_struct_type = get_vm_info_struct_type();
-
-                Value* sname_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 3);
                 Value* sname_value = llvm_create_string(sname);
-                Builder.CreateStore(sname_value, sname_field, "sname_store");
+                params2.push_back(sname_value);
 
-                Value* sline_field = Builder.CreateStructGEP(vm_info_struct_type, vminfo_value, 4);
                 Value* sline_value = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)sline);
+                params2.push_back(sline_value);
 
-                Builder.CreateStore(sline_value, sline_field, "sline_store");
+                (void)Builder.CreateCall(fun, params2);
                 }
                 break;
 
@@ -951,12 +953,12 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
-                char* sname = CONS_str(constant, offset);
-
                 int sline = *(int*)pc;
                 pc += sizeof(int);
 
-                Function* fun = TheModule->getFunction("mark_source_position");
+                char* sname = CONS_str(constant, offset);
+
+                Function* fun = TheModule->getFunction("mark_source_position2");
 
                 std::vector<Value*> params2;
 
@@ -4613,6 +4615,23 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "mark_source_position", TheModule);
+
+    /// mark_source_position2 ///
+    type_params.clear();
+
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext,64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext,8), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = IntegerType::get(TheContext,32);
+    type_params.push_back(param3_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "mark_source_position2", TheModule);
 
     /// get_field_from_object ///
     type_params.clear();

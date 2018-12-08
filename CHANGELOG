@@ -1,4 +1,12 @@
 
+version 8.1.0
+
+    実行時に落ちることがある大きなバグを修正しました。
+
+version 8.1.0
+
+    Fixed a major bug that may be lost at run time.
+
 version 8.0.2
 
     JITでインストールされていないクラスがあったため、修正。

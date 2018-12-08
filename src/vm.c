@@ -63,6 +63,10 @@ void dec_andand_oror_array(sVMInfo* info)
 void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_CREATE_TUPLE:
+            puts("OP_CREATE_TUPLE");
+            break;
+            
         case OP_CREATE_ARRAY:
             puts("OP_CREATE_ARRAY");
             break;
@@ -583,7 +587,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->num_stack_trace++;
         }
     }
-
 
     CLVALUE* lvar = NULL;
     int num_params = 0;
@@ -1969,7 +1972,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_MARK_SOURCE_CODE_POSITION: {
-                int offset = *(int*)pc;
+                unsigned int offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
                 char* sname = CONS_str(constant, offset);
@@ -1977,13 +1980,13 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 int sline = *(int*)pc;
                 pc += sizeof(int);
 
-                info->sname = sname;
+                xstrncpy(info->sname, sname, 128);
                 info->sline = sline;
                 }
                 break;
 
             case OP_MARK_SOURCE_CODE_POSITION2: {
-                int offset = *(int*)pc;
+                unsigned int offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
                 char* sname = CONS_str(constant, offset);
@@ -1991,7 +1994,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 int sline = *(int*)pc;
                 pc += sizeof(int);
 
-                info->sname2 = sname;
+                xstrncpy(info->sname2, sname, 128);
                 info->sline2 = sline;
                 }
                 break;
@@ -5202,7 +5205,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_IMPLEMENTS:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -5292,7 +5295,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_INVOKE_METHOD:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int method_index = *(int*)pc;
@@ -5356,7 +5359,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_real_params = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int size = *(int*)pc;
@@ -5425,10 +5428,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_INVOKE_DYNAMIC_METHOD: 
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int num_params = *(int*)pc;
@@ -5658,10 +5661,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_NEW:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     BOOL flg_array = *(int*)pc;
@@ -5833,7 +5836,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int field_index = *(int*)pc;
                     pc += sizeof(int);
 
-                    int class_name_offset = *(int*)pc;
+                    unsigned int class_name_offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int size = *(int*)pc;
@@ -6021,7 +6024,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_LOAD_CLASS_FIELD:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int field_index = *(int*)pc;
@@ -6073,7 +6076,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_LOAD_CLASS_FIELD_ADDRESS:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int field_index = *(int*)pc;
@@ -6139,7 +6142,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_STORE_CLASS_FIELD:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int field_index = *(int*)pc;
@@ -6186,7 +6189,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_STORE_CLASS_FIELD_OF_BUFFER:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int field_index = *(int*)pc;
@@ -13291,16 +13294,12 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_INT_TO_INTEGER_CAST:
                 {
-                    
-
                     int value = (stack_ptr-1)->mIntValue;
 
                     CLObject obj = create_integer(value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
-
-                    
                 }
                 break;
                 
@@ -15708,7 +15707,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
             case OP_ARRAY_TO_CARRAY_CAST: {
                 
 
-                int offset = *(int*)pc;
+                unsigned int offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
                 char* class_name = CONS_str(constant, offset);
@@ -15988,7 +15987,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CREATE_STRING:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int num_string_expression = *(int*)pc;
@@ -16053,7 +16052,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 {
                     
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int size = *(int*)pc;
@@ -16121,7 +16120,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 {
                     
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int num_string_expression = *(int*)pc;
@@ -16189,7 +16188,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16239,10 +16238,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16308,10 +16307,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16380,10 +16379,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16452,10 +16451,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16522,10 +16521,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16591,10 +16590,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16658,12 +16657,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CREATE_TUPLE:
                 {
-                    
-
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* type_name = CONS_str(constant, offset);
@@ -16711,7 +16708,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
 
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name = CONS_str(constant, offset);
@@ -16733,10 +16730,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                         }
                     }
 
-                    int offset2 = *(int*)pc;
+                    unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int offset3 = *(int*)pc;
+                    unsigned int offset3 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     char* class_name2 = CONS_str(constant, offset2);
@@ -16805,10 +16802,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CREATE_BLOCK_OBJECT:
                 {
-                    int code_offset = *(int*)pc;
+                    unsigned int code_offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
-                    int code_len = *(int*)pc;
+                    unsigned int code_len = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     sByteCode codes2;
@@ -16884,7 +16881,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CREATE_REGEX:
                 {
-                    int offset = *(int*)pc;
+                    unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     BOOL global = *(int*)pc;

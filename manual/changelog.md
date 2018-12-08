@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.0
+
+    実行時に落ちることがある大きなバグを修正しました。
+
 version 8.0.2
 
     JITでインストールされていないクラスがあったため、修正。
