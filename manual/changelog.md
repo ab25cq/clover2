@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.1
+
+    JITでクラスファイルのコンパイルを-O2から-O3に変更しました。
+
 version 8.1.0
 
     実行時に落ちることがある大きなバグを修正しました。

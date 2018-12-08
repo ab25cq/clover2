@@ -1,4 +1,8 @@
 
+clover2 (8.1.1-1) unstable; urgency=medium
+
+    * Changed class file compilation from -O2 to -O3 in JIT. 
+
 clover2 (8.1.0-1) unstable; urgency=medium
 
     * Fixed a major bug that may be lost at run time.

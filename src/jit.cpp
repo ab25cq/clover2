@@ -3803,7 +3803,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     passBuilder.registerFunctionAnalyses(TheFAM);
 
-    passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O2, false);
+    passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
 
     create_internal_functions();
     TheLabels.clear();

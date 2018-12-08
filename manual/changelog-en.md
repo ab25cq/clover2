@@ -1,4 +1,12 @@
 
+version 8.1.1
+
+    Changed class file compilation from -O2 to -O3 in JIT. 
+
+version 8.1.0
+
+    Fixed a major bug that may be lost at run time.
+
 version 8.0.2
 
     Fixed as there were classes not installed by JIT. 
