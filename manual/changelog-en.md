@@ -1,4 +1,8 @@
 
+version 8.1.2
+
+    Fixed a bug in JIT where there is a logical operator in the conditional expression of the if statement and it goes down if it runs a lot.
+
 version 8.1.1
 
     Changed class file compilation from -O2 to -O3 in JIT. 

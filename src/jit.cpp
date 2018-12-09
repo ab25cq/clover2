@@ -842,24 +842,19 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 LVALUE llvm_value;
                 llvm_value = trunc_value(value, 64);
 
-                std::string global_stack_ptr_address_name("global_stack_ptr_address");
-                Value* global_stack_ptr_address_value = params[global_stack_ptr_address_name];
+                /// fun ///
+                Function* fun = TheModule->getFunction("push_value_to_global_stack");
 
-                Value* loaded_global_stack_ptr_address_value = Builder.CreateAlignedLoad(global_stack_ptr_address_value, 8, "loaded_global_stack_ptr_address");
+                std::vector<Value*> params2;
 
-                /// zero clear///
-                Value* zero = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
-                Builder.CreateAlignedStore(zero, loaded_global_stack_ptr_address_value, 8);
+                Value* param1 = llvm_value.value;
+                params2.push_back(param1);
 
-                /// store ///
-                Builder.CreateAlignedStore(llvm_value.value, loaded_global_stack_ptr_address_value, 8);
+                std::string info_value_name("info");
+                Value* vminfo_value = params[info_value_name];
+                params2.push_back(vminfo_value);
 
-                /// inc pointer ///
-                Value* lvalue = loaded_global_stack_ptr_address_value;
-                Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(64, 1, true));
-                Value* inc_ptr_value = Builder.CreateGEP(lvalue, rvalue, "inc_ptr_value");
-
-                Builder.CreateStore(inc_ptr_value, global_stack_ptr_address_value);
+                (void)Builder.CreateCall(fun, params2);
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 inc_vm_stack_ptr(params, current_block, -1);
@@ -6468,6 +6463,20 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "show_vm_stack", TheModule);
+
+    /// push_value_to_global_stack ///
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = IntegerType::get(TheContext, 64);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "push_value_to_global_stack", TheModule);
 }
 
 LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)

@@ -1,4 +1,8 @@
 
+clover2 (8.1.2-1) unstable; urgency=medium
+
+    * Fixed a bug in JIT where there is a logical operator in the conditional expression of the if statement and it goes down if it runs a lot.
+
 clover2 (8.1.1-1) unstable; urgency=medium
 
     * Changed class file compilation from -O2 to -O3 in JIT. 

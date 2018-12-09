@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.2
+
+    JITでif文の条件式に論理演算子がありなんども実行すると落ちるバグを修正。
+
 version 8.1.1
 
     JITでクラスファイルのコンパイルを-O2から-O3に変更しました。

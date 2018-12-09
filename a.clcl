@@ -2,46 +2,28 @@
 class JITTestX
 {
     def main(): static {
-/:
-        a:Float = 1.0F;
+        line_num := 0;
+        texts := { "AAA", "BBB", "CCC" };
+        it := texts.items(line_num);
 
-        Clover.test("Float test", a.equals(1.0F));
+        head_char := '{'
+        tail_char := '}'
+        nest := 0;
+        cursor_num := -1;
+        for(i:=2-1; i>=0; i--) 
+        {
+            if(it.chars(i) == head_char) {
+                nest++; 
+            } 
+            elif(it.chars(i) == tail_char) {
+                if(nest == 0) {
+                    cursor_num = i;
+                    break; 
+                } 
+                nest--;
+            } 
+        } 
 
-        b:Double = 1.1D;
-
-        Clover.test("Double test", b.equals(1.1D));
-*/
-
-        c:Byte = 2Y;
-
-        Clover.test("Byte test", c.equals(2Y));
-
-        d:UByte = 2UY;
-
-        Clover.test("UByte test", d.equals(2UY));
-
-/*
-        e:Short = 3S;
-        Clover.test("Short test", e.equals(3S));
-
-        f:UShort = 3US;
-        Clover.test("UShort test", f.equals(3US));
-
-        g:Long = 5L;
-        Clover.test("Long test", g.equals(5L));
-
-        i:ULong = 5UL;
-        Clover.test("ULong test", i.equals(5UL));
-
-        j:UInteger = 5U;
-        Clover.test("UInteger test", j.equals(5u));
-
-        k:Integer = 5I;
-        Clover.test("Integer test", k.equals(5I));
-
-        var l = 1_000_000;
-
-        Clover.test("Number test", l == 1000000);
-*/
+        println("done");
     }
 }

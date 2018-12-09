@@ -1,4 +1,12 @@
 
+version 8.1.2
+
+    JITでif文の条件式に論理演算子がありなんども実行すると落ちるバグを修正。
+
+version 8.1.2
+
+    Fixed a bug in JIT where there is a logical operator in the conditional expression of the if statement and it goes down if it runs a lot.
+
 version 8.1.1
 
     JITでクラスファイルのコンパイルを-O2から-O3に変更しました。
