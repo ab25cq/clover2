@@ -1,4 +1,8 @@
 
+version 8.1.3
+
+    Added Hash.add, List.push (List), EqualableList.push (EqualableList), SortableList.push (SortableList).  Please do not use add (T) of List much.  I do not think that add is an element addition meaning but want to use it in the meaning of addition.  List.add (List) and so on.  To add the elements of List please use push.
+
 version 8.1.2
 
     Fixed a bug in JIT where there is a logical operator in the conditional expression of the if statement and it goes down if it runs a lot.

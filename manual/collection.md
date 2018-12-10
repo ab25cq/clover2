@@ -126,11 +126,11 @@ Arrayは単なる配列のラッパークラスなので配列長さを変えた
 
     > a:List<Integer> = new List<Integer>();
     Null list
-    > a.add(1);
+    > a.push(1);
     1 length list of Integer
-    > a.add(2);
+    > a.push(2);
     2 length list of Integer
-    > a.add(3);
+    > a.push(3);
     3 length list of Integer
     > a.each(lambda(item:Integer) { item.println() });
     1
@@ -138,7 +138,7 @@ Arrayは単なる配列のラッパークラスなので配列長さを変えた
     3
     3 length list of Integer
 
-addメソッドによってリストに要素を追加することができます。1や2などプリミティブ型の値を引数として渡していますがInteger型にboxingされてListに渡されています。プリミティブ型自体はListの要素になることはできません。
+pushメソッドによってリストに要素を追加することができます。1や2などプリミティブ型の値を引数として渡していますがInteger型にboxingされてListに渡されています。プリミティブ型自体はListの要素になることはできません。
 リストの値の表現は以下のように書きます。
 
     > a:List<Integer> = list { 1,2,3 }

@@ -462,23 +462,6 @@ module MList
         return self;
     }
 
-    def add(item:T):SELF<T> {
-        if(self.head.identifyWith(null)) {
-            self.head = ListItem<T>(item, null, null);
-            self.tail = self.head;
-        }
-        else {
-            new_item:ListItem<T> = ListItem<T>(item, self.tail, null);
-
-            self.tail.next = new_item;
-            self.tail = new_item;
-        }
-
-        self.number++;
-
-        return self;
-    }
-
     def push(item:T):SELF<T> {
         if(self.head.identifyWith(null)) {
             self.head = ListItem<T>(item, null, null);
@@ -496,16 +479,12 @@ module MList
         return self;
     }
 
-    def add(right:SELF<T>):SELF<T> {
-        result := self.clone();
-        right.each {
-            result.add(it);
+    def push(list:SELF<T>):SELF<T> {
+        list.each { |item:T| 
+            self.add(item);
         }
-        return result;
-    }
 
-    def push(item:T):SELF<T> {
-        return self.add(item);
+        return self;
     }
 
     def pop():T? {
@@ -532,6 +511,39 @@ module MList
                 return item;
             }
         }
+    }
+
+    def append(list:SELF<T>):SELF<T> {
+        list.each { |item:T| 
+            self.add(item);
+        }
+
+        return self;
+    }
+
+    def add(item:T):SELF<T> {  # don't use this, instead of this, use push. This definition is my mistake
+        if(self.head.identifyWith(null)) {
+            self.head = ListItem<T>(item, null, null);
+            self.tail = self.head;
+        }
+        else {
+            new_item:ListItem<T> = ListItem<T>(item, self.tail, null);
+
+            self.tail.next = new_item;
+            self.tail = new_item;
+        }
+
+        self.number++;
+
+        return self;
+    }
+
+    def add(right:SELF<T>):SELF<T> {
+        result := self.clone();
+        right.each {
+            result.add(it);
+        }
+        return result;
     }
 
     def shift():T? {
@@ -732,14 +744,6 @@ module MList
     }
     def sample():T {
         return self.items(System.rand() % self.number);
-    }
-
-    def append(list:SELF<T>):SELF<T> {
-        list.each { |item:T| 
-            self.add(item);
-        }
-
-        return self;
     }
 
     def deleteWithRange(start:int, end:int):SELF<T> {
@@ -1783,6 +1787,27 @@ class Hash <T:IHashKey, T2:IEqualable>
                         break;
                     }
                 }
+            }
+        }
+
+        return result;
+    }
+
+    def put(right:Hash<T,T2>):Hash<T,T2> {
+        for(i:uint =0; i<right.tableSize; i++) {
+            if(!right.table[i].identifyWith(null)) {
+                put(right.table[i].key, right.table[i].item);
+            }
+        }
+
+        return self;
+    }
+
+    def add(right:Hash<T,T2>):Hash<T,T2> {
+        result := self.clone();
+        for(i:uint =0; i<right.tableSize; i++) {
+            if(!right.table[i].identifyWith(null)) {
+                result.put(right.table[i].key, right.table[i].item);
             }
         }
 

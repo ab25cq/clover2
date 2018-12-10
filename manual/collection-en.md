@@ -140,11 +140,11 @@ The following List class should be used as a variable library (variable size) co
 ```
     > a: List <Integer> = new List <Integer> ();
     Null list
-    > a.add (1);
+    > a.push (1);
     1 length list of Integer
-    > a.add (2);
+    > a.push (2);
     2 length list of Integer
-    > a.add (3);
+    > a.push (3);
     3 length list of Integer
     > a.each (lambda (item: Integer) {item.println ()});
     1
@@ -152,7 +152,7 @@ The following List class should be used as a variable library (variable size) co
     3
     3 length list of Integer
 ```
-You can add elements to the list with the add method. We pass values ​​of primitive types such as 1 and 2 as arguments, but they are boxed into Integer type and passed to List. The primitive type itself can not be an element of List.
+You can add elements to the list with the push method. We pass values ​​of primitive types such as 1 and 2 as arguments, but they are boxed into Integer type and passed to List. The primitive type itself can not be an element of List.
 The representation of the value of the list is written as follows.
 ```
     > a: List <Integer> = list {1, 2, 3}
