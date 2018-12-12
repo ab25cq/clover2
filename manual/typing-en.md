@@ -22,12 +22,12 @@ Depending on the return type, the return type of the block object is determined.
 
 Arguments and return values ​​can be omitted in the method block. The arguments are declared as it, it2, it3, ....
 ```
-    slist {1,2,3}. each { it.toString().println() }
+    {1,2,3}. each { it.toString().println() }
     1
     2
     3
 
-    a:SortableList<String> = slist {1,2,3}.map{ it.toString() }
+    a:SortableList<String> = {1,2,3}.map{ it.toString() }
 ```
 .
 

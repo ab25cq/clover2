@@ -262,7 +262,7 @@ EqualableListはリスト同士を比較して等しいか等しくないかを�
 
 SortableListはソートすることができます。マージソートしています。
 
-    > a:SortableList<Integer> = sortable_list { 4,5,1,3,2 };
+    > a:SortableList<Integer> = { 4,5,1,3,2 };
     list {4,5,1,3,2}
     > a.sort();
     list {1,2,3,4,5}

@@ -276,7 +276,7 @@ EqualableList can compare lists to determine whether they are equal or not.
 
 SortableList can be sorted. It is merge sorting.
 ```
-    > a: SortableList <Integer> = sortable_list {4, 5, 1, 3, 2};
+    > a: SortableList <Integer> = {4, 5, 1, 3, 2};
     list {4, 5, 1, 3, 2}
     > a.sort ();
     list {1, 2, 3, 4, 5}

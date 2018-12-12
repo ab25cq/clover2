@@ -24,12 +24,12 @@ returnされた型に応じてブロックオブジェクトの戻り値の型�
 
 メソッドブロックでは引数と戻り値を省略できます。引数はit,it2,it3,....として宣言されます。
 
-    slist{1,2,3}.each { it.toString().println() }
+    {1,2,3}.each { it.toString().println() }
     1
     2
     3
 
-    a:SortableList<String> = slist{1,2,3}.map { it.toString() }
+    a:SortableList<String> = {1,2,3}.map { it.toString() }
 
 となります。
 

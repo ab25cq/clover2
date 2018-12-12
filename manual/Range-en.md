@@ -25,7 +25,7 @@ Because the range value can also include message passing, it can not be distingu
 As it is, it is a very useless object, but you can use Range object in a method that accepts range as argument of method.
 ```
     "ABCDEGHI" .subString (1..3) # -> "BC"
-    slist {1, 2, 3, 4, 5}. subList (2..4) # -> slist {3, 4}
+    {1, 2, 3, 4, 5}. subList (2..4) # -> {3, 4}
 ```
 Etc.
 In the standard library, Range does not include the last value in range at first. It is because it is like Python.
