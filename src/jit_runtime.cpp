@@ -342,8 +342,13 @@ BOOL run_store_to_buffer(CLObject object, char* pointer, CLVALUE** stack_ptr, CL
     return TRUE;
 }
 
-void split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_elements)
+BOOL split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_elements, CLVALUE* stack, int var_num)
 {
+    if(tuple == 0) {
+        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(3)");
+        return FALSE;
+    }
+
     sCLObject* object_data = CLOBJECT(tuple);
 
     int i;
@@ -351,6 +356,8 @@ void split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_ele
         **stack_ptr = object_data->mFields[i];
         (*stack_ptr)++;
     }
+
+    return TRUE;
 }
 
 BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params)

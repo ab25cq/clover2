@@ -1948,7 +1948,17 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 Value* param4 = ConstantInt::get(TheContext, llvm::APInt(32, num_elements, true));
                 params2.push_back(param4);
 
-                Builder.CreateCall(split_tuple_fun, params2);
+                std::string stack_value_name("stack");
+                Value* param5 = params[stack_value_name];
+                params2.push_back(param5);
+
+                std::string var_num_value_name("var_num");
+                Value* param6 = params[var_num_value_name];
+                params2.push_back(param6);
+
+                Value* result = Builder.CreateCall(split_tuple_fun, params2);
+
+                finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
 
@@ -4780,8 +4790,8 @@ void create_internal_functions()
 
     /// split_tuple ///
     type_params.clear();
-    
-    result_type = Type::getVoidTy(TheContext);
+
+    result_type = IntegerType::get(TheContext, 32);
 
     param1_type = PointerType::get(PointerType::get(IntegerType::get(TheContext, 64), 0), 0);
     type_params.push_back(param1_type);
@@ -4795,8 +4805,15 @@ void create_internal_functions()
     param4_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param4_type);
 
+    param5_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "split_tuple", TheModule);
+
 
     /// call_invoke_virtual_method ///
     type_params.clear();
