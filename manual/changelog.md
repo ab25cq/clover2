@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.4
+
+    System.mvprintw(String,SortableList<ISortable>)の追加。
+
 version 8.1.3
 
     Hash.add, List.push(List), EqualableList.push(EqualableList), SortableList.push(SortableList)を追加。Listのadd(T)はあまり使用しないでください。addは要素の追加と言う意味でなく加算の意味で使用したいと思います。List.add(List)など。Listの要素の追加はpushを使ってください。
