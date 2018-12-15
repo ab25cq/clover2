@@ -214,7 +214,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "8.1.4";
+char* gVersion = "8.1.5";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

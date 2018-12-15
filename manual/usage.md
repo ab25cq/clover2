@@ -162,6 +162,35 @@ version 7.5.0より以下が可能になっています。
 
 コンパイル済みのクラスファイルにinherit クラス名でメソッドやフィールドが追加できます。これによってmixin-layersはより厳密となりリファクタリングなどを行って変更を加えた場合、後方のレイヤーのみ気をつければいいようになってます。基礎クラスに機能を追加する場合もinherit Stringとすれば、Stringクラスにフィールドやメソッドが追加できます。Stringクラスさえロードできれば、それが可能です。ただし、コンパイル順に気をつけてください。
 
+分割コンパイルを行うmixin-layersではメソッドを動的に呼びたいことがでてきます。その場合methodの定義時にdynamic指定を行ってください。実行時にメソッドが決まるため、便利です。
+
+```
+    > vim a.clcl
+    class ClassA {
+        table:SortableList<String>();
+        def initialize() {
+            callTableInitialize();
+        }
+
+        def callTableInitialize(): dynamic {
+            table = { "AAA", "BBB", "CCC" };
+        }
+    }
+
+    > cclover2 a.clcl
+
+    > vim b.clcl
+    inherit ClassA {
+        def callTableInitialize(): dynaimc {
+            table = { "DDD", "EEE", "FFF" }
+        }
+    }
+
+    > cclover2 b.clcl
+```
+
+この場合ClassAのtableは"DDD", "EEE", "FFF"となります。dynamic指定がない場合"AAA", "BBB", "CCC"となるはずです。
+
 ## クラスファイルの登録
 
 クラスファイルの検索パスはカレントディレクトリと$HOME/.clover2となります。どのディレクトリからでもクラスを参照したい場合はoclclファイルを$HOME/.clover2にコピーしてください。あとJITを有効にしている場合はダイナミックライブラリのコピーも必要になります。lib[クラス名].so, lib[クラス名].so.1.0.0を$HOME/.clover2にコピーしてください。無くても動いてしまいますがJITが有効にならずに動いてしまいます。あとはダイナミックライブラリの検索のためにexport LD_LIBRARY_PATH=~/.clover2:$LIBRARY_PATHを.bashrcなどに登録してください。

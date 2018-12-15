@@ -1,0 +1,7 @@
+
+inherit DynamicMethodTest
+{
+    def initTable(): dynamic {
+        table = ["BBB"=>2];
+    }
+}

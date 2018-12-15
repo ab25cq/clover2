@@ -229,6 +229,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_MODIFIED 0x08
 #define METHOD_FLAGS_NON_NATIVE_CODE 0x10
 #define METHOD_FLAGS_C_FUNCTION 0x20
+#define METHOD_FLAGS_DYNAMIC 0x40
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 64
@@ -1893,7 +1894,7 @@ void show_inst(unsigned inst);
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1902,7 +1903,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);

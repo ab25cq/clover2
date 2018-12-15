@@ -1,4 +1,12 @@
 
+version 8.1.5
+
+    メソッドにdynamic指定ができるようになりました。動的にメソッドを実行できます。分割コンパイル時のmixin-layersで便利に使えると思います。
+
+version 8.1.5
+
+    Method can now be dynamically specified.  You can execute methods dynamically.  I think that it can be conveniently used in mixin-layers at split compilation.
+
 version 8.1.4
 
     System.mvprintw(String,SortableList<ISortable>)の追加。

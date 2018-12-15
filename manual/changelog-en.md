@@ -1,4 +1,8 @@
 
+version 8.1.5
+
+    Method can now be dynamically specified.  You can execute methods dynamically.  I think that it can be conveniently used in mixin-layers at split compilation.
+
 version 8.1.4
 
     Added System.mvprintw (String, SortableList).

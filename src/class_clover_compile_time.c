@@ -196,9 +196,10 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &pinfo, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pinfo, clibrary_path, PATH_MAX)) 
         {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid method definition(2)");
             MFREE(klass_value);
@@ -208,7 +209,7 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         sCLMethod* appended_method = NULL;
         if(pinfo.err_num == 0) {
-            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, &pinfo.method_generics_info, &appended_method, clibrary_path, NULL))
+            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, dynamic_, &pinfo.method_generics_info, &appended_method, clibrary_path, NULL))
             {
                 entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Can't add method to class");
                 MFREE(klass_value);
@@ -351,9 +352,10 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &pinfo, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pinfo, clibrary_path, PATH_MAX)) 
         {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
             MFREE(klass_value);
@@ -363,7 +365,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
         sCLMethod* appended_method = NULL;
         if(pinfo.err_num == 0) {
-            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, &pinfo.method_generics_info, &appended_method, clibrary_path, NULL))
+            if(!add_method_to_class(klass2, method_name, params, num_params, result_type, native_, static_, dynamic_, &pinfo.method_generics_info, &appended_method, clibrary_path, NULL))
             {
                 entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
                 MFREE(klass_value);
@@ -513,9 +515,10 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &pinfo, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pinfo, clibrary_path, PATH_MAX)) 
         {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
             MFREE(klass_value);

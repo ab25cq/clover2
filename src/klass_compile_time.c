@@ -227,7 +227,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -240,7 +240,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | ((static_||native_||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | ((static_||native_||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0) | (dynamic_ ? METHOD_FLAGS_DYNAMIC:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
     if(strcmp(clibrary_path, "") != 0) {

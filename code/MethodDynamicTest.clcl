@@ -1,0 +1,18 @@
+class DynamicMethodTest
+{
+    table: Hash<String, Integer>;
+
+    def initialize() {
+        initTable();
+    }
+
+    def initTable(): dynamic {
+        table = ["AAA"=>1];
+    }
+
+    def main():static {
+        a := DynamicMethodTest();
+
+        Clover.test("DynamicMethodTest1", a.table.equals(["BBB"=>2]));
+    }
+}

@@ -1,4 +1,8 @@
 
+clover2 (8.1.5-1) unstable; urgency=medium
+
+    * Method can now be dynamically specified.  You can execute methods dynamically.  I think that it can be conveniently used in mixin-layers at split compilation.
+
 clover2 (8.1.4-1) unstable; urgency=medium
 
     * Added System.mvprintw (String, SortableList).

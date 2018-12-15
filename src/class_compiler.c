@@ -333,7 +333,7 @@ static BOOL parse_throws_and_clibrary(sParserInfo* info, BOOL* throw_existance, 
     return TRUE;
 }
 
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)
 {
     /// method generics ///
     if(*info->p == '<') {
@@ -383,6 +383,9 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
             }
             else if(strcmp(buf, "static") == 0) {
                 *static_ = TRUE;
+            }
+            else if(strcmp(buf, "dynamic") == 0) {
+                *dynamic_ = TRUE;
             }
             else {
                 info->p = p_saved;
@@ -518,6 +521,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
 
                 BOOL native_ = FALSE;
                 BOOL static_ = FALSE;
+                BOOL dynamic_ = FALSE;
 
                 sGenericsParamInfo method_generics_info;
                 memset(&method_generics_info, 0, sizeof(sGenericsParamInfo));
@@ -540,7 +544,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 clibrary_path[0] = '\0';
 
                 sCLMethod* appended_method = NULL;
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, &method_generics_info, &appended_method, clibrary_path, info)) 
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, &method_generics_info, &appended_method, clibrary_path, info)) 
                 {
                     parser_err_msg(info, "add_method_to_class failed");
                     return FALSE;
@@ -572,12 +576,13 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
 
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
 
         char clibrary_path[PATH_MAX];
         clibrary_path[0] = '\0';
 
         sCLMethod* appended_method = NULL;
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path, info))
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, NULL, &appended_method, clibrary_path, info))
         {
             parser_err_msg(info, "add_method_to_class failed");
             return FALSE;
@@ -603,12 +608,13 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
 
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
+            BOOL dynamic_ = FALSE;
 
             char clibrary_path[PATH_MAX];
             clibrary_path[0] = '\0';
 
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, NULL, &appended_method, clibrary_path, info))
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, NULL, &appended_method, clibrary_path, info))
             {
                 parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
@@ -689,18 +695,19 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX+1];
 
         clibrary_path[0] = '\0';
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, &info->method_generics_info, &appended_method, clibrary_path, info)) 
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, dynamic_, &info->method_generics_info, &appended_method, clibrary_path, info)) 
             {
                 parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
@@ -1185,11 +1192,12 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sNodeType* result_type = NULL;
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
+        BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
 
         clibrary_path[0] = '\0';
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, info, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }

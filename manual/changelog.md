@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.5
+
+    メソッドにdynamic指定ができるようになりました。動的にメソッドを実行できます。分割コンパイル時のmixin-layersで便利に使えると思います。
+
 version 8.1.4
 
     System.mvprintw(String,SortableList<ISortable>)の追加。

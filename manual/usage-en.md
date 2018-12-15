@@ -163,6 +163,35 @@ Beginning with version 7.5.0 the following is possible.
 
 You can add methods and fields with compiled class file inherit class name.  This makes mixin-layers more rigorous, so if you make refactoring and make changes, you only need to be careful about the layer behind.  You can also add fields and methods to the String class by adding inherit String to add functionality to the base class.  If you can load even the String class it is possible.  However, please be careful in order of compilation. 
 
+Mixin compilation In mixin-layers, you may want to call methods dynamically.  In that case, specify dynamic when defining method.  It is useful because methods are determined at run time. 
+
+```
+    > vim a.clcl
+    class ClassA {
+        table:SortableList<String>();
+        def initialize() {
+            callTableInitialize();
+        }
+
+        def callTableInitialize(): dynamic {
+            table = { "AAA", "BBB", "CCC" };
+        }
+    }
+
+    > cclover2 a.clcl
+
+    > vim b.clcl
+    inherit ClassA {
+        def callTableInitialize(): dynaimc {
+            table = { "DDD", "EEE", "FFF" }
+        }
+    }
+    > cclover2 b.clcl
+```
+
+In this case the Class A table will be"DDD","EEE","FFF".  If there is no dynamic specification, it should be"AAA","BBB","CCC". 
+
+
 ## Registering class files
 
 The search path of the class file is the current directory and $HOME/.clover2. If you want to reference classes from any directory, please copy the oclcl file to $HOME/.clover2. If you have JIT enabled, you will also need to copy a dynamic library. Copy lib[class name].so, lib[class name].so.1.0.0 to $HOME/.clover2. Although it moves even if it does not exist, JIT does not become effective and it moves. Please register a $LIBRARY_PATH like to .bashrc: export LD_LIBRARY_PATH=~/.clover2:$LD_LIBRARY_PATH for searching of dynamic libraries later.
