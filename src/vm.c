@@ -5365,25 +5365,54 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
-                    CLObject object = (stack_ptr-num_real_params)->mObjectValue;
+                    int class_method = *(int*)pc;
+                    pc += sizeof(int);
 
-                    if(object == 0) {
-                        entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-2)");
-                        if(info->try_code == code && info->try_offset != 0) {
-                            pc = code->mCodes + info->try_offset;
-                            info->try_offset = 0;
-                            info->try_code = NULL;
-                            break;
-                        }
-                        else {
-                            remove_stack_to_stack_list(stack_id);
-                            return FALSE;
+                    unsigned int offset2 = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    sCLClass* klass;
+                    if(class_method) {
+                        char* class_name = CONS_str(constant, offset2);
+
+                        klass = get_class_with_load_and_initialize(class_name);
+
+                        if(klass == NULL) {
+                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
+
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
                         }
                     }
+                    else {
+                        CLObject object = (stack_ptr-num_real_params)->mObjectValue;
 
-                    sCLObject* object_data = CLOBJECT(object);
+                        if(object == 0) {
+                            entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "Null pointer exception(3-2)");
+                            if(info->try_code == code && info->try_offset != 0) {
+                                pc = code->mCodes + info->try_offset;
+                                info->try_offset = 0;
+                                info->try_code = NULL;
+                                break;
+                            }
+                            else {
+                                remove_stack_to_stack_list(stack_id);
+                                return FALSE;
+                            }
+                        }
 
-                    sCLClass* klass = object_data->mClass;
+                        sCLObject* object_data = CLOBJECT(object);
+
+                        klass = object_data->mClass;
+                    }
 
 //printf("OP_VIRTUAL_METHOD %s\n", CLASS_NAME(klass));
 

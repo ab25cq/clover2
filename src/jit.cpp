@@ -1208,6 +1208,12 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
+                int class_method = *(int*)pc;
+                pc += sizeof(int);
+
+                unsigned int offset2 = *(unsigned int*)pc;
+                pc += sizeof(int);
+
                 /// get object value from llvm stack ///
                 LVALUE* object_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -num_real_params);
 
@@ -1247,6 +1253,12 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
                 Value* param8 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)num_real_params);
                 params2.push_back(param8);
+
+                Value* param9 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)class_method);
+                params2.push_back(param9);
+
+                Value* param10 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset2);
+                params2.push_back(param10);
 
                 Value* result = Builder.CreateCall(fun, params2);
 
@@ -4843,6 +4855,12 @@ void create_internal_functions()
 
     param8_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param8_type);
+
+    param9_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param9_type);
+
+    param10_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param10_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "call_invoke_virtual_method", TheModule);

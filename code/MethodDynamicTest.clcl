@@ -1,6 +1,7 @@
 class DynamicMethodTest
 {
     table: Hash<String, Integer>;
+    table2: static Hash<String, Integer>;
 
     def initialize() {
         initTable();
@@ -10,9 +11,17 @@ class DynamicMethodTest
         table = ["AAA"=>1];
     }
 
+    def initTable2(): static dynamic {
+        table2 = ["AAA"=>1];
+    }
+
     def main():static {
         a := DynamicMethodTest();
 
         Clover.test("DynamicMethodTest1", a.table.equals(["BBB"=>2]));
+
+        DynamicMethodTest.initTable2();
+
+        Clover.test("DynamicMethodTest2", table2.equals(["BBB"=>2]));
     }
 }

@@ -1,4 +1,12 @@
 
+version 8.1.6
+
+    クラスメソッドもdynamic指定で切るようになりました。
+
+version 8.1.6
+
+    Class methods are now also disabled with dynamic specifications.
+
 version 8.1.5
 
     メソッドにdynamic指定ができるようになりました。動的にメソッドを実行できます。分割コンパイル時のmixin-layersで便利に使えると思います。

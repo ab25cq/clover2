@@ -360,17 +360,30 @@ BOOL split_tuple(CLVALUE** stack_ptr, sVMInfo* info, CLObject tuple, int num_ele
     return TRUE;
 }
 
-BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params)
+BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sConst* constant, CLObject object, int num_real_params, BOOL class_method, int offset2)
 {
-    if(object == 0) {
-        entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(3)");
-        return FALSE;
+    sCLClass* klass;
+    if(class_method) {
+        char* class_name = CONS_str(constant, offset2);
+
+        klass = get_class_with_load_and_initialize(class_name);
+
+        if(klass == NULL) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
+            return FALSE;
+        }
     }
+    else {
+        if(object == 0) {
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"Null pointer exception(3)");
+            return FALSE;
+        }
 
-    /// go ///
-    sCLObject* object_data = CLOBJECT(object);
+        /// go ///
+        sCLObject* object_data = CLOBJECT(object);
 
-    sCLClass* klass = object_data->mClass;
+        klass = object_data->mClass;
+    }
 
     MASSERT(klass != NULL);
 

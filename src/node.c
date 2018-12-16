@@ -3449,6 +3449,9 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             int size = get_var_size(result_type);
                             append_int_value_to_code(info->code, size, info->no_output);
 
+                            append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 0, info->no_output);
+
                             info->stack_num -= num_params + 1;
                             info->stack_num++;
 
@@ -3501,6 +3504,9 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             sNodeType* result_type = create_node_type_with_class_name("bool");
                             int size = get_var_size(result_type);
                             append_int_value_to_code(info->code, size, info->no_output);
+
+                            append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 0, info->no_output);
 
                             info->stack_num -= num_params + 1;
                             info->stack_num++;
@@ -4602,6 +4608,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
 
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
             info->stack_num -= num_params + 1;
             info->stack_num++;
 
@@ -4652,6 +4661,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
             int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
+
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
 
             info->stack_num -= num_params + 1;
             info->stack_num++;
@@ -4949,6 +4961,9 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                     int size = get_var_size(result_type);
                     append_int_value_to_code(info->code, size, info->no_output);
+
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
 
                     info->stack_num -= num_params + 1;
                     info->stack_num++;
