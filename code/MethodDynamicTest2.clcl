@@ -1,6 +1,11 @@
 
 inherit DynamicMethodTest
 {
+    def initialize(a:String): dynamic {
+        str = a.clone();
+        str.append("X");
+        initTable();
+    }
     def initTable(): dynamic {
         table = ["BBB"=>2];
     }

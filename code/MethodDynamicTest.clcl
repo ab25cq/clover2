@@ -3,7 +3,14 @@ class DynamicMethodTest
     table: Hash<String, Integer>;
     table2: static Hash<String, Integer>;
 
+    str:String;
+
     def initialize() {
+        initTable();
+    }
+
+    def initialize(a:String): dynamic {
+        str = a.clone();
         initTable();
     }
 
@@ -16,12 +23,14 @@ class DynamicMethodTest
     }
 
     def main():static {
-        a := DynamicMethodTest();
+        a := DynamicMethodTest("AAA");
 
         Clover.test("DynamicMethodTest1", a.table.equals(["BBB"=>2]));
 
         DynamicMethodTest.initTable2();
 
         Clover.test("DynamicMethodTest2", table2.equals(["BBB"=>2]));
+
+        Clover.test("DynamicMethodTest3", a.str.equals("AAAX"));
     }
 }

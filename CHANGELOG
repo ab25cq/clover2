@@ -1,11 +1,19 @@
 
+version 8.1.7
+
+    initializeメソッドもdynamic指定できるようになりました。
+
+version 8.1.7
+
+    The initialize method can also be dynamically specified. 
+
 version 8.1.6
 
-    クラスメソッドもdynamic指定で切るようになりました。
+    クラスメソッドもdynamic指定できるようになりました。
 
 version 8.1.6
 
-    Class methods are now also disabled with dynamic specifications.
+    Class methods can also be dynamically specified. 
 
 version 8.1.5
 

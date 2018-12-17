@@ -1,8 +1,12 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.7
+
+    initializeメソッドもdynamic指定できるようになりました。
+
 version 8.1.6
 
-    クラスメソッドもdynamic指定で切るようになりました。
+    クラスメソッドもdynamic指定できるようになりました。
 
 version 8.1.5
 

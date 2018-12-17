@@ -5415,21 +5415,47 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
                 return TRUE;
             }
 
-            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-            append_int_value_to_code(info->code, info->sline, info->no_output);
+            sCLMethod* method = klass->mMethods + method_index;
 
-            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-            append_class_name_to_constant_pool_and_code(info, klass);
-            append_int_value_to_code(info->code, method_index, info->no_output);
+            if(method->mFlags & METHOD_FLAGS_DYNAMIC) {
+                int num_real_params = method->mNumParams + 1;
 
-            int size = get_var_size(generics_types2);
-            append_int_value_to_code(info->code, size, info->no_output);
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
 
-            info->stack_num-=num_params+1;
-            info->stack_num++;
+                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                append_int_value_to_code(info->code, num_real_params, info->no_output);
+                append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
 
-            info->type = generics_types2;
+                int size = get_var_size(generics_types2);
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+
+                info->stack_num -= num_params + 1;
+                info->stack_num++;
+
+                info->type = generics_types2;
+            }
+            else {
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                append_class_name_to_constant_pool_and_code(info, klass);
+                append_int_value_to_code(info->code, method_index, info->no_output);
+
+                int size = get_var_size(generics_types2);
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                info->stack_num-=num_params+1;
+                info->stack_num++;
+
+                info->type = generics_types2;
+            }
         }
     }
 

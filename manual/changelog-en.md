@@ -1,7 +1,11 @@
 
+version 8.1.7
+
+    The initialize method can also be dynamically specified. 
+
 version 8.1.6
 
-    Class methods are now also disabled with dynamic specifications.
+    Class methods can also be dynamically specified. 
 
 version 8.1.5
 

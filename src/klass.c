@@ -705,7 +705,7 @@ BOOL create_virtual_method_table(sCLClass* klass)
     }
 
     int i;
-    for(i=0; i<klass->mNumMethods; i++) {
+    for(i=klass->mNumMethods-1; i>=0; i--) {
         sCLMethod* method = klass->mMethods + i;
 
         char* method_name_and_params = CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset);

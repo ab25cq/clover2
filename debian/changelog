@@ -1,7 +1,11 @@
 
+clover2 (8.1.7-1) unstable; urgency=medium
+
+    * The initialize method can also be dynamically specified. 
+
 clover2 (8.1.6-1) unstable; urgency=medium
 
-    * Class methods are now also disabled with dynamic specifications.
+    * Class methods can also be dynamically specified. 
 
 clover2 (8.1.5-1) unstable; urgency=medium
 
