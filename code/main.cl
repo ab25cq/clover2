@@ -140,5 +140,3 @@ println("EnumTest");
 EnumTest.main();
 println("ClosureTest");
 ClosureTest.main();
-println("DynamicMethodTest");
-DynamicMethodTest.main();

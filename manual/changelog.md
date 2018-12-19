@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.1.8
+
+    tyclover2のバグを修正
+
 version 8.1.7
 
     initializeメソッドもdynamic指定できるようになりました。

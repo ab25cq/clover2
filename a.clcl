@@ -1,29 +1,5 @@
-
-class JITTestX
+class ClassA
 {
-    def main(): static {
-        line_num := 0;
-        texts := { "AAA", "BBB", "CCC" };
-        it := texts.items(line_num);
-
-        head_char := '{'
-        tail_char := '}'
-        nest := 0;
-        cursor_num := -1;
-        for(i:=2-1; i>=0; i--) 
-        {
-            if(it.chars(i) == head_char) {
-                nest++; 
-            } 
-            elif(it.chars(i) == tail_char) {
-                if(nest == 0) {
-                    cursor_num = i;
-                    break; 
-                } 
-                nest--;
-            } 
-        } 
-
-        println("done");
-    }
+    a:List<String>;
+    b:String;
 }

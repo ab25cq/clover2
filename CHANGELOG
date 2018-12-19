@@ -1,4 +1,12 @@
 
+version 8.1.8
+
+    tyclover2のバグを修正
+
+version 8.1.8
+
+    Fixed the bug of tyclover2
+
 version 8.1.7
 
     initializeメソッドもdynamic指定できるようになりました。

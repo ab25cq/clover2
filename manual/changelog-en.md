@@ -1,4 +1,8 @@
 
+version 8.1.8
+
+    Fixed the bug of tyclover2
+
 version 8.1.7
 
     The initialize method can also be dynamically specified. 

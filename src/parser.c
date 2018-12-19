@@ -1081,6 +1081,9 @@ static BOOL get_oct_number(unsigned int* node, sParserInfo* info)
 
 static BOOL if_expression(unsigned int* node, sParserInfo* info)
 {
+    char* sname = info->sname;
+    int sline = info->sline;
+
     expect_next_character_with_one_forward("(", info);
 
     /// expression ///
@@ -1189,7 +1192,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         }
     }
 
-    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, if_unclosed, elif_unclosed, info);
+    *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, MANAGED else_node_block, if_unclosed, elif_unclosed, info, sname, sline);
 
     return TRUE;
 }
@@ -1308,6 +1311,9 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
 
 static BOOL when_expression(unsigned int* node, sParserInfo* info)
 {
+    char* sname = info->sname;
+    int sline = info->sline;
+
     expect_next_character_with_one_forward("(", info);
 
     /// expression1 ///
@@ -1554,7 +1560,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
         }
     }
 
-    *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, when_types, when_types2, when_match, info);
+    *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, when_types, when_types2, when_match, info, sname, sline);
 
     return TRUE;
 }
@@ -5202,7 +5208,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     && (num_params > 1
                         || (num_params == 1 && blank)
                         || (num_params == 0 && is_command_name(buf) && blank)
-                        || (num_params >= 1 && is_command_name(buf))))
+                        || (num_params > 1 && is_command_name(buf))))
                 {
                     info->inputing_shell_mode = TRUE;
                     return FALSE;

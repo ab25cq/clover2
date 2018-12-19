@@ -1,4 +1,8 @@
 
+clover2 (8.1.8-1) unstable; urgency=medium
+
+    * Fixed the bug of tyclover2.
+
 clover2 (8.1.7-1) unstable; urgency=medium
 
     * The initialize method can also be dynamically specified. 

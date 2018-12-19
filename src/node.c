@@ -2668,6 +2668,13 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 {
     sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.mVarName);
 
+    if(info->pinfo->get_type_for_interpreter) {
+        if(strcmp(gNodes[node].uValue.mVarName, "self") == 0 && info->pinfo->klass) {
+            info->type = create_node_type_with_class_name(CLASS_NAME(info->pinfo->klass));
+            return TRUE;
+        }
+    }
+
     if(var == NULL) {
         compile_err_msg(info, "undeclared variable %s(6)", gNodes[node].uValue.mVarName);
         info->err_num++;
@@ -2718,14 +2725,14 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info)
+unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info, char* sname, int sline)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeIf;
 
-    gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
+    gNodes[node].mSName = sname;
+    gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sIf.mExpressionNode = expression_node;
     gNodes[node].uValue.sIf.mIfNodeBlock = MANAGED if_node_block;
@@ -3000,14 +3007,14 @@ if(!else_node_block) {
     return TRUE;
 }
 
-unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], BOOL when_match[WHEN_BLOCK_MAX], sParserInfo* info)
+unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], BOOL when_match[WHEN_BLOCK_MAX], sParserInfo* info, char* sname, int sline)
 {
     unsigned node = alloc_node();
 
     gNodes[node].mNodeType = kNodeTypeWhen;
 
-    gNodes[node].mSName = info->sname;
-    gNodes[node].mLine = info->sline;
+    gNodes[node].mSName = sname;
+    gNodes[node].mLine = sline;
 
     gNodes[node].uValue.sWhen.mExpressionNode = expression_node;
     gNodes[node].uValue.sWhen.mNumWhenBlock = num_when_block;
