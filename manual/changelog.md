@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.0
+
+    REPLのバグを修正
+
 version 8.1.8
 
     tyclover2のバグを修正

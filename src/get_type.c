@@ -192,7 +192,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
     info.sline = 1;
     info.lv_table = lv_table;
     info.parse_phase = 0;
-    info.get_in_the_shell_mode = TRUE;
+    info.get_in_the_shell_mode = 2;
     info.get_type_for_interpreter = TRUE;
 
     while(*info.p) {

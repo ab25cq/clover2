@@ -1,4 +1,8 @@
 
+version 8.2.0
+
+    Fixed a bug in REPL
+
 version 8.1.8
 
     Fixed the bug of tyclover2

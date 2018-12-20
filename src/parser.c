@@ -5203,15 +5203,29 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
                 BOOL blank = *(info->p-1) == ' ' || *(info->p-1) == '\t';
 
-                if(info->get_in_the_shell_mode 
-                    && *info->p == '\0' 
-                    && (num_params > 1
-                        || (num_params == 1 && blank)
-                        || (num_params == 0 && is_command_name(buf) && blank)
-                        || (num_params > 1 && is_command_name(buf))))
-                {
-                    info->inputing_shell_mode = TRUE;
-                    return FALSE;
+                if(info->get_in_the_shell_mode == 1) {
+                    if(info->get_in_the_shell_mode 
+                        && *info->p == '\0' 
+                        && (num_params > 1
+                            || (num_params == 1 && blank)
+                            || (num_params == 0 && is_command_name(buf) && blank)
+                            || (num_params >= 1 && is_command_name(buf))))
+                    {
+                        info->inputing_shell_mode = TRUE;
+                        return FALSE;
+                    }
+                }
+                else if(info->get_in_the_shell_mode == 2) {
+                    if(info->get_in_the_shell_mode 
+                        && *info->p == '\0' 
+                        && (num_params > 1
+                            || (num_params == 1 && blank)
+                            || (num_params == 0 && is_command_name(buf) && blank)
+                            || (num_params > 1 && is_command_name(buf))))
+                    {
+                        info->inputing_shell_mode = TRUE;
+                        return FALSE;
+                    }
                 }
             }
             else {
