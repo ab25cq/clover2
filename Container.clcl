@@ -629,6 +629,54 @@ module MList
         return self;
     }
 
+    def deleteByID(item:T):SELF<T> {
+        it:ListItem<T>? = self.head;
+        it2:ListItem<T>? = self.head;
+
+        while(!it.identifyWith(null)) {
+            if(it.item.ID() == item.ID) {
+                # one item is contained in list
+                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = null;
+                    self.tail = null;
+                    self.number = 0;
+                }
+                # two item is contained in list
+                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                    self.head = it2;
+                    self.tail = it2;
+                    it2.prev = null;
+                    it2.next = null;
+                    self.number = 1;
+                }
+                # other
+                else {
+                    if(it.identifyWith(self.head)) {
+                        self.head = self.head.next;
+                        self.head.prev = null;
+                        self.number--;
+                    }
+                    elif(it.identifyWith(self.tail)) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.next = it.next;
+                        it.next.prev = it2;
+                        self.number--;
+                    }
+                }
+                break;
+            }
+            
+            it2 = it;
+            it = it.next;
+        }
+
+        return self;
+    }
+
     def deleteAt(index:int):SELF<T> {
         it:ListItem<T>? = self.head;
         it2:ListItem<T>? = self.head;
