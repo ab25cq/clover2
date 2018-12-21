@@ -1,4 +1,8 @@
 
+clover2 (8.2.1-1) unstable; urgency=medium
+
+    * Fixed a bug in tyclover2.  (for vicl) 
+
 clover2 (8.2.0-1) unstable; urgency=medium
 
     * Fixed a bug in REPL

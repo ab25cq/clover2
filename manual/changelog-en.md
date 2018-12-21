@@ -1,4 +1,8 @@
 
+version 8.2.1
+
+    Fixed a bug in tyclover 2.  (for vicl) 
+
 version 8.2.0
 
     Fixed a bug in REPL

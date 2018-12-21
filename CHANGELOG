@@ -1,4 +1,12 @@
 
+version 8.2.1
+
+    tyclover2のバグを修正。(vicl向け)
+
+version 8.2.1
+
+    Fixed a bug in tyclover2.  (for vicl) 
+
 version 8.2.0
 
     REPLのバグを修正
