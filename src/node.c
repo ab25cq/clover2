@@ -3208,6 +3208,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
+            if(when_blocks[i]->mUnClosedBlock) {
+                return FALSE;
+            }
+
             append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
 
@@ -3270,6 +3274,12 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 /// right value ///
                 if(!compile(value_nodes[i][j], info)) {
                     return FALSE;
+                }
+
+                if(info->pinfo->get_type_for_interpreter) {
+                    if(when_blocks[i] == NULL) {
+                        return FALSE;
+                    }
                 }
 
                 sNodeType* right_type = info->type;
@@ -3339,6 +3349,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     return FALSE;
                 }
 
+                if(when_blocks[i]->mUnClosedBlock) {
+                    return FALSE;
+                }
+
                 append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
                 info->stack_num--;
 
@@ -3373,10 +3387,6 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     return FALSE;
                 }
 
-                if(info->pinfo->exist_brace_unclosed) {
-                    return FALSE;
-                }
-
                 sNodeType* left_type = info->type;
                 sCLClass* klass = left_type->mClass;
 
@@ -3384,6 +3394,12 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     /// right value ///
                     if(!compile(value_nodes[i][j], info)) {
                         return FALSE;
+                    }
+
+                    if(info->pinfo->get_type_for_interpreter) {
+                        if(when_blocks[i] == NULL) {
+                            return FALSE;
+                        }
                     }
 
                     sNodeType* right_type = info->type;
@@ -3426,6 +3442,12 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         /// right value ///
                         if(!compile(value_nodes[i][j], info)) {
                             return FALSE;
+                        }
+
+                        if(info->pinfo->get_type_for_interpreter) {
+                            if(when_blocks[i] == NULL) {
+                                return FALSE;
+                            }
                         }
 
                         sNodeType* right_type = info->type;
@@ -3472,6 +3494,12 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         /// right value ///
                         if(!compile(value_nodes[i][j], info)) {
                             return FALSE;
+                        }
+
+                        if(info->pinfo->get_type_for_interpreter) {
+                            if(when_blocks[i] == NULL) {
+                                return FALSE;
+                            }
                         }
 
                         sNodeType* right_type = info->type;
@@ -3528,6 +3556,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         if(!compile(value_nodes[i][j], info)) {
                             return FALSE;
                         }
+
+                        if(info->pinfo->get_type_for_interpreter) {
+                            if(when_blocks[i] == NULL) {
+                                return FALSE;
+                            }
+                        }
+
 
                         sNodeType* right_type = info->type;
 
@@ -3598,6 +3633,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     return FALSE;
                 }
 
+                if(when_blocks[i]->mUnClosedBlock) {
+                    return FALSE;
+                }
+
                 append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
                 info->stack_num--;
 
@@ -3628,6 +3667,10 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
     if(else_block) {
         if(!compile_block_with_result(else_block, info)) {
+            return FALSE;
+        }
+
+        if(else_block->mUnClosedBlock) {
             return FALSE;
         }
 
@@ -3724,6 +3767,10 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
 
     if(!compile(expression_node, info)) {
+        return FALSE;
+    }
+
+    if(info->pinfo->get_type_for_interpreter && gNodes[node].uValue.sWhile.mWhileNodeBlock == NULL) {
         return FALSE;
     }
 
@@ -7773,6 +7820,10 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
+        if(node_block->mUnClosedBlock) {
+            return TRUE;
+        }
+
         if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
@@ -7887,6 +7938,9 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
             return FALSE;
         }
 
+        if(node_block->mUnClosedBlock) {
+            return TRUE;
+        }
 
         if(info->type == NULL) {
             compile_err_msg(info, "String expression requires String object");
@@ -8008,6 +8062,10 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
         sNodeBlock* node_block = string_expressions[i];
         if(!compile_block_with_result(node_block, info)) {
             return FALSE;
+        }
+
+        if(node_block->mUnClosedBlock) {
+            return TRUE;
         }
 
         if(info->type == NULL) {
@@ -9951,6 +10009,10 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
         sNodeBlock* node_block = string_expressions[i];
         if(!compile_block_with_result(node_block, info)) {
             return FALSE;
+        }
+
+        if(node_block->mUnClosedBlock) {
+            return TRUE;
         }
 
         if(info->type == NULL) {

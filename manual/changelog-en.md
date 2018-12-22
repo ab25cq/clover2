@@ -2,6 +2,7 @@
 version 8.2.2
 
     Add List.deleteByID, EqualableList.deleteByID, SortableList.deleteByID
+    Fixed a bug in tyclover2.  (for vicl) 
 
 version 8.2.1
 

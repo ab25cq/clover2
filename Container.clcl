@@ -634,7 +634,7 @@ module MList
         it2:ListItem<T>? = self.head;
 
         while(!it.identifyWith(null)) {
-            if(it.item.ID() == item.ID) {
+            if(it.item.ID() == item.ID()) {
                 # one item is contained in list
                 if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
                     self.head = null;

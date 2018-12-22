@@ -1107,6 +1107,12 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         if_unclosed = FALSE;
     }
 
+    if(if_unclosed) {
+        *node = sNodeTree_if_expression(expression_node, NULL, NULL, NULL, 0, NULL, if_unclosed, NULL, info, sname, sline);
+
+        return TRUE;
+    }
+
     expect_next_character_with_one_forward(")", info);
     expect_next_character_with_one_forward("{", info);
 
@@ -1171,6 +1177,12 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
                 elif_unclosed[elif_num] = FALSE;
             }
 
+            if(elif_unclosed[elif_num]) {
+                elif_num++;
+                *node = sNodeTree_if_expression(expression_node, MANAGED if_node_block, elif_expression_nodes, elif_node_blocks, elif_num, NULL, if_unclosed, elif_unclosed, info, sname, sline);
+                return TRUE;
+            }
+
             expect_next_character_with_one_forward(")", info);
             expect_next_character_with_one_forward("{", info);
 
@@ -1218,6 +1230,11 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     }
     else {
         info->exist_brace_unclosed = FALSE;
+    }
+
+    if(info->get_type_for_interpreter && *info->p == '\0') {
+        *node = sNodeTree_while_expression(expression_node, NULL, info);
+        return TRUE;
     }
 
     expect_next_character_with_one_forward(")", info);
@@ -1353,9 +1370,14 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             break;
         }
         else if(*info->p == '\0') {
-            parser_err_msg(info, "Unexpected the source end");
-            info->err_num++;
-            return TRUE;
+            if(info->get_type_for_interpreter) {
+                break;
+            }
+            else {
+                parser_err_msg(info, "Unexpected the source end");
+                info->err_num++;
+                return TRUE;
+            }
         }
 
         if(*info->p == 'i' && *(info->p+1) == 's') {
@@ -1376,9 +1398,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
-
             num_values[num_when_block] = 1;
-
             num_when_block++;
 
             if(num_when_block >= WHEN_BLOCK_MAX) {
@@ -1404,9 +1424,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
-
             num_values[num_when_block] = 1;
-
             num_when_block++;
 
             if(num_when_block >= WHEN_BLOCK_MAX) {
@@ -1502,18 +1520,18 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             int num_value = 0;
 
             while(1) {
-                unsigned int node = 0;
-                if(!expression(&node, info)) {
+                unsigned int node2 = 0;
+                if(!expression(&node2, info)) {
                     return FALSE;
                 }
 
-                if(node == 0) {
+                if(node2 == 0) {
                     parser_err_msg(info, "require expression for when");
                     info->err_num++;
                     return TRUE;
                 }
 
-                value_nodes[num_when_block][num_value] = node;
+                value_nodes[num_when_block][num_value] = node2;
                 num_value++;
 
                 if(num_value >= WHEN_BLOCK_MAX) {
@@ -1524,9 +1542,17 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 num_values[num_when_block] = num_value;
 
                 if(*info->p == '\0') {
-                    parser_err_msg(info, "Unexpected the source end");
-                    info->err_num++;
-                    return TRUE;
+                    if(info->get_type_for_interpreter) {
+                        when_blocks[num_when_block] = NULL;
+                        num_when_block++;
+                        *node = sNodeTree_when_expression(expression_node, value_nodes, num_values, when_blocks, num_when_block, else_block, when_types, when_types2, when_match, info, sname, sline);
+                        return TRUE;
+                    }
+                    else {
+                        parser_err_msg(info, "Unexpected the source end");
+                        info->err_num++;
+                        return TRUE;
+                    }
                 }
                 else if(*info->p == ',') {
                     info->p++;
@@ -3745,9 +3771,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '\0') {
-                parser_err_msg(info, "close \"\"\" to make string value");
-                MFREE(value.mBuf);
-                return FALSE;
+                if(info->get_type_for_interpreter) {
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "close \"\"\" to make string value");
+                    MFREE(value.mBuf);
+                    return FALSE;
+                }
             }
             else if(*info->p == '\n') {
                 info->sline++;
@@ -3839,9 +3870,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '\0') {
-                parser_err_msg(info, "close \" to make string value");
-                MFREE(value.mBuf);
-                return FALSE;
+                if(info->get_type_for_interpreter) {
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "close \" to make string value");
+                    MFREE(value.mBuf);
+                    return FALSE;
+                }
             }
             else {
                 if(*info->p == '\n') info->sline++;
@@ -3926,8 +3962,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '\0') {
-                parser_err_msg(info, "close \" to make string buffer value");
-                return FALSE;
+                if(info->get_type_for_interpreter) {
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "close \" to make string buffer value");
+                    return FALSE;
+                }
             }
             else {
                 if(*info->p == '\n') info->sline++;
@@ -4012,7 +4053,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else if(*info->p == '\0') {
-                if(info->get_path_object) {
+                if(info->get_type_for_interpreter) {
+                    break;
+                }
+                else if(info->get_path_object) {
                     info->inputing_path_object = TRUE;
                     return FALSE;
                 }

@@ -3,6 +3,7 @@ English page is here [>> English page](changelog-en)
 version 8.2.2
 
     List.deleteByID, EqualableList.deleteByID, SortableList.deleteByIDを追加
+    tyclover2のバグを修正。(vicl向け)
 
 version 8.2.1
 
