@@ -1349,6 +1349,8 @@ catch(e:Exception) {
 
 Exceptions are not typed. Determine the exception that occurred in the message in e.message Please.
 
+The try statement's catch is optional.
+
 ## Multi line string
 
 I use it as follows
