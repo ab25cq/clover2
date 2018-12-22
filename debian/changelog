@@ -1,4 +1,8 @@
 
+clover2 (8.2.4-1) unstable; urgency=medium
+
+    * sprintf (String, List), printf (String, List) were embagging from some version.  I'm sorry. 
+
 clover2 (8.2.3-1) unstable; urgency=medium
 
     * Many REPL bug fixes. 

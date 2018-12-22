@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.4
+
+    sprintf(String,List), printf(String, List)がいつかのバージョンよりエンバグしていました。すみません。
+
 version 8.2.3
 
     REPLのバグを多数修正。

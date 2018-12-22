@@ -125,3 +125,6 @@ For details, please try to search printf format etc in the search engine. It is 
 
 
 Because strings are not primitive types, we only accept methods. It can not be an object of the operator.
+
+(In the current version printf can take a list such as printf ("% s% d \ n", {"AAA", 1}); 
+

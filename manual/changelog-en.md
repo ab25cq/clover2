@@ -1,4 +1,8 @@
 
+version 8.2.4
+
+    sprintf (String, List), printf (String, List) were embagging from some version.  I'm sorry. 
+
 version 8.2.3
 
     Many REPL bug fixes. 

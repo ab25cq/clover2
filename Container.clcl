@@ -3201,3 +3201,15 @@ inherit Buffer
         return result;
     }
 }
+
+inherit Clover
+{
+    def createArray(class_name:String, size:int): static native Anonymous;
+}
+
+inherit Array<T:Object>
+{
+    def initialize(num:int) {
+        self.items = Clover.createArray("Object", num);
+    }
+}

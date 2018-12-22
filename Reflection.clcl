@@ -294,7 +294,6 @@ inherit Clover
     def isLoadedClass(class_name:String): static native bool throws Exception;
     def isDefinedClass(class_name:String): static native bool throws Exception;
     def createObject(class_name:String): static native Anonymous;
-    def createArray(class_name:String, size:int): static native Anonymous;
 
     def isTypedefedClass(class_name:String, class_name2:String): static native bool;
 
@@ -457,9 +456,6 @@ inherit Clover
 
 inherit Array<T:Object>
 {
-    def initialize(num:int) {
-        self.items = Clover.createArray("Object", num);
-    }
     def clone():Array<T> {
         result := Array<T>();
 
