@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.3
+
+    REPLのバグを多数修正。
+
 version 8.2.2
 
     List.deleteByID, EqualableList.deleteByID, SortableList.deleteByIDを追加

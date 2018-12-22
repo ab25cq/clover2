@@ -1,4 +1,8 @@
 
+clover2 (8.2.3-1) unstable; urgency=medium
+
+    * Many REPL bug fixes. 
+
 clover2 (8.2.2-1) unstable; urgency=medium
 
     * Add List.deleteByID, EqualableList.deleteByID, SortableList.deleteByID. Fixed a bug in tyclover2.  (for vicl) 

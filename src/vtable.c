@@ -57,6 +57,9 @@ sVarTable* clone_var_table(sVarTable* lv_table)
     if(it->mParent) {
         result->mParent = clone_var_table(it->mParent);
     }
+    else {
+        result->mParent = NULL;
+    }
 
     return result;
 }

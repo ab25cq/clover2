@@ -1149,7 +1149,7 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
         unsigned int node = 0;
         (void)expression(&node, &info);
 
-        *result_lv_table = info.lv_table;
+        *result_lv_table = clone_var_table(info.lv_table);
 
         if(node != 0) {
             if(!compile(node, &cinfo)) {
@@ -1238,6 +1238,9 @@ static BOOL is_path_object(char* source, char* fname, sVarTable* lv_table)
 
 static void local_variable_completion(char* exp, char** candidates, int *num_candidates, int max_candidates)
 {
+    if(strcmp(exp, "") == 0) {   // prevent segmentation fault
+        return;
+    }
     char* line2 = MCALLOC(1, sizeof(char)*(rl_point+1));
     memcpy(line2, rl_line_buffer, rl_point);
     line2[rl_point] = '\0';
@@ -1254,7 +1257,7 @@ static void local_variable_completion(char* exp, char** candidates, int *num_can
         int j;
         for(j=0; j<LOCAL_VARIABLE_MAX; j++) {
             sVar* var = table->mLocalVariables + j;
-            if(var->mName[0] != '\0') {
+            if(var && var->mName[0] != '\0') {
                 if(*num_candidates < max_candidates) {
                     candidates[*num_candidates] = MANAGED MSTRDUP(var->mName);
                     (*num_candidates)++;
@@ -1610,6 +1613,12 @@ static int my_complete_internal(int count, int key)
 
 static BOOL name_sort(char* lfname, char* rfname)
 {
+    if(lfname == NULL) {
+        return TRUE;
+    }
+    if(rfname == NULL) {
+        return FALSE;
+    }
     return strcmp(lfname, rfname) < 0;
 }
 
@@ -1668,7 +1677,9 @@ static BOOL quick_sort(int left, int right)
 
 void sort_candidates()
 {
-    quick_sort(0, gNumCandidates-1);
+    if(gNumCandidates > 1) {
+        quick_sort(0, gNumCandidates-1);
+    }
 }
 
 char* on_complete(const char* text, int a)
@@ -1759,7 +1770,7 @@ char* on_complete(const char* text, int a)
 
             int j;
             for(j=0; j<gNumCandidates; j++) {
-                MFREE(gCandidates[j]);
+                if(gCandidates[j]) MFREE(gCandidates[j]);
             }
             MFREE(gCandidates);
         }
@@ -2059,6 +2070,11 @@ static int my_bind_cr(int count, int key)
     return 0;
 }
 
+static int my_bind_escape(int count , int key)
+{
+    return 0;
+}
+
 static void sig_int()
 {
     gSigInt = TRUE;
@@ -2273,7 +2289,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "8.2.2";
+char* gVersion = "8.2.3";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -2367,6 +2383,7 @@ int main(int argc, char** argv)
     rl_bind_key('\t', my_complete_internal);
     rl_bind_key('\n', my_bind_cr);
     rl_bind_key('\r', my_bind_cr);
+    rl_bind_keyseq("\\e\\e", my_complete_internal);
 
     printf("Welcome to Clover2\n");
     sVarTable* lv_table = init_var_table();
@@ -2374,7 +2391,7 @@ int main(int argc, char** argv)
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
     gStack = stack;
-    gLVTable = lv_table;
+    gLVTable = clone_var_table(lv_table);
 
     while(1) {
         compiler_init(FALSE);

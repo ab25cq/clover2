@@ -1,4 +1,12 @@
 
+version 8.2.3
+
+    REPLのバグを多数修正。
+
+version 8.2.3
+
+    Many REPL bug fixes. 
+
 version 8.2.2
 
     List.deleteByID, EqualableList.deleteByID, SortableList.deleteByIDを追加
