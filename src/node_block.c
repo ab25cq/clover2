@@ -176,6 +176,32 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     return TRUE;
 }
 
+BOOL create_null_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object)
+{
+    *node_block = sNodeBlock_alloc(FALSE);
+
+    sVarTable* old_vtable = info->lv_table;
+    if(new_table) {
+        info->lv_table = new_table;
+    }
+    else {
+        info->lv_table = init_block_vtable(old_vtable);
+    }
+
+    (*node_block)->mSName = info->sname;
+    (*node_block)->mSLine = info->sline;
+
+    sBuf_append_char(&(*node_block)->mSource, '\0');
+
+    if(!block_object) {
+        set_max_block_var_num(info->lv_table, old_vtable);
+    }
+    (*node_block)->mLVTable = info->lv_table;
+    info->lv_table = old_vtable;
+
+    return TRUE;
+}
+
 BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info)
 {
     *node_block = ALLOC sNodeBlock_alloc(FALSE);

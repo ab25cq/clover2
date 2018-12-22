@@ -1,4 +1,8 @@
 
+version 8.2.5
+
+    The try catch statement can now be omitted.
+
 version 8.2.4
 
     sprintf (String, List), printf (String, List) were embagging from some version.  I'm sorry. 

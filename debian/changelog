@@ -1,4 +1,8 @@
 
+clover2 (8.2.5-1) unstable; urgency=medium
+
+    * The try catch statement can now be omitted.
+
 clover2 (8.2.4-1) unstable; urgency=medium
 
     * sprintf (String, List), printf (String, List) were embagging from some version.  I'm sorry. 

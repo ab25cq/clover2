@@ -1801,27 +1801,47 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
     params[0].mName[0] = '\0';
 
     if(info->err_num == 0) { // for interpreter completion
-        /// catch ///
-        expect_next_word("catch", info);
+        if(strstr(info->p, "catch") == info->p) {
+            /// catch ///
+            expect_next_word("catch", info);
 
-        expect_next_character_with_one_forward("(", info);
+            expect_next_character_with_one_forward("(", info);
 
-        /// parse_params ///
-        sVarTable* new_table = NULL;
+            /// parse_params ///
+            sVarTable* new_table = NULL;
 
-        if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
-            return FALSE;
+            if(!parse_params_and_entry_to_lvtable(params, &num_params, info, &new_table, info->lv_table, 0)) {
+                return FALSE;
+            }
+
+            if(num_params != 1 || !is_exception_type(params[0].mType)) {
+                parser_err_msg(info, "Require the type of a catch param should be a exception type");
+                info->err_num++;
+            }
+
+            expect_next_character_with_one_forward("{", info);
+
+            if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE, FALSE)) {
+                return FALSE;
+            }
         }
+        else {
+            sVarTable* new_table = NULL;
 
-        if(num_params != 1 || !is_exception_type(params[0].mType)) {
-            parser_err_msg(info, "Require the type of a catch param should be a exception type");
-            info->err_num++;
-        }
+            num_params = 1;
 
-        expect_next_character_with_one_forward("{", info);
+            xstrncpy(params[0].mName, "e", VAR_NAME_MAX);
+            params[0].mType = create_node_type_with_class_name("Exception");
 
-        if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE, FALSE)) {
-            return FALSE;
+            new_table = init_block_vtable(info->lv_table);
+
+            if(!add_variable_to_table(new_table, params[0].mName, params[0].mType, FALSE)) {
+                return FALSE;
+            }
+
+            if(!create_null_block(ALLOC &catch_node_block, info, new_table, FALSE)) {
+                return FALSE;
+            }
         }
     }
 
