@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.7
+
+    iclover2 -c "ls -al"などが動くようになりました。
+
 version 8.2.6
 
    エラーメッセージの出力を変えました。

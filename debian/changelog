@@ -1,4 +1,8 @@
 
+clover2 (8.2.7-1) unstable; urgency=medium
+
+    * iclover2 -c "ls -al" etc now work now.
+
 clover2 (8.2.6-1) unstable; urgency=medium
 
     * The output of error message was changed. 

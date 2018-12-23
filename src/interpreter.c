@@ -2289,7 +2289,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "8.2.6";
+char* gVersion = "8.2.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -2297,7 +2297,8 @@ BOOL gCompilingCore = FALSE;
 
 static char gInitInputString[1024];
 static int gInitInputCursorPosition;
-static BOOL gOntTimeCommand;
+static BOOL gOneTimeCommand;
+static char* gCommandLineScript = NULL;
 
 static void readline_insert_text(char* cmdline, int cursor_point)
 {
@@ -2331,7 +2332,8 @@ int main(int argc, char** argv)
 
     gInitInputString[0] = '\0';
     gInitInputCursorPosition = -1;
-    gOntTimeCommand = FALSE;;
+    gOneTimeCommand = FALSE;
+    gCommandLineScript = NULL;
 
     int i;
     for(i=1; i<argc; i++) {
@@ -2348,8 +2350,11 @@ int main(int argc, char** argv)
             gInitInputCursorPosition = atoi(argv[i+1]);
             i++;
         }
-        else if(strcmp(argv[i], "-c") == 0) {
-            gOntTimeCommand = TRUE;
+        else if(strcmp(argv[i], "-o") == 0) {
+            gOneTimeCommand = TRUE;
+        }
+        else if(strcmp(argv[i], "-c") == 0 && i + 1 < argc) {
+            gCommandLineScript = argv[i+1];
         }
     }
 
@@ -2385,13 +2390,33 @@ int main(int argc, char** argv)
     rl_bind_key('\r', my_bind_cr);
     rl_bind_keyseq("\\e\\e", my_complete_internal);
 
-    printf("Welcome to Clover2\n");
     sVarTable* lv_table = init_var_table();
     int stack_size = 512;
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
     gStack = stack;
     gLVTable = clone_var_table(lv_table);
+
+    if(gCommandLineScript) {
+        compiler_init(FALSE);
+        if(!eval_str(gCommandLineScript, "iclover2", lv_table, stack)) {
+            fprintf(stderr, "compile or runtime error\n");
+        }
+        compiler_final();
+
+        parser_final();
+        interpreter_final();
+        clover2_final();
+        final_vtable();
+        free_node_types();
+        free_node_block_types();
+
+        MFREE(stack);
+        CHECKML_END;
+        exit(0);
+    }
+
+    printf("Welcome to Clover2\n");
 
     while(1) {
         compiler_init(FALSE);
@@ -2470,7 +2495,7 @@ int main(int argc, char** argv)
 
         free(line);
 
-        if(gOntTimeCommand) {
+        if(gOneTimeCommand) {
             break;
         }
     }

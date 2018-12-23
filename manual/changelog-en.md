@@ -1,4 +1,8 @@
 
+version 8.2.7
+
+    iclover2 -c "ls -al" etc now work now.
+
 version 8.2.6
 
     The output of error message was changed. 
