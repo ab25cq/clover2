@@ -1,4 +1,12 @@
 
+version 8.2.6
+
+   エラーメッセージの出力を変えました。
+
+version 8.2.6
+
+    The output of error message was changed. 
+
 version 8.2.5
 
     tryのcatch文が省略できるようになりました。

@@ -1,4 +1,8 @@
 
+version 8.2.6
+
+    The output of error message was changed. 
+
 version 8.2.5
 
     The try catch statement can now be omitted.

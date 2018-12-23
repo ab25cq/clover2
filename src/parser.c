@@ -164,7 +164,7 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     va_end(args);
 
     if(!info->get_type_for_interpreter) {
-        fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
+        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
     }
 }
 

@@ -581,7 +581,7 @@ void compile_err_msg(sCompileInfo* info, const char* msg, ...)
     va_end(args);
 
     if(!info->pinfo->get_type_for_interpreter) {
-        fprintf(stderr, "%s %d: %s\n", info->sname, info->sline, msg2);
+        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
     }
 }
 

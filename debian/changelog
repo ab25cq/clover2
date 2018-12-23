@@ -1,4 +1,8 @@
 
+clover2 (8.2.6-1) unstable; urgency=medium
+
+    * The output of error message was changed. 
+
 clover2 (8.2.5-1) unstable; urgency=medium
 
     * The try catch statement can now be omitted.

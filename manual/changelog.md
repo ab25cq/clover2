@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.6
+
+   エラーメッセージの出力を変えました。
+
 version 8.2.5
 
     tryのcatch文が省略できるようになりました。
