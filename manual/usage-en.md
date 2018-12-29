@@ -191,6 +191,36 @@ Mixin compilation In mixin-layers, you may want to call methods dynamically.  In
 
 In this case the Class A table will be"DDD","EEE","FFF".  If there is no dynamic specification, it should be"AAA","BBB","CCC". 
 
+As of version 8.2.8, the version is attached to the class.
+
+```
+    > vim a1.clcl
+    class ClassA version 1 {
+        var a;
+
+        def initialize() {
+            a = 1;
+        }
+    }
+
+    > cclover2 a1.clcl
+
+    > vim a2.clcl
+    class ClassA version 2 {
+        var b;
+
+        def initialize() {
+            inherit();
+
+            b = 2;
+        }
+    }
+
+    > cclover2 a2.clcl
+```
+
+If you change version a2.clcl with version, recompiling a1.clcl is unnecessary.
+
 
 ## Registering class files
 

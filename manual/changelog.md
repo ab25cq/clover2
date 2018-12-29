@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.8
+
+    クラスにバージョンがつけられるようになりました。分割コンパイル時に便利です。
+
 version 8.2.7
 
     iclover2 -c "ls -al"などが動くようになりました。

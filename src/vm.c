@@ -1282,7 +1282,7 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
 
 static BOOL load_class_with_initialize(char* class_name)
 {
-    sCLClass* klass = load_class(class_name);
+    sCLClass* klass = load_class(class_name, 0);
 
     if(klass) {
         if(!initialize_class(klass, FALSE)) {
@@ -1594,7 +1594,7 @@ sCLClass* get_class_with_load_and_initialize(char* class_name)
     sCLClass* result = get_class(class_name);
 
     if(result == NULL) {
-        result = load_class(class_name);
+        result = load_class(class_name, 0);
 
         if(result == NULL) {
             //fprintf(stderr, "Clover2 can't load %s\n", class_name);

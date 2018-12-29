@@ -46,6 +46,7 @@
 #include "clover2-xfunc.h"
 
 /// limits ///
+#define VERSION_MAX 32
 #define HEAP_INIT_SIZE 128
 #define HEAP_HANDLE_INIT_SIZE 128
 #define CLASS_NAME_MAX 64
@@ -408,6 +409,8 @@ struct sCLClassStruct {
     BOOL mInitialized;   // This requires on the run time
 
     int mLabelNum;      // This requires on the compile time
+
+    int mVersion;
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -424,18 +427,18 @@ void class_final();
 sCLClass* get_class_with_load(char* class_name);
 sCLClass* get_class(char* name);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
-sCLClass* load_class(char* class_name);
+sCLClass* load_class(char* class_name, int version);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 void set_boxing_and_unboxing_classes();
-BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size);
-BOOL is_class_file_existance(char* class_name);
+BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version);
+BOOL is_class_file_existance(char* class_name, int version);
 
 struct sClassTableStruct
 {

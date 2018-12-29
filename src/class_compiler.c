@@ -157,7 +157,7 @@ static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class)
+static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class, int* version)
 {
     /// class name ///
     if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -206,6 +206,27 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
         }
     }
 
+    /// version ///
+    if(strstr(info->p, "version") == info->p) {
+        info->p += 7;
+        skip_spaces_and_lf(info);
+
+        int n = 0;
+        while(isdigit(*info->p)) {
+            n = n * 10 + *info->p - '0';
+            info->p++;
+        }
+
+        *version = n;
+
+        if(n >= VERSION_MAX) {
+            parser_err_msg(info, "overflow version");
+            return FALSE;
+        }
+
+        skip_spaces_and_lf(info);
+    }
+
     return TRUE;
 }
 
@@ -213,23 +234,32 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
+    int version = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version))
     {
         return FALSE;
     }
 
     info->klass = get_class(class_name);
 
-    if(inherit && info->klass == NULL) {
-        if(is_class_file_existance(class_name)) {
-            info->klass = load_class(class_name);
+    if(version > 1 && info->klass == NULL) {
+        if(is_class_file_existance(class_name, version-1)) {
+            info->klass = load_class(class_name, version-1);
+        }
+    }
+    else if(inherit && info->klass == NULL) {
+        if(is_class_file_existance(class_name, 0)) {
+            info->klass = load_class(class_name, 0);
         }
     }
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class, version);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
+    }
+    else {
+        info->klass->mVersion = version;
     }
 
     info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
@@ -868,8 +898,9 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
+    int version = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version))
     {
         return FALSE;
     }
@@ -1352,8 +1383,9 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
+    int version = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version))
     {
         return FALSE;
     }

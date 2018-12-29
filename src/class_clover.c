@@ -676,7 +676,7 @@ BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     char class_file_name[PATH_MAX];
 
-    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX);
+    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX, 0);
     (*stack_ptr)++;
 
     MFREE(class_name_value);

@@ -137,44 +137,85 @@ sCLClass* get_class(char* class_name)
     return NULL;
 }
 
-BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size)
+BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version)
 {
-    /// script file directory ///
-    if(gScriptDirPath[0] != '\0') {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", gScriptDirPath, class_name);
+    if(version == 0) {
+        /// script file directory ///
+        if(gScriptDirPath[0] != '\0') {
+            snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", gScriptDirPath, class_name);
+
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
+
+        /// current working directory ///
+        char* cwd = getenv("PWD");
+
+        if(cwd) {
+            snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
+
+        /// home directory ///
+        char* home = getenv("HOME");
+
+        if(home) {
+            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
+
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
+
+        /// system shared directory ///
+        snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s.oclcl", PREFIX, class_name);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
         }
     }
+    else {
+        /// script file directory ///
+        if(gScriptDirPath[0] != '\0') {
+            snprintf(class_file_name, class_file_name_size, "%s/%s$%d.oclcl", gScriptDirPath, class_name, version);
 
-    /// current working directory ///
-    char* cwd = getenv("PWD");
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
 
-    if(cwd) {
-        snprintf(class_file_name, class_file_name_size, "%s/%s.oclcl", cwd, class_name);
+        /// current working directory ///
+        char* cwd = getenv("PWD");
+
+        if(cwd) {
+            snprintf(class_file_name, class_file_name_size, "%s/%s$%d.oclcl", cwd, class_name, version);
+
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
+
+        /// home directory ///
+        char* home = getenv("HOME");
+
+        if(home) {
+            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s$%d.oclcl", home, class_name, version);
+
+            if(access(class_file_name, F_OK) == 0) {
+                return TRUE;
+            }
+        }
+
+        /// system shared directory ///
+        snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s$%d.oclcl", PREFIX, class_name, version);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;
         }
-    }
-
-    /// home directory ///
-    char* home = getenv("HOME");
-
-    if(home) {
-        snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s.oclcl", home, class_name);
-
-        if(access(class_file_name, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    /// system shared directory ///
-    snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s.oclcl", PREFIX, class_name);
-
-    if(access(class_file_name, F_OK) == 0) {
-        return TRUE;
     }
 
     return FALSE;
@@ -692,6 +733,12 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         klass->mNumBlockObjects = 0;
     }
 
+    if(!read_int_from_file(fd, &n)) {
+        MFREE(klass);
+        return NULL;
+    }
+    klass->mVersion = n;
+
     return klass;
 }
 
@@ -775,7 +822,7 @@ sCLClass* get_class_with_load(char* class_name)
     sCLClass* result = get_class(class_name);
     
     if(result == NULL) {
-        result = load_class(class_name);
+        result = load_class(class_name, 0);
     }
 
     return result;
@@ -877,13 +924,13 @@ sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
     return klass;
 }
 
-BOOL is_class_file_existance(char* class_name)
+BOOL is_class_file_existance(char* class_name, int version)
 {
     char class_file_name[PATH_MAX+1];
-    return search_for_class_file(class_name, class_file_name, PATH_MAX);
+    return search_for_class_file(class_name, class_file_name, PATH_MAX, version);
 }
 
-sCLClass* load_class(char* class_name)
+sCLClass* load_class(char* class_name, int version)
 {
     sCLClass* klass = get_class(class_name);
     if(klass != NULL) {
@@ -891,7 +938,7 @@ sCLClass* load_class(char* class_name)
     }
 
     char class_file_name[PATH_MAX+1];
-    if(!search_for_class_file(class_name, class_file_name, PATH_MAX)) {
+    if(!search_for_class_file(class_name, class_file_name, PATH_MAX, version)) {
         return NULL;
     }
 
@@ -900,7 +947,7 @@ sCLClass* load_class(char* class_name)
     return result;
 }
 
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class)
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
@@ -979,6 +1026,8 @@ sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_clas
     klass->mInitMethodIndexOnCompileTime = 0;
 
     klass->mLabelNum = 0;
+
+    klass->mVersion = version;
 
     return klass;
 }
@@ -1069,74 +1118,74 @@ void class_init()
 {
     memset(gClassTable, 0, sizeof(sClassTable)*CLASS_NUM_MAX);
 
-    alloc_class("int", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("uint", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("byte", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("ubyte", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("short", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("ushort", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("long", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("ulong", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("float", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("double", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
+    alloc_class("int", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("uint", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("byte", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("ubyte", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("short", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("ushort", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("long", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("ulong", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("float", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("double", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
 
-    alloc_class("pointer", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("char", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
-    alloc_class("bool", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL);
+    alloc_class("pointer", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("char", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
+    alloc_class("bool", TRUE, -1, -1, 0, NULL, NULL, FALSE, FALSE, TRUE, FALSE, NULL, 0);
 
-    alloc_class("lambda", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, TRUE, NULL);
-    alloc_class("regex", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
+    alloc_class("lambda", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, TRUE, NULL, 0);
+    alloc_class("regex", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
 
-    alloc_class("WildCard", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("Anonymous", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("Self", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
+    alloc_class("WildCard", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("Anonymous", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("Self", FALSE, -1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
 
-    alloc_class("GenericsParametorClass0", FALSE, 0, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass1", FALSE, 1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass2", FALSE, 2, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass3", FALSE, 3, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass4", FALSE, 4, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass5", FALSE, 5, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass6", FALSE, 6, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass7", FALSE, 7, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass8", FALSE, 8, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass9", FALSE, 9, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass10", FALSE, 10, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass11", FALSE, 11, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass12", FALSE, 12, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass13", FALSE, 13, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass14", FALSE, 14, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass15", FALSE, 15, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass16", FALSE, 16, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass17", FALSE, 17, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass18", FALSE, 18, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass19", FALSE, 19, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass20", FALSE, 20, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass21", FALSE, 21, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass22", FALSE, 22, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass23", FALSE, 23, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass24", FALSE, 24, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass25", FALSE, 25, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass26", FALSE, 26, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass27", FALSE, 27, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass28", FALSE, 28, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass29", FALSE, 29, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass30", FALSE, 30, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("GenericsParametorClass31", FALSE, 31, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
+    alloc_class("GenericsParametorClass0", FALSE, 0, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass1", FALSE, 1, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass2", FALSE, 2, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass3", FALSE, 3, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass4", FALSE, 4, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass5", FALSE, 5, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass6", FALSE, 6, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass7", FALSE, 7, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass8", FALSE, 8, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass9", FALSE, 9, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass10", FALSE, 10, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass11", FALSE, 11, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass12", FALSE, 12, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass13", FALSE, 13, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass14", FALSE, 14, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass15", FALSE, 15, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass16", FALSE, 16, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass17", FALSE, 17, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass18", FALSE, 18, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass19", FALSE, 19, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass20", FALSE, 20, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass21", FALSE, 21, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass22", FALSE, 22, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass23", FALSE, 23, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass24", FALSE, 24, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass25", FALSE, 25, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass26", FALSE, 26, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass27", FALSE, 27, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass28", FALSE, 28, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass29", FALSE, 29, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass30", FALSE, 30, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("GenericsParametorClass31", FALSE, 31, -1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
 
-    alloc_class("MethodGenericsParametorClass0", FALSE, -1, 0, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass1", FALSE, -1, 1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass2", FALSE, -1, 2, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass3", FALSE, -1, 3, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass4", FALSE, -1, 4, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass5", FALSE, -1, 5, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass6", FALSE, -1, 6, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass7", FALSE, -1, 7, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass8", FALSE, -1, 8, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass9", FALSE, -1, 9, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass10", FALSE, -1, 10, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass11", FALSE, -1, 11, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
-    alloc_class("MethodGenericsParametorClass12", FALSE, -1, 12, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL);
+    alloc_class("MethodGenericsParametorClass0", FALSE, -1, 0, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass1", FALSE, -1, 1, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass2", FALSE, -1, 2, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass3", FALSE, -1, 3, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass4", FALSE, -1, 4, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass5", FALSE, -1, 5, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass6", FALSE, -1, 6, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass7", FALSE, -1, 7, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass8", FALSE, -1, 8, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass9", FALSE, -1, 9, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass10", FALSE, -1, 10, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass11", FALSE, -1, 11, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
+    alloc_class("MethodGenericsParametorClass12", FALSE, -1, 12, 0, NULL, NULL, FALSE, FALSE, FALSE, FALSE, NULL, 0);
 }
 
 void class_final()

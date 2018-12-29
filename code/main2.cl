@@ -48,3 +48,5 @@ println("Result Test2");
 ResultTest2.main();
 println("Omit Block Param Test");
 OmitBlockParamTest.main();
+println("MixinLayersTest");
+MixinLayersTest.main();

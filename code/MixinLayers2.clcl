@@ -1,0 +1,17 @@
+
+class MixinLayersTest version 2
+{
+    var b:int;
+
+    def initialize() {
+        inherit();
+
+        b = 2;
+    }
+
+    def main():static {
+        a := MixinLayersTest();
+
+        Clover.test("Mixin-layers test", a.a == 1 && a.b == 2);
+    }
+}

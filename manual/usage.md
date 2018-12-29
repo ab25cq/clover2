@@ -191,6 +191,35 @@ version 7.5.0より以下が可能になっています。
 
 この場合ClassAのtableは"DDD", "EEE", "FFF"となります。dynamic指定がない場合"AAA", "BBB", "CCC"となるはずです。
 
+version 8.2.8よりクラスにバージョンがつけられます。
+
+    > vim a1.clcl
+    class ClassA version 1 {
+        var a;
+
+        def initialize() {
+            a = 1;
+        }
+    }
+
+    > cclover2 a1.clcl
+
+    > vim a2.clcl
+    class ClassA version 2 {
+        var b;
+
+        def initialize() {
+            inherit();
+
+            b = 2;
+        }
+    }
+
+    > cclover2 a2.clcl
+
+versionをつけるとa2.clclを変更した場合a1.clclの再コンパイルは必要ありません。
+
+
 ## クラスファイルの登録
 
 クラスファイルの検索パスはカレントディレクトリと$HOME/.clover2となります。どのディレクトリからでもクラスを参照したい場合はoclclファイルを$HOME/.clover2にコピーしてください。あとJITを有効にしている場合はダイナミックライブラリのコピーも必要になります。lib[クラス名].so, lib[クラス名].so.1.0.0を$HOME/.clover2にコピーしてください。無くても動いてしまいますがJITが有効にならずに動いてしまいます。あとはダイナミックライブラリの検索のためにexport LD_LIBRARY_PATH=~/.clover2:$LIBRARY_PATHを.bashrcなどに登録してください。

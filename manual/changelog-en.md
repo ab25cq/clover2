@@ -1,4 +1,8 @@
 
+version 8.2.8
+
+    We now have versions for classes.  It is convenient for split compilation. 
+
 version 8.2.7
 
     iclover2 -c "ls -al" etc now work now.

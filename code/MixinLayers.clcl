@@ -1,0 +1,8 @@
+class MixinLayersTest version 1
+{
+    var a:int;
+
+    def initialize() {
+        a = 1;
+    }
+}

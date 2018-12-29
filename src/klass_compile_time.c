@@ -1008,6 +1008,8 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 
         append_block_to_buffer(buf, block_object);
     }
+
+    sBuf_append_int(buf, klass->mVersion);
 }
 
 BOOL write_class_to_class_file(sCLClass* klass)
@@ -1030,6 +1032,32 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
     /// write ///
     char file_name[PATH_MAX];
+    if(klass->mVersion > 0) {
+        snprintf(file_name, PATH_MAX, "%s$%d.oclcl", CLASS_NAME(klass), klass->mVersion);
+
+        int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+        int total_size = 0;
+        while(total_size < buf.mLen) {
+            int size;
+
+            if(buf.mLen - total_size < BUFSIZ) {
+                size = write(f, buf.mBuf + total_size, buf.mLen - total_size);
+            }
+            else {
+                size = write(f, buf.mBuf + total_size, BUFSIZ);
+            }
+
+            if(size < 0) {
+                MFREE(buf.mBuf);
+                close(f);
+                return FALSE;
+            }
+
+            total_size += size;
+        }
+        close(f);
+    }
+
     snprintf(file_name, PATH_MAX, "%s.oclcl", CLASS_NAME(klass));
 
     int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);

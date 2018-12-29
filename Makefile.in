@@ -696,6 +696,8 @@ test:
 	PWD=`pwd` ./cclover2 code/QuetionOperator.clcl
 	PWD=`pwd` ./cclover2 code/MethodDynamicTest.clcl
 	PWD=`pwd` ./cclover2 code/MethodDynamicTest2.clcl
+	PWD=`pwd` ./cclover2 code/MixinLayers.clcl
+	PWD=`pwd` ./cclover2 code/MixinLayers2.clcl
 
 #	if locale -a | grep ja_JP.utf8; then export LANG="ja_JP_utf8"; export LC_ALL="ja_JP.utf8"; PWD=`pwd` ./cclover2 code/CharTest.clcl; if test $(JIT) = 1; then ./bclover2 CharTest.oclcl; fi; PWD=`pwd` ./clover2 code/char.cl; fi
 

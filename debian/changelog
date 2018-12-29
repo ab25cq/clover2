@@ -1,4 +1,8 @@
 
+clover2 (8.2.8-1) unstable; urgency=medium
+
+    * We now have versions for classes.  It is convenient for split compilation. 
+
 clover2 (8.2.7-1) unstable; urgency=medium
 
     * iclover2 -c "ls -al" etc now work now.
