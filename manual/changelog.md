@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.2.9
+
+    クラスファイルのファイル名のバージョン情報の記号に@を使うように変更。makeファイルで$は使えない様子だったため。
+
 version 8.2.8
 
     クラスにバージョンがつけられるようになりました。分割コンパイル時に便利です。

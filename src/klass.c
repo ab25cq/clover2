@@ -181,7 +181,7 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
     else {
         /// script file directory ///
         if(gScriptDirPath[0] != '\0') {
-            snprintf(class_file_name, class_file_name_size, "%s/%s$%d.oclcl", gScriptDirPath, class_name, version);
+            snprintf(class_file_name, class_file_name_size, "%s/%s@%d.oclcl", gScriptDirPath, class_name, version);
 
             if(access(class_file_name, F_OK) == 0) {
                 return TRUE;
@@ -192,7 +192,7 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
         char* cwd = getenv("PWD");
 
         if(cwd) {
-            snprintf(class_file_name, class_file_name_size, "%s/%s$%d.oclcl", cwd, class_name, version);
+            snprintf(class_file_name, class_file_name_size, "%s/%s@%d.oclcl", cwd, class_name, version);
 
             if(access(class_file_name, F_OK) == 0) {
                 return TRUE;
@@ -203,7 +203,7 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
         char* home = getenv("HOME");
 
         if(home) {
-            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s$%d.oclcl", home, class_name, version);
+            snprintf(class_file_name, class_file_name_size, "%s/.clover2/%s@%d.oclcl", home, class_name, version);
 
             if(access(class_file_name, F_OK) == 0) {
                 return TRUE;
@@ -211,7 +211,7 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
         }
 
         /// system shared directory ///
-        snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s$%d.oclcl", PREFIX, class_name, version);
+        snprintf(class_file_name, class_file_name_size, "%s/share/clover2/%s@%d.oclcl", PREFIX, class_name, version);
 
         if(access(class_file_name, F_OK) == 0) {
             return TRUE;

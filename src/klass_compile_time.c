@@ -1033,7 +1033,7 @@ BOOL write_class_to_class_file(sCLClass* klass)
     /// write ///
     char file_name[PATH_MAX];
     if(klass->mVersion > 0) {
-        snprintf(file_name, PATH_MAX, "%s$%d.oclcl", CLASS_NAME(klass), klass->mVersion);
+        snprintf(file_name, PATH_MAX, "%s@%d.oclcl", CLASS_NAME(klass), klass->mVersion);
 
         int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
         int total_size = 0;

@@ -1,4 +1,8 @@
 
+version 8.2.9
+
+    Changed to use @ for the symbol of the version information of class file file name.  Because it seemed that $ could not be used in the make file.
+
 version 8.2.8
 
     We now have versions for classes.  It is convenient for split compilation. 

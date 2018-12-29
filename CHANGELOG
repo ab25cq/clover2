@@ -1,4 +1,12 @@
 
+version 8.2.9
+
+    クラスファイルのファイル名のバージョン情報の記号に@を使うように変更。makeファイルで$は使えない様子だったため。
+
+version 8.2.9
+
+    Changed to use @ for the symbol of the version information of class file file name.  Because it seemed that $ could not be used in the make file.
+
 version 8.2.8
 
     クラスにバージョンがつけられるようになりました。分割コンパイル時に便利です。
