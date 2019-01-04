@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.3.0
+
+    パーサーのエラーメッセージの出力を最大10個までに制限。
+
 version 8.2.9
 
     クラスファイルのファイル名のバージョン情報の記号に@を使うように変更。makeファイルで$は使えない様子だったため。

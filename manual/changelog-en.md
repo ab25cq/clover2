@@ -1,4 +1,8 @@
 
+version 8.3.0
+
+    Limit the output of parser error message to a maximum of 10. 
+
 version 8.2.9
 
     Changed to use @ for the symbol of the version information of class file file name.  Because it seemed that $ could not be used in the make file.
