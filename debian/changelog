@@ -1,4 +1,8 @@
 
+clover2 (8.3.1-1) unstable; urgency=medium
+    
+    * Fixed error message bug. Now getmaxx and getmaxy use ioctl
+
 clover2 (8.3.0-1) unstable; urgency=medium
 
     * Limit the output of parser error message to a maximum of 10. 

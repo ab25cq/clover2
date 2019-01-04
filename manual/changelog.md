@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 8.3.1
+
+    エラーメッセージのバグを修正。getmaxx, getmaxyをioctlを使うようにしました。
+
 version 8.3.0
 
     パーサーのエラーメッセージの出力を最大10個までに制限。

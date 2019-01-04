@@ -1,4 +1,8 @@
 
+version 8.3.1
+    
+    Fixed error message bug. Now getmaxx and getmaxy use ioctl
+
 version 8.3.0
 
     Limit the output of parser error message to a maximum of 10. 

@@ -163,9 +163,15 @@ void parser_err_msg(sParserInfo* info, const char* msg, ...)
     vsnprintf(msg2, 1024, msg, args);
     va_end(args);
 
-    if(!info->get_type_for_interpreter && info->err_num < PARSER_ERR_MSG_MAX) 
+    if(!info->get_type_for_interpreter) 
     {
-        fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
+        static int output_num = 0;
+
+        if(output_num < PARSER_ERR_MSG_MAX) {
+            fprintf(stderr, "%s:%d: %s\n", info->sname, info->sline, msg2);
+        }
+
+        output_num++;
     }
 }
 
