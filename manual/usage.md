@@ -195,7 +195,7 @@ version 8.2.8よりクラスにバージョンがつけられます。
 
     > vim a1.clcl
     class ClassA version 1 {
-        var a;
+        var a:int;
 
         def initialize() {
             a = 1;
@@ -206,7 +206,7 @@ version 8.2.8よりクラスにバージョンがつけられます。
 
     > vim a2.clcl
     class ClassA version 2 {
-        var b;
+        var b:int;
 
         def initialize() {
             inherit();

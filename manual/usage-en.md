@@ -196,7 +196,7 @@ As of version 8.2.8, the version is attached to the class.
 ```
     > vim a1.clcl
     class ClassA version 1 {
-        var a;
+        var a:int;
 
         def initialize() {
             a = 1;
@@ -207,7 +207,7 @@ As of version 8.2.8, the version is attached to the class.
 
     > vim a2.clcl
     class ClassA version 2 {
-        var b;
+        var b:int;
 
         def initialize() {
             inherit();
