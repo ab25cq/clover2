@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.0
+
+    String.deleteWithRange, String.deleteAtを追加。エラーメッセージ数を8に変更。
+
 version 8.3.1
 
     エラーメッセージのバグを修正。getmaxx, getmaxyをioctlを使うようにしました。

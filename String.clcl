@@ -279,6 +279,9 @@ inherit String
 
         return self;
     }
+    def deleteAt(index:int): String {
+        return delete(index);
+    }
 
     def delete(index:int, index2:int): String {
         if(index < 0) {
@@ -309,6 +312,9 @@ inherit String
         }
 
         return self;
+    }
+    def deleteWithRange(index:int, index2:int): String {
+        return delete(index, index2);
     }
 
     def subString(start:int, end:int):  String {

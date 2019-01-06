@@ -1,4 +1,8 @@
 
+version 10.0.0
+
+    Added String.deleteWithRange, String.deleteAt. Changend parser error message max as 8.
+
 version 8.3.1
     
     Fixed error message bug. Now getmaxx and getmaxy use ioctl
