@@ -1,0 +1,162 @@
+
+class ViClone version17 {
+    var macro: EqualableList<Tuple2<Integer,Integer>>[];
+    var macroKey: int;
+    var macroMode: bool;
+    
+    def initialize():dynamic {
+        inherit();
+        
+        macro = EqualableList<Tuple2<Integer,Integer>>[KEY_MAX];
+
+        ### Insert Mode ###
+        keyEvents['q'] = lambda(self:ViClone, key:int, key2:int) {
+
+            macro[key2] = new EqualableList<Tuple2<Integer,Integer>>();
+            
+            macroKey = key2;
+            macroMode = true;
+        }
+        keyEvents['@'] = lambda(self:ViClone, key:int, key2:int) {
+            if(macro[key2] != null) {
+                for(i:=0; i<macro[key2].length(); i++) {
+                    key := macro[key2].items(i);
+
+                    runKeyEvents(key.value1, key.value2);
+                }
+            }
+        }
+    }
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(macroMode) {
+            if(mode == EDITMODE && key == 'q'.to_int) {
+                macroMode = false;
+            }
+            else {
+                macro[macroKey].push((key, key2));
+
+                inherit(key, key2);
+            }
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+    def statusView(): dynamic {
+        if(macroMode) {
+            maxy := getmaxy();
+
+            clearStatusLine();
+
+            attron(A_REVERSE);
+            mvprintw(maxy-1, 0, "MACRO %c", array { macroKey.to_char });
+            attroff(A_REVERSE);
+        }
+        else {
+            inherit();
+        }
+    }
+    def main():dynamic static {
+        vicl = ViClone();
+
+        sockfd := socket(AF_UNIX, SOCK_STREAM,  0);
+
+        saddr := sockaddr_un();
+
+        saddr.sun_family = AF_UNIX;
+        saddr.sun_path = getenv("HOME").append("/.clover2/vicl/socket");
+
+        rm("-rf", saddr.sun_path);
+
+        bind(sockfd, saddr);
+        listen(sockfd, 1);
+
+        mask := fd_set();
+        read_ok := fd_set();
+
+        FD_ZERO(mask);
+        FD_SET(0, mask);
+        FD_SET(sockfd, mask);
+
+        loop_num := 0;
+
+        while(!vicl.endOfAplication) {
+            vicl.clearWithoutBlink(); 
+            vicl.clearStatusLine();
+            vicl.dirView();
+            vicl.view();
+            vicl.statusView();
+            refresh();
+
+            read_ok = mask.clone();
+
+            result := select(sockfd+1, read_ok, null, null, null);
+
+            if(FD_ISSET(0, read_ok)) {
+                key := getch();
+
+                key2 := 0;
+
+                if(vicl.mode == ViClone.EDITMODE) {
+                    if(!vicl.macroMode) {
+                        when(key) {
+                            case ('@'.to_int, 'q'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1) 
+                            {
+                                key2 = getch();
+                            }
+                        }
+                    }
+                    else {
+                        when(key) {
+                            case ('@'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1) 
+                            {
+                                key2 = getch();
+                            }
+                        }
+                    }
+                }
+
+                vicl.runKeyEvents(key, key2);
+            }
+            elif(FD_ISSET(sockfd, read_ok)) {
+                caddr := sockaddr_un();
+                csockfd := accept(sockfd, caddr);
+
+                buf := Buffer(128);
+                read(csockfd, buf, 128);
+                
+                message := buf.toString();
+                
+                if(message.match(/^OPEN_FILE .+ \d+$/)) {
+                    array := message.scan(/^OPEN_FILE (.+) (\d+)/)
+                    
+                    file_name := array.items(1);
+                    try {
+                        file_name = realpath(file_name);
+                    }
+                    line_num := array.items(2).to_int();
+
+                    vicl.openFile(file_name, line_num);
+                }
+                elif(message.match(/^INSERT_FILE .+$/)) {
+                    array := message.scan(/^INSERT_FILE (.+)$/)
+                    
+                    file_name := array.items(1).chomp();
+
+                    text := file_name.toPath().read().toString();
+                    
+                    vicl.win.addUndoText();
+                    vicl.win.insertText(text);
+                }
+            }
+
+            if(loop_num % 256 == 0) {
+                Clover.compaction();
+            }
+            
+            loop_num++;
+        }
+
+        close(sockfd);
+    }
+}

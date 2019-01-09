@@ -1,0 +1,410 @@
+
+class ViClone version 8
+{
+    var statusLineInCommandMode:String;
+
+    def initialize():dynamic {
+        inherit();
+
+        statusLineInCommandMode = "";
+
+        keyEvents[':'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            enterCommandMode();
+        }
+    }
+
+    def enterCommandMode():dynamic {
+        mode = COMMANDMODE;
+        statusLineInCommandMode = "";
+    }
+    
+    # result is -1 --> canceled to select
+    def selectStrings(message:String, strings:SortableList<String>):int {
+        result := -1;
+
+        cursor := 0;
+        scroll_top := 0;
+        maxy := getmaxy()-1;
+        maxx := getmaxx();
+
+        while(true) {
+            clearWithoutBlink();
+
+            n := 0;
+            mvprintw(0, 0 , message.subString(0, maxx-1));
+
+            strings.subList(scroll_top, scroll_top+maxy-1).each  {
+                if(cursor == n) {
+                    attron(A_REVERSE);
+                    mvprintw(n+1, 0, it);
+                    attroff(A_REVERSE);
+                }
+                else {
+                    mvprintw(n+1, 0, it);
+                }
+                n++;
+            }
+
+            refresh();
+
+            key := getch();
+
+            when(key) {
+                case (('['-'A').to_int+1, ('C'-'A').to_int + 1) {
+                    break;
+                }
+                case (KEY_UP, 'k'.to_int) {
+                    cursor--;
+                }
+                case (KEY_DOWN, 'j'.to_int, ('I'-'A').to_int + 1) {
+                    cursor++;
+                }
+                case (('J'-'A').to_int + 1) {
+                    result = scroll_top + cursor;
+                    break;
+                }
+                case (('D'-'A').to_int + 1) {
+                    cursor += 10;
+                }
+                case (('U'-'A').to_int + 1) {
+                    cursor -= 10;
+                }
+            }
+
+            if(cursor > maxy-1) {
+                scroll_top += maxy-1;
+                cursor = 0;
+            }
+
+            if(scroll_top+cursor >= strings.length()) {
+                cursor = strings.length()-scroll_top-1;
+            }
+
+            if(cursor < 0) {
+                cursor += maxy-1;
+                scroll_top -= maxy-1;
+            }
+
+            if(scroll_top < 0) {
+                scroll_top = 0;
+                cursor = 0;
+            }
+        }
+
+        return result;
+    }
+    
+    def command_completion_core(inputing_text:String, words:SortableList<String>):bool {
+        line := statusLineInCommandMode;
+        x := statusLineInCommandMode.length();
+        
+        candidates := words.select { it.indexOf(inputing_text) == 0 && !it.equals(inputing_text) }.sort().uniq();
+
+        if(candidates.length() == 0) {
+        }
+        elif(candidates.length() == 1) {
+            selected_string := candidates.items(0);
+
+            line.append(selected_string.subString(inputing_text.length(), -1));
+        }
+        else {
+            maxx := getmaxx();
+            index := selectStrings(line.subString(3, maxx-1), candidates);
+
+            if(index == -1) {
+                return false;
+            }
+            else {
+                selected_string := candidates.items(index);
+
+                line.append(selected_string.subString(inputing_text.length(), -1));
+            }
+        }
+
+        return true;
+    } 
+    
+    def statusLineFileNameCompletion() {
+        word := "";
+        if(statusLineInCommandMode.match(/^sp\s*$/)) {
+            word = "";
+        }
+        elif(statusLineInCommandMode.match(/^sp\s+.+/)) {
+            word = statusLineInCommandMode.scan(/^sp\s+(.+)/).items(1);
+        }
+
+        dir := dirname(word);
+
+        if(word.equals("")) {
+            dir = "."
+        }
+        elif(word.equals("/")) {
+            dir = "/";
+        }
+        elif(word.chars(-1) == '/') {
+            dir = word.subString(0, -2)
+        }
+
+        completion_success := false;
+        if(dir.equals(".")) {
+            words := p".".entries().map { it.subString(2, -1); }
+
+            completion_success = command_completion_core(word, words)
+        }
+        elif(dir.equals("/")) {
+            words := dir.toPath().entries().map { it.subString(dir.length(), -1) }
+
+            completion_success = command_completion_core(word.subString(dir.length(), -1), words);
+        }
+        else {
+            words := dir.toPath().entries().map { it.subString(dir.length()+1, -1) }
+
+            completion_success = command_completion_core(word.subString(dir.length()+1, -1), words);
+        }
+    }
+
+    def commandMode(key:int):dynamic {
+        when(key) {
+            case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
+                mode = EDITMODE;
+                statusLineInCommandMode = "";
+            }
+            case (('H'-'A').to_int+1, KEY_BACKSPACE) {
+                statusLineInCommandMode.delete(-2);
+            }
+            case (('W'-'A').to_int+1) {
+                statusLineInCommandMode = statusLineInCommandMode.subString(0, statusLineInCommandMode.rindexOf(" ")+1);
+            }
+            case (KEY_ENTER, ('J'-'A').to_int+1) {
+                if(statusLineInCommandMode.match(/^wq$/) || statusLineInCommandMode.match(/^qw$/)) {
+                    if(windows.length() == 1) {
+                        win.writeToFile();
+                        win.saveCursorPos();
+                        win.modifiedText = false;
+    
+                        endOfAplication = true;
+                    }
+                    else {
+                        win.writeToFile();
+                        win.saveCursorPos();
+                        win.modifiedText = false;
+    
+                        windows.deleteByID(win);
+
+                        win = windows.items(-1);
+
+                        resizeWindows();
+                    }
+    
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^q!$/)) {
+                    endOfAplication = true;
+
+                    windows.each {
+                        it.saveCursorPos();
+                    }
+    
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^w$/)) {
+                    win.writeToFile();
+                    win.saveCursorPos();
+                    win.modifiedText = false;
+    
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^q$/)) {
+                    if(windows.length() == 1) {
+                        if(!win.modifiedText) {
+                            win.saveCursorPos();
+                            endOfAplication = true;
+                        }
+                    }
+                    else {
+                        if(!win.modifiedText) {
+                            win.saveCursorPos();
+                            windows.deleteByID(win);
+
+                            win = windows.items(-1);
+
+                            resizeWindows();
+                        }
+                    }
+    
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^sp$/)) {
+                    dirPaneOn(); 
+                }
+                elif(statusLineInCommandMode.match(/^sp\s+.+/)) {
+                    fpath := statusLineInCommandMode.scan(/^sp\s+(.+)/).items(1);
+
+                    try {
+                        fpath = realpath(fpath);
+                    }
+                    
+                    dir_name := dirname(fpath);
+                    file_name := basename(fpath);
+
+                    try {
+                        win = createNewWin(dir_name, file_name, -1);
+                    }
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^grep\s+.+$/)) {
+                    word := statusLineInCommandMode.scan(/^grep\s+(.+)/).items(1);
+                    endwin();
+                    iclover2("--controlling-terminal", "-s", "a := grep(\"-Ine\", \"\{word}\", glob(\"*\")).selector().scan(/^(.+?):(\\d+)/); vicl_open_file(a.items(1), a.items(2))", "-p", (19+word.length()).toString(), "-o")
+                    initscr();
+                    setEscapeDelay(0);
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^grep$/)) {
+                    endwin();
+                    iclover2 -s 'a := grep("-Ine", "", glob("*")).selector().scan(/^(.+?):(\\d+)/); vicl_open_file(a.items(1), a.items(2))' -p 19 -o
+                    initscr();
+                    setEscapeDelay(0);
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^make$/)) {
+                    endwin();
+                    iclover2 -s 'a := make().getErrorOutput().selector().scan(/^(.+?):(\\d+)/); vicl_open_file(a.items(1), a.items(2))' -p 10 -o
+                    initscr();
+                    setEscapeDelay(0);
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^!/)) {
+                    word := statusLineInCommandMode.scan(/^!(.+)$/).items(1);
+                    
+                    endwin();
+                    iclover2("--controlling-terminal", "-o", "-s", word, "-p", "-1")
+                    echo "HIT ANY KEY"
+                    initscr();
+                    setEscapeDelay(0);
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                    getch();
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^\.!/)) {
+                    word := statusLineInCommandMode.scan(/^\.!(.+)/).items(1);
+                    
+                    command_result := bash("-c", word).toString().split('\n');
+                    
+                    y := win.getRealPosY();
+                    x := win.getRealPosX();
+
+                    line := win.texts.items(y);
+
+                    if(line != null) {
+                        if(command_result.length() == 1) {
+                            win.addUndoText();
+
+                            str := command_result.items(0);
+                            line.insert(x, str);
+                            win.cursorX += str.length();
+                            win.makeVisibleTexts();
+                        }
+                        elif(command_result.length() > 1) {
+                            win.addUndoText();
+
+                            str := command_result.items(0);
+                            line.insert(x, str);
+                            win.cursorX += str.length();
+                            win.texts.insert(y+1, command_result.subList(1,-1));
+                            win.makeVisibleTexts();
+                        }
+                    }
+
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+                elif(statusLineInCommandMode.match(/^\.!!/)) {
+                    word := statusLineInCommandMode.scan(/^\.!!(.+)/).items(1);
+                    
+                    command_result := iclover2("-c", word).toString().split('\n');
+                    
+                    y := win.getRealPosY();
+                    x := win.getRealPosX();
+
+                    line := win.texts.items(y);
+
+                    if(line != null) {
+                        if(command_result.length() == 1) {
+                            win.addUndoText();
+
+                            str := command_result.items(0).subString(2, -1);
+                            line.insert(x, str);
+                            win.cursorX += str.length();
+                            win.makeVisibleTexts();
+                        }
+                        elif(command_result.length() > 1) {
+                            win.addUndoText();
+
+                            str := command_result.items(0).subString(2, -1);
+                            line.insert(x, str);
+                            win.cursorX += str.length();
+                            win.texts.insert(y+1, command_result.subList(1,-1));
+                            win.makeVisibleTexts();
+                        }
+                    }
+
+                    mode = EDITMODE;
+                    statusLineInCommandMode = "";
+                }
+            }
+            case (('I'-'A').to_int+1) {
+                if(statusLineInCommandMode.match(/^sp/)) {
+                    statusLineFileNameCompletion();
+                }
+            }
+            else {
+                statusLineInCommandMode.append(key.to_char);
+            }
+        }
+    }
+
+    def statusView(): dynamic {
+        if(mode == COMMANDMODE) {
+            maxy := getmaxy();
+
+            clearStatusLine();
+
+            attron(A_REVERSE);
+            mvprintw(maxy-1, 0, ":\{statusLineInCommandMode}");
+            attroff(A_REVERSE);
+        }
+        else {
+            inherit();
+        }
+    }
+
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(mode == COMMANDMODE) {
+            commandMode(key);
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+}

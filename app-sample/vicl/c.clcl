@@ -1,0 +1,8 @@
+class ClassC
+{
+    a:int;
+
+    def initialize(a:int) {
+        self.a = a;
+    }
+}

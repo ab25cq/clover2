@@ -1,0 +1,166 @@
+#######################################################
+# installed directories
+#######################################################
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/clover2
+includedir=@includedir@/clover2
+datarootdir=@datarootdir@/clover2
+docdir=@datadir@/doc
+libdir=@libdir@
+
+
+##########################################################
+# environmnet variables
+##########################################################
+CC=@CC@
+CXX=@CXX@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+OS=@OS@
+DESTDIR=@DESTDIR@
+OBJS=@OBJS@
+CXXFLAGS=@CXXFLAGS@
+
+##########################################################
+# main
+##########################################################
+all: vicl
+
+vicl: ViClone.oclcl viclone.ocl viclone_open_file.ocl viclone_insert_file.ocl Clover.oclcl preinstall
+
+Clover.oclcl: Fundamental.clcl
+	cclover2 Fundamental.clcl
+	if which bclover2; then bclover2 Clover.oclcl; fi
+
+ViClone.oclcl: ViClone@20.oclcl
+	if which bclover2; then bclover2 ViClone.oclcl; fi
+	if which bclover2; then bclover2 ViCloneWindow.oclcl; fi
+ViClone@20.oclcl: vicl20Backup.clcl ViClone@19.oclcl
+	cclover2 vicl20Backup.clcl
+
+ViClone@19.oclcl: vicl19Signal.clcl ViClone@18.oclcl
+	cclover2 vicl19Signal.clcl
+
+ViClone@18.oclcl: vicl18Range.clcl ViClone@17.oclcl
+	cclover2 vicl18Range.clcl
+
+ViClone@17.oclcl: vicl17Macro.clcl ViClone@16.oclcl
+	cclover2 vicl17Macro.clcl
+
+ViClone@16.oclcl: vicl16VVisual.clcl ViClone@15.oclcl
+	cclover2 vicl16VVisual.clcl
+
+ViClone@15.oclcl: vicl15CCompletion.clcl ViClone@14.oclcl
+	cclover2 vicl15CCompletion.clcl
+
+ViClone@14.oclcl: vicl14Completion.clcl ViClone@13.oclcl
+	cclover2 vicl14Completion.clcl
+
+ViClone@13.oclcl: vicl13dot.clcl ViClone@12.oclcl
+	cclover2 vicl13dot.clcl
+
+ViClone@12.oclcl: vicl12grave.clcl ViClone@11.oclcl
+	cclover2 vicl12grave.clcl
+
+ViClone@11.oclcl: vicl11Undo.clcl ViClone@10.oclcl
+	cclover2 vicl11Undo.clcl
+
+ViClone@10.oclcl: vicl10VisualMode.clcl ViClone@9.oclcl
+	cclover2 vicl10VisualMode.clcl
+
+ViClone@9.oclcl: vicl9SearchMode.clcl ViClone@8.oclcl
+	cclover2 vicl9SearchMode.clcl
+
+ViClone@8.oclcl: vicl8CommandMode.clcl ViClone@7.oclcl
+	cclover2 vicl8CommandMode.clcl
+
+ViClone@7.oclcl: vicl7DirPane.clcl ViClone@6.oclcl
+	cclover2 vicl7DirPane.clcl
+
+ViClone@6.oclcl: vicl6Brace.clcl ViClone@5.oclcl
+	cclover2 vicl6Brace.clcl
+
+ViClone@5.oclcl: vicl5Word.clcl ViClone@4.oclcl
+	cclover2 vicl5Word.clcl
+
+ViClone@4.oclcl: vicl4Edit.clcl ViClone@3.oclcl
+	cclover2 vicl4Edit.clcl
+
+ViClone@3.oclcl: vicl3InsertMode.clcl ViClone@2.oclcl
+	cclover2 vicl3InsertMode.clcl
+
+ViClone@2.oclcl: vicl2Win.clcl ViClone@1.oclcl
+	cclover2 vicl2Win.clcl
+
+ViClone@1.oclcl: vicl1App.clcl
+	cclover2 vicl1App.clcl
+
+viclone.ocl: viclone.cl
+	cclover2 viclone.cl
+	mkdir -p $(HOME)/.clover2/vicl
+	install -m 644 viclone.ocl $(HOME)/.clover2/vicl/viclone.ocl
+
+viclone_insert_file.ocl:viclone_insert_file.cl
+	cclover2 viclone_insert_file.cl
+	mkdir -p $(HOME)/.clover2/vicl
+	install -m 644 viclone_insert_file.ocl $(HOME)/.clover2/vicl/viclone_insert_file.ocl
+
+viclone_open_file.ocl:viclone_open_file.cl
+	cclover2 viclone_open_file.cl
+	mkdir -p $(HOME)/.clover2/vicl
+	install -m 644 viclone_open_file.ocl $(HOME)/.clover2/vicl/viclone_open_file.ocl
+
+preinstall:
+	mkdir -p $(HOME)/.clover2/vicl
+	install -m 644 Clover.oclcl $(HOME)/.clover2/vicl
+	if test -e Clover.so.1.0.0; then install -m 755 Clover.so.1.0.0 $(HOME)/.clover2/vicl; cp -a Clover.so $(HOME)/.clover2/vicl; fi
+	install -m 644 ViClone.oclcl $(HOME)/.clover2/vicl
+	if test -e ViClone.so.1.0.0; then install -m 755 ViClone.so.1.0.0 $(HOME)/.clover2/vicl; cp -a ViClone.so $(HOME)/.clover2/vicl; fi
+	install -m 644 ViCloneWindow.oclcl $(HOME)/.clover2/vicl
+	if test -e ViCloneWindow.so.1.0.0; then install -m 755 ViCloneWindow.so.1.0.0 $(HOME)/.clover2/vicl; cp -a ViCloneWindow.so $(HOME)/.clover2/vicl; fi
+	install -m 644 viclone.ocl $(HOME)/.clover2/vicl
+
+#########################################################
+# install
+#########################################################
+install:
+	mkdir -p "$(DESTDIR)"/bin
+	install -m 755 vicl "$(DESTDIR)"/bin
+	install -m 755 vicl_open_file "$(DESTDIR)"/bin
+	install -m 755 vicl_insert_file "$(DESTDIR)"/bin
+
+#########################################################
+# uninstall
+#########################################################
+uninstall:
+	rm -rf ~/.clover2/vicl
+	rm -f "$(DESTDIR)"/bin/vicl
+
+#########################################################
+# permission
+#########################################################
+permission:
+	chmod 644 *
+	chmod 755 .git man src configure
+	chmod 644 ViClone.clcl viclone.cl
+
+########################################################
+# clean
+########################################################
+clean:
+	rm -fR core.* core a.out *.oclcl *.bc *.s *.o *.ocl *.clm src/*.dwo *.ll *.so.1.0.0 *.so vgcore* tags cstdlib-tags
+
+distclean: clean
+	rm -fR Makefile autom4te.cache
+
+########################################################
+# test
+########################################################
+test: 
+	@echo "Compile to test code..."

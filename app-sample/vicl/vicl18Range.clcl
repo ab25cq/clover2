@@ -1,0 +1,296 @@
+
+class ViCloneWindow version 11
+{
+    var rangeModeStart:int;
+    var rangeModeStartX:int;
+    var rangeMode:bool
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+
+        rangeModeStart = -1;
+        rangeModeStartX = -1;
+        rangeMode = false;
+    }
+
+    def view():dynamic {
+        if(rangeMode) {
+            for(y:=0; y<visibleTexts.length(); y++) {
+                line := visibleTexts.items(y);
+
+                if(line == null) {
+                    break;
+                }
+
+                y2 := viewYToRealY(y);
+                cursor_line := viewYToRealY(cursorY);
+
+                if(y2 == cursor_line && y2 == rangeModeStart) 
+                {
+                    x2 := getRealPosX();
+                
+                    if(x2 >= rangeModeStartX) 
+                    {
+                        line1 := line.subString(0, rangeModeStartX);
+                        line2 := line.subString(rangeModeStartX, x2);
+                        line3 := line.subString(x2, -1);
+                        
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                        attroff(A_REVERSE);
+                        
+                        mvprintw(y + winPos, line1.length() + line2.length() + ViClone.vicl.dirPaneLength, line3);
+                    }
+                    else {
+                        line1 := line.subString(0, x2);
+                        line2 := line.subString(x2, rangeModeStartX);
+                        line3 := line.subString(rangeModeStartX, -1);
+                        
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                        attroff(A_REVERSE);
+                        
+                        mvprintw(y + winPos, line1.length() + line2.length() + ViClone.vicl.dirPaneLength, line3);
+                    }
+                }
+                elif(y2 == rangeModeStart) 
+                {
+                    if(y2 < cursor_line) {
+                        line1 := line.subString(0, rangeModeStartX);
+                        line2 := line.subString(rangeModeStartX, -1);
+                        
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                        attroff(A_REVERSE);
+                    }
+                    else {
+                        line1 := line.subString(0, rangeModeStartX);
+                        line2 := line.subString(rangeModeStartX, -1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        attroff(A_REVERSE);
+                        
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                    }
+                }
+                elif(y2 == cursor_line) {
+                    if(y2 < rangeModeStart) {
+                        x2 := getRealPosX();
+                        
+                        line1 := line.subString(0, x2);
+                        line2 := line.subString(x2, -1);
+                        
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                        attroff(A_REVERSE);
+                    }
+                    else {
+                        x2 := getRealPosX();
+                        
+                        line1 := line.subString(0, x2);
+                        line2 := line.subString(x2, -1);
+                        
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line1);
+                        attroff(A_REVERSE);
+                        
+                        mvprintw(y + winPos, line1.length() + ViClone.vicl.dirPaneLength, line2);
+                    }
+                }
+                elif(y2 < rangeModeStart && y2 > cursor_line) {
+                    attron(A_REVERSE);
+                    mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+                    attroff(A_REVERSE);
+                }
+                elif(y2 > rangeModeStart && y2 < cursor_line) {
+                    attron(A_REVERSE);
+                    mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+                    attroff(A_REVERSE);
+                }
+                else {
+                    mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+                }
+            }
+
+            try {
+                attron(A_REVERSE);
+                mvprintw(MaxY -1 + winPos, 0 + ViClone.vicl.dirPaneLength, "%s/%s%s", { dirPath, fileName, " ".multiply(getmaxx()-1-ViClone.vicl.dirPaneLength-dirPath.length()-fileName.length()-1) });
+                attroff(A_REVERSE);
+            }
+        }
+        else {
+            inherit();
+        }
+    }
+}
+
+class ViClone version 18
+{
+    def initialize():dynamic {
+        inherit();
+
+        ### Insert Mode ###
+        keyEvents['v'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
+            enterRangeMode();
+        }
+    }
+
+    def enterRangeMode() {
+        mode = RANGEMODE;
+
+        win.rangeModeStart = win.getRealPosY();
+        win.rangeModeStartX = win.getRealPosX();
+        win.rangeMode = true;
+    }
+    
+    def finishRangeMode() {
+        mode = EDITMODE;
+        win.rangeMode = false;
+    }
+
+    def rangeMode(key:int) {
+        when(key) {
+            case (('['-'A').to_int+1) {
+                finishRangeMode(); 
+            }
+            case ('d'.to_int) {
+                win.addUndoText();
+
+                x := win.getRealPosX();
+                y := win.getRealPosY();
+
+                x2 := win.rangeModeStartX;
+                y2 := win.rangeModeStart;
+
+                if(y < y2) {
+                    first_line := win.texts.items(y);
+                    last_line := win.texts.items(y2);
+
+                    clipBoard = SortableList<String>();
+                    clipBoard.push(first_line.subString(x, -1).clone());
+                    clipBoard.push(win.texts.subList(y+1,y2));
+                    clipBoard.push(last_line.subString(0, x2).clone());
+
+                    first_line.delete(x, -1);
+                    win.texts.deleteWithRange(y+1, y2);
+                    last_line.delete(0, x2);
+
+
+                    win.moveCursor(y, x);
+                }
+                elif(y == y2) {
+                    if(x < x2) {
+                        clipBoard = slist { win.texts.items(y).subString(x, x2) };
+
+                        win.texts.items(y).delete(x, x2);
+
+                        win.moveCursor(y, x);
+                    }
+                    else {
+                        clipBoard = slist { win.texts.items(y).subString(x2, x) };
+
+                        win.texts.items(y).delete(x2, x);
+
+                        win.moveCursor(y, x2);
+                    }
+                }
+                else {
+                    first_line := win.texts.items(y2);
+                    last_line := win.texts.items(y);
+
+                    clipBoard = SortableList<String>();
+                    clipBoard.push(first_line.subString(x2, -1).clone());
+                    clipBoard.push(win.texts.subList(y2+1,y));
+                    clipBoard.push(last_line.subString(0, x).clone());
+
+                    first_line.delete(x2, -1);
+                    win.texts.deleteWithRange(y2+1, y);
+                    last_line.delete(0, x);
+
+                    win.moveCursor(y2, x2);
+                }
+
+                win.makeVisibleTexts();
+                win.fixCursorAndScrollTop(win.scrollTopY);
+                win.modifiedText = true;
+
+                pasteMode = PASTEMODE_CURSOR;
+
+                finishRangeMode();
+            }
+            case ('y'.to_int) {
+                x := win.getRealPosX();
+                y := win.getRealPosY();
+
+                x2 := win.rangeModeStartX;
+                y2 := win.rangeModeStart;
+
+                if(y < y2) {
+                    first_line := win.texts.items(y);
+                    last_line := win.texts.items(y2);
+
+                    clipBoard = SortableList<String>();
+                    clipBoard.push(first_line.subString(x, -1).clone());
+                    clipBoard.push(win.texts.subList(y+1,y2));
+                    clipBoard.push(last_line.subString(0, x2).clone());
+                    win.moveCursor(y, x);
+                }
+                elif(y == y2) {
+                    if(x < x2) {
+                        clipBoard = slist { win.texts.items(y).subString(x, x2) };
+                        win.moveCursor(y, x);
+                    }
+                    else {
+                        clipBoard = slist { win.texts.items(y).subString(x2, x) };
+                        win.moveCursor(y, x2);
+                    }
+                }
+                else {
+                    first_line := win.texts.items(y2);
+                    last_line := win.texts.items(y);
+
+                    clipBoard = SortableList<String>();
+                    clipBoard.push(first_line.subString(x2, -1).clone());
+                    clipBoard.push(win.texts.subList(y2+1,y));
+                    clipBoard.push(last_line.subString(0, x).clone());
+
+                    win.moveCursor(y2, x2);
+                }
+
+                pasteMode = PASTEMODE_CURSOR;
+                finishRangeMode();
+            }
+            else {
+                mode = EDITMODE;
+                key2 := 0;
+                when(key) {
+                    case ('d'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int) 
+                    {
+                        key2 = getch();
+                    }
+                }
+                runKeyEvents(key, key2);
+                mode = RANGEMODE;
+            }
+        }
+    }
+
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(mode == RANGEMODE) {
+            rangeMode(key);
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+}

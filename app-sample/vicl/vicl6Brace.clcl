@@ -1,0 +1,172 @@
+
+class ViCloneWindow version 4
+{
+    def getCursorChar(): char {
+        line := visibleTexts.items(cursorY);
+
+        if(cursorX >= 0 && cursorX < line.length()) {
+            return visibleTexts.items(cursorY).chars(cursorX);
+        }
+        else {
+            return 0.to_char;
+        }
+    }
+    
+}
+
+class ViClone version 6
+{
+    def forwardBrace(head_char:char, tail_char:char): Tuple2<Integer, Integer> {
+        line_num := win.getRealPosY();
+        cursor_num := -1; 
+        nest := 0; 
+
+        it := win.texts.items(line_num);
+        for(i:=win.getRealPosX()+1; i<it.length(); i++) {
+            if(it.chars(i) == head_char) {
+                nest++; 
+            } 
+            elif(it.chars(i) == tail_char) {
+                if(nest == 0) {
+                    cursor_num = i;
+                    break; 
+                } 
+                nest--;
+            } 
+        } 
+
+        if(cursor_num == -1) {
+            line_num++;
+
+            win.texts.subList(line_num, -1).each {
+                for(i:=0; i<it.length(); i++) {
+                    if(it.chars(i) == head_char) {
+                        nest++; 
+                    } 
+                    elif(it.chars(i) == tail_char) {
+                        if(nest == 0) {
+                            cursor_num = i;
+                            break; 
+                        } 
+                        nest--;
+                    } 
+                } 
+                
+                if(cursor_num != -1) {
+                    break; 
+                } 
+                
+                line_num++; 
+            }
+        }
+        
+        return (line_num, cursor_num); 
+    } 
+
+    def backwordBrace(head_char:char, tail_char:char): Tuple2<Integer, Integer> {
+        line_num := win.getRealPosY();
+        
+        cursor_num := -1; 
+        nest := 0; 
+        it := win.texts.items(line_num);
+        for(i:=win.getRealPosX()-1; i>=0; i--) 
+        {
+            if(it.chars(i) == head_char) {
+                nest++; 
+            } 
+            elif(it.chars(i) == tail_char) {
+                if(nest == 0) {
+                    cursor_num = i;
+                    break; 
+                } 
+                nest--;
+            } 
+        } 
+
+        if(cursor_num == -1) {
+            line_num--;
+
+            win.texts.subList(0, line_num+1).reverse() .each {
+                for(i:=it.length()-1; i>=0; i--) {
+                    if(it.chars(i) == head_char) {
+                        nest++; 
+                    } 
+                    elif(it.chars(i) == tail_char) {
+                        if(nest == 0) {
+                            cursor_num = i;
+                            break; 
+                        } 
+                        nest--;
+                    } 
+                } 
+                
+                if(cursor_num != -1) {
+                    break; 
+                } 
+                
+                line_num--; 
+            } 
+        }
+        
+        return (line_num, cursor_num); 
+    } 
+    
+    def blinkParen() {
+        2.times {
+            c := win.getCursorChar();
+    
+            y := -1;
+            x := -1;
+            
+            if(c == '(') {
+                (y, x) = forwardBrace('(', ')');
+            }
+            elif(c == '{') {
+                (y, x) = forwardBrace('{', '}');
+            }
+            elif(c == '}') {
+                (y, x) = backwordBrace('}', '{');
+            }
+            elif(c == ')') {
+                (y, x) = backwordBrace(')', '(');
+            }
+            
+            if(y != -1 && y != -1)  {
+                win.moveCursor(y, x);
+            } 
+            
+            view();
+            refresh();
+            
+            usleep(100000);
+        }
+    }
+
+    def initialize():dynamic {
+        inherit();
+
+        keyEvents['%'.to_int] = lambda(self:ViClone, key:int, key2:int) { 
+            c := win.getCursorChar();
+
+            y := -1;
+            x := -1;
+            
+            if(c == '(') {
+                (y, x) = forwardBrace('(', ')');
+            }
+            elif(c == '{') {
+                (y, x) = forwardBrace('{', '}');
+            }
+            elif(c == '}') {
+                (y, x) = backwordBrace('}', '{');
+            }
+            elif(c == ')') {
+                (y, x) = backwordBrace(')', '(');
+            }
+            
+            if(y != -1 && y != -1)  {
+                win.moveCursor(y, x);
+            } 
+        }
+    }
+}

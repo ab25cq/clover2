@@ -1,0 +1,797 @@
+
+class ViClone version 14
+{
+    completionCommandNames:SortableList<String>;
+
+    def initialize():dynamic {
+        inherit();
+        completionCommandNames = tyclover2("--command").toString().split(/\n/)
+
+        keyEvents['['.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            when(key2) {
+                case ('['.to_int) {
+                    if(win.fileName.match(/.+\.cl|.+\.clcl/)) {
+                        (y, x) := getMethodDefinitionTop();
+    
+                        if(y != -1 && x != -1) {
+                            win.moveCursor(y, x);
+                        }
+                    }
+                    else {
+                        (y, x) := getFunctionDefinitionTop();
+    
+                        if(y != -1 && x != -1) {
+                            win.moveCursor(y, x);
+                        }
+                    }
+                }
+            }
+        }
+
+        keyEvents[']'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            when(key2) {
+                case (']'.to_int) {
+                    if(win.fileName.match(/.+\.cl|.+\.clcl/)) {
+                        (y, x) := getNextmethodDefinitionTop();
+    
+                        if(y != -1 && x != -1) {
+                            win.moveCursor(y, x);
+                        }
+                    }
+                    else {
+                        (y, x) := getNextFunctionDefinitionTop();
+    
+                        if(y != -1 && x != -1) {
+                            win.moveCursor(y, x);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    def getMethodDefinitionTop(): Tuple2<Integer, Integer> {
+        for(i:=win.getRealPosY()-1; i>=0; i--) {
+            line := win.texts.items(i);
+
+            if(line.match(/def\s+.+\(/)) {
+                for(y := i; y<win.texts.length(); y++) {
+                    line := win.texts.items(y);
+
+                    x := line.indexOf("{");
+
+                    if(x != -1) {
+                        return (y, x);
+                    }
+                }
+            }
+        }
+
+        return (-1, -1)
+    }
+    def getNextmethodDefinitionTop(): Tuple2<Integer, Integer> {
+        for(i:=win.getRealPosY()+1; i<win.texts.length(); i++) {
+            line := win.texts.items(i);
+
+            if(line.match(/def\s+.+\(/)) {
+                for(y := i; y<win.texts.length(); y++) {
+                    line := win.texts.items(y);
+
+                    x := line.indexOf("{");
+
+                    if(x != -1) {
+                        return (y, x);
+                    }
+                }
+            }
+        }
+
+        return (-1, -1)
+    }
+
+    def getInnerClassDefinitionName(): String {
+        for(i:=win.getRealPosY()-1; i>=0; i--) {
+            line := win.texts.items(i);
+
+            if(line.match(/^class\s+[a-zA-Z0-9_]+/)) {
+                return line.scan(/^class\s+([a-zA-Z0-9_]+)/).items(1);
+            }
+            if(line.match(/^inherit\s+[a-zA-Z0-9_]+/)) {
+                return line.scan(/^inherit\s+([a-zA-Z0-9_]+)/).items(1);
+            }
+        }
+
+        return "";
+    }
+    
+    def getFunctionDefinitionTop():Tuple2<Integer, Integer> {
+        for(i:=win.getRealPosY()-1; i>=0; i--) {
+            line := win.texts.items(i);
+
+            if(line.indexOf("{") == 0) {
+                return (i, 0);
+            }
+        }
+
+        return (-1, -1);
+    }
+    
+    def getNextFunctionDefinitionTop():Tuple2<Integer, Integer> {
+        for(i:=win.getRealPosY()+1; i<win.texts.length(); i++) {
+            line := win.texts.items(i);
+
+            if(line.indexOf("}") == 0) {
+                return (i, 0);
+            }
+        }
+
+        return (-1, -1);
+    }
+    
+    def getSource():String {
+        source := "";
+        if(win.fileName.match(/.+\.clcl/)) {
+            (y, x) := getMethodDefinitionTop();
+            
+            ### get argument variable ###
+            class_name := getInnerClassDefinitionName();
+            source.append("self:\{class_name}? = null;\n");
+            
+            for(i:=y; i>=0; i--) {
+                line2 := win.texts.items(i);
+                
+                if(line2.match(/def\s+(.+)\(.*\)/)) {
+                    line_arguments := line2.scan(/def\s+.+\((.*)\)/).items(1);
+                    
+                    variable_name := "";
+                    type_name := "";
+                    flag := true;
+                    for(i:=0; i<line_arguments.length(); i++) {
+                        c := line_arguments.chars(i);
+                        
+                        if(c == ':') {
+                            flag = false;
+                        }
+                        elif(c == ' ' || c == '\t') {
+                        }
+                        elif(c == ',') {
+                            boxing_type_name := Clover.primitiveClassToBoxingClass(type_name);
+                            source.append("\{variable_name}:\{boxing_type_name}? = null;");
+                            variable_name = "";
+                            type_name = "";
+                            flag = true;
+                        }
+                        else {
+                            if(flag) {
+                                variable_name.append(c);
+                            }
+                            else {
+                                type_name.append(c);
+                            }
+                        }
+                    }
+                    
+                    if(!type_name.equals("") && !variable_name.equals("")) {
+                        boxing_type_name := Clover.primitiveClassToBoxingClass(type_name);
+                        source.append("\{variable_name}:\{boxing_type_name}? = null;\n");
+                    }
+                    break;
+                }
+            }
+            
+            line2 := win.texts.items(y);
+            source.append(line2.subString(x+1, -1));
+            source.append("\n");
+            
+            for(i=y+1; i<win.getRealPosY(); i++) {
+                line2 = win.texts.items(i);
+                source.append(line2);
+                source.append("\n");
+            }
+            
+            line2 = win.texts.items(i);
+            source.append(line2.subString(0, win.getRealPosX()));
+            source.append("\n");
+        }
+        else {
+            for(i:=0; i<win.getRealPosY(); i++) {
+                line2 := win.texts.items(i);
+                source.append(line2);
+                source.append("\n");
+            }
+            line2 := win.texts.items(i);
+            source.append(line2.subString(0, win.getRealPosX()));
+            source.append("\n");
+        }
+        
+        ### remove comment ###
+        source = source.sub(regex "#.+\n"g, "").sub(/\n/g, " ")
+        source = source.sub(/\/\*.+\*\//g, "")
+        
+        return source;
+    }
+
+    def localVariableCompletion(source:String):SortableList<String> {
+        local_variables := source.toCommand().tyclover2("--lvar").toString().split(/\n/);
+
+        return local_variables;
+    }
+
+    def skipBlock(line_num:int):int {
+        p := win.texts.subList(line_num, -1).join("\n").toBuffer();
+        p.append('\0');
+
+        squote := false;
+        dquote := false;
+        regex_flag := false;
+
+        nest := 0;
+        while(p->byte != '\0') {
+            if(p->byte == '\n') {
+                line_num++;
+                p++;
+            }
+            elif(!squote && !dquote && p->byte == '/') {
+                regex_flag = !regex_flag;
+                p++;
+            }
+            elif(!squote && !regex_flag && p->byte == '"') {
+                dquote = !dquote;
+                p++;
+            }
+            elif(!dquote && !regex_flag && p->byte == '\'') {
+                squote = !squote;
+                p++;
+            }
+            elif(squote || dquote || regex_flag) {
+                p++;
+            }
+            elif(p->byte == '{') {
+                p++
+                nest++;
+            }
+            elif(p->byte == '}') {
+                p++;
+                if(nest == 1) {
+                    return line_num;
+                }
+                nest--;
+            }
+            else {
+                p++;
+            }
+        }
+
+        return -1;
+    }
+
+    def innerFieldsCompletion(source:SortableList<String>, inner_fields:SortableList<String>, inner_class_name:String)  {
+        inner_class_flag := false;
+        for(i:=0; i<source.length(); i++) {
+            line := source.items(i);
+            
+            if(line.match(/class\s+[a-zA-Z0-9_]+/)) {
+                class_name := line.scan(/class\s+([a-zA-Z0-9_]+)/).items(1);
+
+                if(inner_class_name.equals(class_name)) {
+                    inner_class_flag = true;
+                }
+                else {
+                    inner_class_flag = false;
+                }
+            }
+
+            if(inner_class_flag) {
+                if(line.match(/def\s+[a-zA-Z0-9_]+\(/)) {
+                    ### skip block ###
+                    n := skipBlock(i);
+                    if(n == -1) {
+                        break;
+                    }
+
+                    i = n + 1;
+                }
+                elif(line.match(/[a-zA-Z0-9_]+:[a-zA-Z0-9_]+/)) {
+                    field_name := line.scan(/([a-zA-Z0-9_]+):[a-zA-Z0-9_]+/).items(1);
+
+                    inner_fields.push(field_name);
+                }
+                elif(line.match(/var\s+[a-zA-Z0-9_]+\s*:/)) {
+                    field_name := line.scan(/var\s+([a-zA-Z0-9_]+)\s*:/).items(1);
+
+                    inner_fields.push(field_name);
+                }
+            }
+        }
+    }
+
+    def innerMethodCompletion(source:SortableList<String>, inner_methods:SortableList<String>, inner_class_name:String): SortableList<String>  {
+        inner_class_flag := false;
+        for(i:=0; i<source.length(); i++) {
+            line := source.items(i);
+
+            if(line.match(/class\s+[a-zA-Z0-9_]+/)) {
+                class_name := line.scan(/class\s+([a-zA-Z0-9_]+)/).items(1);
+
+                if(inner_class_name.equals(class_name)) {
+                    inner_class_flag = true;
+                }
+                else {
+                    inner_class_flag = false;
+                }
+            }
+
+            if(inner_class_flag) {
+                if(line.match(/def\s+[a-zA-Z0-9_]+\(.*\)/)) {
+                    method_name := line.scan(/def\s+([a-zA-Z0-9_]+\(.*\))/).items(1);
+
+                    inner_methods.push(method_name);
+                    
+                    ### skip block ###
+                    n := skipBlock(i);
+                    if(n == -1) {
+                        break;
+                    }
+
+                    i = n + 1;
+                }
+            }
+        }
+    }
+    
+    def classNameCompletion():SortableList<String> {
+        return tyclover2("--class").toString().split(/\n/)
+    }
+    
+    def commandNameCompletion():SortableList<String> {
+        return completionCommandNames;
+    }
+    
+    def topLevelCompletion(source:String) {
+        words := SortableList<String>();
+        
+        local_variables := localVariableCompletion(source);
+        words.append(local_variables);
+        
+        class_names := classNameCompletion()
+        words.append(class_names);
+
+/*
+        class_names2 := getClassNameInSource();
+        words.append(class_names2);
+*/
+      
+        command_names := commandNameCompletion();
+        words.append(command_names);
+
+        words.append(slist { "if", "when", "while", "for", "break", "true", "false", "null", "wildcard", "throw", "try", "return", "new", "closure", "lambda", "var", "val", "def", "inherit", "unset", "list", "elist", "slist", "tuple", "hash", "array", "earray", "sarray" });
+        
+        klass := Class("Global");
+        methods := klass.getMethods();
+
+        global_methods := SortableList<String>();
+        for(i:=0; i<methods.length(); i++) {
+            method := methods.items(i);
+            global_methods.push(method.methodNameAndParams);
+        }
+        words.append(global_methods);
+        
+        if(win.fileName.match(/.+\.clcl$/)) {
+            inner_class_name := getInnerClassDefinitionName();
+
+            class_name := Clover.primitiveClassToBoxingClass(inner_class_name);
+        
+            klass:Class? = null;
+            try {
+                klass = Class(class_name);
+            } catch(e:Exception) {
+                messageBox("class not found \{class_name}");
+                return;
+            }
+
+            inner_methods := SortableList<String>();
+            methods := klass.getMethods();
+            for(i:=0; i<methods.length(); i++) {
+                method := methods.items(i);
+                inner_methods.push(method.methodNameAndParams);
+            }
+            words.append(inner_methods);
+
+            inner_fields := SortableList<String>();
+            fields := klass.getFields();
+            for(i=0; i<fields.length(); i++) {
+                field := fields.items(i);
+                inner_fields.push(field.name);
+            }
+            words.append(inner_fields);
+        }
+        
+        words.append(win.texts.join("\n").scan(/\w+/));
+        
+        (inputing_text,j) := gettingInputingWord();
+        completion_core(inputing_text, j, words)
+    }
+
+    def get_class_names(source:SortableList<String>, result:SortableList<String>) {
+        for(i:=0; i<source.length(); i++) {
+            line := source.items(i);
+
+            if(line.match(/^class [a-zA-Z0-9_]+/)) {
+                class_name := line.scan(/^class ([a-zA-Z0-9_]+)/).items(1);
+
+                result.push(class_name);
+            }
+            if(line.match(/include ".+"/)) {
+                file_name := line.scan(/include "(.+)"/).items(1);
+
+                try {
+                    source2 := file_name.toPath().read().toString().split(/\n/);
+
+                    get_class_names(source2, result);
+                }
+            }
+        }
+    }
+
+    def getClassNameInSource():SortableList<String> {
+        result := SortableList<String>();
+
+        get_class_names(win.texts, result);
+
+        return result;
+    }
+    
+    def methodNameCompletion(source:String) {
+        line := win.texts.items(win.getRealPosY());
+
+        type_name := "";
+        if(win.fileName.match(/.+\.clcl/)) {
+            class_name := getInnerClassDefinitionName();
+
+            if(class_name.equals("")) {
+                type_name = source.toCommand().tyclover2().toString().chomp();
+            }
+            else {
+                type_name = source.toCommand().tyclover2(class_name).toString().chomp();
+            }
+        }
+        else {
+            type_name = source.toCommand().tyclover2().toString().chomp();
+        }
+
+        if(type_name.match(/\s*(.+)\s*/)) {
+            type_name = type_name.scan(/\s*(.+)\s*/).items(0);
+        }
+        
+        class_name := Clover.primitiveClassToBoxingClass(type_name);
+        
+        if(class_name.match(/.+<.+>/)) {
+            class_name = class_name.scan(/(.+)<.+>/).items(1);
+        }
+        
+        if(class_name.match(/.+\?/)) {
+            class_name = class_name.scan(/(.+)\?/).items(1);
+        }
+
+        if(class_name.equals("")) {
+            messageBox("require type for Method name completion. Maybe not compiled this source file");
+            return; 
+        }
+
+        klass:Class? = null;
+        try {
+            klass = Class(class_name);
+        } catch(e:Exception) {
+            messageBox("class not found \{class_name}");
+            return;
+        }
+        
+        words := SortableList<String>();
+        methods := klass.getMethods();
+
+        if(class_name.equals("Command")) {
+            command_names := commandNameCompletion();
+
+            words.append(command_names);
+        }
+
+        methods.each {
+            words.push(it.methodNameAndParams);
+        }
+        
+        (inputing_text,i) := gettingInputingWord();
+        completion_core(inputing_text, i, words)
+    }
+
+    def fileCompletion() {
+        line := win.texts.items(win.getRealPosY());
+
+        p := line.toBuffer();
+        p += p.length() -1;
+
+        dquort := false;
+        squort := false;
+
+        while(p >= p.head()) {
+            if(p->byte == ' ' || p->byte == '\t') {
+                p++;
+                break;
+            }
+            elif(p->byte == '"') {
+                dquort = true;
+                p++;
+                break;
+            }
+            elif(p->byte == '\'') {
+                squort = true;
+                p++;
+                break;
+            }
+            else {
+                p--;
+            }
+        }
+
+        word := p.toStringFromPointedPoint();
+        i := p - p.head();
+
+        dir := dirname(word);
+
+        if(word.equals("")) {
+            dir = "."
+        }
+        elif(word.equals("/")) {
+            dir = "/";
+        }
+        elif(word.chars(-1) == '/') {
+            dir = word.subString(0, -2)
+        }
+
+        completion_success := false;
+        if(dir.equals(".")) {
+            words := p".".entries().map { it.subString(2, -1); }
+
+            completion_success = completion_core(word, i, words)
+        }
+        elif(dir.equals("/")) {
+            words := dir.toPath().entries().map { it.subString(dir.length(), -1) }
+
+            completion_success = completion_core(word.subString(dir.length(), -1), i+dir.length(), words);
+        }
+        else {
+            words := dir.toPath().entries().map { it.subString(dir.length()+1, -1) }
+
+            completion_success = completion_core(word.subString(dir.length()+1, -1), i+dir.length()+1, words);
+        }
+
+        if(completion_success) {
+            completionedFileName := line.subString(i, -1);
+
+            try {
+                if(completionedFileName.toPath().to_stat().S_ISDIR()) {
+                    line.append("/");
+                    win.cursorX++;
+                }
+                elif(squort) {
+                    line.append("' ");
+                    win.cursorX+=2;
+                }
+                elif(dquort) {
+                    line.append("\" ");
+                    win.cursorX+=2;
+                }
+                else {
+                    line.append(" ");
+                    win.cursorX++;
+                }
+            }
+        }
+    }
+
+    def shellModeCompletion() {
+        line := win.texts.items(win.getRealPosY());
+
+        command_name_completion := true;
+
+        p := line.toBuffer();
+        p.append('\0');
+
+        squort := false;
+        dquort := false;
+
+        while(p->byte == ' ' || p->byte == '\t') {
+            p++;
+        }
+
+        while(p->byte != '\0') {
+            if(p->byte == '\\') {
+                p++;
+                if(p->byte != '\0') {
+                    p++;
+                }
+            }
+            elif(!squort && p->byte == '"') {
+                dquort = !dquort;
+                p++;
+            }
+            elif(!dquort && p->byte == '\'') {
+                squort = !squort;
+                p++;
+            }
+            elif(squort || dquort) {
+                p++;
+            }
+            elif((p->byte == '|' && (p+1)->byte == '|')
+              || (p->byte == '&' && (p+1)->byte == '&'))
+            {
+                p += 2;
+                command_name_completion = true;
+
+                while(p->byte == ' ' 
+                    || p->byte == '\t') 
+                {
+                    p++;
+                }
+
+                while(p->byte != '\0') {
+                    if(p->byte == ' ' 
+                        || p->byte == '\t')
+                    {
+                        p++;
+                        command_name_completion = false;
+                        break;
+                    }
+                    else {
+                        p++;
+                    }
+                }
+
+            }
+            elif(p->byte == '|' || p->byte == ';') {
+                p++;
+                command_name_completion = true;
+
+                while(p->byte == ' ' 
+                    || p->byte == '\t') 
+                {
+                    p++;
+                }
+
+                while(p->byte != '\0') {
+                    if(p->byte == ' ' 
+                        || p->byte == '\t')
+                    {
+                        p++;
+                        command_name_completion = false;
+                        break;
+                    }
+                    else {
+                        p++;
+                    }
+                }
+
+            }
+            elif(p->byte == ' ' || p->byte == '\t') {
+                p++;
+                command_name_completion = false;
+            }
+            else {
+                p++;
+            }
+        }
+
+        if(command_name_completion) {
+            words := SortableList<String>();
+            command_names := commandNameCompletion();
+
+            words.append(command_names);
+
+            (inputing_text,i) := gettingInputingWord();
+            completion_core(inputing_text, i, words)
+        }
+        else {
+            fileCompletion();
+        }
+    }
+
+    def gettingInputingWord():Tuple2<String,Integer> {
+        line := win.texts.items(win.getRealPosY());
+        
+        ### getting inputing word ###
+        start_i := win.getRealPosX()-1;
+        if(start_i >= line.length()) {
+            start_i = line.length()-1;
+        }
+        inputing_text := "";
+        for(i:=start_i; i >= 0; i--) {
+            if(line.chars(i).isalnum() || line.chars(i) == '_') 
+            {
+                inputing_text.insert(0, line.chars(i)); 
+            } 
+            else {
+                break; 
+            } 
+        }
+        if(i < 0) {
+            i = 0;
+        }
+        else {
+            i++;
+        }
+
+        return (inputing_text, i);
+    }
+
+    def completion_core(inputing_text:String, i:int, words:SortableList<String>):bool {
+        line := win.texts.items(win.getRealPosY());
+        
+        candidates := words.select { it.indexOf(inputing_text) == 0 && !it.equals(inputing_text) }.sort().uniq();
+
+        if(candidates.length() == 0) {
+        }
+        elif(candidates.length() == 1) {
+            selected_string := candidates.items(0);
+
+            if(selected_string.match(/[a-zA-Z_]+\s*\(/)) {
+                selected_string = selected_string.scan(/([a-zA-Z_]+)\s*\(/).items(1);
+            }
+
+            line.delete(i, win.getRealPosX()); 
+            line.insert(i, selected_string);
+            win.cursorX += selected_string.length() - (win.getRealPosX() - i)
+        }
+        else {
+            index := selectStrings(line.subString(0, win.MaxX-1), candidates);
+
+            if(index == -1) {
+                return false;
+            }
+            else {
+                selected_string := candidates.items(index);
+
+                if(selected_string.match(/[a-zA-Z_]+\s*\(/)) {
+                    selected_string = selected_string.scan(/([a-zA-Z_]+)\s*\(/).items(1);
+                }
+
+                line.delete(i, win.getRealPosX());
+                line.insert(i, selected_string);
+                win.cursorX += selected_string.length() - (win.getRealPosX() - i)
+            }
+        }
+
+        return true;
+    } 
+    
+    def clover2Completion() {
+        source := getSource();
+
+        is_shell_mode := source.toCommand().tyclover2("--shell").toString().chomp().equals("true");
+        
+        path_name_completion := source.match(regex "p\".*?\n");
+        
+        if(source.match(/(.+?)\.[a-zA-Z_]* $/)) {
+            source.delete(-1);
+            methodNameCompletion(source);
+        }
+        elif(path_name_completion) {
+            fileCompletion();
+        }
+        elif(is_shell_mode) {
+            shellModeCompletion();
+        }
+        else {
+            topLevelCompletion(source);
+        }
+    }
+    
+    def getWords():SortableList<String> {
+        return win.texts.join("\n").toCommand().bash("-c", "sed -r 's/(\\s|\\W)+/\\n/g' | egrep -v '\\W+' | egrep -v '^$' | sort | uniq").toString().split('\n');
+    }
+    
+    def completion():dynamic {
+        words := getWords();
+        
+        (inputing_text,i) := gettingInputingWord();
+        completion_core(inputing_text, i, words)
+    }  
+}

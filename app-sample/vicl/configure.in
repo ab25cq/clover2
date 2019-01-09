@@ -1,0 +1,136 @@
+AC_INIT(viclone.cl)
+
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_C_BIGENDIAN
+
+if test $prefix = NONE
+then
+    myprefix=/usr/local
+else
+    myprefix=$prefix
+fi
+
+##############################################################
+# configure arguments
+##############################################################
+DEBUGGING=0
+
+AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
+AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
+
+##############################################################
+# check operating systems
+##############################################################
+AC_MSG_CHECKING(Operating System)
+
+CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
+CFLAGS="-fPIC -rdynamic $CFLAGS"
+
+if test `uname -s` = "Darwin"; then
+    echo "Darwin"
+
+    OS=DARWIN
+
+    AC_DEFINE(__DARWIN__, 1)
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+    else 
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+    fi
+elif test `uname -s` = "FreeBSD"; then
+    echo "FreeBSD"
+
+    OS=FREEBSD
+
+    AC_DEFINE(__FREEBSD__, 1)
+
+    CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+elif uname -s | grep -q CYGWIN_NT; then
+    echo CYGWIN
+
+    OS=CYGWIN
+
+    AC_DEFINE(__CYGWIN__, 1)
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+    else 
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+    fi
+else
+    echo "Linux"
+
+    OS=LINUX
+
+    AC_DEFINE(__LINUX__, 1)
+
+    if test $myprefix = /usr/local; then
+        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+    else
+        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+    fi
+
+    AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil"; ], [])
+fi
+
+##############################################################
+# CFLAGS settings
+##############################################################
+if test -d /usr/local/include
+then
+    CFLAGS="$CFLAGS -I /usr/local/include"
+fi
+
+if test -d /usr/local/lib
+then
+    CFLAGS="$CFLAGS -L /usr/local/lib"
+fi
+
+if test -d /opt/local/include
+then
+    CFLAGS="$CFLAGS -I/opt/local/include"
+fi
+
+if test -d /opt/local/lib
+then
+    CFLAGS="$CFLAGS -L /opt/local/lib"
+fi
+
+if test -d /usr/include/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -I /usr/include/i386-linux-gnu//"
+fi
+
+if test -d /usr/lib/i386-linux-gnu/
+then
+    CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
+fi
+
+if test $ENABLE_OPTIMIZE = 1
+then
+    CFLAGS="$CFLAGS"         # no optimization for thread.
+    #CFLAGS="$CFLAGS -O3"
+fi
+
+if test $DEBUGGING = 1
+then
+    CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
+fi
+
+AC_SUBST(OS)
+
+##########################################################
+# Libs
+##########################################################
+CC=gcc
+
+INSTALL="/usr/bin/install -c"
+DESTDIR=$myprefix
+AC_SUBST(DESTDIR)
+
+AC_SUBST(CFLAGS)
+
+AC_OUTPUT(Makefile)
+

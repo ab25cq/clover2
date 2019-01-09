@@ -1,0 +1,753 @@
+class ViCloneWindow version 5
+{
+    def rehashCCompletion():dynamic {}
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+
+        readFile(arg_line_num, vicl);
+    }
+
+    def writeToFile() {
+        fname := dirPath.add("/").add(fileName);
+
+        if(access(fname, W_OK) == 0) {
+            texts.join("\n").write(fname);
+        }
+    }
+    def getCursorPositionDir():String {
+        "\{getenv("HOME")}/.clover2/vicl/cpos/";
+    } 
+    def saveCursorPos() {
+        try {          
+            if(access(getCursorPositionDir(), X_OK) != 0) {
+                mkdir(getCursorPositionDir(), 0755);
+            }
+            
+            path := getCursorPositionDir().add(fileName);
+            (scrollTopY+cursorY+1).toString().write(path);
+        }
+    }
+
+    def readFile(arg_line_num:int, vicl:ViClone) {
+        file_path := dirPath.add("/").add(fileName);
+
+        if(access(file_path, R_OK) != 0) {
+            touch(file_path);
+        }
+
+        try {
+            file_path = realpath(file_path);
+
+            dirPath = dirname(file_path);
+            fileName = basename(file_path);
+        }
+        catch(e:Exception) {
+            throw Exception("Invalid file path");
+        }
+
+        if(access(file_path, R_OK) == 0) {
+            texts = file_path.toPath().read().toString().split('\n');
+
+            if(texts.length() == 0) {
+                texts = SortableList<String>();
+                texts.push("");
+            }
+
+            rehashCCompletion();
+        }
+        else {
+            throw Exception("can't open file");
+        }
+
+        file_line_num := (getCursorPositionDir().add(fileName).toPath()?.read().toString():"-1").to_int();
+        cursorX = 0;
+        cursorY = 0;
+        scrollTopY = 0;
+        scrollTopX = 0;
+
+        makeMaxxy(vicl);
+        
+        makeVisibleTexts();
+
+        if(arg_line_num == -1) {
+            arg_line_num = file_line_num;
+        }
+
+        if(arg_line_num != -1) {
+            arg_line_num--;
+
+            if(arg_line_num >= texts.length()) {
+                arg_line_num = texts.length()-1;
+            }
+            if(arg_line_num < 0) {
+                arg_line_num = 0;
+            }
+
+            cursorY = arg_line_num;
+
+            maxy := MaxY-2;
+
+            scrollTopY = cursorY - (maxy-2) /2;
+            
+            cursorY -= scrollTopY;
+
+            if(scrollTopY < 0) {
+                cursorY += scrollTopY;
+                scrollTopY = 0;
+            }
+
+            fixCursorAndScrollTop(scrollTopY);
+
+            makeVisibleTexts();
+        }
+
+        arg_line_num = -1;
+    
+        clearUndoText();
+    }
+    
+    def gotoLine(y:int, vicl:ViClone) {
+        arg_line_num := y;
+
+        cursorX = 0;
+        cursorY = 0;
+        scrollTopY = 0;
+        scrollTopX = 0;
+
+        makeMaxxy(vicl);
+        
+        makeVisibleTexts();
+
+        if(arg_line_num != -1) {
+            arg_line_num--;
+
+            if(arg_line_num >= texts.length()) {
+                arg_line_num = texts.length()-1;
+            }
+            if(arg_line_num < 0) {
+                arg_line_num = 0;
+            }
+
+            cursorY = arg_line_num;
+
+            maxy := MaxY-2;
+
+            scrollTopY = cursorY - (maxy-2) /2;
+            
+            cursorY -= scrollTopY;
+
+            if(scrollTopY < 0) {
+                cursorY += scrollTopY;
+                scrollTopY = 0;
+            }
+
+            fixCursorAndScrollTop(scrollTopY);
+
+            makeVisibleTexts();
+        }
+    }
+
+    def insertText(text:String) {
+        insert_texts := text.split(/\n/);
+        
+        if(insert_texts.length() == 1) {
+            texts.items(cursorY + scrollTopY).insert(cursorX + scrollTopX, text);
+        }
+        else {
+            first_line := true;
+            tail_line :String? = null;
+            
+            y := cursorY + scrollTopY;
+            
+            insert_texts.each {
+                if(first_line) {
+                    line := texts.items(y);
+                    line.insert(cursorX + scrollTopX, it);
+                    tail_line = line.subString(cursorX + scrollTopX + it.length(), -1);
+                    line.delete(cursorX + scrollTopX + it.length(), -1);
+                    first_line = false;
+                }
+                else {
+                    texts.insert(y, it);
+                }
+                
+                y++;
+            }
+            
+            if(tail_line != null) {
+                texts.insert(y, tail_line);
+            }
+        }
+        
+        makeVisibleTexts();
+        fixCursorAndScrollTop(scrollTopY);
+    }
+}
+
+class ViClone version 7
+{
+    dirName:String;
+    dirScrollTop: int;
+    dirCursor:int; 
+    visibleDirPane: bool
+    fileNames: SortableList<String>?;
+    dirWinToggle: int;
+
+    def enterCommandMode():dynamic {}
+
+    def getWinIndex():int {
+        n := 0;
+        windows.each {
+            if(win == it) {
+                break;
+            }
+            n++;
+        }
+
+        return n;
+    }
+    
+    def initialize():dynamic {
+        inherit();
+
+        fileNames = null;
+        
+        dirScrollTop = 0; 
+        dirCursor = 0; 
+        
+        visibleDirPane = false;
+
+        dirWinToggle = -1;
+        
+        dirName = getcwd();
+        #changeDirectory(getcwd());
+
+        keyEvents[('N'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {
+            dirPaneOn(); 
+        }
+        keyEvents[('W'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {
+            when(key2) {
+                case ('j'.to_int) {
+                    n := getWinIndex();
+
+                    if(n+1 < windows.length()) {
+                        win = windows.items(n+1);
+                        dirWinToggle = n;
+                    }
+                }
+                case ('k'.to_int) {
+                    n := getWinIndex();
+
+                    if(n-1 >= 0) {
+                        win = windows.items(n-1);
+                        dirWinToggle = n;
+                    }
+                }
+                case (('W'-'A').to_int+1) {
+                    if(dirWinToggle == -1) {
+                        n := getWinIndex();
+                        dirWinToggle = n;
+
+                        if(n+1 < windows.length()) {
+                            win = windows.items(n+1);
+                        }
+                        else {
+                            win = windows.items(0);
+                        }
+                    }
+                    else {
+                        n := getWinIndex();
+
+                        if(dirWinToggle < windows.length()) {
+                            win = windows.items(dirWinToggle);
+                        }
+
+                        dirWinToggle = n;
+                    }
+                }
+            }
+        }
+
+        keyEvents['Z'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            if(key2 == 'Z'.to_int) {
+                windows.each {
+                    it.writeToFile();
+                    it.saveCursorPos();
+                }
+                endOfAplication = true;
+            }
+        }
+    }
+
+    def createNewWin(dirname:String, fname:String, line_num:int):ViCloneWindow {
+        len := windows.length();
+
+        maxy := getmaxy();
+        
+        win_size := (maxy-1) / (len+1);
+
+        win_pos := win_size * len;
+
+        win := ViCloneWindow(fname, dirname, win_pos, line_num, self);
+
+        windows.push(win);
+
+        resizeWindows();
+
+        return win;
+    }
+
+    def resizeWindows() {
+        len := windows.length();
+
+        maxy := getmaxy();
+        win_size := (maxy-1) / len;
+
+        n := 0;
+        windows.each {
+            it.gotoLine(it.getRealPosY()+1, self);
+            it.winPos = win_size * n;
+            it.makeMaxxy(self);
+            it.makeVisibleTexts();
+            
+            n++;
+        }
+    }
+    
+    def changeDirectory(path:String) {
+        dirName = path.clone();
+        rereadDir();
+        if(win.fileName != null) { 
+            setDirCursor(win.fileName); 
+        }
+    } 
+    
+    def setDirCursor(fname:String) {
+        dirCursor = fileNames.indexOf(fname).filter { if(it == -1) { 0 } else { it } };
+
+        maxy := getmaxy();
+        
+        dirScrollTop = dirCursor - (maxy-2) / 2; 
+        
+        dirCursor -= dirScrollTop;
+        
+        if(dirScrollTop < 0) {
+            dirCursor += dirScrollTop; 
+            dirScrollTop = 0; 
+        } 
+    } 
+    
+    def rereadDir() {
+        fileNames = dirName.toPath().entries().map { it.toPath().basename().toString() }
+            .sort {
+                if(it.chars(0) == '.') {
+                    if(it2.chars(0) == '.') { 
+                        return it.compare(it2);
+                    } 
+                    else {
+                        return -1; 
+                    } 
+                }
+                else {
+                    ext1 := it.toPath().extname(); 
+                    ext2 := it2.toPath().extname(); 
+                    
+                    comp := ext1.compare(ext2); 
+                     
+                    if(comp == 0) {
+                        return it.compare(it2); 
+                    }
+                    else {
+                        return comp 
+                    } 
+                } 
+            } 
+
+        dirCursor = 0;
+        dirScrollTop = 0;
+    }
+    
+    def dirPaneOn() {
+        if(fileNames == null) {
+            changeDirectory(getcwd());
+        }
+        
+        mode = DIRMODE;
+        visibleDirPane = true;
+        maxx := getmaxx();
+        dirPaneLength = maxx/2;
+
+        windows.each {
+            it.makeMaxxy(self); 
+            it.makeVisibleTexts()
+        }
+        clear();
+        view();
+    } 
+    
+    def dirPaneOff() {
+        maxx := getmaxx();
+        dirPaneLength = maxx/6;
+        
+        visibleDirPane = false;
+        dirPaneLength = 0; 
+        
+        mode = EDITMODE; 
+
+        windows.each {
+            it.makeMaxxy(self); 
+            it.makeVisibleTexts()
+        }
+
+        clear();
+        view();
+    } 
+    
+    def dirView() {
+        if(visibleDirPane) { 
+            maxy := getmaxy();
+
+            for(i:=0; i<maxy-1; i++) {
+                if(dirCursor == i) {
+                    if(i+dirScrollTop < fileNames.length()) {
+                        attron(A_REVERSE); 
+                        mvprintw(i, 0, "%-\{dirPaneLength-1}s", slist { fileNames.items(i+dirScrollTop).subString(0, dirPaneLength-1) });
+                        attroff(A_REVERSE); 
+                    }
+                    mvprintw(i, dirPaneLength-1, "|");
+                }
+                else {
+                    if(i+dirScrollTop < fileNames.length()) {
+                        mvprintw(i, 0, "%-\{dirPaneLength-1}s|", slist { fileNames.items(i+dirScrollTop).subString(0, dirPaneLength-1) });
+                    }
+                    else { 
+                        mvprintw(i, 0, " ".multiply(dirPaneLength-1).append("|"));
+                    } 
+                } 
+            } 
+        } 
+    } 
+    
+    def dirPaneIncrementalSearch() {
+        maxy := getmaxy();
+
+        status_line_in_search_mode := "";
+
+        end_flag := false;
+        
+        while(!end_flag) {
+            view();
+            mvprintw(maxy-1, 0, "/%s", slist { status_line_in_search_mode });
+            refresh();
+
+            key := getch();
+            
+            when(key) {
+                case (('J' - 'A').to_int +1) {
+                    end_flag;
+                }
+                case (('H' - 'A').to_int + 1) {
+                    if(status_line_in_search_mode.length() > 0) {
+                        status_line_in_search_mode.delete(-2, -1);
+                    }
+                }
+                else {
+                    status_line_in_search_mode.append(key.to_char);
+                    
+                    n := 0;
+                    fileNames.each {
+                        if(it.indexOf(status_line_in_search_mode) != -1) {
+                            dirScrollTop = n;
+                            dirCursor = 0;
+                            end_flag = true;
+                        }
+                        
+                        n++;
+                    }
+                }
+            }
+        }
+    }
+
+    def dirMode(key:int) {
+        when(key) {
+            case ('j'.to_int, KEY_DOWN) {
+                dirCursor++;
+                
+                if(dirCursor+dirScrollTop >= fileNames.length()) {
+                    dirCursor--; 
+                } 
+                
+                if(dirCursor >= getmaxy()-1) {
+                    dirScrollTop++; 
+                    dirCursor--; 
+                } 
+            }
+            case ('k'.to_int, KEY_UP) {
+                dirCursor--;
+                
+                if(dirCursor < 0) {
+                    dirScrollTop--; 
+                    dirCursor++; 
+                    
+                    if(dirScrollTop < 0) {
+                        dirScrollTop = 0; 
+                    } 
+                } 
+            }
+            case (('D'-'A').to_int+1) {
+                maxy := getmaxy();
+
+                dirCursor += maxy / 2; 
+                
+                if(dirCursor >= maxy-2) {
+                    dirScrollTop += dirCursor - maxy + 2;
+                    dirCursor = maxy -2; 
+                } 
+                
+                if(dirCursor+dirScrollTop >= fileNames.length()) {
+                    dirCursor = maxy -2; 
+                    dirScrollTop = fileNames.length() - dirCursor - 1; 
+                } 
+            }
+            case (('U'-'A').to_int+1) {
+                maxy := getmaxy();
+
+                dirCursor -= maxy / 2; 
+                
+                if(dirCursor < 0) {
+                    dirScrollTop += dirCursor;
+                    dirCursor = 0;
+                    
+                    if(dirScrollTop < 0) {
+                        dirScrollTop = 0; 
+                    } 
+                } 
+            }
+            case ('g'.to_int) {
+                var key = getch();
+                
+                if(key == 'g'.to_int) {
+                    dirScrollTop = 0;
+                    dirCursor = 0; 
+                } 
+            }
+            case ('G'.to_int) {
+                maxy := getmaxy();
+
+                dirCursor+=9999;
+                
+                if(dirCursor >= maxy-2) {
+                    dirScrollTop += dirCursor - maxy + 2;
+                    dirCursor = maxy -2; 
+                } 
+                
+                if(dirCursor+dirScrollTop >= fileNames.length()) {
+                    dirCursor = maxy -2; 
+                    dirScrollTop = fileNames.length() - dirCursor - 1; 
+                } 
+            }
+            case (('['-'A').to_int+1) {
+                dirPaneOff(); 
+            }
+            case (('H'-'A').to_int+1, KEY_BACKSPACE) {
+                fpath := realpath(dirName.add("/").add(".."));
+                changeDirectory(fpath);
+            }
+
+            case ('\n'.to_int) {
+                fname := fileNames.items(dirScrollTop+dirCursor);
+                fpath := dirName.add("/").add(fname);
+                
+                if(fpath.toPath().to_stat().S_ISDIR())
+                {
+                    changeDirectory(fpath);
+                }
+                else {
+                    dirPaneOff();
+
+                    win = createNewWin(dirName, fname, -1);
+                }
+            }
+            case ('!'.to_int) {
+                endwin();
+                iclover2
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+
+                rereadDir();
+            }
+            case ('c'.to_int) {
+                endwin();
+                fname := fileNames.items(dirScrollTop+dirCursor);
+                fpath := dirName.add("/").add(fname);
+                cmdline := "cp -r \{fpath} "
+                iclover2("-o", "--controlling-terminal", "-s", cmdline);
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+
+                rereadDir();
+            }
+            case ('d'.to_int) {
+                endwin();
+                fname := fileNames.items(dirScrollTop+dirCursor);
+                fpath := dirName.add("/").add(fname);
+                cmdline := "rm -ir \{fpath} "
+                iclover2("-o", "--controlling-terminal", "-s", cmdline);
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+
+                rereadDir();
+            }
+            case ('n'.to_int) {
+                endwin();
+                cmdline := "touch "
+                iclover2("-o", "--controlling-terminal", "-s", cmdline);
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+
+                rereadDir();
+            }
+            case (('L'-'A').to_int+1) {
+                windows.each {
+                    it.makeVisibleTexts()
+                }
+                clear();
+                view();
+            }
+            case (('N'-'A').to_int+1) {
+                dirPaneOff(); 
+            }
+        }
+    }
+
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(mode == DIRMODE) {
+            dirMode(key);
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+
+
+    def openFile(file_path:String, line_num:int) {
+        file_path2 := "";
+        
+        try {
+            file_path2 = realpath(file_path);
+        }
+        
+        dir_name := dirname(file_path2);
+        file_name := basename(file_path2);
+
+        win = createNewWin(dir_name, file_name, line_num);
+    }
+
+    def main():dynamic static {
+        vicl = ViClone();
+
+        sockfd := socket(AF_UNIX, SOCK_STREAM,  0);
+
+        saddr := sockaddr_un();
+
+        saddr.sun_family = AF_UNIX;
+        saddr.sun_path = getenv("HOME").append("/.clover2/vicl/socket");
+
+        rm("-rf", saddr.sun_path);
+
+        bind(sockfd, saddr);
+        listen(sockfd, 1);
+
+        mask := fd_set();
+        read_ok := fd_set();
+
+        FD_ZERO(mask);
+        FD_SET(0, mask);
+        FD_SET(sockfd, mask);
+
+        loop_num := 0;
+
+        while(!vicl.endOfAplication) {
+            vicl.clearWithoutBlink(); 
+            vicl.clearStatusLine();
+            vicl.dirView();
+            vicl.view();
+            vicl.statusView();
+            refresh();
+
+            read_ok = mask.clone();
+
+            result := select(sockfd+1, read_ok, null, null, null);
+
+            if(FD_ISSET(0, read_ok)) {
+                key := getch();
+
+                key2 := 0;
+
+                if(vicl.mode == ViClone.EDITMODE) {
+                    when(key) {
+                        case ('@'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1)
+                        {
+                            key2 = getch();
+                        }
+                    }
+                }
+
+                vicl.runKeyEvents(key, key2);
+            }
+            elif(FD_ISSET(sockfd, read_ok)) {
+                caddr := sockaddr_un();
+                csockfd := accept(sockfd, caddr);
+
+                buf := Buffer(128);
+                read(csockfd, buf, 128);
+                
+                message := buf.toString();
+                
+                if(message.match(/^OPEN_FILE .+ \d+$/)) {
+                    array := message.scan(/^OPEN_FILE (.+) (\d+)/)
+                    
+                    file_name := array.items(1);
+                    try {
+                        file_name = realpath(file_name);
+                    }
+                    line_num := array.items(2).to_int();
+
+                    vicl.openFile(file_name, line_num);
+                }
+                elif(message.match(/^INSERT_FILE .+$/)) {
+                    array := message.scan(/^INSERT_FILE (.+)$/)
+                    
+                    file_name := array.items(1).chomp();
+
+                    text := file_name.toPath().read().toString();
+                    
+                    vicl.win.addUndoText();
+                    vicl.win.insertText(text);
+                }
+            }
+
+            if(loop_num % 256 == 0) {
+                Clover.compaction();
+            }
+            
+            loop_num++;
+        }
+
+        close(sockfd);
+    }
+}

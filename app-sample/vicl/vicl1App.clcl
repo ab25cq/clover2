@@ -1,0 +1,67 @@
+
+class ViClone version 1
+{
+    var endOfAplication:bool;
+    var keyEvents: lambda[](ViClone, int, int);
+    var mode: int;
+    var runningCurses:static bool;
+
+    var argFileName:String?;
+    var argLineNum:int;
+
+    enum { EDITMODE, INSERTMODE, COMMANDMODE, SEARCHMODE, VISUALMODE, DIRMODE, VVISUALMODE, VINSERTMODE, MACROMODE, RANGEMODE }
+
+    def initialize():dynamic {
+        endOfAplication = false;
+
+        mode = EDITMODE;
+
+        keyEvents = new lambda[KEY_MAX](ViClone, int, int)();
+
+        keyEvents['Z'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            if(key2 == 'Z'.to_int) {
+                endOfAplication = true;
+            }
+        }
+
+        runningCurses = true;
+        initscr();
+        setEscapeDelay(0);
+        keypad(stdscr, true);
+        raw();
+        #nodelay(stdscr, true);
+        noecho();
+
+        argLineNum = -1;
+        Clover.ARGV.each {
+            if(it.match(/\+\d+/)) {
+                argLineNum 
+                    = it.scan(/\+(\d+)/).items(1).to_int(); 
+            }
+        } 
+        
+        argv := String[Clover.ARGV.length]();
+        argc := 0;
+        Clover.ARGV.each {
+            if(it.match(/\+\d+/).negative()) {
+                argv[argc++] = it;
+            }
+        }
+        
+        ### read file ###
+        if(argc == 2) {
+            throw Exception("require file name");
+        }
+        elif(argc == 3) {
+            argFileName = argv.items(2);
+        }
+        else {
+            throw Exception("vi clone can't edit multiple files on start time");
+        }
+    }
+
+    def finalize() {
+        endwin();
+        runningCurses = false;
+    }
+}

@@ -1,0 +1,381 @@
+
+class ViCloneWindow version 1
+{
+    var cursorX:int;
+    var cursorY:int;
+    var scrollTopX:int;
+    var scrollTopY:int;
+    var visibleTexts:SortableList<String>?;
+    var visibleTextsPos:EqualableList<Tuple3<Integer, Integer, Integer>>;
+    var fileName:String?;
+    var texts:SortableList<String>;
+
+    var MaxX:int;
+    var MaxY:int;
+
+    var winPos: int;
+
+    var dirPath:String;
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        dirPath = dir_path.clone();
+        fileName = fname.clone();
+
+        winPos = win_pos;
+
+        cursorX = 0;
+        cursorY = 0;
+        scrollTopX = 0;
+        scrollTopY = 0;
+
+        texts = { "AAA", "BBB", "CCC" }
+    }
+
+    def makeMaxxy(vicl:ViClone) {
+        MaxX = getmaxx() - vicl.dirPaneLength;
+
+        len := 1;
+        if(vicl.windows.length() > 1) {
+            len = vicl.windows.length();
+        }
+
+        MaxY = (getmaxy() -1)/ len;
+    }
+
+    def makeVisibleTexts() {
+        visibleTexts = SortableList<String>();
+        visibleTextsPos = EqualableList<Tuple3<Integer, Integer, Integer>>();
+        
+        y := 0;
+        for(i:=scrollTopY; i < texts.length() && y < MaxY-1; i++) {
+            line := texts.items(i);
+            if(line == null) {
+                break;
+            }
+
+            if(line.length() > MaxX-1) {
+                x := 0;
+                while(x < line.length() && y < MaxY-1) {
+                    visibleTexts.push(line.subString(x, x+MaxX-1));
+                    visibleTextsPos.push((i, x, line.length() / (MaxX-1)+1));
+                    
+                    x += MaxX-1;
+                    y++;
+                }
+            }
+            else {
+                visibleTexts.push(line);
+                visibleTextsPos.push((i, 0, 1));
+                y++;
+            }
+        }
+    }
+
+    def fixCursorAndScrollTop(scrolltop_y_before:int) {
+        if(visibleTexts.length() < MaxY -1 && cursorY >= visibleTexts.length()) 
+        {
+            cursorY = visibleTexts.length()-1;
+        }
+
+        if(cursorY >= MaxY-1) {
+            (tmp, tmp2, top_line_size) := visibleTextsPos.items(0);
+
+            if(top_line_size >= MaxY-1)
+            {
+                scrollTopY++;
+                cursorY = 0;
+                cursorX = 0;
+            }
+            else {
+                scroll_size := cursorY - MaxY +2;
+
+                scrollTopY += scroll_size;
+                cursorY -= scroll_size + top_line_size -1;
+            }
+        }
+        if(cursorY < 0) {
+            scroll_size := -cursorY;
+
+            cursorY = 0;
+            scrollTopY -= scroll_size;
+        }
+        
+        if(scrollTopY >= texts.length()) {
+            cursorY = 0;
+            scrollTopY = texts.length()-1;
+        }
+
+        if(scrollTopY < 0) {
+            scrollTopY = 0;
+        }
+
+        if(scrolltop_y_before != scrollTopY) {
+            makeVisibleTexts();
+        }
+
+        line := visibleTexts.items(cursorY);
+
+        if(line == null || line.length() == 0) {
+            cursorX = 0;
+        }
+
+        if(cursorX < 0) {
+            cursorX = 0;
+        }
+        
+        if(cursorY >= visibleTexts.length()) {
+            cursorY = visibleTexts.length() - 1;
+        }
+    }
+
+    def getRealPosY():int {
+        (y, x, line_size) := visibleTextsPos.items(cursorY);
+        return y;
+    }
+
+    def getRealPosX():int {
+        (y, x, line_size) := visibleTextsPos.items(cursorY);
+        return x + cursorX;
+    }
+
+    def view():dynamic {
+        for(y:=0; y<visibleTexts.length(); y++) {
+            line := visibleTexts.items(y);
+
+            if(line == null) {
+                break;
+            }
+
+            ### cursor line ####
+            if(cursorY == y && ViClone.vicl.win == self) {
+                if(line.length() == 0) {
+                    attron(A_REVERSE);
+                    mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, " ");
+                    attroff(A_REVERSE);
+                }
+                else {
+                    if(cursorX >= line.length()) {
+                        mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, line.length() + ViClone.vicl.dirPaneLength, " ");
+                        attroff(A_REVERSE);
+                    }
+                    else {
+                        mvprintw(y + winPos, 0+ViClone.vicl.dirPaneLength
+                            , line.subString(0, cursorX));
+
+                        c := line.chars(cursorX);
+
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, cursorX+ViClone.vicl.dirPaneLength
+                            , "%s", array { c.toString() });
+                       attroff(A_REVERSE);
+
+                       mvprintw(y + winPos, cursorX+1+ViClone.vicl.dirPaneLength
+                           , line.subString(cursorX+1, -1));
+                   }
+               }
+            }
+            ### visible line ###
+            else {
+                mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+            }
+        }
+
+        try {
+            attron(A_REVERSE);
+            str := sprintf("%s/%s%s", array { dirPath, fileName, " ".multiply(getmaxx()-1-ViClone.vicl.dirPaneLength-dirPath.length()-fileName.length()-1) });
+            mvprintw(MaxY -1 + winPos, 0 + ViClone.vicl.dirPaneLength, "%s", array { str.subString(0, getmaxx()-1-ViClone.vicl.dirPaneLength) });
+            attroff(A_REVERSE);
+        }
+    }
+}
+
+class ViClone version 2
+{
+    var win:ViCloneWindow;
+    var windows:List<ViCloneWindow>;
+
+    var spaceString: String;
+
+    var dirPaneLength:int;
+
+    var vicl:static ViClone;
+    
+    def initialize():dynamic {
+        inherit();
+
+        windows = List<ViCloneWindow>();
+
+        dir_path := "";
+        file_name := "";
+
+        if(argFileName.chars(0) == '/') {
+            dir_path = dirname(argFileName);
+            file_name = basename(argFileName);
+        }
+        else {
+            dir_path = getcwd();
+            file_name = basename(argFileName);
+        }
+
+        win = ViCloneWindow(file_name, dir_path, 0, argLineNum, self);
+
+        windows.push(win);
+
+        win.makeMaxxy(self);
+        win.makeVisibleTexts();
+
+        makeSpaces();
+
+        dirPaneLength = 0; 
+
+        keyEvents['j'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.cursorY++;
+
+            win.fixCursorAndScrollTop(win.scrollTopY);
+        }
+        keyEvents[KEY_DOWN] = keyEvents['j'.to_int];
+        keyEvents['k'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.cursorY--;
+
+            win.fixCursorAndScrollTop(win.scrollTopY);
+        }
+        keyEvents[KEY_UP] = keyEvents['k'.to_int];
+        keyEvents['h'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.cursorX--;
+
+            win.fixCursorAndScrollTop(win.scrollTopY);
+        }
+        keyEvents[KEY_LEFT] = keyEvents['h'.to_int];
+        keyEvents['l'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.cursorX++;
+
+            win.fixCursorAndScrollTop(win.scrollTopY);
+        }
+        keyEvents[KEY_RIGHT] = keyEvents['l'.to_int];
+        keyEvents['0'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            scrolltop_y_before := win.scrollTopY;
+            win.cursorX = 0;
+            win.fixCursorAndScrollTop(scrolltop_y_before);
+        }
+        keyEvents['$'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            scrolltop_y_before := win.scrollTopY;
+            line := win.visibleTexts.items(win.cursorY);
+            win.cursorX = line.length()-1;
+            win.fixCursorAndScrollTop(scrolltop_y_before);
+        }
+        keyEvents[('D'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {  # Control-D
+            scrolltop_y_before := win.scrollTopY;
+
+            win.cursorY += win.MaxY / 2;
+
+            win.fixCursorAndScrollTop(scrolltop_y_before);
+        }
+        keyEvents[('U'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {  # Control-U
+            scrolltop_y_before := win.scrollTopY;
+
+            win.cursorY -= win.MaxY / 2;
+
+            win.fixCursorAndScrollTop(scrolltop_y_before);
+        }
+        keyEvents['G'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            scrolltop_y_before := win.scrollTopY;
+
+            win.cursorY = 999999;
+
+            win.fixCursorAndScrollTop(scrolltop_y_before);
+        }
+        keyEvents['g'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            if(key2 == 'g'.to_int) {
+                scrolltop_y_before := win.scrollTopY;
+
+                win.cursorX = 0;
+                win.cursorY = 0;
+                win.scrollTopY = 0;
+
+                win.fixCursorAndScrollTop(scrolltop_y_before);
+            }
+        }
+        keyEvents[('L'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {  # Control-L
+            win.makeVisibleTexts()
+            clear();
+            view();
+        }
+    }
+    
+    def makeSpaces() {
+        maxx := getmaxx();
+
+        spaceString = " ".multiply(maxx);
+    }
+
+    def clearWithoutBlink() {
+        var maxy = getmaxy();
+
+        for(i:=0; i<maxy-1; i++) {
+            mvprintw(i, 0, spaceString);
+        }
+    }
+
+    def clearStatusLine() {
+        maxy := getmaxy();
+        maxx := getmaxx();
+
+        line := " ".multiply(maxx-1);
+
+        mvprintw(maxy-1, 0, line);
+    }
+
+    def view():dynamic {
+        windows.each {
+            it.view();
+        }
+    }
+
+    def statusView():dynamic {
+    }
+    
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(mode == EDITMODE) {
+            if(keyEvents[key] != null) {
+                keyEvents[key](self, key, key2);
+            }
+        }
+    }
+
+    def main():dynamic static {
+        vicl = ViClone();
+
+        loop_num := 0;
+
+        while(!vicl.endOfAplication) {
+            vicl.clearWithoutBlink(); 
+            vicl.clearStatusLine();
+            vicl.view();
+            vicl.statusView();
+            refresh();
+
+            key := getch();
+            key2 := 0;
+
+            if(vicl.mode == ViClone.EDITMODE) {
+                when(key) {
+                    case ('@'.to_int, 'q'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1) 
+                    {
+                        key2 = getch();
+                    }
+                }
+            }
+
+            vicl.runKeyEvents(key, key2);
+
+            if(loop_num % 256 == 0) {
+                Clover.compaction();
+            }
+            
+            loop_num++;
+        }
+    }
+}

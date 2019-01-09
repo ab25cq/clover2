@@ -1,0 +1,79 @@
+
+class ViCloneWindow version 7
+{
+    var undoTexts:SortableList<SortableList<String>>;
+    var undoIndex:int;
+    var undoCurosrPosition:EqualableList<Tuple3<Integer, Integer, Integer>>;
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+
+        undoTexts = SortableList<SortableList<String>>();
+        undoIndex = 0;
+
+        undoCurosrPosition = EqualableList<Tuple3<Integer, Integer, Integer>>();
+    }
+
+    def addUndoText():dynamic {
+        undoTexts.deleteWithRange(undoIndex, -1);
+        undoTexts.push(texts.clone());
+        undoCurosrPosition.deleteWithRange(undoIndex, -1);
+        undoCurosrPosition.push((scrollTopY, cursorY, cursorX));
+        undoIndex++;
+    }
+    
+    def clearUndoText():dynamic {
+        undoTexts?.clear();
+        undoIndex = 0; 
+        
+        undoCurosrPosition?.clear(); 
+    } 
+
+    def undo() {
+        if(undoIndex == undoTexts.length()) {
+            addUndoText();
+            undoIndex--;
+        }
+        if(undoIndex > 0) {
+            undoIndex--;
+            texts = undoTexts.items(undoIndex);
+
+            makeVisibleTexts();
+            
+            (scrollTopY, cursorY, cursorX) = undoCurosrPosition.items(undoIndex);
+
+            fixCursorAndScrollTop(scrollTopY);
+            
+            makeVisibleTexts()
+        }
+    }
+
+    def reverseUndo() {
+        if(undoIndex < undoTexts.length()-1) {
+            undoIndex++;
+            texts = undoTexts.items(undoIndex);
+
+            makeVisibleTexts();
+            
+            (scrollTopY, cursorY, cursorX) = undoCurosrPosition.items(undoIndex);
+
+            fixCursorAndScrollTop(scrollTopY);
+            
+            makeVisibleTexts()
+        }
+    }
+}
+
+class ViClone version 11
+{
+    def initialize():dynamic {
+        inherit();
+
+        keyEvents['u'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.undo();
+        }
+        keyEvents[('R'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {
+            win.reverseUndo();
+        }
+    }
+}

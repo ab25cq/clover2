@@ -1,0 +1,34 @@
+
+class ViCloneWindow version 12
+{
+    var tmpFilePath:String;
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+
+        tmpFilePath = dirPath.add("/").add(fileName).add(".swp");
+
+        if(access(tmpFilePath, R_OK) == 0) {
+            fpath := dirPath.add("/").add(fileName);
+
+            if(tmpFilePath.toPath().to_stat().st_mtime > fpath.toPath().to_stat().st_mtime)
+            {
+                ViClone.messageBox("There is swap file in \{tmpFilePath}. ViClone reads this file instead of \{fpath} now. Maybe application has been crashed before. If you avoid this, quit ViClone and remove \{tmpFilePath} file.");
+
+                texts = tmpFilePath.toPath().read().toString().split('\n');
+            }
+        }
+    }
+    def finalize(): dynamic {
+        rm("-f", tmpFilePath);
+    }
+}
+
+class ViClone version 20
+{
+    def finishInsertMode():dynamic {
+        inherit();
+
+        win.texts.join("\n").write(win.tmpFilePath);
+    }
+}

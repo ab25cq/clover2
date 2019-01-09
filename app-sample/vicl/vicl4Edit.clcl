@@ -1,0 +1,207 @@
+
+class ViCloneWindow version 3
+{
+    def findChar(key:char): Tuple2<Integer, Integer> 
+    {
+        y := getRealPosY();
+
+        line := texts.items(y);
+        
+        x := line.subString(getRealPosX()+1, -1).indexOf(key.toString());
+        
+        if(x != -1) {
+            x += getRealPosX() + 1;
+        }
+        else {
+            x = -1;
+            y = -1;
+        }
+        
+        return (y, x);
+    }
+}
+
+class ViClone version 4
+{
+    var tabSize:int;
+
+    def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        (-1, -1);
+    }
+
+    def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        (-1, -1);
+    }
+
+    def clearClipBoard(): dynamic {
+    }
+    def addClipBoard(line:String):dynamic {
+    }
+
+    def initialize() {
+        inherit();
+
+        tabSize = 4; 
+
+        keyEvents['J'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+
+            y := win.getRealPosY();
+
+            line := win.texts.items(y);
+            next_line := win.texts.items(y +1);
+
+            if(line != null && next_line != null) {
+                (y2, x2) := win.realPosToViewPos(y, line.length()-1);
+
+                line.append(" ");
+                if(next_line.length() != 0) {
+                    line.append(next_line.scan(/\s*(.+)/).items(1));
+                }
+
+                (win.cursorY, win.cursorX) = (y2, x2+1);
+
+                win.texts.deleteAt(y+1);
+
+                win.makeVisibleTexts();
+                win.fixCursorAndScrollTop(win.scrollTopY);
+                
+                win.modifiedText = true;
+            }
+        }
+        keyEvents['x'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            line := win.texts.items(win.getRealPosY());
+
+            if(line != null) {
+                x := win.getRealPosX();
+
+                if(x < line.length()) 
+                {
+                    win.addUndoText();
+                    
+                    line.delete(x);
+
+                    win.makeVisibleTexts();
+                    win.modifiedText = true;
+                } 
+            }
+        }
+        keyEvents['D'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            x := win.getRealPosX();
+            y := win.getRealPosY();
+
+            line := win.texts.items(y);
+
+            if(line != null && x < line.length()-1) {
+                win.addUndoText();
+
+                line.delete(x, -1);
+
+                win.makeVisibleTexts();
+                win.fixCursorAndScrollTop(win.scrollTopY);
+                win.modifiedText = true;
+            }
+        }
+        keyEvents['t'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            (y, x) := win.findChar(key2.to_char);
+
+            if(y != -1 && x != -1) {
+                win.moveCursor(y, x);
+            }
+        }
+        keyEvents['z'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            when(key2) {
+                case ('z'.to_int) {
+                    y := win.getRealPosY();
+                    x := win.getRealPosX();
+
+                    scroll_size := (win.MaxY-1)/2;
+                    win.scrollTopY = win.getRealPosY() - scroll_size;
+
+                    win.fixCursorAndScrollTop(win.scrollTopY);
+                    win.makeVisibleTexts();
+
+                    (win.cursorY, win.cursorX) = win.realPosToViewPos(y, x);
+
+                    win.makeVisibleTexts();
+                }
+
+                case (KEY_ENTER, ('J'-'A').to_int+1) {
+                    win.cursorX = win.getRealPosX();
+                    win.scrollTopY = win.getRealPosY();
+                    win.cursorY = 0;
+
+                    win.makeVisibleTexts();
+                    win.fixCursorAndScrollTop(win.scrollTopY);
+                }
+            }
+        }
+        keyEvents['d'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+
+            when(key2) {
+                case ('e'.to_int, 'w'.to_int) {
+                    y := win.getRealPosY();
+                    x := win.getRealPosX();
+
+                    (y2, x2) := forwardWord(0); 
+
+                    if(y2 == y) {
+                        line := win.texts.items(y);
+                        
+                        line.delete(x, x2);
+
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+                    }
+                    else {
+                        line := win.texts.items(y);
+                        
+                        line.delete(x, -1);
+
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+                    }
+                    win.modifiedText = true;
+                }
+                case ('d'.to_int) {
+                    y := win.getRealPosY();
+
+                    line := win.texts.items(y);
+
+                    if(line != null) {
+                        clearClipBoard();
+                        addClipBoard(line);
+                        win.texts.deleteAt(y);
+                    }
+
+                    if(win.texts.length() == 0) {
+                        win.texts.push("");
+                        win.cursorX = 0;
+                        win.cursorY = 0;
+                        win.scrollTopY = 0;
+                    }
+
+                    win.makeVisibleTexts();                     
+                    win.fixCursorAndScrollTop(win.scrollTopY);
+                    win.modifiedText = true;
+                }
+                case ('t'.to_int) {
+                    key3 := getch();
+
+                    (y, x) := win.findChar(key3.to_char);
+
+                    if(y != -1 && x != -1) {
+                        line := win.texts.items(win.getRealPosY());
+
+                        line.delete(win.getRealPosX(), x);
+
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+                        win.modifiedText = true;
+                    }
+                }
+            }
+        }
+    }
+}

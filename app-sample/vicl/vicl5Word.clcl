@@ -1,0 +1,362 @@
+
+class ViClone version 5
+{
+    def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        real_pos_x := win.getRealPosX();
+        real_pos_y := win.getRealPosY(); 
+
+        line := win.texts.items(real_pos_y);
+
+        x := real_pos_x + offset;
+        y := real_pos_y;
+
+        c := line?.chars(x):'\0';
+
+        if(line == null || line.equals("")) {
+            x = 0;
+            y++;
+        }
+        else {
+            if(c.isalpha() || c == '_') {
+                while(c.isalpha() || c == '_') {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isdigit()) {
+                while(c.isdigit()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isspace()) {
+                while(c.isspace()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c != '\0') {
+                while(!c.isalpha() && !c.isdigit() && !c.isspace()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+        }
+
+        return (y, x);
+    }
+
+    def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        real_pos_x := win.getRealPosX();
+        real_pos_y := win.getRealPosY(); 
+    
+        line := win.texts.items(real_pos_y);
+
+        x := real_pos_x + offset;
+        y := real_pos_y;
+
+        c := line?.chars(x):'\0';
+        
+        if(line == null || line.equals("")) {
+            y--;
+            if(y >= 0) {
+                line = win.texts.items(y);
+                
+                if(line.length() == 0) {
+                    x = 0;
+                }
+                else {
+                    x = line.length()-1;
+                }
+            }
+            else {
+                y = 0;
+            }
+        }
+        else {
+            c := line.chars(x)?:'\0';
+
+            if(c.isalpha() || c == '_') {
+                while(c.isalpha() || c == '_') {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isdigit()) {
+                while(c.isdigit()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isspace()) {
+                while(c.isspace()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c != '\0') {
+                while(!c.isalpha() && !c.isdigit() && !c.isspace()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            x++; 
+        }
+
+        return (y, x);
+    }
+
+    def deleteBackwardWord(): dynamic {
+        line := win.texts.items(win.getRealPosY());
+        
+        real_pos_y := win.getRealPosY();
+        real_pos_x := win.getRealPosX();
+
+        (y, x) := backwardWord(-1);
+        
+        if(line != null) {
+            if(y == real_pos_y) {
+                (real_pos_x - x).times { 
+                    line.delete(win.getRealPosX()-1);
+                }
+                win.makeVisibleTexts();
+                win.moveCursor(y, x);
+            } 
+            elif(y < real_pos_y) {
+                for(i:=real_pos_y; i>y; i--) {
+                    line = win.texts.items(i);
+                    line.setValue("");
+                }
+                
+                line = win.texts.items(i);
+                
+                line.delete(x, -1);
+                win.makeVisibleTexts();
+                win.moveCursor(y, x);
+            }
+        } 
+    }
+
+    def initialize():dynamic {
+        inherit();
+
+        keyEvents['w'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            (y, x) := forwardWord();
+            
+            win.moveCursor(y, x);
+        }
+        keyEvents['b'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            (y, x) := backwardWord(-1);
+            
+            win.moveCursor(y, x);
+        }
+        keyEvents['c'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+ 
+            when(key2) {
+                case ('e'.to_int, 'w'.to_int) {
+                    enterInsertMode();
+
+                    (y, x) := forwardWord(0); 
+                    
+                    real_pos_y := win.getRealPosY();
+                    real_pos_x := win.getRealPosX();
+                 
+                    line := win.texts.items(real_pos_y);
+                    
+                    if(y > real_pos_y) {
+                        line.delete(real_pos_x, -1);
+    
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+            
+                        win.cursorX++;
+                    } 
+                    else { 
+                        line.delete(real_pos_x, x); 
+    
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+                    } 
+                }
+                case ('t'.to_int) {
+                    key3 := getch();
+
+                    (y, x) := win.findChar(key3.to_char);
+
+                    if(y != -1 && x != -1) {
+                        line := win.texts.items(win.getRealPosY());
+
+                        line.delete(win.getRealPosX(), x);
+
+                        win.makeVisibleTexts();                     
+                        win.fixCursorAndScrollTop(win.scrollTopY);
+                    }
+                     
+                    enterInsertMode();
+                }
+            }
+        }
+    }
+}

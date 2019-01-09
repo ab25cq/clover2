@@ -1,0 +1,57 @@
+
+class ViCloneWindow version 8
+{
+    graveCursorPosition:int[];
+    numGraveCursorPosition: int;
+    savedCursorPosition: int;
+     
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+        
+        numGraveCursorPosition = 'z'-'a'+1;
+        graveCursorPosition = int[numGraveCursorPosition]();
+        for(i:=0; i<numGraveCursorPosition; i++) {
+            graveCursorPosition[i] = -1;
+        }
+        savedCursorPosition = -1;
+    }
+
+    def grave(key2:int) {
+        if(key2.to_char >= 'a' && key2.to_char <= 'z') {
+            n := (key2 - 'a').to_int;
+            if(graveCursorPosition[n] != -1) {
+                savedCursorPosition = getRealPosY();
+                moveCursor(graveCursorPosition[n], 0);
+            }
+        }
+        elif(key2.to_char == '`') {
+            if(savedCursorPosition != -1) {
+                saved_cursor_position := getRealPosY();
+                moveCursor(savedCursorPosition, 0);
+                savedCursorPosition = saved_cursor_position;
+            }
+        }
+    }
+
+    def goGrave(key2:int) {
+        if(key2.to_char >= 'a' && key2.to_char <= 'z') {
+            n := (key2 - 'a').to_int;
+            graveCursorPosition[n] = getRealPosY();
+        }
+    }
+}
+
+class ViClone version 12
+{
+    def initialize():dynamic {
+        inherit();
+
+        ### Insert Mode ###
+        keyEvents['`'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.grave(key2);
+        }
+        keyEvents['m'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.goGrave(key2);
+        }
+    }
+}

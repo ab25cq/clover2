@@ -1,0 +1,412 @@
+
+class ViCloneWindow version 2
+{
+    def addUndoText(): dynamic {}
+    def clearUndoText():dynamic {}
+
+    var modifiedText:bool;
+
+    def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
+        inherit(fname, dir_path, win_pos, arg_line_num, vicl);
+
+        modifiedText = false;
+    }
+
+    def fixCursorAndScrollTopOnInsertMode(scrolltop_y_before:int) {
+        y := getRealPosY();
+        x := getRealPosX();
+
+        line := texts.items(y);
+
+        if(cursorX == MaxX-1 && x == line.length()) {
+        }
+        elif(cursorX == MaxX && x == line.length()) {
+            cursorX = 1;
+            cursorY++;
+        }
+        else {
+            if(cursorX >= MaxX-1) {
+                cursorX = 0;
+                cursorY++;
+            }
+        }
+
+        fixCursorAndScrollTop(scrolltop_y_before);
+    }
+
+    def viewYToRealY(y:int):int {
+        (y2, x2, line_size) := viewPosToRealPos(y, 0);
+        return y2;
+    }
+
+    def realYToViewY(y:int):int {
+        (y2, x2) := realPosToViewPos(y, 0);
+        return y2;
+    }
+
+    def viewPosToRealPos(y:int, x:int): Tuple3<Integer, Integer, Integer>
+    {
+        if(y >= 0 && y < visibleTextsPos.length()) {
+            (y2, x2, line_size) := visibleTextsPos.items(y);
+            return (y2, x + x2, line_size);
+        }
+        else {
+            throw Exception("viewPosToRealPos");
+        }
+    }
+
+    def realPosToViewPos(y:int, x:int): Tuple2<Integer, Integer> {
+        for(i:=0; i<visibleTextsPos.length(); i++)
+        {
+            (y2, x2, line_num) := visibleTextsPos.items(i);
+
+            if(y2 == y) {
+                if(x >= x2 && x < x2 + MaxX-1)
+                {
+                    return (i, x-x2);
+                }
+            }
+        }
+
+        return (-1,-1)
+    }
+    
+    def moveCursor(y:int, x:int):int {
+        (y2,x2) := realPosToViewPos(y, x);
+        
+        if(y2 >= 0 && y2 < visibleTexts.length())
+        {
+            (cursorY, cursorX) = realPosToViewPos(y, x);
+        }
+        else {
+            scroll_size := (MaxY-1)/2;
+            scrollTopY = y - scroll_size;
+
+            fixCursorAndScrollTop(scrollTopY);
+            makeVisibleTexts();
+
+            (cursorY, cursorX) = realPosToViewPos(y, x);
+
+            if(cursorY == -1 && cursorX == -1) {
+                scrollTopY = y;
+
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+
+                (cursorY, cursorX) = realPosToViewPos(y, x);
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+            }
+            else {
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+            }
+        }
+    }
+}
+
+class ViClone version 3
+{
+    def setLastInsertedTextPos(): dynamic {
+    }
+    def getLastInsertedText(): dynamic {
+    }
+
+    def blinkParen(): dynamic {
+    }
+
+    def deleteBackwardWord(): dynamic {
+    }
+
+    def completion():dynamic {
+    }
+
+    def clover2Completion(): dynamic {
+    }
+
+    def CCompletion(): dynamic {
+    }
+
+    def enterInsertMode() {
+        mode = INSERTMODE;
+        setLastInsertedTextPos();
+    }
+
+    def finishInsertMode():dynamic {
+        mode = EDITMODE;
+        getLastInsertedText();
+    }
+
+    def initialize():dynamic {
+        inherit();
+
+        ### Insert Mode ###
+        keyEvents['i'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+           win.addUndoText();
+
+           enterInsertMode();
+        }
+
+        keyEvents['a'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+
+            enterInsertMode();
+
+            win.cursorX++;
+
+            clear();
+            view();
+        }
+        keyEvents['A'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+
+            y := win.getRealPosY();
+
+            line := win.texts.items(y);
+
+            if(line != null && line.length() != 0) {
+                (y2, x2) := win.realPosToViewPos(y, line.length()-1);
+
+                if(y2 == 0 && x2 == 0 && y != 0) {
+                    win.scrollTopY = y;
+                    win.cursorY = 0;
+                    win.makeVisibleTexts();
+
+                    (win.cursorY, win.cursorX) = win.realPosToViewPos(y, line.length()-1);
+                }
+                else {
+                    win.cursorY = y2;
+                    win.cursorX = x2;
+                }
+
+                win.makeVisibleTexts();
+                win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+                win.cursorX++;
+
+                clear();
+                view();
+            }
+
+            enterInsertMode();
+        }
+        keyEvents['o'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            win.addUndoText();
+
+            enterNewLine(true);
+
+            enterInsertMode();
+        }
+        keyEvents[('L'-'A').to_int+1] = lambda(self:ViClone, key:int, key2:int) {  # Control-L
+            win.makeVisibleTexts()
+            clear();
+            view();
+        }
+        keyEvents['C'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            x := win.getRealPosX();
+            y := win.getRealPosY();
+
+            line := win.texts.items(y);
+
+            if(line.identifyWith(null).negative() && x < line.length()-1) {
+                win.addUndoText();
+
+                line.delete(x, -1);
+
+                win.makeVisibleTexts();
+                win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+            }
+
+            enterInsertMode();
+        }
+    }
+
+    def enterNewLine(no_tails_getting:bool) {
+        y := win.getRealPosY();
+        x := win.getRealPosX();
+
+        line := win.texts.items(y);
+
+        spaces_num := line.scan(/^\s+/)?.items(0).length():0;
+
+        tails := "";
+        if(!no_tails_getting) {
+            tails = line.subString(x..-1);
+            line.delete(x..-1);
+        }
+
+        win.cursorX = spaces_num;
+        win.cursorY++;
+
+        if(win.cursorY >= win.MaxY-1) {
+            (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
+
+            if(top_line_size >= win.MaxY-1) {
+                win.scrollTopY++;
+                win.cursorY = 0;
+                win.cursorX = 0;
+            }
+            else {
+                scroll_size := win.cursorY - win.MaxY +2;
+
+                win.scrollTopY += scroll_size;
+                win.cursorY -= scroll_size + top_line_size -1;
+            }
+        }
+        
+        spaces := " ".multiply(spaces_num);
+        spaces.append(tails);
+        win.texts.insert(y+1, spaces);
+
+        win.makeVisibleTexts();
+        win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+
+        win.cursorX = spaces_num;
+    }
+
+    def insertMode(key:int) {
+        when(key) {
+            case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
+                finishInsertMode();
+            }
+
+            ### Backspace ###
+            case (('H'-'A').to_int+1, KEY_BACKSPACE) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null && win.cursorX >= 0) {
+                    line.delete(x-1);
+                    win.cursorX--;
+                } 
+                
+                win.makeVisibleTexts();
+            }
+
+            case ('\n'.to_int) {
+                enterNewLine(false);
+                
+                win.makeVisibleTexts();
+            }
+
+            case (('D'-'A').to_int+1) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    4.times {
+                        if(win.cursorX >= 0) {
+                            line.delete(x -1);
+                            win.cursorX--;
+                        }
+                    }
+                } 
+                
+                win.makeVisibleTexts();
+            } 
+
+            ### delete Back word ###
+            case (('W'-'A').to_int+1) {
+                deleteBackwardWord();
+            }
+            
+            case (('X'-'A').to_int+1) {
+                if(win.fileName.match(/.+\.cl/) || win.fileName.match(/.+\.clcl/)) {
+                    clover2Completion();
+                }
+                elif(win.fileName.match(/.+\.c/)) {
+                    CCompletion();
+                }
+                else {
+                    completion();
+                }
+            }
+
+            case (('I'-'A').to_int+1) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    if(line.subString(0, x).match(/^\s*$/)) {
+                        4.times { 
+                            line.insert(x, " ");
+                            win.cursorX++;
+                        } 
+                    }
+                    else {
+                        completion();
+                    }
+                }
+                
+                win.makeVisibleTexts();
+            }
+            else {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    c := key.to_char;
+                    if(c.isalnum() || c == ' ' || c.isgraph()) {
+                        line.insert(x, c.toString());
+
+                        win.makeVisibleTexts();
+
+                        if(key == '}' || key == ')')
+                        {
+                            blinkParen();
+                        }
+                        win.cursorX++;
+                        
+                        win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+                    }
+                }
+            }
+        }
+    }
+
+    def runKeyEvents(key:int, key2:int): dynamic {
+        if(mode == INSERTMODE) {
+            win.modifiedText = true;
+            insertMode(key);
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+
+    def statusView():dynamic {
+        maxy := getmaxy();
+
+        attron(A_REVERSE);
+        try {
+            mvprintw(maxy-1, 0, "%s %d %d %s", { (win.fileName?.nothing():""), win.getRealPosY() + 1, win.getRealPosX(), if(win.modifiedText) { "changed" } else { "no changed" } });
+        }
+        attroff(A_REVERSE);
+    }
+
+    def view():dynamic {
+        inherit(); 
+
+        if(mode == INSERTMODE) {
+            maxy := getmaxy();
+
+            clearStatusLine();
+
+            attron(A_REVERSE);
+            if(win.fileName == null) {
+                mvprintw(maxy-1, 0, "INSERT %d %d", { win.getRealPosY(), win.getRealPosX() } );
+            }
+            else {
+                mvprintw(maxy-1, 0, "INSERT %s %d %d", { win.fileName, win.getRealPosY(), win.getRealPosX()});
+            }
+            attroff(A_REVERSE);
+        }
+    }
+}

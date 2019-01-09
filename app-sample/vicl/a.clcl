@@ -1,0 +1,31 @@
+
+class ClassA {
+    abc:int;
+    bcd:String;
+    XYZ:String;
+    
+    def initialize() {
+        abc = 123;
+        bcd = "ABC";
+        XYZ = "DEF";
+    }
+    
+    def method4():SortableList<String> {
+        return { "1", "2", "3" };
+    }
+  
+    def method5():Integer {
+        return 123;
+    }
+    
+    def method(aaa:int, bbbb:String) {
+        if("AAA".equals("BBB")) {
+            println("AAA");
+        }
+        ccc := "ABC";
+        
+        test1 := "ABC";
+        lelolelo := "ABC";
+        test2 := "DEF";
+    }
+}

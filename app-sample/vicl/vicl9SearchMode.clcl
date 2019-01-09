@@ -1,0 +1,205 @@
+
+class ViClone version 9
+{
+    statusLineInSearchMode:String;
+    searchMode:int;
+
+    enum { SEARCHMODE_NORMAL, SEARCHMODE_REVERSE }
+
+    def messageBox(message:String):static {
+        clear();
+        mvprintw(0,0, message);
+        refresh();
+
+        getch();
+    }
+
+    def initialize():dynamic {
+        inherit();
+
+        statusLineInSearchMode = "";
+
+        searchMode = SEARCHMODE_NORMAL;
+
+        ### Insert Mode ###
+        keyEvents['/'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            enterSearchMode();
+        }
+        keyEvents['?'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            enterSearchMode("", SEARCHMODE_REVERSE);
+        }
+        keyEvents['n'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            searchString();
+        }
+        keyEvents['*'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
+            str := getCursorWord();
+            enterSearchMode(str, SEARCHMODE_NORMAL);
+        }
+        keyEvents['#'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
+            str := getCursorWord();
+            enterSearchMode(str, SEARCHMODE_REVERSE);
+        } 
+        keyEvents['N'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+            mode := searchMode;
+            if(searchMode == SEARCHMODE_NORMAL) {
+                searchMode = SEARCHMODE_REVERSE
+            }
+            else {
+                searchMode = SEARCHMODE_NORMAL
+            }
+            searchString();
+            searchMode = mode;
+        }
+    }
+
+    def enterSearchMode(str:String="", search_mode:int=SEARCHMODE_NORMAL) {
+        searchMode = search_mode;
+
+        mode = SEARCHMODE;
+
+        statusLineInSearchMode = str;
+    }
+    
+    def runSearchMode(str:String, search_mode:int=SEARCHMODE_NORMAL) {
+        searchMode = search_mode;
+        statusLineInCommandMode = str;
+        searchString();
+    }
+
+    def searchString() {
+        if(searchMode == SEARCHMODE_NORMAL) {
+            y := win.getRealPosY();
+            x := win.texts.items(y).subString(win.getRealPosX()+1, -1).indexOf(statusLineInSearchMode);
+             
+            if(x != -1) { 
+                x += win.getRealPosX() + 1;
+            }
+            else { 
+                for(y = win.getRealPosY()+1; y < win.texts.length(); y++) { 
+                    it := win.texts.items(y);
+                    x = it.indexOf(statusLineInSearchMode);
+                    if(x != -1) {
+                        break; 
+                    } 
+                }
+            } 
+            
+            if(x == -1) {
+                messageBox("The search word is none");
+            }
+            else {
+                scrolltop_y_before := win.scrollTopY;
+                win.moveCursor(y, x);
+                win.fixCursorAndScrollTop(scrolltop_y_before);
+            }
+        }
+        else {
+            y := win.getRealPosY();
+            x := win.texts.items(y).subString(0, win.getRealPosX()).rindexOf(statusLineInSearchMode);
+                 
+            if(x == -1) { 
+                for(y=win.getRealPosY()-1; y >= 0; y--) {
+                    it := win.texts.items(y);
+
+                    x = it.rindexOf(statusLineInSearchMode);
+    
+                    if(x != -1) {
+                        break;
+                    }
+                }
+            } 
+
+            if(x == -1) {
+                messageBox("The search word is none");
+            }
+            else {
+                scrolltop_y_before := win.scrollTopY;
+                win.moveCursor(y, x);
+                win.fixCursorAndScrollTop(scrolltop_y_before);
+            }
+        }
+    }
+    
+    def getCursorWord():String {
+        word_top := 0;
+        word_bottom := 0;
+        
+        x := win.getRealPosX();
+        y := win.getRealPosY();
+
+        (y2, x2) := forwardWord();
+        (y3, x3) := backwardWord();
+
+        line := win.texts.items(y);
+
+        if(y2 > y && y3 < y) {
+            word_top = 0;
+            word_bottom = -1;
+        }
+        elif(y2 > y) {
+            word_top = x3;
+            word_bottom = -1;
+        }
+        elif(y3 < y) {
+            word_top = 0;
+            word_bottom = x2;
+        }
+        else {
+            word_top = x3;
+            word_bottom = x2;
+        }
+
+        return line.subString(word_top, word_bottom);
+    }
+
+    def searchMode(key:int) {
+        when(key) {
+            case (('H'-'A').to_int+1, KEY_BACKSPACE) {
+                statusLineInSearchMode.delete(-2);
+            }
+            case (('['-'A').to_int+1) {
+                mode = EDITMODE; 
+            } 
+            case (KEY_ENTER, ('J'-'A').to_int+1) {
+                searchString();
+                mode = EDITMODE; 
+            }
+            else {
+                if(key >= ' ' && key <= '~') {
+                    statusLineInSearchMode.append(key.to_char);
+                }
+            }
+        }
+    }
+
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(mode == SEARCHMODE) {
+            searchMode(key);
+        }
+        else {
+            inherit(key, key2);
+        }
+    }
+
+    def statusView(): dynamic {
+        if(mode == SEARCHMODE) {
+            clearStatusLine();
+
+            maxy := getmaxy();
+
+            attron(A_REVERSE);
+            if(searchMode == SEARCHMODE_NORMAL) {
+                mvprintw(maxy-1, 0, "/%s", array { statusLineInSearchMode });
+            }
+            else {
+                mvprintw(maxy-1, 0, "?%s", array { statusLineInSearchMode });
+            }
+            attroff(A_REVERSE);
+        }
+        else {
+            inherit();
+        }
+    }
+}
