@@ -1,4 +1,8 @@
 
+version 10.0.1
+
+    Running test of Android termux.
+
 version 10.0.0
 
     Added String.deleteWithRange, String.deleteAt. Changend parser error message max as 8.

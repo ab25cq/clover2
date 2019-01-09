@@ -209,7 +209,7 @@ export CFLAGS
 ##########################################################
 CC=gcc
 
-INSTALL="/usr/bin/install -c"
+INSTALL="$(which install) -c"
 
 if test $ENABLE_THREAD = 1
 then
@@ -473,6 +473,8 @@ else
     JIT_RUNTIME_OBJS=
     JIT=0
 fi
+
+AC_CHECK_FUNCS(lchmod)
 
 CXXFLAGS="$CXXFLAGS -Qunused-arguments"
 

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.1
+
+    Androidのtermuxで動作確認
+
 version 10.0.0
 
     String.deleteWithRange, String.deleteAtを追加。エラーメッセージ数を8に変更。

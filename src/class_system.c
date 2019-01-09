@@ -3117,6 +3117,7 @@ BOOL System_chmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+#ifdef HAVE_LCHMOD
     CLVALUE* path = lvar;
     CLVALUE* mode = lvar + 1;
 
@@ -3139,6 +3140,10 @@ BOOL System_lchmod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     MFREE(path_value);
+#else
+    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "lchmod is not implemented");
+    return FALSE;
+#endif
 
     return TRUE;
 }

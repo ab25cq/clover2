@@ -8,6 +8,7 @@
 #undef HAVE_BSD_H
 #undef HAVE_AVCALL_H
 #undef HAVE_PTHREAD_H
+#undef HAVE_LCHMOD
 #undef __CYGWIN__
 #undef __SUNOS__
 #undef __DARWIN__
