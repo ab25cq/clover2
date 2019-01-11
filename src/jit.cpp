@@ -3820,7 +3820,11 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     passBuilder.registerFunctionAnalyses(TheFAM);
 
+#if LLVM_VERSION_MAJOR >= 7
+    passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, llvm::PassBuilder::ThinLTOPhase::None, false);
+#else
     passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
+#endif
 
     create_internal_functions();
     TheLabels.clear();
@@ -3873,7 +3877,23 @@ static BOOL compile_jit_methods(sCLClass* klass)
     }
 
     if(num_compiled_method > 0) {
-#if LLVM_VERSION_MAJOR >= 4
+#if LLVM_VERSION_MAJOR >= 7
+        char path[PATH_MAX];
+        snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
+
+        (void)unlink(path);
+
+        std::error_code ecode;
+        llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+        std::string err_str;
+        raw_string_ostream err_ostream(err_str);
+
+        verifyModule(*TheModule);
+
+        llvm::WriteBitcodeToFile(*TheModule, output_stream, true);
+        output_stream.flush();
+#elif LLVM_VERSION_MAJOR >= 4
         char path[PATH_MAX];
         snprintf(path, PATH_MAX, "%s.bc", CLASS_NAME(klass));
 

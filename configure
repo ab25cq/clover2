@@ -4563,6 +4563,7 @@ then
         /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
         ln -fs CLASS_NAME.so.1.0.0 $CLASS_NAME.so
     fi
+fi
 EOF
 
 chmod 755 bclover2
