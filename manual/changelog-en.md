@@ -1,4 +1,12 @@
 
+version 10.0.2.
+
+    I ran JIT on Android's termux. 
+
+    It corresponds to LLVM 7.0. 
+
+    Fixed an issue that could not be compiled with JIT compile time mistake. 
+
 version 10.0.1
 
     Running test of Android termux.

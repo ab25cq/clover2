@@ -1,4 +1,20 @@
 
+version 10.0.2.
+
+    AndroidのtermuxでJITを動かしました。
+
+    LLVM 7.0に対応。
+
+    JITのコンパイル時手違いでコンパイルできなかった問題を修正。
+
+version 10.0.2.
+
+    I ran JIT on Android's termux. 
+
+    It corresponds to LLVM 7.0. 
+
+    Fixed an issue that could not be compiled with JIT compile time mistake. 
+
 version 10.0.1
 
     Androidのtermuxで動作確認

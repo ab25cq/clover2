@@ -4561,7 +4561,7 @@ then
         /usr/bin/llc -relocation-model=pic $CLASS_NAME.bc
         /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
         /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
     fi
 fi
 EOF

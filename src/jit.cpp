@@ -789,7 +789,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 break;
 
             case OP_GOTO: {
-                int jump_value = *(int*)pc;
+                //int jump_value = *(int*)pc;
                 pc += sizeof(int);
 
                 int label_offset = *(int*)pc;
@@ -975,7 +975,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int index = *(int*)pc;
                 pc += sizeof(int);
 
-                BOOL value_is_object = *(int*)pc;
+                //BOOL value_is_object = *(int*)pc;
                 pc += sizeof(int);
 
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
@@ -2679,7 +2679,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                         Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                         Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
 
-                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i]));
                         Builder.CreateAlignedStore(element_value, element_address_value, 4);
                     }
 
@@ -2774,7 +2774,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                         Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                         Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
 
-                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i]));
                         Builder.CreateAlignedStore(element_value, element_address_value, 4);
                     }
 
@@ -2863,7 +2863,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                         Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                         Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
 
-                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i]));
                         Builder.CreateAlignedStore(element_value, element_address_value, 4);
                     }
 
@@ -3725,7 +3725,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                         Value* rvalue = ConstantInt::get(TheContext, llvm::APInt(32, i));
                         Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
 
-                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i], "element_value"));
+                        Value* element_value = ConstantInt::get(TheContext, llvm::APInt(32, string_expression_offsets[i]));
                         Builder.CreateAlignedStore(element_value, element_address_value, 4);
                     }
 

@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.2.
+
+    AndroidのtermuxでJITを動かしました。
+
+    LLVM 7.0に対応。
+
+    JITのコンパイル時手違いでコンパイルできなかった問題を修正。
+
 version 10.0.1
 
     Androidのtermuxで動作確認

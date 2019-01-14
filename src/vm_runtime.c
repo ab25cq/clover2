@@ -1126,45 +1126,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
     if(lambda) {
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
-#ifdef ENABLE_JIT
-        klass = object_data->mClass2;
-
-        if(object_data->mBlockID == -1 || klass == NULL) {
-            if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
-                /// copy back variables to parent ///
-                object_data = CLBLOCK(block_object);
-                if(object_data->mParentVarNum > 0) {
-                    memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
-                }
-
-                **stack_ptr = *(new_stack + new_var_num);
-                (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
-                return FALSE;
-            }
-        }
-        else {
-            if(!jit(&code, &constant, new_stack, new_var_num, klass, NULL, block_object, info, stack_ptr))
-            {
-                /// copy back variables to parent ///
-                object_data = CLBLOCK(block_object);
-                if(object_data->mParentVarNum > 0) {
-                    memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
-                }
-
-                **stack_ptr = *(new_stack + new_var_num);
-                (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
-                return FALSE;
-            }
-        }
-#else
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
             MFREE(info->running_class_name);
             MFREE(info->running_method_name);
@@ -1174,9 +1135,24 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
             (*stack_ptr)++;
             return FALSE;
         }
-#endif
     }
     else {
+/*
+        /// check variable existance ///
+        if(!check_variables_existance_on_stack(stack, *stack_ptr))
+        {
+            MFREE(info->running_class_name);
+            MFREE(info->running_method_name);
+            info->running_method_name = running_method_name;
+            info->running_class_name = running_class_name;
+            /// copy back variables to parent ///
+            object_data = CLBLOCK(block_object);
+            memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
+
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "Parent variables doesn't exist. ID is %p", object_data->mStackID);
+            return FALSE;
+        }
+*/
         /// copy variables ///
         if(object_data->mParentVarNum > 0) {
             memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
