@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.4
+
+    LLVMコマンド関連。
+
 version 10.0.3
 
     LLVM 7.0が推奨になりました。

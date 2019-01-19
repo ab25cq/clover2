@@ -1,4 +1,8 @@
 
+version 10.0.4
+
+    LLVM command related.
+
 version 10.0.3
 
     LLVM 7.0 is now recommended.

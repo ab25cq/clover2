@@ -4452,16 +4452,36 @@ fi
 
 if which clang-7
 then
-    LLVM_DIS=llvm-dis-7
-    LLC=llc-7
     CLANG=clang-7
-    CLANGPLUSPLUS=clang++-7
-    LLVM_CONFIG=llvm-config-7
+else
+    CLANG=clang
+fi
+
+if which llvm-dis-7
+then
+    LLVM_DIS=llvm-dis-7
 else
     LLVM_DIS=llvm-dis
+fi
+
+if which llc-7
+then
+    LLC=llc-7
+else
     LLC=llc
-    CLANG=clang
+fi
+
+if which clang++-7
+then
+    CLANGPLUSPLUS=clang++-7
+else
     CLANGPLUSPLUS=clang++
+fi
+
+if which llvm-config-7
+then
+    LLVM_CONFIG=llvm-config-7
+else
     LLVM_CONFIG=llvm-config
 fi
 

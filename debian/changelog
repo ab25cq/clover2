@@ -1,4 +1,8 @@
 
+clover2 (10.0.4-1) unstable; urgency=medium
+
+    * LLVM command related.
+
 clover2 (10.0.3-1) unstable; urgency=medium
 
     * LLVM 7.0 is now recommended.
