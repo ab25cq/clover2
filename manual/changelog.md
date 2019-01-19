@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.3
+
+    LLVM 7.0が推奨になりました。
+
 version 10.0.2.
 
     AndroidのtermuxでJITを動かしました。

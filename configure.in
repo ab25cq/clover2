@@ -90,6 +90,8 @@ AC_MSG_CHECKING(Operating System)
 CFLAGS='-DPREFIX="\"${DESTDIR}/\""'
 CFLAGS="-fPIC -rdynamic $CFLAGS"
 
+AR_LIB=
+
 if test `uname -s` = "Darwin"; then
     echo "Darwin"
 
@@ -135,7 +137,7 @@ else
         CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 
-    AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil"; ], [])
+    AC_HAVE_LIBRARY(util, [ LIBS="$LIBS -lutil" ], [])
 fi
 
 ##############################################################
@@ -259,7 +261,14 @@ AC_SUBST(CFFI)
 
 AC_SUBST(LIBS)
 
-if which clang > /dev/null
+if which clang-7 > /dev/null
+then
+    CC=clang-7
+    if which ccache > /dev/null
+    then
+        CC="ccache clang-7"
+    fi
+elif which clang > /dev/null
 then
     CC=clang
     if which ccache > /dev/null
@@ -283,8 +292,16 @@ AC_SUBST(DESTDIR)
 
 CXXFLAGS='-DPREFIX="\"${DESTDIR}/\""'
 CXXFLAGS="-I . $CXXFLAGS"
+CXXFLAGS="-fPIC -rdynamic $CXXFLAGS"
 
-if which clang++ > /dev/null
+if which clang++-7 > /dev/null
+then
+    CXX=clang++-7
+    if which ccache > /dev/null
+    then
+        CXX="ccache clang++-7"
+    fi
+elif which clang++ > /dev/null
 then
     CXX=clang++
     if which ccache > /dev/null
@@ -299,129 +316,14 @@ else
     fi
 fi
 
-if which llvm-config-6.0 > /dev/null
+if which llvm-config-7 > /dev/null
 then
     if test $DEBUGGING = 1
     then
-        CXXFLAGS='`llvm-config-6.0 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
     else
-        CXXFLAGS='`llvm-config-6.0 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
+        CXXFLAGS='`llvm-config-7 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     fi
-
-cat <<'EOF' > bclover2
-if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
-if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
-
-echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.ocl -nt $CLASS_NAME.s
-then
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
-
-    if test -e $CLASS_NAME.bc
-    then
-        /usr/bin/llvm-dis-6.0 $CLASS_NAME.bc
-        /usr/bin/llc-6.0 -relocation-model=pic $CLASS_NAME.bc
-        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-    fi
-fi
-EOF
-
-    chmod 755 bclover2
-
-elif which llvm-config-5.0 > /dev/null
-then
-    if test $DEBUGGING = 1
-    then
-        CXXFLAGS='`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config-5.0 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    fi
-
-cat <<'EOF' > bclover2
-if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
-if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
-
-echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
-then
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
-
-    if test -e $CLASS_NAME.bc
-    then
-        /usr/bin/llvm-dis-5.0 $CLASS_NAME.bc
-        /usr/bin/llc-5.0 -relocation-model=pic $CLASS_NAME.bc
-        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-    fi
-fi
-EOF
-
-    chmod 755 bclover2
-
-elif which llvm-config-4.0 > /dev/null
-then
-    if test $DEBUGGING = 1
-    then
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config-4.0 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    fi
-
-cat <<'EOF' > bclover2
-if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
-if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
-
-echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
-then
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
-
-    if test -e $CLASS_NAME.bc
-    then
-        /usr/bin/llvm-dis-4.0 $CLASS_NAME.bc
-        /usr/bin/llc-4.0 -relocation-model=pic $CLASS_NAME.bc
-        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-        /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-    fi
-fi
-EOF
-
-    chmod 755 bclover2
-
-elif which llvm-config-3.8 > /dev/null
-then
-    if test $DEBUGGING = 1
-    then
-        CXXFLAGS='`llvm-config-3.8 --cxxflags --ldflags --system-libs --libs all` -lffi -DMDEBUG -g'" $CXXFLAGS"
-    else
-        CXXFLAGS='`llvm-config-3.8 --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
-    fi
-
-cat <<'EOF' > bclover2
-if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
-if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
-
-echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
-then
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
-
-    if test -e $CLASS_NAME.bc
-    then
-        /usr/bin/llvm-dis-3.8 $CLASS_NAME.bc
-        /usr/bin/llc-3.8 -relocation-model=pic $CLASS_NAME.bc
-        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-        /usr/bin/gcc -shared -Wl,-soname=CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-    fi
-fi
-EOF
-    chmod 755 bclover2
-
 else
     if test $DEBUGGING = 1
     then
@@ -429,30 +331,49 @@ else
     else
         CXXFLAGS='`llvm-config --cxxflags --ldflags --system-libs --libs all` -lffi -O3'" $CXXFLAGS"
     fi
+fi
 
-cat <<'EOF' > bclover2
+if which clang-7
+then
+    LLVM_DIS=llvm-dis-7
+    LLC=llc-7
+    CLANG=clang-7
+    CLANGPLUSPLUS=clang++-7
+    LLVM_CONFIG=llvm-config-7
+else
+    LLVM_DIS=llvm-dis
+    LLC=llc
+    CLANG=clang
+    CLANGPLUSPLUS=clang++
+    LLVM_CONFIG=llvm-config
+fi
+
+echo "LLVM_DIS=\"$LLVM_DIS\"" > bclover2
+echo "LLC=\"$LLC\"" >> bclover2
+echo "CLANG=\"$CLANG\"" >> bclover2
+echo "CLANGPLUSPLUS=\"$CLANGPLUSPLUS\"" >> bclover2
+echo "LLVM_CONFIG=\"$LLVM_CONFIG\"" >> bclover2
+echo "LIBS=\"$LIBS\"" >> bclover2
+echo "DESTDIR=\"$DESTDIR\"" >> bclover2
+cat <<'EOF' >> bclover2
 if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
 if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
 
 echo "bitcompile $CLASS_NAME"
-if test ! -e $CLASS_NAME.s || test $CLASS_NAME.oclcl -nt $CLASS_NAME.s
-then
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
-    if test -e $CLASS_NAME.bc
-    then
-        /usr/bin/llvm-dis $CLASS_NAME.bc
-        /usr/bin/llc -relocation-model=pic $CLASS_NAME.bc
-        /usr/bin/clang -o $CLASS_NAME.o -c $CLASS_NAME.s
-        /usr/bin/gcc -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
-        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
-    fi
+if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+
+if test -e $CLASS_NAME.bc
+then
+    $LLVM_DIS $CLASS_NAME.bc
+    $LLC -relocation-model=pic $CLASS_NAME.bc
+    $CLANG -o $CLASS_NAME.o -c $CLASS_NAME.s
+    $CLANG -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o
+    ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
 fi
 EOF
 
 chmod 755 bclover2
-
-fi
 
 AC_SUBST(CXX)
 
@@ -492,5 +413,6 @@ AC_SUBST(JIT_OBJS)
 AC_SUBST(JIT_RUNTIME_OBJS)
 AC_SUBST(COMPILER_OBJS)
 AC_SUBST(COMMON_OBJS)
+AC_SUBST(SCRIPT_OBJS)
 
 AC_OUTPUT(Makefile)

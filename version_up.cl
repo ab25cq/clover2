@@ -1,5 +1,5 @@
-VERSION1:="10.0.1"
-VERSION2:="10.0.2"
+VERSION1:="10.0.2"
+VERSION2:="10.0.3"
 
 { "src/interpreter.c",
   "src/compiler.c",

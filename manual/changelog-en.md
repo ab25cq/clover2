@@ -1,4 +1,8 @@
 
+version 10.0.3
+
+    LLVM 7.0 is now recommended.
+
 version 10.0.2.
 
     I ran JIT on Android's termux. 

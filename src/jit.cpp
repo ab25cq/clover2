@@ -3820,10 +3820,12 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     passBuilder.registerFunctionAnalyses(TheFAM);
 
+#ifndef MDEBUG
 #if LLVM_VERSION_MAJOR >= 7
     passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, llvm::PassBuilder::ThinLTOPhase::None, false);
 #else
     passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
+#endif
 #endif
 
     create_internal_functions();
