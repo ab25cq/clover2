@@ -160,7 +160,7 @@ class ViClone version 18
 
     def rangeMode(key:int) {
         when(key) {
-            case (('['-'A').to_int+1) {
+            case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishRangeMode(); 
             }
             case ('d'.to_int) {

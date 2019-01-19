@@ -1,0 +1,51 @@
+class MFiler5 version 4 {
+    def initialize():dynamic {
+        inherit();
+        
+        keyEvents['g'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            grepMode();
+        }
+        keyEvents['f'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            findMode();
+        }
+    }
+    
+    def grepMode() {
+        endwin();
+        
+        path := "\{getenv("HOME")}/.clover2/mfiler5/vd";
+        cmdline := "grep -rl '' * > '\{path}'"
+        
+        iclover2("--controlling-terminal", "-s", cmdline, "-p", "10", "-o");
+        
+        initscr();
+        setEscapeDelay(0);
+        keypad(stdscr, true);
+        raw();
+        noecho();
+        
+        if(access(path, R_OK) == 0)
+        {
+            files = path.toPath().read().toString().split('\n');
+        }
+    }
+    def findMode() {
+        endwin();
+        
+        path := "\{getenv("HOME")}/.clover2/mfiler5/vd";
+        cmdline := "find .  > '\{path}'"
+        
+        iclover2("--controlling-terminal", "-s", cmdline, "-p", "7", "-o");
+        
+        initscr();
+        setEscapeDelay(0);
+        keypad(stdscr, true);
+        raw();
+        noecho();
+        
+        if(access(path, R_OK) == 0)
+        {
+            files = path.toPath().read().toString().split('\n');
+        }
+    }
+}

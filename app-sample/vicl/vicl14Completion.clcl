@@ -785,7 +785,7 @@ class ViClone version 14
     }
     
     def getWords():SortableList<String> {
-        return win.texts.join("\n").toCommand().bash("-c", "sed -r 's/(\\s|\\W)+/\\n/g' | egrep -v '\\W+' | egrep -v '^$' | sort | uniq").toString().split('\n');
+        return win.texts.join("\n").toCommand().bash("-c", "sed -re 's/(\\s|\\W)+/\\n/g' | egrep -v '\\W+' | egrep -v '^$' | sort | uniq").toString().split('\n');
     }
     
     def completion():dynamic {

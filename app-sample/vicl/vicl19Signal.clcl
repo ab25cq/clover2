@@ -75,6 +75,10 @@ class ViClone version 19
             if(FD_ISSET(0, read_ok)) {
                 key := getch();
 
+                if(key == 127) {
+                    key = 'H'-'A'+1
+                }
+
                 key2 := 0;
 
                 if(vicl.mode == ViClone.EDITMODE) {

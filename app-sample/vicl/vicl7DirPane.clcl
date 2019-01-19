@@ -548,7 +548,7 @@ class ViClone version 7
                     dirScrollTop = fileNames.length() - dirCursor - 1; 
                 } 
             }
-            case (('['-'A').to_int+1) {
+            case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 dirPaneOff(); 
             }
             case (('H'-'A').to_int+1, KEY_BACKSPACE) {

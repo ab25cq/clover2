@@ -1,0 +1,102 @@
+#######################################################
+# installed directories
+#######################################################
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+datadir=@datadir@
+mandir=@mandir@
+sharedstatedir=@sharedstatedir@
+sysconfdir=@sysconfdir@/clover2
+includedir=@includedir@/clover2
+datarootdir=@datarootdir@/clover2
+docdir=@datadir@/doc
+libdir=@libdir@
+
+
+##########################################################
+# environmnet variables
+##########################################################
+CC=@CC@
+CXX=@CXX@
+INSTALL=@INSTALL@
+CFLAGS=@CFLAGS@
+LIBS=@LIBS@
+OS=@OS@
+DESTDIR=@DESTDIR@
+OBJS=@OBJS@
+CXXFLAGS=@CXXFLAGS@
+
+##########################################################
+# main
+##########################################################
+all: mfiler5
+
+mfiler5: MFiler5.oclcl mfiler5.ocl Clover.oclcl preinstall
+
+Clover.oclcl: Fundamental.clcl
+	cclover2 Fundamental.clcl
+	if which bclover2; then bclover2 Clover.oclcl; fi
+
+MFiler5.oclcl: MFiler5@4.oclcl
+	if which bclover2; then bclover2 MFiler5.oclcl; fi
+
+MFiler5@4.oclcl: mf4vd.clcl MFiler5@3.oclcl
+	cclover2 mf4vd.clcl
+
+MFiler5@3.oclcl: mf3isearch.clcl MFiler5@2.oclcl
+	cclover2 mf3isearch.clcl
+
+MFiler5@2.oclcl: mf2win.clcl MFiler5@1.oclcl
+	cclover2 mf2win.clcl
+
+MFiler5@1.oclcl: mf1app.clcl 
+	cclover2 mf1app.clcl
+
+mfiler5.ocl: mfiler5.cl
+	cclover2 mfiler5.cl
+	mkdir -p $(HOME)/.clover2/mfiler5
+	install -m 644 mfiler5.ocl $(HOME)/.clover2/mfiler5/mfiler5.ocl
+
+preinstall:
+	mkdir -p $(HOME)/.clover2/mfiler5
+	install -m 644 MFiler5.oclcl $(HOME)/.clover2/mfiler5
+	if test -e MFiler5.so.1.0.0; then install -m 755 MFiler5.so.1.0.0 $(HOME)/.clover2/mfiler5; cp -a MFiler5.so $(HOME)/.clover2/mfiler5; fi
+	install -m 644 mfiler5.ocl $(HOME)/.clover2/mfiler5
+
+#########################################################
+# install
+#########################################################
+install:
+	mkdir -p "$(DESTDIR)"/bin
+	install -m 755 mf5 "$(DESTDIR)"/bin
+
+#########################################################
+# uninstall
+#########################################################
+uninstall:
+	rm -rf ~/.clover2/mfiler5
+	rm -f "$(DESTDIR)"/bin/mfiler5
+
+#########################################################
+# permission
+#########################################################
+permission:
+	chmod 644 *
+	chmod 755 .git man src configure
+	chmod 644 MFiler5.clcl mfiler5.cl
+
+########################################################
+# clean
+########################################################
+clean:
+	rm -fR core.* core a.out *.oclcl *.bc *.s *.o *.ocl *.clm src/*.dwo *.ll *.so.1.0.0 *.so vgcore* tags cstdlib-tags
+
+distclean: clean
+	rm -fR Makefile autom4te.cache
+
+########################################################
+# test
+########################################################
+test: 
+	@echo "Compile to test code..."

@@ -1,0 +1,40 @@
+
+class MFiler5 version 1 {
+    var endOfAplication:bool;
+    var keyEvents: lambda[](MFiler5, int, int);
+    var runningCurses:static bool;
+
+    var argFileName:String?;
+
+    def initialize():dynamic {
+        endOfAplication = false;
+
+        keyEvents = new lambda[KEY_MAX](MFiler5, int, int)();
+
+        runningCurses = true;
+        initscr();
+        setEscapeDelay(0);
+        keypad(stdscr, true);
+        raw();
+        #nodelay(stdscr, true);
+        noecho();
+
+        argv := String[Clover.ARGV.length]();
+        argc := 0;
+        Clover.ARGV.each {
+            argv[argc++] = it;
+        }
+        
+        ### read file ###
+        if(argc >= 3) {
+            argFileName = argv.items(2);
+        }
+        else {
+            argFileName = null;
+        }
+    }
+    def finalize() {
+        endwin();
+        runningCurses = false;
+    }
+}

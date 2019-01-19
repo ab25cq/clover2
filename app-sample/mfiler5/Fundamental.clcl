@@ -1,0 +1,12 @@
+
+inherit Clover 
+{
+    def onException(message:String, in_try:bool):static {
+        if(!in_try) {
+            if(MFiler5.runningCurses) {
+                endwin();
+            }
+            inherit(message, in_try);
+        }
+    }
+}

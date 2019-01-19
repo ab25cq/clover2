@@ -1,0 +1,284 @@
+
+class MFiler5 version 2 {
+    var spaceString: String;
+    var dirPath: String;
+    var files:SortableList<String>;
+    var scrollTop:int;
+    var cursor:int;
+    var MaxY:int;
+
+    def initialize():dynamic {
+        inherit();
+
+        keyEvents['q'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            endOfAplication = true;
+        }
+        keyEvents['j'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            cursor++;
+
+            if(cursor >= MaxY) {
+                scrollTop++;
+                cursor--;
+            }
+            
+            if(cursor+scrollTop >= files.length())
+            {
+                cursor--;
+            }
+        }
+        keyEvents[KEY_DOWN] = keyEvents['j'];
+        keyEvents['k'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            cursor--;
+            
+            if(cursor < 0) {
+                scrollTop--;
+                cursor++;
+                
+                if(scrollTop < 0) {
+                    scrollTop = 0;
+                    cursor = 0;
+                }
+            }
+        }
+        keyEvents[KEY_UP] = keyEvents['k'];
+        keyEvents[('D'-'A').to_int+1] = lambda(self:MFiler5, key:int, key2:int) {
+            cursor+=10;
+
+            if(cursor >= MaxY) {
+                scroll_size := cursor - MaxY;
+                scrollTop+=scroll_size;
+                cursor-=scroll_size;
+            }
+            
+            if(cursor+scrollTop >= files.length())
+            {
+                scrollTop = files.length() -1;
+                cursor = 0;
+            }
+        }
+        keyEvents[('U'-'A').to_int+1] = lambda(self:MFiler5, key:int, key2:int) {
+            cursor-=10;
+            
+            if(cursor < 0) {
+                scroll_size := -cursor;
+                scrollTop-=scroll_size;
+                cursor+=scroll_size;
+                
+                if(scrollTop < 0) {
+                    scrollTop = 0;
+                    cursor = 0;
+                }
+            }
+        }
+        keyEvents[('H'-'A').to_int+1] = lambda(self:MFiler5, key:int, key2:int) {
+            try {
+                path := realpath(dirPath.add("/.."));
+                dirPath = path.clone();
+                readDir(dirPath);
+            }
+        }
+        keyEvents['\n'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            fname := files.items(scrollTop+cursor); 
+            
+            try {
+                path := realpath(dirPath.add("/").add(fname));
+                
+                if(path.toPath().to_stat().S_ISDIR())
+                {
+                    dirPath = path.clone();
+                    readDir(dirPath);
+                }
+                else {
+                    endwin();
+                    cmdline := " ".add(path);
+                    iclover2("-o", "--controlling-terminal", "-s", cmdline, "-p", "0");
+                    println("HIT ANY KEY");
+                    
+                    initscr();
+                    setEscapeDelay(0);
+                    keypad(stdscr, true);
+                    raw();
+                    noecho();
+                    
+                    getch();
+                }
+            }
+        }
+        keyEvents['c'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            fname := files.items(scrollTop+cursor); 
+            
+            try {
+                path := realpath(dirPath.add("/").add(fname));
+                
+                endwin();
+                cmdline := "cp -a '\{path}' ";
+                iclover2("-o", "--controlling-terminal", "-s", cmdline, "-p", "-1");
+                
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+                
+                readDir(dirPath);
+            }
+        }
+        keyEvents['d'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            fname := files.items(scrollTop+cursor); 
+            
+            try {
+                path := realpath(dirPath.add("/").add(fname));
+                
+                endwin();
+                cmdline := "rm -rf '\{path}' ";
+                iclover2("-o", "--controlling-terminal", "-s", cmdline, "-p", "-2");
+                
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+                
+                readDir(dirPath);
+            }
+        }
+        keyEvents['e'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            fname := files.items(scrollTop+cursor); 
+            
+            try {
+                path := realpath(dirPath.add("/").add(fname));
+                
+                endwin();
+                
+                bash("-c", "vicl \{path}");
+                
+                initscr();
+                setEscapeDelay(0);
+                keypad(stdscr, true);
+                raw();
+                noecho();
+            }
+        }
+        keyEvents['n'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            endwin();
+            cmdline := "touch ''";
+            iclover2("-o", "--controlling-terminal", "-s", cmdline, "-p", "-2");
+            
+            initscr();
+            setEscapeDelay(0);
+            keypad(stdscr, true);
+            raw();
+            noecho();
+            
+            readDir(dirPath);
+        }
+        keyEvents['!'.to_int] = lambda(self:MFiler5, key:int, key2:int) {
+            endwin();
+            iclover2("-o", "--controlling-terminal");
+            println("HIT ANY KEY");
+            
+            initscr();
+            setEscapeDelay(0);
+            keypad(stdscr, true);
+            raw();
+            noecho();
+            
+            getch();
+        }
+        
+        keyEvents['h'] = keyEvents['!'];
+    
+        maxx := getmaxx();
+        spaceString = " ".multiply(maxx);
+        
+        if(argFileName == null) {
+            dirPath = getcwd();
+        }
+        else {
+            dirPath = argFileName.clone();
+        }
+        
+        scrollTop = 0;
+        cursor = 0;
+        
+        readDir(dirPath);
+        
+        MaxY = getmaxy() - 2;
+    }
+    
+    def readDir(path:String):dynamic {
+        files = dirPath.toPath().entries().map { basename(it) };
+        files.push("..");
+        files.sort();
+        
+        cursor = 0;
+        scrollTop = 0;
+        
+        chdir(path);
+    }
+    
+    def clearWithoutBlink() {
+        maxy := getmaxy();
+
+        for(i:=0; i<maxy-1; i++) {
+            mvprintw(i, 0, spaceString);
+        }
+    }
+    
+    def view(): dynamic {
+        clearWithoutBlink();
+        maxx := getmaxx();
+
+        title_start := 0;
+
+        if(dirPath.length() >= maxx-1)
+        {
+            title_start = dirPath.length()-maxx+1;
+        }
+
+        mvprintw(0,0, dirPath.subString(title_start, -1));
+        
+        for(y:=0; y<MaxY && scrollTop+y < files.length(); y++) 
+        {
+            file := files.items(scrollTop+y);
+            
+            if(cursor == y) {
+                attron(A_REVERSE);
+                mvprintw(y+1, 0, file.add(" ".multiply(maxx -1 - file.length())));
+                attroff(A_REVERSE);
+            }
+            else {
+                mvprintw(y+1, 0, files.items(scrollTop+y));
+            }
+        }
+        
+        maxy := getmaxy();
+        
+        attron(A_REVERSE);
+        mvprintw(maxy-1, 0, "MFiler5 version 0.0.1");
+        attroff(A_REVERSE);
+    }
+    
+    def runKeyEvents(key:int, key2:int):dynamic {
+        if(keyEvents[key] != null) {
+            keyEvents[key](self, key, key2);
+        }
+    }
+    
+    def main(): static dynamic {
+        mf := MFiler5();
+        
+        while(!mf.endOfAplication) {
+            mf.view();
+            refresh();
+            
+            key := getch();
+            
+            if(key == 127) {
+                key = 8;
+            }
+            
+            mf.runKeyEvents(key, 0);
+        }
+    }
+}

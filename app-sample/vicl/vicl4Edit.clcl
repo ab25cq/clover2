@@ -35,7 +35,7 @@ class ViClone version 4
 
     def clearClipBoard(): dynamic {
     }
-    def addClipBoard(line:String):dynamic {
+    def addClipBoard(line:String, line_mode:bool):dynamic {
     }
 
     def initialize() {
@@ -171,7 +171,7 @@ class ViClone version 4
 
                     if(line != null) {
                         clearClipBoard();
-                        addClipBoard(line);
+                        addClipBoard(line, true);
                         win.texts.deleteAt(y);
                     }
 

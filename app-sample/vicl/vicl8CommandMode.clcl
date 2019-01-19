@@ -282,7 +282,7 @@ class ViClone version 8
                 }
                 elif(statusLineInCommandMode.match(/^make$/)) {
                     endwin();
-                    iclover2 -s 'a := make().getErrorOutput().selector().scan(/^(.+?):(\\d+)/); vicl_open_file(a.items(1), a.items(2))' -p 10 -o
+                    iclover2("--controlling-terminal", "-c", "a := make().getErrorOutput().selector().scan(/^(.+?):(\\d+)/); vicl_open_file(a.items(1), a.items(2))")
                     initscr();
                     setEscapeDelay(0);
                     keypad(stdscr, true);
