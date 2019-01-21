@@ -300,6 +300,10 @@ class Buffer
         }
     }
 
+    def alignment() {
+        self.len = (self.len +3) & ~3;
+    }
+
     def append(buf:Buffer) throws Exception {
         if(!self.appendable) {
             throw Exception("This memory is not appendable");

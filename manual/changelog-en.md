@@ -1,4 +1,8 @@
 
+version 10.0.6
+
+    Fixed AND operator on ULong type.
+
 version 10.0.5
 
     Fixed finalizer bug.

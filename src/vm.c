@@ -3701,7 +3701,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     unsigned clint64 left = (stack_ptr-2)->mULongValue;
                     unsigned clint64 right = (stack_ptr-1)->mULongValue;
 
-                    unsigned clint64 result = left | right;
+                    unsigned clint64 result = left & right;
 
                     stack_ptr-=2;
                     stack_ptr->mULongValue = result;

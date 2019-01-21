@@ -1,5 +1,18 @@
 class ClassA
 {
-    a:List<String>;
-    b:String;
+    a:long;
+
+    def initialize() {
+        a = 5;
+    }
+
+    def alignment() {
+println("\{self.a}");
+        self.a = (self.a + 3) & ~3;
+println("\{self.a}");
+    }
+
+    def toString():String {
+        return "ClassA";
+    }
 }

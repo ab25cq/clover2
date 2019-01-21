@@ -1,4 +1,8 @@
 
+clover2 (10.0.6-1) unstable; urgency=medium
+
+    * Fixed AND operator on ULong type.
+
 clover2 (10.0.5-1) unstable; urgency=medium
 
     * Fixed finalizer bug.
