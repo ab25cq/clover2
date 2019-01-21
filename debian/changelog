@@ -1,4 +1,8 @@
 
+clover2 (10.0.5-1) unstable; urgency=medium
+
+    * Fixed finalizer bug.
+
 clover2 (10.0.4-1) unstable; urgency=medium
 
     * LLVM command related.

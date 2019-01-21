@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.5
+
+    Fixed finalizer bug.
+
 version 10.0.4
 
     LLVMコマンド関連。

@@ -1,4 +1,8 @@
 
+version 10.0.5
+
+    Fixed finalizer bug.
+
 version 10.0.4
 
     LLVM command related.

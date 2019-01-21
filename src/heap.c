@@ -243,22 +243,6 @@ static void free_handle(unsigned int handle_num)
         sCLObject* data = CLOBJECT(obj);
         sCLClass* klass = data->mClass;
 
-        /// call the destructor ///
-        int array_num = ((sCLHeapMem*)data)->mArrayNum;
-
-        if(klass && klass->mFreeFun && array_num == -1) {
-            klass->mFreeFun(obj);
-        }
-
-        if(array_num == -2) {   // block, regex
-        }
-        else if(array_num == -1) {
-            (void)free_object(obj);
-        }
-        else {
-            free_array(obj);
-        }
-
         gCLHeap.mHandles[handle_num].mNoneFreeHandle = FALSE;
 
         if(gCLHeap.mHandles[handle_num].mMalloced) {
@@ -284,6 +268,32 @@ static void free_handle(unsigned int handle_num)
             int top_of_free_handle = gCLHeap.mFreeMemHandles;
             gCLHeap.mFreeMemHandles = handle_num;
             gCLHeap.mHandles[handle_num].mNextFreeMemHandle = top_of_free_handle;
+        }
+    }
+}
+
+static void call_finalizer(unsigned int handle_num)
+{
+    if(gCLHeap.mHandles[handle_num].mNoneFreeHandle) {
+        CLObject obj = handle_num + FIRST_OBJ;
+
+        sCLObject* data = CLOBJECT(obj);
+        sCLClass* klass = data->mClass;
+
+        /// call the destructor ///
+        int array_num = ((sCLHeapMem*)data)->mArrayNum;
+
+        if(klass && klass->mFreeFun && array_num == -1) {
+            klass->mFreeFun(obj);
+        }
+
+        if(array_num == -2) {   // block, regex
+        }
+        else if(array_num == -1) {
+            (void)free_object(obj);
+        }
+        else {
+            free_array(obj);
         }
     }
 }
@@ -384,7 +394,14 @@ static void free_objects(unsigned char* mark_flg)
     int i;
     unsigned char* mem;
 
-    /// call finalizer before free_objects ///
+    // call all destructor before free object ///
+    for(i=0; i<gCLHeap.mSizeHandles; i++) {
+        if(!mark_flg[i]) {
+            call_finalizer(i);
+        }
+    }
+
+    /// free object ///
     for(i=0; i<gCLHeap.mSizeHandles; i++) {
         if(!mark_flg[i]) {
             free_handle(i);
