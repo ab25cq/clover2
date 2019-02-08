@@ -9,6 +9,7 @@ static void compiler_init(BOOL no_load_fudamental_classes)
 
     if(!no_load_fudamental_classes) {
         class_init_on_runtime();
+        class_init_on_runtime_for_js();
     }
 
     init_vtable();
@@ -52,7 +53,7 @@ static void compiler_final()
 //    dependency_final();
 }
 
-static BOOL compiler(char* fname)
+static BOOL compiler(char* fname, BOOL js)
 {
     if(access(fname, F_OK) != 0) {
         fprintf(stderr, "%s doesn't exist\n", fname);
@@ -75,7 +76,7 @@ static BOOL compiler(char* fname)
         return FALSE;
     }
 
-    if(!compile_script(fname, source2.mBuf)) {
+    if(!compile_script(fname, source2.mBuf, js)) {
         MFREE(source.mBuf);
         MFREE(source2.mBuf);
         return FALSE;
@@ -90,7 +91,7 @@ static BOOL compiler(char* fname)
 #ifdef ENABLE_JIT
 static BOOL jit_class_compiler(char* class_name) 
 {
-    sCLClass* klass = get_class_with_load(class_name);
+    sCLClass* klass = get_class_with_load(class_name, FALSE);
 
     if(!jit_compile_class(klass)) {
         fprintf(stderr, "faield in jit compile\n");
@@ -146,7 +147,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.0.6";
+char* gVersion = "10.0.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
@@ -164,21 +165,14 @@ int main(int argc, char** argv)
     setlocale(LC_ALL, "");
 
     BOOL no_load_fudamental_classes = FALSE;
-    BOOL clcl_compile = FALSE;
     char sname[PATH_MAX];
     xstrncpy(sname, "", PATH_MAX);
     BOOL jit_compile = FALSE;
 
     for(i=1; i<argc; i++) {
-        if(strcmp(argv[i], "-no-load-fundamental-classes") == 0) {
-            no_load_fudamental_classes = TRUE;
-        }
-        else if(strcmp(argv[i], "-core") == 0) {
+        if(strcmp(argv[i], "-core") == 0) {
             no_load_fudamental_classes = TRUE;
             gCompilingCore = TRUE;
-        }
-        else if(strcmp(argv[i], "-class") == 0) {
-            clcl_compile = TRUE;
         }
         else if(strcmp(argv[i], "-jit") == 0) {
             jit_compile = TRUE;
@@ -210,15 +204,47 @@ int main(int argc, char** argv)
 
     char* ext_sname = p;
 
-    if(ext_sname && strcmp(ext_sname, ".clcl") == 0) {
-        clcl_compile = TRUE;
-    }
-
     clover2_init();
     compiler_init(no_load_fudamental_classes);
 
-    if(clcl_compile) {
+    if(ext_sname && strcmp(ext_sname, ".clcl") == 0) {
         if(!class_compiler(sname)) {
+            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+            clover2_final();
+            compiler_final();
+            return 1;
+        }
+    }
+    else if(ext_sname && strcmp(ext_sname, ".cl") == 0) 
+    {
+        if(!compiler(sname, FALSE)) {
+            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+            clover2_final();
+            compiler_final();
+            return 1;
+        }
+    }
+    else if(ext_sname && strcmp(ext_sname, ".ojsclcl") == 0) 
+    {
+        if(!js_class_compiler(sname)) {
+            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+            clover2_final();
+            compiler_final();
+            return 1;
+        }
+    }
+    else if(ext_sname && strcmp(ext_sname, ".jscl") == 0) 
+    {
+        if(!compiler(sname, TRUE)) {
+            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+            clover2_final();
+            compiler_final();
+            return 1;
+        }
+    }
+    else if(ext_sname && strcmp(ext_sname, ".ojscl") == 0) 
+    {
+        if(!js_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             clover2_final();
             compiler_final();
@@ -251,7 +277,7 @@ int main(int argc, char** argv)
     }
 #endif
     else {
-        if(!compiler(sname)) {
+        if(!compiler(sname, FALSE)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             clover2_final();
             compiler_final();

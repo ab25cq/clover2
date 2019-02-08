@@ -18,6 +18,7 @@ class TypeDataTest
         Clover.test("type test11", sortable_array { "AAA", "BBB", "CCC" }.className().equals("SortableArray<String>"));
         Clover.test("type test12", new EqualableArray<String>().className().equals("EqualableArray<String>"));
         Clover.test("type test13", equalable_array { "AAA", "BBB", "CCC" }.className().equals("EqualableArray<String>"));
+tuple { "AAA", 1 }.className().println();
         Clover.test("type test14", tuple { "AAA", 1 }.className().equals("Tuple2<String,Integer>"));
         Clover.test("type test15", new Tuple3<String,Integer,Integer>("AAA", 1, 2).className().equals("Tuple3<String,Integer,Integer>"));
 

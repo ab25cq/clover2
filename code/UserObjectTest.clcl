@@ -1,5 +1,4 @@
 
-
 class UserObjectTestClass {
     def method(): static {
         a := 1;

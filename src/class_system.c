@@ -812,7 +812,7 @@ BOOL System_pthread_cond_destroy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* in
 BOOL System_initialize_thread_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
 #ifdef HAVE_PTHREAD_H
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[0].mValue.mIntValue = EINVAL;
     system->mClassFields[1].mValue.mIntValue = EDEADLK;
@@ -1206,7 +1206,7 @@ BOOL System_mbstowcs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// make result ///
-    sCLClass* klass = get_class("char");
+    sCLClass* klass = get_class("char", FALSE);
 
     MASSERT(klass != NULL);
 
@@ -1264,7 +1264,7 @@ BOOL System_wcstombs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// make result ///
-    sCLClass* klass = get_class("byte");
+    sCLClass* klass = get_class("byte", FALSE);
 
     MASSERT(klass != NULL);
 
@@ -1602,7 +1602,7 @@ BOOL System_close(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_initialize_string_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_THREAD_SYSTEM+0].mValue.mIntValue = MB_LEN_MAX;
 
@@ -1613,7 +1613,7 @@ BOOL System_initialize_string_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
 
 BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+0].mValue.mIntValue = S_IFMT;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+1].mValue.mIntValue = S_IFDIR;
@@ -2152,7 +2152,7 @@ BOOL System_closedir(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_initialize_command_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+0].mValue.mIntValue = WNOHANG;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM+1].mValue.mIntValue = WUNTRACED;
@@ -4491,7 +4491,7 @@ BOOL System_getopt(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     opterr = opterr_value;
     int result_value = getopt(gARGC, gARGV, optstring_value);
 
-    sCLClass* tuple_class = get_class("Tuple3");
+    sCLClass* tuple_class = get_class("Tuple3", FALSE);
 
     CLVALUE cl_value;
     CLObject result = create_object(tuple_class, "Tuple3<Integer,String,Integer>", info);
@@ -4585,7 +4585,7 @@ BOOL System_getopt_long(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int longindex = 0;
     int result_value = getopt_long(gARGC, gARGV, optstring_value, longopts_value, &longindex);
 
-    sCLClass* tuple_class = get_class("Tuple4");
+    sCLClass* tuple_class = get_class("Tuple4", FALSE);
 
     CLVALUE cl_value;
     CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>", info);
@@ -4692,7 +4692,7 @@ BOOL System_getopt_long_only(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int longindex = 0;
     int result_value = getopt_long_only(gARGC, gARGV, optstring_value, longopts_value, &longindex);
 
-    sCLClass* tuple_class = get_class("Tuple4");
+    sCLClass* tuple_class = get_class("Tuple4", FALSE);
 
     CLVALUE cl_value;
     CLObject result = create_object(tuple_class, "Tuple4<Integer,String,Integer,Integer>", info);
@@ -4825,7 +4825,7 @@ BOOL System_gettid(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+0].mValue.mIntValue = O_CLOEXEC;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+1].mValue.mIntValue = no_argument;
@@ -5801,7 +5801,7 @@ BOOL System_pclose(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+0].mValue.mIntValue = LC_ALL;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+1].mValue.mIntValue = LC_ADDRESS;
@@ -6167,7 +6167,7 @@ BOOL System_strchr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+0].mValue.mIntValue = AF_UNIX;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+1].mValue.mIntValue = AF_LOCAL;
@@ -6433,7 +6433,7 @@ BOOL System_accept2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     sCLObject* object_data = CLOBJECT(addr_object);
     object_data->mFields[0].mIntValue = addr_value.sin_family;
 
-    sCLClass* klass = get_class_with_load_and_initialize("in_addr");
+    sCLClass* klass = get_class_with_load_and_initialize("in_addr", FALSE);
 
     MASSERT(klass != NULL);
 
@@ -6528,7 +6528,7 @@ static CLObject create_string_array_from_ppchar_nullterminated(char** array, sVM
         num_array++;
         p++;
     }
-    sCLClass* string_klass = get_class("String");
+    sCLClass* string_klass = get_class("String", FALSE);
 
     result = create_array_object(string_klass, num_array, info);
     inc_refference_count(result, 0, FALSE);
@@ -6566,7 +6566,7 @@ static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array
         num_array++;
         p++;
     }
-    sCLClass* string_klass = get_class("String");
+    sCLClass* string_klass = get_class("String", FALSE);
 
     result = create_array_object(string_klass, num_array, info);
     inc_refference_count(result, 0, FALSE);
@@ -6596,7 +6596,7 @@ static CLObject create_h_addr_list_array_from_ppchar_nullterminated(char** array
 
 static CLObject create_hostent_object(struct hostent* entry, sVMInfo* info)
 {
-    sCLClass* klass = get_class_with_load_and_initialize("hostent");
+    sCLClass* klass = get_class_with_load_and_initialize("hostent", FALSE);
 
     if(klass == NULL) {
         return 0;
@@ -6673,7 +6673,7 @@ BOOL System_gethostbyaddr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 static CLObject create_servent_object(struct servent* entry, sVMInfo* info)
 {
-    sCLClass* klass = get_class_with_load_and_initialize("servent");
+    sCLClass* klass = get_class_with_load_and_initialize("servent", FALSE);
 
     if(klass == NULL) {
         return 0;
@@ -7150,7 +7150,7 @@ BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    sCLClass* system = get_class("System");
+    sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
 

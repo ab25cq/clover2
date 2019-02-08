@@ -64,7 +64,7 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
 {
     sCLClass* klass = NULL;
     if(class_name) {
-        klass = get_class_with_load_and_initialize(class_name);
+        klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
             *type_ = NULL;
@@ -84,6 +84,7 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
     info.parse_phase = 0;
     info.get_type_for_interpreter = TRUE;
     info.klass = klass;
+    info.mJS = FALSE;
 
     sCompileInfo cinfo;
     
@@ -194,6 +195,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
     info.parse_phase = 0;
     info.get_in_the_shell_mode = 1;
     info.get_type_for_interpreter = TRUE;
+    info.mJS = FALSE;
 
     while(*info.p) {
         info.exist_block_object_err = FALSE;
@@ -214,7 +216,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.0.6";
+char* gVersion = "10.0.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

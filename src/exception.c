@@ -37,7 +37,7 @@ void entry_exception_object_with_class_name(CLVALUE** stack_ptr, CLVALUE* stack,
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
-    sCLClass* klass = get_class(class_name);
+    sCLClass* klass = get_class(class_name, FALSE);
 
     CLObject object = 0;
     if(klass == NULL) {
@@ -92,7 +92,7 @@ void entry_exception_object_with_class_name2(CLVALUE** stack_ptr, CLVALUE* stack
 
     xstrncpy(info->exception_message, msg3, EXCEPTION_MESSAGE_MAX); // for show_exception_message 
 
-    sCLClass* klass = get_class(class_name);
+    sCLClass* klass = get_class(class_name, FALSE);
 
     if(klass == NULL) {
         (*stack_ptr) = stack + var_num;

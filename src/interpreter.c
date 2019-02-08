@@ -999,7 +999,7 @@ void get_class_names(char** candidates, int *num_candidates, int max_candidates)
 
 void get_global_method_names(char** candidates, int *num_candidates, int max_candidates)
 {
-    sCLClass* global_class = get_class("Global");
+    sCLClass* global_class = get_class("Global", FALSE);
 
     MASSERT(global_class != NULL);
 
@@ -1044,7 +1044,7 @@ void get_global_method_names(char** candidates, int *num_candidates, int max_can
 
 void get_system_method_names(char** candidates, int *num_candidates, int max_candidates)
 {
-    sCLClass* system_class = get_class("System");
+    sCLClass* system_class = get_class("System", FALSE);
 
     MASSERT(system_class != NULL);
 
@@ -1088,7 +1088,7 @@ void get_system_method_names(char** candidates, int *num_candidates, int max_can
 
 void get_system_class_field_names(char** candidates, int *num_candidates, int max_candidates)
 {
-    sCLClass* system_class = get_class("System");
+    sCLClass* system_class = get_class("System", FALSE);
 
     MASSERT(system_class != NULL);
 
@@ -1124,6 +1124,7 @@ static BOOL get_type(char* source, char* fname, sVarTable* lv_table, sNodeType**
     info.lv_table = lv_table;
     info.parse_phase = 0;
     info.get_type_for_interpreter = TRUE;
+    info.mJS = FALSE;
 
     sCompileInfo cinfo;
     
@@ -1187,6 +1188,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
     info.parse_phase = 0;
     info.get_in_the_shell_mode = 1;
     info.get_type_for_interpreter = TRUE;
+    info.mJS = FALSE;
 
     while(*info.p) {
         info.exist_block_object_err = FALSE;
@@ -1219,6 +1221,7 @@ static BOOL is_path_object(char* source, char* fname, sVarTable* lv_table)
     info.parse_phase = 0;
     info.get_path_object = TRUE;
     info.get_type_for_interpreter = TRUE;
+    info.mJS = FALSE;
 
     while(*info.p) {
         info.inputing_path_object = FALSE;
@@ -1399,7 +1402,7 @@ void methodNameCompletion(char* line)
         sCLClass* klass = type_->mClass;
 
         if(type_->mArray) {
-            klass = get_class("Array");
+            klass = get_class("Array", FALSE);
         }
         else if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
             klass = klass->mBoxingClass;
@@ -2145,6 +2148,7 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
     info.lv_table = lv_table;
     info.parse_phase = 0;
     info.get_type_for_interpreter = FALSE;
+    info.mJS = FALSE;
 
     sCompileInfo cinfo;
     
@@ -2202,11 +2206,9 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
                 return FALSE;
             }
 
-            arrange_stack(&cinfo);
-
-#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
-#endif
+
+            arrange_stack(&cinfo);
         }
 
         if(*info.p == ';') {
@@ -2289,7 +2291,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.0.6";
+char* gVersion = "10.0.7";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

@@ -340,7 +340,7 @@ class CLParser
     sourceName:String;
     sourceLine:int;
 
-    def initialize(): native static;
+    def initialize() {}
 
     def initialize(sname:String) {
         sourceName = sname;

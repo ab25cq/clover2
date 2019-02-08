@@ -356,11 +356,11 @@ BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lamb
         }
         else {
             omit_result_type = TRUE;
-            result_type = create_node_type_with_class_name("Null");
+            result_type = create_node_type_with_class_name("Null", info->mJS);
         }
     }
     else {
-        result_type = create_node_type_with_class_name("Null");
+        result_type = create_node_type_with_class_name("Null", info->mJS);
         if(lambda) {
             new_table = init_block_vtable(NULL);
         }
@@ -589,7 +589,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
                     node2 = sNodeTree_false_expression(info);
                 }
 
-                sNodeType* command_class = create_node_type_with_class_name("Command");
+                sNodeType* command_class = create_node_type_with_class_name("Command", info->mJS);
 
                 MASSERT(command_class != NULL);
 
@@ -621,7 +621,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
     }
 
     if(class_method) {
-        sCLClass* command_class = get_class("Command");
+        sCLClass* command_class = get_class("Command", info->mJS);
 
         if(command_class == NULL) {
             fprintf(stderr, "There is no Command class\n");
@@ -639,7 +639,7 @@ static BOOL parse_command_method_params(int* num_params, unsigned int* params, s
         }
     }
     else {
-        sCLClass* command_class = get_class("Command");
+        sCLClass* command_class = get_class("Command", info->mJS);
 
         if(!none_class_method_name_existance(command_class, method_name)) {
             params[*num_params] = sNodeTree_create_string_value(MANAGED MSTRDUP("--controlling-terminal"), NULL, NULL, 0, info);
@@ -1648,6 +1648,16 @@ static BOOL new_expression(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
+static BOOL new_expression_for_js_value(unsigned int* node, unsigned int* params, int num_params, char* class_name, sParserInfo* info)
+{
+    unsigned int array_num = 0;
+    sNodeType* node_type = create_node_type_with_class_name(class_name, TRUE);
+
+    *node = sNodeTree_create_new_operator(node_type, params, num_params, array_num, info);
+
+    return TRUE;
+}
+
 static BOOL throw_expression(unsigned int* node, sParserInfo* info)
 {
     /// expression ///
@@ -1838,7 +1848,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
             num_params = 1;
 
             xstrncpy(params[0].mName, "e", VAR_NAME_MAX);
-            params[0].mType = create_node_type_with_class_name("Exception");
+            params[0].mType = create_node_type_with_class_name("Exception", info->mJS);
 
             new_table = init_block_vtable(info->lv_table);
 
@@ -1869,7 +1879,7 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
         *klass = info->klass;
     }
     else {
-        *klass = get_class_with_load_and_initialize(class_name);
+        *klass = get_class_with_load(class_name, info->mJS);
     }
 
     if(*klass == NULL) {
@@ -1882,6 +1892,8 @@ BOOL parse_class_type(sCLClass** klass, sParserInfo* info)
 
 BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 {
+    BOOL js = info->mJS;
+
     char type_name[CLASS_NAME_MAX];
 
     *result_type = NULL;
@@ -1895,14 +1907,14 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
     int i;
     for(i=0; i<info->method_generics_info.mNumParams; i++) {
         if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_method_generics_number(i);
+            *result_type = create_node_type_with_method_generics_number(i, info->mJS);
             break;
         }
     }
 
     for(i=0; i<info->generics_info.mNumParams; i++) {
         if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_generics_number(i);
+            *result_type = create_node_type_with_generics_number(i, info->mJS);
             break;
         }
     }
@@ -1922,7 +1934,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             }
         }
         else {
-            *result_type = create_node_type_with_class_name(type_name);
+            *result_type = create_node_type_with_class_name(type_name, info->mJS);
         }
     }
 
@@ -2010,7 +2022,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
             node_block_type->mResultType = node_type;
         }
         else {
-            node_block_type->mResultType = create_node_type_with_class_name("Null");
+            node_block_type->mResultType = create_node_type_with_class_name("Null", info->mJS);
         }
 
         (*result_type)->mBlockType = node_block_type;
@@ -2090,7 +2102,7 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
         int i;
         for(i=0; i<generics_num; i++) {
-            sCLClass* left_type = get_class_with_load_and_initialize(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]));
+            sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, klass->mGenericsParamTypeOffsets[i]), js);
 
             sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -2112,6 +2124,8 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
 
 BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParserInfo* info)
 {
+    BOOL js = info->mJS;
+
     char type_name[CLASS_NAME_MAX];
 
     *result_type = NULL;
@@ -2123,14 +2137,14 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
     int i;
     for(i=0; i<info->generics_info.mNumParams; i++) {
         if(strcmp(type_name, info->generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_generics_number(i);
+            *result_type = create_node_type_with_generics_number(i, info->mJS);
             break;
         }
     }
 
     for(i=0; i<info->method_generics_info.mNumParams; i++) {
         if(strcmp(type_name, info->method_generics_info.mParamNames[i]) == 0) {
-            *result_type = create_node_type_with_method_generics_number(i);
+            *result_type = create_node_type_with_method_generics_number(i, info->mJS);
             break;
         }
     }
@@ -2153,7 +2167,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 */
         }
         else {
-            *result_type = create_node_type_with_class_name(type_name);
+            *result_type = create_node_type_with_class_name(type_name, info->mJS);
         }
     }
 
@@ -2233,7 +2247,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
             node_block_type->mResultType = node_type;
         }
         else {
-            node_block_type->mResultType = create_node_type_with_class_name("Null");
+            node_block_type->mResultType = create_node_type_with_class_name("Null", info->mJS);
         }
 
         (*result_type)->mBlockType = node_block_type;
@@ -2291,7 +2305,7 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
 
     for(i=0; i<generics_num; i++) {
         int generics_paramType_offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* left_type = get_class_with_load_and_initialize(CONS_str(&klass->mConst, generics_paramType_offset));
+        sCLClass* left_type = get_class_with_load(CONS_str(&klass->mConst, generics_paramType_offset), js);
 
         sCLClass* right_type = (*result_type)->mGenericsTypes[i]->mClass;
 
@@ -2792,7 +2806,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 }
 
                 BOOL lambda = FALSE;
-                sNodeType* result_type = create_node_type_with_class_name("Anonymous?");
+                sNodeType* result_type = create_node_type_with_class_name("Anonymous?", info->mJS);
 
                 params[1] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
 
@@ -2809,7 +2823,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                 num_params = 1;
 
                 BOOL lambda = FALSE;
-                sNodeType* result_type = create_node_type_with_class_name("Anonymous?");
+                sNodeType* result_type = create_node_type_with_class_name("Anonymous?", info->mJS);
 
                 params[0] = sNodeTree_create_block_object(NULL, 0, result_type, MANAGED node_block, lambda, info, FALSE, FALSE, NULL, TRUE);
 
@@ -2855,7 +2869,7 @@ BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
         }
     }
     else {
-        result_type = create_node_type_with_class_name("Null");
+        result_type = create_node_type_with_class_name("Null", info->mJS);
         omit_result_type = TRUE;
     }
 
@@ -2971,7 +2985,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
         }
     }
     else {
-        result_type = create_node_type_with_class_name("Null");
+        result_type = create_node_type_with_class_name("Null", info->mJS);
     }
 
     expect_next_character_with_one_forward("{", info);
@@ -2994,6 +3008,99 @@ static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
     }
 
     *node = sNodeTree_create_normal_block(MANAGED node_block, info);
+
+    return TRUE;
+}
+
+static BOOL parse_js_array_value_or_hash_value(unsigned int* node, sParserInfo* info) 
+{
+    int num_elements = 0;
+
+    unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
+    memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
+
+    unsigned int hash_keys[HASH_VALUE_ELEMENT_MAX+1];
+    unsigned int hash_items[HASH_VALUE_ELEMENT_MAX+1];
+
+    memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+    memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
+
+    while(1) {
+        unsigned int node = 0;
+        if(!expression(&node, info)) {
+            return FALSE;
+        }
+
+        if(*info->p == '=' && *(info->p+1) == '>') {
+            info->p+=2;
+            skip_spaces_and_lf(info);
+
+            hash_keys[num_elements] = node;
+
+            unsigned int node2 = 0;
+            if(!expression(&node2, info)) {
+                return FALSE;
+            }
+
+            hash_items[num_elements] = node2;
+
+            num_elements++;
+
+            if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow hash value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == ']') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid hash value");
+                info->err_num++;
+            }
+        }
+        else {
+            array_elements[num_elements] = node;
+
+            num_elements++;
+
+            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == ']') {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+            else {
+                parser_err_msg(info, "invalid array value");
+                info->err_num++;
+            }
+        }
+    }
+
+    if(array_elements[0] != 0 && hash_keys[0] != 0) {
+        parser_err_msg(info, "invalid hash or array value");
+        info->err_num++;
+    }
+    else if(array_elements[0] != 0) {
+        *node = sNodeTree_create_js_array(num_elements, array_elements, info);
+    }
+    else if(hash_keys[0] != 0) {
+        *node = sNodeTree_create_hash_value(num_elements, hash_keys, hash_items, info);
+    }
 
     return TRUE;
 }
@@ -3387,6 +3494,48 @@ static BOOL parse_sortable_list_value(unsigned int* node, sParserInfo* info, cha
     return TRUE;
 }
 
+static BOOL parse_js_array(unsigned int* node, sParserInfo* info, char tail_char) 
+{
+    int num_elements = 0;
+
+    unsigned int list_elements[LIST_VALUE_ELEMENT_MAX];
+    memset(list_elements, 0, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+
+    if(*info->p == tail_char) {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            if(!expression(list_elements + num_elements, info)) {
+                return FALSE;
+            }
+
+            num_elements++;
+
+            if(num_elements >= LIST_VALUE_ELEMENT_MAX) {
+                parser_err_msg(info, "overflow array value elements");
+                return FALSE;
+            }
+
+            if(*info->p == ',') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == tail_char) {
+                info->p++;
+                skip_spaces_and_lf(info);
+                break;
+            }
+        }
+    }
+
+    *node = sNodeTree_create_js_array(num_elements, list_elements, info);
+
+    return TRUE;
+}
+
+
 static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) 
 {
     int num_elements = 0;
@@ -3620,6 +3769,8 @@ static BOOL parse_regex(unsigned int* node, sParserInfo* info)
 
 static BOOL expression_node(unsigned int* node, sParserInfo* info)
 {
+    BOOL js = info->mJS;
+
     int num_method_chains = 0;
     unsigned int max_method_chains_node[METHOD_CHAIN_MAX];
 
@@ -3916,6 +4067,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         skip_spaces_and_lf(info);
 
+
         *node = sNodeTree_create_string_value(MANAGED value.mBuf, string_expressions, string_expression_offsets, num_string_expression, info);
     }
     /// buffer object ///
@@ -4194,6 +4346,15 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             skip_spaces_and_lf(info);
 
             *node = sNodeTree_create_character_value(c, info);
+        }
+    }
+    else if(info->mJS && *info->p == '[') 
+    {
+        info->p++;
+        skip_spaces_and_lf(info);
+
+        if(!parse_js_array_value_or_hash_value(node, info)) {
+            return FALSE;
         }
     }
     /// list or array or hash ///
@@ -4705,25 +4866,25 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 klass = info->klass;
             }
             else {
-                klass = get_class(buf);
+                klass = get_class(buf, js);
 
                 if(klass == NULL) {
 #ifdef __DARWIN__
                     if(buf[0] >= 'A' && buf[0] <= 'Z') {  // for OSX. OSX ignores the case of file name
-                        klass = get_class_with_load_and_initialize(buf);
+                        klass = get_class_with_load(buf, js);
                     }
                     else {
                         klass = NULL;
                     }
 #else
-                    klass = get_class_with_load_and_initialize(buf);
+                    klass = get_class_with_load(buf, js);
 #endif
                 }
             }
 
-            sCLClass* global_klass = get_class("Global");
-            sCLClass* system_klass = get_class("System");
-            sCLClass* command_class = get_class("Command");
+            sCLClass* global_klass = get_class("Global", info->mJS);
+            sCLClass* system_klass = get_class("System", info->mJS);
+            sCLClass* command_class = get_class("Command", info->mJS);
 
             /// It is class name ///
             if(klass) {
@@ -5062,7 +5223,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                sCLClass* command_klass = get_class("Command");
+                sCLClass* command_klass = get_class("Command", info->mJS);
 
                 MASSERT(command_klass != NULL);
 
@@ -5100,7 +5261,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
-                sCLClass* command_klass = get_class("Command");
+                sCLClass* command_klass = get_class("Command", info->mJS);
 
                 MASSERT(command_klass != NULL);
 

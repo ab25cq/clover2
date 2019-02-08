@@ -85,7 +85,8 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
     *result = 0;
 
     xstrncpy(result, method_name, size_result);
-    xstrncat(result, "(", size_result);
+
+    xstrncat(result, "__", size_result);
 
     int i;
     for(i=0; i<num_params; i++) {
@@ -102,19 +103,22 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
         }
 
         if(array) {
-            xstrncat(result, "[]", size_result);
+            xstrncat(result, "A", size_result);
         }
 
         if(nullable) {
-            xstrncat(result, "?", size_result);
+            xstrncat(result, "N", size_result);
         }
 
         if(i != num_params-1) {
-            xstrncat(result, ",", size_result);
+            xstrncat(result, "_", size_result);
         }
     }
+}
 
-    xstrncat(result, ")", size_result);
+void create_method_name_for_js(char* result, int size_result, sCLClass* klass, sCLMethod* method)
+{
+    snprintf(result, size_result, "%s__%d__%s", METHOD_NAME2(klass, method), method->mMethodIndex, method->mFlags & METHOD_FLAGS_CLASS_METHOD ? "STATIC":"");
 }
 
 void set_method_index_to_class(sCLClass* klass)
@@ -240,7 +244,8 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | ((static_||native_||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0) | (dynamic_ ? METHOD_FLAGS_DYNAMIC:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (klass->mFlags & CLASS_FLAGS_JS ? METHOD_FLAGS_JS:0)| ((static_|| (native_&& !(klass->mFlags & CLASS_FLAGS_JS))||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0) | (dynamic_ ? METHOD_FLAGS_DYNAMIC:0);
+    klass->mMethods[num_methods].mFlags |= (klass->mFlags & CLASS_FLAGS_JS ? METHOD_FLAGS_JS:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
     if(strcmp(clibrary_path, "") != 0) {
@@ -253,11 +258,6 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     if(num_params >= PARAMS_MAX) {
         fprintf(stderr, "overflow param number\n");
         return FALSE;
-    }
-
-    if(strcmp(method_name, "initialize") == 0 || strcmp(method_name, "finalize") == 0 || native_)
-    {
-        klass->mMethods[num_methods].mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;
     }
 
     BOOL method_arg_default_value = FALSE;
@@ -297,8 +297,10 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     }
     node_type_to_cl_type(result_type, ALLOC &klass->mMethods[num_methods].mResultType, klass);
 
-    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
     char method_name_and_params[size_method_name_and_params];
+
+    klass->mMethods[num_methods].mMethodIndex = num_methods;
 
     sNodeType* param_types[PARAMS_MAX];
     for(i=0; i<num_params; i++) {
@@ -308,7 +310,10 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
 
-    klass->mMethods[num_methods].mMethodIndex = num_methods;
+    char js_method_name[size_method_name_and_params];
+    create_method_name_for_js(js_method_name, size_method_name_and_params, klass, &klass->mMethods[num_methods]);
+
+    klass->mMethods[num_methods].mJSMethodNameOffset = append_str_to_constant_pool(&klass->mConst, js_method_name, FALSE);
 
     if(ginfo) {
         if(ginfo->mNumParams >= GENERICS_TYPES_MAX) {
@@ -341,6 +346,12 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     set_method_index_to_class(klass);
     
     return TRUE;
+}
+
+void add_native_code_to_method(sCLMethod* method, sBuf* native_code)
+{
+    method->mNativeCodes = MCALLOC(1, sizeof(sBuf));
+    memcpy(method->mNativeCodes, native_code, sizeof(sBuf));
 }
 
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda)
@@ -378,7 +389,7 @@ BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2)
         return FALSE;
     }
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2, klass->mFlags & CLASS_FLAGS_JS);
 
     if(klass2) {
         put_class_to_table(class_name1, klass2);
@@ -497,49 +508,6 @@ BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_par
     return TRUE;
 }
 
-static BOOL search_for_class_file_on_compile_time(char* class_name, char* class_file_path, size_t class_file_path_size)
-{
-    /// script file directory ///
-    if(gScriptDirPath[0] != '\0') {
-        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", gScriptDirPath, class_name);
-
-        if(access(class_file_path, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    /// current working directory ///
-    char* cwd = getenv("PWD");
-
-    if(cwd) {
-        snprintf(class_file_path, class_file_path_size, "%s/%s.oclcl", cwd, class_name);
-
-        if(access(class_file_path, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    /// home directory ///
-    char* home = getenv("HOME");
-
-    if(home) {
-        snprintf(class_file_path, class_file_path_size, "%s/.clover2/%s.oclcl", home, class_name);
-
-        if(access(class_file_path, F_OK) == 0) {
-            return TRUE;
-        }
-    }
-
-    /// system shared directory ///
-    snprintf(class_file_path, class_file_path_size, "%s/share/clover2/%s.oclcl", PREFIX, class_name);
-
-    if(access(class_file_path, F_OK) == 0) {
-        return TRUE;
-    }
-
-    return FALSE;
-}
-
 static BOOL check_method_params(sCLMethod* method, sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* left_method_generics, sNodeType* right_method_generics, sNodeType* method_generics_types, BOOL lazy_lambda_compile, struct sParserInfoStruct* info)
 {
     if(strcmp(METHOD_NAME2(klass, method), method_name) == 0) 
@@ -588,7 +556,7 @@ static sNodeType* get_method_genercs_from_method(sCLClass* klass, sCLMethod* met
     int i;
     for(i=0; i<method->mNumGenerics; i++) {
         char* interface_name = CONS_str(&klass->mConst, method->mGenericsParamTypeOffsets[i]);
-        result->mGenericsTypes[i] = create_node_type_with_class_name(interface_name);
+        result->mGenericsTypes[i] = create_node_type_with_class_name(interface_name, klass->mFlags & CLASS_FLAGS_JS);
     }
 
     result->mNumGenericsTypes = method->mNumGenerics;
@@ -816,7 +784,7 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
 
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class, BOOL output_message)
 {
-    sCLClass* anonymous_class = get_class("Anonymous");
+    sCLClass* anonymous_class = get_class("Anonymous", left_class->mFlags & CLASS_FLAGS_JS);
     if(right_class == anonymous_class) {
         return TRUE;
     }
@@ -912,6 +880,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         sBuf_append_int(buf, method->mNameOffset);
         sBuf_append_int(buf, method->mPathOffset);
         sBuf_append_int(buf, method->mMethodNameAndParamsOffset);
+        sBuf_append_int(buf, method->mJSMethodNameOffset);
         sBuf_append_int(buf, method->mMethodIndex);
 
         sBuf_append_int(buf, method->mNumParams);
@@ -939,6 +908,14 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         }
 
         sBuf_append_int(buf, method->mCLibraryOffset);
+
+        if(method->mNativeCodes) {
+            sBuf_append_int(buf, method->mNativeCodes->mLen);
+            sBuf_append(buf, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
+        }
+        else {
+            sBuf_append_int(buf, 0);
+        }
     }
 }
 
@@ -1030,10 +1007,21 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
     write_class_to_buffer(klass, &buf);
 
+    char extname[PATH_MAX];
+
+    BOOL js = klass->mFlags & CLASS_FLAGS_JS;
+
+    if(js) {
+        snprintf(extname, PATH_MAX, ".ojsclcl");
+    }
+    else {
+        snprintf(extname, PATH_MAX, ".oclcl");
+    }
+
     /// write ///
     char file_name[PATH_MAX];
     if(klass->mVersion > 0) {
-        snprintf(file_name, PATH_MAX, "%s@%d.oclcl", CLASS_NAME(klass), klass->mVersion);
+        snprintf(file_name, PATH_MAX, "%s@%d%s", CLASS_NAME(klass), klass->mVersion, extname);
 
         int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
         int total_size = 0;
@@ -1058,7 +1046,7 @@ BOOL write_class_to_class_file(sCLClass* klass)
         close(f);
     }
 
-    snprintf(file_name, PATH_MAX, "%s.oclcl", CLASS_NAME(klass));
+    snprintf(file_name, PATH_MAX, "%s%s", CLASS_NAME(klass), extname);
 
     int f = open(file_name, O_WRONLY|O_TRUNC|O_CREAT, 0644);
     int total_size = 0;
@@ -1090,6 +1078,21 @@ BOOL write_class_to_class_file(sCLClass* klass)
 BOOL write_all_modified_classes()
 {
     sClassTable* p = gHeadClassTable;
+
+    while(p) {
+        sCLClass* klass = p->mItem;
+
+        if(klass->mFlags & CLASS_FLAGS_MODIFIED) {
+            if(!write_class_to_class_file(klass)) {
+                fprintf(stderr, "Clover failed to write class file(%s)\n", CLASS_NAME(klass));
+                return FALSE;
+            }
+        }
+
+        p = p->mNextClass;
+    }
+
+    p = gJSHeadClassTable;
 
     while(p) {
         sCLClass* klass = p->mItem;
@@ -1143,7 +1146,7 @@ static BOOL type_name_to_cl_type(char** p, ALLOC sCLType** cl_type, sCLClass* kl
     }
     *p2 = '\0';
 
-    sCLClass* cl_type_class = get_class_with_load_and_initialize(class_name);
+    sCLClass* cl_type_class = get_class_with_load_and_initialize(class_name, klass->mFlags & CLASS_FLAGS_JS);
 
     if(cl_type_class == NULL) {
         return FALSE;
@@ -1205,7 +1208,7 @@ static BOOL type_name_to_cl_type(char** p, ALLOC sCLType** cl_type, sCLClass* kl
             (*cl_type)->mBlockType->mResultType = result_type;
         }
         else {
-            sCLClass* null_class = get_class("Null");
+            sCLClass* null_class = get_class("Null", klass->mFlags & CLASS_FLAGS_JS);
             (*cl_type)->mBlockType->mResultType = create_cl_type(null_class, klass);
         }
     }

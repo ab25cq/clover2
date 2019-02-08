@@ -2,7 +2,7 @@
 
 CLObject create_hash_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Hash");
+    sCLClass* klass = get_class("Hash", FALSE);
 
     CLObject obj = create_object(klass, type_name, info);
 
@@ -11,9 +11,9 @@ CLObject create_hash_object(char* type_name, sVMInfo* info)
 
 BOOL initialize_hash_object(CLObject hash_object, int num_elements, CLObject* keys, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_keys, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("Hash");
+    sCLClass* klass = get_class("Hash", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[],GenericsParametorClass1[],uint)";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A_GenericsParametorClass1A_uint";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = hash_object;  // self

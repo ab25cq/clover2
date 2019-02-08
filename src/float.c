@@ -2,7 +2,7 @@
 
 CLObject create_float(float value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Float");
+    sCLClass* klass = get_class("Float", FALSE);
     CLObject obj = create_object(klass, "Float", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
@@ -14,7 +14,7 @@ CLObject create_float(float value, sVMInfo* info)
 
 CLObject create_double(double value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Double");
+    sCLClass* klass = get_class("Double", FALSE);
     CLObject obj = create_object(klass, "Double", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

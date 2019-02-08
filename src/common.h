@@ -81,6 +81,8 @@
 
 #define WHEN_BLOCK_MAX 32
 
+#define MAX_COND_JUMP 128
+
 #define SIGMAX 256
 
 /// CLVALUE ///
@@ -102,6 +104,7 @@ union CLVALUEUnion {
     BOOL mBoolValue;
     char* mPointerValue;
     void* LLVMValue;
+    int mJSValue;
 };
 
 typedef union CLVALUEUnion CLVALUE;
@@ -190,6 +193,8 @@ extern sCLStack* gHeadStack;
 #define CLASS_FLAGS_DYNAMIC_CLASS 0x10
 #define CLASS_FLAGS_NO_FREE_OBJECT 0x20
 #define CLASS_FLAGS_LAMBDA 0x40
+#define CLASS_FLAGS_JS 0x80
+#define CLASS_FLAGS_NATIVE 0x100
 
 struct sCLTypeStruct;
 
@@ -229,9 +234,9 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_NATIVE 0x01
 #define METHOD_FLAGS_CLASS_METHOD 0x02
 #define METHOD_FLAGS_MODIFIED 0x08
-#define METHOD_FLAGS_NON_NATIVE_CODE 0x10
 #define METHOD_FLAGS_C_FUNCTION 0x20
 #define METHOD_FLAGS_DYNAMIC 0x40
+#define METHOD_FLAGS_JS 0x80
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 64
@@ -287,6 +292,12 @@ struct sVMInfoStruct {
     int sline;
     char sname2[128];
     int sline2;
+
+    sBuf* js_source;
+    sConst* js_const;
+
+    sBuf* js_class_source;
+    BOOL js_compiling_class_source;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -298,6 +309,7 @@ struct sCLMethodStruct {
     unsigned int mNameOffset;
     unsigned int mPathOffset;
     unsigned int mMethodNameAndParamsOffset;
+    unsigned int mJSMethodNameOffset;
     int mMethodIndex;
 
     sCLParam mParams[PARAMS_MAX]; // +1 --> self
@@ -308,6 +320,7 @@ struct sCLMethodStruct {
     sByteCode mByteCodes;
     fNativeMethod mNativeMethod;
     char* mNativeFunName;
+    sBuf* mNativeCodes;
     
     int mVarNum;
 
@@ -412,6 +425,8 @@ struct sCLClassStruct {
     int mLabelNum;      // This requires on the compile time
 
     int mVersion;
+
+    BOOL mAlreadyLoadedJSClass;
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -425,21 +440,23 @@ typedef struct sCLClassStruct sCLClass;
 void class_init();
 void class_final();
 
-sCLClass* get_class_with_load(char* class_name);
-sCLClass* get_class(char* name);
+void reset_js_load_class();
+sCLClass* get_class_with_load(char* class_name, BOOL js);
+sCLClass* get_class(char* class_name, BOOL js);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version, BOOL js, BOOL native_);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
-sCLClass* load_class(char* class_name, int version);
+sCLClass* get_class(char* class_name, BOOL js);
 sCLMethod* search_for_method_from_virtual_method_table(sCLClass* klass, char* method_name_and_params);
 BOOL is_valid_class(sCLClass* klass);
 BOOL put_class_to_table(char* class_name, sCLClass* klass);
 BOOL jit_compile_all_classes();
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name);
 void set_boxing_and_unboxing_classes();
-BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version);
-BOOL is_class_file_existance(char* class_name, int version);
+BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class_file_name_size, int version, BOOL js);
+BOOL is_class_file_existance(char* class_name, int version, BOOL js);
+sCLClass* load_class(char* class_name, int version, BOOL js);
 
 struct sClassTableStruct
 {
@@ -454,6 +471,7 @@ struct sClassTableStruct
 typedef struct sClassTableStruct sClassTable;
 
 extern sClassTable* gHeadClassTable;
+extern sClassTable* gJSHeadClassTable;
 
 BOOL create_virtual_method_table(sCLClass* klass);
 
@@ -478,9 +496,9 @@ void free_node_types();
 BOOL is_delegated_class(sNodeType* left_class, sNodeType* right_class);
 sNodeType* alloc_node_type();
 sNodeType* clone_node_type(sNodeType* node_type);
-sNodeType* create_node_type_with_class_name(char* class_name);
-sNodeType* create_node_type_with_generics_number(int generics_num);
-sNodeType* create_node_type_with_method_generics_number(int generics_num);
+sNodeType* create_node_type_with_class_name(char* class_name, BOOL js);
+sNodeType* create_node_type_with_class_name(char* class_name, BOOL js);
+sNodeType* create_node_type_with_method_generics_number(int generics_num, BOOL js);
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass);
 sNodeType* create_node_type_with_class_pointer(sCLClass* klass);
 
@@ -489,6 +507,7 @@ BOOL is_exception_type(sNodeType* exception_type);
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message);
 BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type);
+sNodeType* create_node_type_with_generics_number(int generics_num, BOOL js);
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL output_message);
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string);
 BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string);
@@ -627,6 +646,7 @@ struct sParserInfoStruct
     BOOL get_path_object;
     BOOL inputing_path_object;
     BOOL multiple_assignment;
+    BOOL mJS;
 };
 
 typedef struct sParserInfoStruct sParserInfo;
@@ -670,7 +690,7 @@ BOOL create_null_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTab
 BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info);
 
 /// node.c ///
-enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment };
+enum eNodeType { kNodeTypeOperand, kNodeTypeByteValue, kNodeTypeCByteValue, kNodeTypeUByteValue, kNodeTypeCUByteValue, kNodeTypeShortValue, kNodeTypeCShortValue, kNodeTypeUShortValue, kNodeTypeCUShortValue, kNodeTypeIntValue, kNodeTypeCIntValue, kNodeTypeUIntValue, kNodeTypeCUIntValue, kNodeTypeLongValue, kNodeTypeCLongValue, kNodeTypeULongValue, kNodeTypeCULongValue, kNodeTypeAssignVariable, kNodeTypeLoadVariable, kNodeTypeIf, kNodeTypeWhile, kNodeTypeBreak, kNodeTypeTrue, kNodeTypeFalse, kNodeTypeNull, kNodeTypeWildCard, kNodeTypeFor, kNodeTypeClassMethodCall, kNodeTypeMethodCall, kNodeTypeReturn, kNodeTypeNewOperator, kNodeTypeLoadField, kNodeTypeStoreField , kNodeTypeLoadClassField, kNodeTypeStoreClassField, kNodeTypeLoadValueFromPointer, kNodeTypeStoreValueToPointer, kNodeTypeMonadicIncrementOperand, kNodeTypeMonadicDecrementOperand, kNodeTypeLoadArrayElement, kNodeTypeStoreArrayElement, kNodeTypeChar, kNodeTypeString, kNodeTypeBuffer, kNodeTypeThrow, kNodeTypeTry, kNodeTypeBlockObject, kNodeTypeFunction, kNodeTypeBlockCall, kNodeTypeNormalBlock, kNodeTypeArrayValue, kNodeTypeAndAnd, kNodeTypeOrOr, kNodeTypeHashValue, kNodeTypeRegex, kNodeTypeListValue, kNodeTypeSortableListValue, kNodeTypeEqualableListValue, kNodeTypeTupleValue, kNodeTypeCArrayValue, kNodeTypeEqualableCArrayValue, kNodeTypeSortableCArrayValue, kNodeTypeImplements, kNodeTypeGetAddress, kNodeTypeInheritCall, kNodeTypeFloatValue, kNodeTypeCFloatValue, kNodeTypeDoubleValue, kNodeTypeCDoubleValue, kNodeTypePath, kNodeTypeWhen, kNodeTypeRange, kNodeTypeMultipleAsignment, kNodeTypeJSArray };
 
 enum eOperand { kOpAdd, kOpSub , kOpComplement, kOpLogicalDenial, kOpMult, kOpDiv, kOpMod, kOpLeftShift, kOpRightShift, kOpComparisonEqual, kOpComparisonNotEqual,kOpComparisonGreaterEqual, kOpComparisonLesserEqual, kOpComparisonGreater, kOpComparisonLesser, kOpAnd, kOpXor, kOpOr, kOpMinus };
 
@@ -911,6 +931,7 @@ int get_var_size(sNodeType* var_type);
 void boxing_before_method_call(char* method_name, sCompileInfo* info, BOOL* array_and_special_method);
 
 unsigned int sNodeTree_create_operand(enum eOperand operand, unsigned int left, unsigned int right, unsigned int middle, sParserInfo* info);
+unsigned int sNodeTree_create_js_array(int num_elements, unsigned int list_elements[], sParserInfo* info);
 unsigned int sNodeTree_create_multiple_asignment(int num_elements, unsigned int tuple_elements[], int right_value, sParserInfo* info);
 unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX], int num_values[WHEN_BLOCK_MAX], sNodeBlock* when_blocks[WHEN_BLOCK_MAX], int num_when_block, sNodeBlock* else_block, sNodeType* when_types[WHEN_BLOCK_MAX], sNodeType* when_types2[WHEN_BLOCK_MAX], BOOL when_match[WHEN_BLOCK_MAX], sParserInfo* info, char* sname, int sline);
 unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNodeBlock* if_node_block, unsigned int* elif_expression_nodes, MANAGED sNodeBlock** elif_node_blocks, int elif_num, MANAGED sNodeBlock* else_node_block, BOOL if_unclosed, BOOL* elif_unclosed, sParserInfo* info, char* sname, int sline);
@@ -995,7 +1016,7 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
 BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info);
 
 /// script_ctime.c ///
-BOOL compile_script(char* fname, char* source);
+BOOL compile_script(char* fname, char* source, BOOL js);
 BOOL read_source(char* fname, sBuf* source);
 BOOL delete_comment(sBuf* source, sBuf* source2);
 void append_cwd_for_path(char* fname, char* fname2);
@@ -1035,6 +1056,8 @@ void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info);
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info);
 
 /// vm.c ///
+void show_stack(CLVALUE* stack, CLVALUE* stack_ptr);
+
 extern BOOL gSigInt;
 extern BOOL gRunningInitializer;
 extern int gBufferToPointerCastCount;
@@ -1052,43 +1075,48 @@ extern int gBufferToPointerCastCount;
 #define OP_TRY_END 11
 #define OP_CATCH_POP 12
 #define OP_CATCH_STORE 13
-#define OP_HEAD_OF_EXPRESSION 14
-#define OP_MARK_SOURCE_CODE_POSITION 15
-#define OP_MARK_SOURCE_CODE_POSITION2 16
-#define OP_SIGINT 17
-#define OP_LABEL 18
+#define OP_CATCH_END 14
+#define OP_HEAD_OF_EXPRESSION 15
+#define OP_MARK_SOURCE_CODE_POSITION 16
+#define OP_MARK_SOURCE_CODE_POSITION2 17
+#define OP_SIGINT 18
+#define OP_LABEL 19
+#define OP_JS_IF 20
+#define OP_JS_NOT_IF 21
+#define OP_JS_ELSE 22
+#define OP_JS_BLOCK_CLOSE 23
 
 // for native code machine, it don't need to Virtual Machine
-#define OP_STORE_ANDAND_OROR_VALUE_LEFT 23
-#define OP_STORE_ANDAND_OROR_VALUE_RIGHT 24
-#define OP_GET_ANDAND_OROR_RESULT_LEFT 25
-#define OP_GET_ANDAND_OROR_RESULT_RIGHT 26
-#define OP_INC_ANDAND_OROR_ARRAY 27
-#define OP_DEC_ANDAND_OROR_ARRAY 28
+#define OP_STORE_ANDAND_OROR_VALUE_LEFT 24
+#define OP_STORE_ANDAND_OROR_VALUE_RIGHT 25
+#define OP_GET_ANDAND_OROR_RESULT_LEFT 26
+#define OP_GET_ANDAND_OROR_RESULT_RIGHT 27
+#define OP_INC_ANDAND_OROR_ARRAY 28
+#define OP_DEC_ANDAND_OROR_ARRAY 29
 
-#define OP_NOP 29
+#define OP_NOP 30
 
-#define OP_STORE_VALUE_TO_GLOBAL 30
-#define OP_POP_VALUE_FROM_GLOBAL 31
+#define OP_STORE_VALUE_TO_GLOBAL 31
+#define OP_POP_VALUE_FROM_GLOBAL 32
 
-#define OP_STORE 32
-#define OP_LOAD 33
+#define OP_STORE 33
+#define OP_LOAD 34
 
-#define OP_STORE_TO_BUFFER 34
+#define OP_STORE_TO_BUFFER 35
 
-#define OP_LDCBYTE 35
-#define OP_LDCUBYTE 36
-#define OP_LDCSHORT 37
-#define OP_LDCUSHORT 38
-#define OP_LDCINT 39
-#define OP_LDCUINT 40
-#define OP_LDCLONG 41
-#define OP_LDCULONG 42
-#define OP_LDCNULL 43
-#define OP_LDCPOINTER 44
-#define OP_LDCFLOAT 45
-#define OP_LDCDOUBLE 46
-#define OP_LDCBOOL 47
+#define OP_LDCBYTE 36
+#define OP_LDCUBYTE 37
+#define OP_LDCSHORT 38
+#define OP_LDCUSHORT 39
+#define OP_LDCINT 40
+#define OP_LDCUINT 41
+#define OP_LDCLONG 42
+#define OP_LDCULONG 43
+#define OP_LDCNULL 44
+#define OP_LDCPOINTER 45
+#define OP_LDCFLOAT 46
+#define OP_LDCDOUBLE 47
+#define OP_LDCBOOL 48
 
 #define OP_BADD 50
 #define OP_BSUB 51
@@ -1864,15 +1892,16 @@ extern int gBufferToPointerCastCount;
 #define OP_CREATE_SORTABLE_CARRAY 9005
 #define OP_CREATE_EQUALABLE_CARRAY 9006
 #define OP_CREATE_LIST 9007
-#define OP_CREATE_SORTALBE_LIST 9008
+#define OP_CREATE_SORTABLE_LIST 9008
 #define OP_CREATE_EQUALABLE_LIST 9009
 #define OP_CREATE_TUPLE 9010
 #define OP_CREATE_HASH 9011
 #define OP_CREATE_BLOCK_OBJECT 9012
 #define OP_CREATE_REGEX 9013
+#define OP_JS_ARRAY 9014
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
-sCLClass* get_class_with_load_and_initialize(char* class_name);
+sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js);
 void class_final_on_runtime();
 BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self);
 BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result);
@@ -1880,6 +1909,7 @@ void callOnException(CLObject message, BOOL in_try, sVMInfo* info);
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info);
 BOOL class_init_on_runtime();
+BOOL class_init_on_runtime_for_js();
 void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass* klass, sVMInfo* info);
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name);
 void set_free_fun_to_classes();
@@ -1907,6 +1937,7 @@ BOOL dependency_compile(char* cwd, char* class_name, char* class_file_name, size
 void dependency_final();
 
 /// klass_compile_time.c ///
+void add_native_code_to_method(sCLMethod* method, sBuf* native_code);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
@@ -2516,6 +2547,10 @@ BOOL pthread_mutex_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info
 BOOL pthread_cond_t_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 extern BOOL gVMMutexFlg;
+
+/// js.c ///
+BOOL js_compiler(char* sname);
+BOOL js_class_compiler(char* class_name);
 
 #endif
 

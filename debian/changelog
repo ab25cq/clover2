@@ -1,4 +1,8 @@
 
+clover2 (10.0.7-1) unstable; urgency=medium
+
+    * Method default parametor bug. Started the output of Java Script source 
+
 clover2 (10.0.6-1) unstable; urgency=medium
 
     * Fixed AND operator on ULong type.

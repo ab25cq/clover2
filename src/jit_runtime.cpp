@@ -122,23 +122,15 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             remove_stack_to_stack_list(stack_id);
         }
         else {
-/*
             BOOL result = vm(code, constant, stack, var_num, klass, info);
 
             if(!result) {
                 return FALSE;
             }
-*/
-            char block_path[METHOD_NAME_MAX + 128];
-
-            create_block_path_for_jit(klass, object_data->mBlockID, block_path, METHOD_NAME_MAX + 128);
-
-            fprintf(stderr, "Not found Symbol(%s)\n", block_path);
-            exit(2);
         }
     }
     /// none native code method ///
-    else if(method->mFlags & METHOD_FLAGS_NON_NATIVE_CODE || info->running_thread)
+    else if(info->running_thread)
     {
         BOOL result = vm(code, constant, stack, var_num, klass, info);
 
@@ -190,19 +182,11 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             remove_stack_to_stack_list(stack_id);
         }
         else {
-            char method_path2[METHOD_NAME_MAX + 128];
-
-            create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
-
-            fprintf(stderr, "Not found Symbol(%s)\n", method_path2);
-            exit(2);
-/*
             BOOL result = vm(code, constant, stack, var_num, klass, info);
 
             if(!result) {
                 return FALSE;
             }
-*/
         }
     }
 
@@ -302,7 +286,7 @@ BOOL store_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info
 
     char* field_class_name = CONS_str(constant, field_class_name_offset);
 
-    sCLClass* field_class = get_class(field_class_name);
+    sCLClass* field_class = get_class_with_load_and_initialize(field_class_name, FALSE);
 
     if(field_class == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(39)");
@@ -366,7 +350,7 @@ BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE
     if(class_method) {
         char* class_name = CONS_str(constant, offset2);
 
-        klass = get_class_with_load_and_initialize(class_name);
+        klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
@@ -483,7 +467,7 @@ BOOL load_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo*
 {
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(40)");
@@ -508,7 +492,7 @@ BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_n
 {
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(52)");
@@ -527,14 +511,14 @@ BOOL run_load_class_field_address(CLVALUE** stack_ptr, CLVALUE* stack, int var_n
 
     result->mPointerValue = value;
 
-    return FALSE;
+    return TRUE;
 }
 
 BOOL store_class_field(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, int field_index, int offset, sConst* constant, CLVALUE value)
 {
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(41)");
@@ -555,7 +539,7 @@ BOOL store_class_field_of_buffer(CLVALUE** stack_ptr, CLVALUE* stack, int var_nu
 {
     char* class_name = CONS_str(constant, offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(41)");
@@ -598,7 +582,7 @@ BOOL run_create_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(43)");
@@ -934,7 +918,7 @@ BOOL run_create_array(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo*
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(42)");
@@ -964,7 +948,7 @@ BOOL run_create_sortable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_num
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(45)");
@@ -1002,7 +986,7 @@ BOOL run_create_equalable_carray(CLVALUE** stack_ptr, CLVALUE* stack, int var_nu
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(44)");
@@ -1041,7 +1025,7 @@ BOOL run_create_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* 
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(46)");
@@ -1081,7 +1065,7 @@ BOOL run_create_sortable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, 
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(47)");
@@ -1121,7 +1105,7 @@ BOOL run_create_equalable_list(CLVALUE** stack_ptr, CLVALUE* stack, int var_num,
 {
     char* class_name = CONS_str(constant, class_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(48)");
@@ -1190,7 +1174,7 @@ BOOL run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* 
     char* class_name2 = CONS_str(constant, class_name_offset2);
     char* type_name = CONS_str(constant, type_name_offset);
 
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(49)");
@@ -1198,7 +1182,7 @@ BOOL run_create_hash(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* 
         return FALSE;
     }
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(50)");
@@ -1253,7 +1237,7 @@ BOOL run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* consta
     else {
         char* class_name = CONS_str(constant, class_name_offset);
 
-        klass = get_class_with_load_and_initialize(class_name);
+        klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(99) %s", class_name);
@@ -1294,7 +1278,7 @@ CLObject run_long_to_string_cast(clint64 l, sVMInfo* info)
 
 BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info, CLObject array, char* class_name, CLVALUE* result)
 {
-    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(53)");
@@ -1311,7 +1295,7 @@ BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, 
     sCLObject* array_data = CLOBJECT(array);
     int array_num = array_data->mArrayNum;
 
-    sCLClass* klass2 = get_class((char*)"Array");
+    sCLClass* klass2 = get_class_with_load_and_initialize((char*)"Array", FALSE);
     MASSERT(klass2 != NULL);
 
     char type_name[OBJECT_TYPE_NAME_MAX];
@@ -1509,7 +1493,7 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
         char* class_name = CONS_str(constant, offset);
         char* method_name = CONS_str(constant, offset2);
 
-        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+        sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(38)");

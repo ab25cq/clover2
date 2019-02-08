@@ -2,7 +2,7 @@
 
 CLObject create_list_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("List");
+    sCLClass* klass = get_class("List", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -11,9 +11,9 @@ CLObject create_list_object(char* type_name, sVMInfo* info)
 
 BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("List");
+    sCLClass* klass = get_class("List", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self
@@ -46,7 +46,7 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
 
 CLObject create_sortable_list_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("SortableList");
+    sCLClass* klass = get_class("SortableList", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -55,9 +55,9 @@ CLObject create_sortable_list_object(char* type_name, sVMInfo* info)
 
 BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("SortableList");
+    sCLClass* klass = get_class("SortableList", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self
@@ -90,7 +90,7 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
 
 CLObject create_equalable_list_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("EqualableList");
+    sCLClass* klass = get_class("EqualableList", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -99,9 +99,9 @@ CLObject create_equalable_list_object(char* type_name, sVMInfo* info)
 
 BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("EqualableList");
+    sCLClass* klass = get_class("EqualableList", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self

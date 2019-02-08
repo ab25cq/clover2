@@ -26,7 +26,7 @@ BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -78,7 +78,7 @@ BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -123,7 +123,7 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* klass_value = ALLOC string_object_to_char_array(klass->mObjectValue);
     char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -156,7 +156,7 @@ BOOL Clover_declareMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<klass2->mNumGenerics; i++) {
         char* class_name = CONS_str(&klass2->mConst, klass2->mGenericsParamTypeOffsets[i]);
 
-        sCLClass* interface = get_class_with_load_and_initialize(class_name);
+        sCLClass* interface = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(interface == NULL) {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -281,7 +281,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* klass_value = ALLOC string_object_to_char_array(klass->mObjectValue);
     char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -304,7 +304,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<klass2->mNumGenerics; i++) {
         char* class_name = CONS_str(&klass2->mConst, klass2->mGenericsParamTypeOffsets[i]);
 
-        sCLClass* interface = get_class_with_load_and_initialize(class_name);
+        sCLClass* interface = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(interface == NULL) {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -355,7 +355,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pinfo, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_,  &static_, &dynamic_, &pinfo, clibrary_path, PATH_MAX)) 
         {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "appendMethod Exception");
             MFREE(klass_value);
@@ -444,7 +444,7 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int method_index_value = method_index->mIntValue;
     char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -467,7 +467,7 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     for(i=0; i<klass2->mNumGenerics; i++) {
         char* class_name = CONS_str(&klass2->mConst, klass2->mGenericsParamTypeOffsets[i]);
 
-        sCLClass* interface = get_class_with_load_and_initialize(class_name);
+        sCLClass* interface = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(interface == NULL) {
             entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");

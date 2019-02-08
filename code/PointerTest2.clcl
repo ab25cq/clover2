@@ -37,32 +37,41 @@ class PointerTest2 {
 
         c:PointerClassA = new PointerClassA();
 
+println("XXX");
         Clover.test("pointer test2", PointerClassA.classVar == 123 && c.var_ == 123);
 
+println("YYY");
         d:pointer = &c.var_;
+println("ZZZ");
 
         d->int = 234;
+println("OOO");
 
         e:pointer = &PointerClassA.classVar;
+println("O2");
 
         e->int = 234;
+println("O3");
 
-        Clover.test("pointer test2", PointerClassA.classVar == 234 && c.var_ == 234);
+        Clover.test("pointer test3", PointerClassA.classVar == 234 && c.var_ == 234);
+println("O4");
 
         f:PointerClassB = new PointerClassB(123);
+println("O5");
 
-        Clover.test("pointer test3", f.var_ == 123);
+        Clover.test("pointer test4", f.var_ == 123);
+println("O6");
 
         PointerClassA.input_var(&f);
 
-        Clover.test("pointer test4", f.var_ == 234);
+        Clover.test("pointer test5", f.var_ == 234);
 
         g:pointer = &f;
 
-        Clover.test("pointer test5", g->PointerClassB.var_ == 234 && (&f)->PointerClassB.var_ == 234);
+        Clover.test("pointer test6", g->PointerClassB.var_ == 234 && (&f)->PointerClassB.var_ == 234);
 
         (&f)->PointerClassB.var_ = 345;
 
-        Clover.test("pointer test6", f.var_ == 345);
+        Clover.test("pointer test7", f.var_ == 345);
     }
 }

@@ -35,7 +35,7 @@ CLObject create_block_object(sByteCode* codes, sConst* constant, CLVALUE* parent
 {
     unsigned int size = object_size();
 
-    sCLClass* lambda_klass = get_class("lambda");
+    sCLClass* lambda_klass = get_class("lambda", FALSE);
 
     MASSERT(lambda_klass != NULL);
 

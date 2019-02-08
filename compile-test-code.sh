@@ -1,3 +1,4 @@
+
 for i in *.oclcl
 do
     if test $i != ExtTest.oclcl && test $i != CloneTest.oclcl && test $i != EFTest.oclcl

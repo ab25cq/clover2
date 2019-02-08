@@ -1,5 +1,12 @@
 English page is here [>> English page](changelog-en)
 
+version 10.0.7
+
+    Method default parametor bug.
+    
+    Started the output of Java Script source 
+
+
 version 10.0.6
 
     Fixed AND operator on ULong type.

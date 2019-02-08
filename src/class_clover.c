@@ -28,11 +28,11 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* clover = get_class("Clover");
+    sCLClass* clover = get_class("Clover", FALSE);
 
     clover->mClassFields[0].mValue.mIntValue = gARGC;
 
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
 
     CLObject array = create_array_object(string_class, gARGC, info);
     inc_refference_count(array, 0, FALSE);
@@ -72,7 +72,7 @@ BOOL Clover_initialize_lang(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL Clover_initialize_reflection(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* clover = get_class("Clover");
+    sCLClass* clover = get_class("Clover", FALSE);
 
     clover->mClassFields[5].mValue.mLongValue = FIELD_FLAGS_PRIVATE;
     clover->mClassFields[6].mValue.mLongValue = FIELD_FLAGS_PROTECTED;
@@ -106,7 +106,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -121,7 +121,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// prepare for the body ///
-    sCLClass* field_class = get_class("Field");
+    sCLClass* field_class = get_class("Field", FALSE);
 
     CLVALUE cl_value;
     CLObject result = create_object(field_class, "Field", info);
@@ -186,7 +186,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -201,7 +201,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// prepare for the body ///
-    sCLClass* field_class = get_class("Field");
+    sCLClass* field_class = get_class("Field", FALSE);
 
     CLVALUE cl_value;
     CLObject result = create_object(field_class, "Field", info);
@@ -266,7 +266,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -281,7 +281,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// prepare for the body ///
-    sCLClass* method_class = get_class("Method");
+    sCLClass* method_class = get_class("Method", FALSE);
 
     MASSERT(method_class != NULL);
 
@@ -322,7 +322,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int method_index = method->mMethodIndex;
 
-    sCLClass* method_param_class = get_class("MethodParam");
+    sCLClass* method_param_class = get_class("MethodParam", FALSE);
 
     CLObject params_object = create_array_object(method_param_class, method->mNumParams, info);
     inc_refference_count(params_object, 0, FALSE);
@@ -368,7 +368,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int var_num = method->mVarNum;
 
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
 
     MASSERT(string_class != NULL);
 
@@ -428,7 +428,7 @@ BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -457,7 +457,7 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -466,7 +466,7 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     }
 
     /// prepare for the body ///
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
 
     MASSERT(string_class != NULL);
 
@@ -510,7 +510,7 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -519,7 +519,7 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     }
 
     /// prepare for the body ///
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
 
     MASSERT(string_class != NULL);
 
@@ -563,7 +563,7 @@ BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -592,7 +592,7 @@ BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -621,7 +621,7 @@ BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -650,7 +650,7 @@ BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class(class_name_value);
+    sCLClass* klass2 = get_class(class_name_value, FALSE);
 
     /// go ///
     (*stack_ptr)->mIntValue = klass2 != NULL;
@@ -676,7 +676,7 @@ BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     char class_file_name[PATH_MAX];
 
-    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX, 0);
+    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX, 0, FALSE);
     (*stack_ptr)++;
 
     MFREE(class_name_value);
@@ -696,7 +696,7 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         p = p->mNextClass;
     }
 
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
 
     CLObject object = create_array_object(string_class, num, info);
     inc_refference_count(object, 0, FALSE);
@@ -744,7 +744,7 @@ BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
     /// go ///
-    sCLClass* klass = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
@@ -779,7 +779,7 @@ BOOL Clover_createArray(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int size_value = size->mIntValue;
 
     /// go ///
-    sCLClass* klass = get_class_with_load_and_initialize(class_name_value);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value, FALSE);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
@@ -818,8 +818,8 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* class_name_value2 = ALLOC string_object_to_char_array(class_name2->mObjectValue);
 
     /// go ///
-    sCLClass* klass1 = get_class(class_name_value);
-    sCLClass* klass2 = get_class(class_name_value2);
+    sCLClass* klass1 = get_class(class_name_value, FALSE);
+    sCLClass* klass2 = get_class(class_name_value2, FALSE);
 
     BOOL result = klass1 == klass2;
 

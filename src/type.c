@@ -4,13 +4,13 @@ sCLClass* get_class_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
     char* class_name = CONS_str(&klass->mConst, cl_type->mClassNameOffset);
 
-    return get_class_with_load_and_initialize(class_name);
+    return get_class_with_load_and_initialize(class_name, klass->mFlags & CLASS_FLAGS_JS);
 }
 
 BOOL is_void_type(sCLType* cl_type, sCLClass* klass)
 {
     sCLClass* klass2 = get_class_from_cl_type(cl_type, klass);
-    BOOL result = klass2 == get_class("Null");
+    BOOL result = klass2 == get_class("Null", klass->mFlags & CLASS_FLAGS_JS);
     return result;
 }
 
@@ -72,7 +72,7 @@ ALLOC char* cl_type_to_string(sCLType* cl_type, sCLClass* klass)
 
 BOOL is_this_class_with_class_name(sCLClass* klass, char* class_name)
 {
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name, klass->mFlags & CLASS_FLAGS_JS);
     MASSERT(klass2 != NULL);
     return klass == klass2;
 }

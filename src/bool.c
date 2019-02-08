@@ -2,7 +2,7 @@
 
 CLObject create_bool(BOOL value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Bool");
+    sCLClass* klass = get_class("Bool", FALSE);
     CLObject obj = create_object(klass, "Bool", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

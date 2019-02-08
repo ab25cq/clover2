@@ -13,7 +13,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
     int wlen = wcslen(wstr);
 
     /// create object ///
-    sCLClass* string_class = get_class("String");
+    sCLClass* string_class = get_class("String", FALSE);
     MASSERT(string_class != NULL);
 
     CLObject obj = create_object(string_class, "String", info);
@@ -25,7 +25,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
     push_value_to_global_stack(cl_value, info);
 
     /// create char array ///
-    sCLClass* char_class = get_class("char");
+    sCLClass* char_class = get_class("char", FALSE);
     MASSERT(char_class != NULL);
 
     CLObject buffer = create_array_object(char_class, wlen+1, info);
@@ -57,7 +57,7 @@ CLObject create_string_object(char* str, sVMInfo* info)
 CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info)
 {
     /// create object ///
-    sCLClass* buffer_class = get_class("Buffer");
+    sCLClass* buffer_class = get_class("Buffer", FALSE);
     MASSERT(buffer_class != NULL);
 
     CLObject obj = create_object(buffer_class, "Buffer", info);
@@ -81,7 +81,7 @@ CLObject create_buffer_object(char* buffer, size_t size, sVMInfo* info)
 CLObject create_path_object(char* path, sVMInfo* info)
 {
     /// create object ///
-    sCLClass* path_class = get_class("Path");
+    sCLClass* path_class = get_class("Path", FALSE);
     MASSERT(path_class != NULL);
 
     CLObject str_object = create_string_object(path, info);

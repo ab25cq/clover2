@@ -122,7 +122,6 @@ extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern std::map<std::string, BasicBlock*> TheLabels;
 extern FunctionAnalysisManager TheFAM;
 
-#define MAX_COND_JUMP 128
 
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block);
 BOOL compile_to_native_code2(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);

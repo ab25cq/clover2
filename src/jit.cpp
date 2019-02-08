@@ -331,6 +331,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
                 break;
 
+            case OP_CATCH_END:
+                break;
+
             case OP_DUPE: {
                 LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
@@ -684,10 +687,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 pc += sizeof(int);
 
                 LVALUE llvm_value;
-                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(1, value)); 
-                llvm_value.kind = kLVKindConstantInt1;
+                llvm_value.value = ConstantInt::get(TheContext, llvm::APInt(32, value, true)); 
+                llvm_value.kind = kLVKindConstantInt32;
 
                 push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+
                 push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
                 }
                 break;
@@ -754,6 +758,21 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
+                }
+                break;
+
+            case OP_JS_IF: {
+                /// nothing to do, this is for JS compile
+                }
+                break;
+
+            case OP_JS_ELSE: {
+                /// nothing to do, this is for JS compile
+                }
+                break;
+
+            case OP_JS_BLOCK_CLOSE: {
+                /// nothing to do, this is for JS compile
                 }
                 break;
 
@@ -1122,7 +1141,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
                 char* class_name = CONS_str(constant, offset);
 
-                sCLClass* klass = get_class_with_load(class_name);
+                sCLClass* klass = get_class_with_load(class_name, FALSE);
 
                 if(klass == NULL) {
                     fprintf(stderr, "class not found(2) (%s)\n", class_name);
@@ -1149,6 +1168,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 Value* param1 = llvm_create_string(class_name2);
                 params2.push_back(param1);
 
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
+                params2.push_back(param2);
+
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
                 if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block, llvm_stack, var_num);
@@ -1163,7 +1185,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 param1 = klass_value;
                 params2.push_back(param1);
 
-                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
+                param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
                 params2.push_back(param2);
 
                 std::string stack_value_name("stack");
@@ -1209,6 +1231,12 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 pc += sizeof(int);
 
                 int class_method = *(int*)pc;
+                pc += sizeof(int);
+
+                int native_method = *(int*)pc;
+                pc += sizeof(int);
+
+                BOOL result_type_is_bool = *(int*)pc;
                 pc += sizeof(int);
 
                 unsigned int offset2 = *(unsigned int*)pc;
@@ -1434,6 +1462,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 Value* param1 = llvm_create_string(class_name2);
                 params2.push_back(param1);
 
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
+                params2.push_back(param2);
+
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
                 if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block, llvm_stack, var_num);
@@ -1501,6 +1532,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
+                unsigned int field_name_offset = *(unsigned int*)pc;
+                pc += sizeof(int);
+
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 Function* get_field_fun = TheModule->getFunction("get_field_from_object");
@@ -1565,6 +1599,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 pc += sizeof(int);
 
                 int size = *(int*)pc;
+                pc += sizeof(int);
+
+                unsigned int field_name_offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
                 LVALUE* obj = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
@@ -1641,6 +1678,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 pc += sizeof(int);
 
                 int size = *(int*)pc;
+                pc += sizeof(int);
+
+                unsigned int field_name_offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
                 LVALUE* obj = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
@@ -2135,6 +2175,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
                 Value* param1 = llvm_create_string(class_name2);
                 params2.push_back(param1);
+
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
+                params2.push_back(param2);
 
                 Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
@@ -3256,7 +3299,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
                 break;
 
-            case OP_CREATE_SORTALBE_LIST: {
+            case OP_CREATE_SORTABLE_LIST: {
                 int num_elements = *(int*)pc;
                 pc += sizeof(int);
 
@@ -3565,6 +3608,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int class_name_offset = *(int*)pc;
                 pc += sizeof(int);
 
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
                 Function* fun = TheModule->getFunction("run_create_block_object");
 
                 std::vector<Value*> params2;
@@ -3838,7 +3884,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
         for(i=0; i<klass->mNumMethods; i++) {
             sCLMethod* method = klass->mMethods + i;
 
-            if(strcmp(METHOD_NAME2(klass, method), "initialize") != 0 && strcmp(METHOD_NAME2(klass, method), "finalize") != 0 && !(method->mFlags & METHOD_FLAGS_NATIVE) && !(method->mFlags & METHOD_FLAGS_C_FUNCTION))
+            if(!(method->mFlags & METHOD_FLAGS_NATIVE) && !(method->mFlags & METHOD_FLAGS_C_FUNCTION) && !(method->mFlags & METHOD_FLAGS_JS))
             {
                 char method_path2[METHOD_NAME_MAX + 128];
                 create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
@@ -4575,6 +4621,10 @@ void create_internal_functions()
 
     param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
     type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_class_with_load_and_initialize", TheModule);

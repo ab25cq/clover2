@@ -1,0 +1,18 @@
+class Person: js
+{
+    var name:String;
+    var age:int;
+
+    def initialize(name:String, age:int) {
+        self.name = name;
+        self.age = age;
+    }
+    def hello() {
+        println("HELLO WORLD");
+        println(name);
+        println(age);
+    }
+    def method(): throws Exception {
+        throw Exception("true");
+    }
+}

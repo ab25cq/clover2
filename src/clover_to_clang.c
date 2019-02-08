@@ -262,7 +262,7 @@ void c_termios_to_clover_termios(struct termios* terminfo_value, CLObject termin
 
 BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    sCLClass* termios_class = get_class_with_load_and_initialize("termios");
+    sCLClass* termios_class = get_class_with_load_and_initialize("termios", FALSE);
 
     if(termios_class == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
@@ -277,7 +277,7 @@ BOOL create_termios_object(CLObject* result, CLVALUE** stack_ptr, CLVALUE* lvar,
 
     sCLObject* object_data = CLOBJECT(*result);
 
-    sCLClass* cc_t_class = get_class("byte");
+    sCLClass* cc_t_class = get_class("byte", FALSE);
 
     CLObject prev_obj = object_data->mFields[4].mObjectValue;
 

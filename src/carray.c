@@ -2,7 +2,7 @@
 
 CLObject create_carray_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Array");
+    sCLClass* klass = get_class("Array", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -11,7 +11,7 @@ CLObject create_carray_object(char* type_name, sVMInfo* info)
 
 CLObject create_equalable_carray_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("EqualableArray");
+    sCLClass* klass = get_class("EqualableArray", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -20,7 +20,7 @@ CLObject create_equalable_carray_object(char* type_name, sVMInfo* info)
 
 CLObject create_sortable_carray_object(char* type_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class("SortableArray");
+    sCLClass* klass = get_class("SortableArray", FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -49,7 +49,7 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
     cl_value.mObjectValue = obj;
     push_value_to_global_stack(cl_value, info);
 
-    sCLClass* object_class = get_class("Object");
+    sCLClass* object_class = get_class("Object", FALSE);
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
@@ -71,9 +71,9 @@ CLObject create_carray_object_with_elements(int num_elements, CLObject* elements
 
 BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("Array");
+    sCLClass* klass = get_class("Array", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // self
@@ -123,7 +123,7 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
     cl_value.mObjectValue = obj;
     push_value_to_global_stack(cl_value, info);
 
-    sCLClass* object_class = get_class("Object");
+    sCLClass* object_class = get_class("Object", FALSE);
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
@@ -145,9 +145,9 @@ CLObject create_equalable_carray_object_with_elements(int num_elements, CLObject
 
 BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("EqualableArray");
+    sCLClass* klass = get_class("EqualableArray", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // self
@@ -197,7 +197,7 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
     cl_value.mObjectValue = obj;
     push_value_to_global_stack(cl_value, info);
 
-    sCLClass* object_class = get_class("Object");
+    sCLClass* object_class = get_class("Object", FALSE);
     MASSERT(object_class != NULL);
 
     CLObject array = create_array_object(object_class, num_elements, info);
@@ -219,9 +219,9 @@ CLObject create_sortable_carray_object_with_elements(int num_elements, CLObject*
 
 BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, CLObject* items, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info, sCLClass* class_items)
 {
-    sCLClass* klass = get_class("SortableArray");
+    sCLClass* klass = get_class("SortableArray", FALSE);
 
-    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
+    char* method_name_and_params = "initialize__GenericsParametorClass0A";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // sel, infof

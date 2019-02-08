@@ -24,7 +24,7 @@ CLObject create_regex_object(char* regex, BOOL global, BOOL ignore_case, BOOL mu
 {
     unsigned int size = object_size();
 
-    sCLClass* klass = get_class("regex");
+    sCLClass* klass = get_class("regex", FALSE);
 
     MASSERT(klass != NULL);
 

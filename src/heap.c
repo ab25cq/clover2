@@ -442,7 +442,7 @@ void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_val
 
     char* field_class_name = CONS_str(&klass->mConst, field_type->mClassNameOffset);
 
-    sCLClass* field_class = get_class(field_class_name);
+    sCLClass* field_class = get_class(field_class_name, FALSE);
 
     BOOL value_is_object = !(field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 
@@ -451,7 +451,7 @@ void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_val
 
 void gc(sVMInfo* info)
 {
-    gLambdaClass = get_class("lambda");
+    gLambdaClass = get_class("lambda", FALSE);
 
     memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 

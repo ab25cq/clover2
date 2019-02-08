@@ -4,7 +4,7 @@ CLObject create_tuple_object(int num_elements, char* type_name, sVMInfo* info)
 {
     char class_name[CLASS_NAME_MAX+1];
     snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
-    sCLClass* klass = get_class(class_name);
+    sCLClass* klass = get_class(class_name, FALSE);
     MASSERT(klass != NULL);
     CLObject obj = create_object(klass, type_name, info);
 
@@ -15,13 +15,13 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
 {
     char class_name[CLASS_NAME_MAX+1];
     snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
-    sCLClass* klass = get_class(class_name);
+    sCLClass* klass = get_class(class_name, FALSE);
 
     char method_name_and_params[1024];
 
     method_name_and_params[0] = '\0';
 
-    xstrncpy(method_name_and_params, "initialize(", 1024);
+    xstrncpy(method_name_and_params, "initialize__", 1024);
 
     int i;
     for(i=0; i<num_elements; i++) {
@@ -29,11 +29,8 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
         snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", i);
         xstrncat(method_name_and_params, class_name, 1024);
 
-        if(i == num_elements-1) {
-            xstrncat(method_name_and_params, ")", 1024);
-        }
-        else {
-            xstrncat(method_name_and_params, ",", 1024);
+        if(i != num_elements-1) {
+            xstrncat(method_name_and_params, "_", 1024);
         }
     }
 

@@ -2,7 +2,7 @@
 
 CLObject create_short(short value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Short");
+    sCLClass* klass = get_class("Short", FALSE);
     CLObject obj = create_object(klass, "Short", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
@@ -15,7 +15,7 @@ CLObject create_short(short value, sVMInfo* info)
 
 CLObject create_ushort(unsigned short value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("UShort");
+    sCLClass* klass = get_class("UShort", FALSE);
     CLObject obj = create_object(klass, "UShort", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

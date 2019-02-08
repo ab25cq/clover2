@@ -173,6 +173,8 @@ void store_delegated_varialbe(sNodeType* left_type, sNodeType* right_type, sComp
         for(i=0; i<right_class->mNumFields; i++) {
             sCLField* field = right_class->mFields + i;
 
+            char* field_name = CONS_str(&right_class->mConst, field->mNameOffset);
+
             sNodeType* left_type2 = create_node_type_with_class_pointer(left_class);
             sNodeType* right_type2 = create_node_type_from_cl_type(field->mResultType, right_class);
 
@@ -182,6 +184,7 @@ void store_delegated_varialbe(sNodeType* left_type, sNodeType* right_type, sComp
                 int size = get_var_size(right_type2);
 
                 append_int_value_to_code(info->code, size, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
                 info->stack_num--;
                 info->stack_num++;
@@ -197,7 +200,20 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
     for(i=0; i<num_methods; i++) {
         sCLMethod* method = klass->mMethods + method_indexes[i];
 
-        if(method->mNumParams > *num_params) {
+        int num_default_params = 0;
+
+        int k;
+        for(k=0; k < method->mNumParams; k++) {
+            sCLParam* param = method->mParams + k;
+
+            int default_offset = param->mDefaultValueOffset;
+
+            if(strcmp(CONS_str(&klass->mConst, default_offset), "") != 0) {
+                num_default_params++;
+            }
+        }
+
+        if(*num_params < method->mNumParams && *num_params+num_default_params >= method->mNumParams) {
             int j;
             for(j=0; j<*num_params; j++) {
                 sNodeType* param;
@@ -302,7 +318,25 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(*num_params == method->mNumParams && i < method->mNumParams) 
+                BOOL exist_default_value = TRUE;
+
+                if(*num_params>=method->mNumParams) {
+                    exist_default_value = FALSE;
+                }
+                else {
+                    int k;
+                    for(k=*num_params; k < method->mNumParams; k++) {
+                        sCLParam* param = method->mParams + k;
+
+                        int default_offset = param->mDefaultValueOffset;
+
+                        if(strcmp(CONS_str(&klass->mConst, default_offset), "") == 0) {
+                            exist_default_value = FALSE;
+                        }
+                    }
+                }
+
+                if((*num_params == method->mNumParams || exist_default_value) && i < method->mNumParams)
                 {
                     sNodeType* param;
                     sNodeType* solved_param;
@@ -338,8 +372,25 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(*num_params == method->mNumParams 
-                    && i < method->mNumParams) 
+                BOOL exist_default_value = TRUE;
+
+                if(*num_params>=method->mNumParams) {
+                    exist_default_value = FALSE;
+                }
+                else {
+                    int k;
+                    for(k=*num_params; k < method->mNumParams; k++) {
+                        sCLParam* param = method->mParams + k;
+
+                        int default_offset = param->mDefaultValueOffset;
+
+                        if(strcmp(CONS_str(&klass->mConst, default_offset), "") == 0) {
+                            exist_default_value = FALSE;
+                        }
+                    }
+                }
+
+                if((*num_params == method->mNumParams || exist_default_value) && i < method->mNumParams)
                 {
                     sNodeType* param;
                     sNodeType* solved_param;
@@ -364,7 +415,25 @@ static BOOL compile_params(sCLClass* klass, char* method_name, int* num_params, 
             for(j=0; j<num_methods; j++) {
                 sCLMethod* method = klass->mMethods + method_indexes[j];
 
-                if(*num_params == method->mNumParams && i < method->mNumParams) 
+                BOOL exist_default_value = TRUE;
+
+                if(*num_params>=method->mNumParams) {
+                    exist_default_value = FALSE;
+                }
+                else {
+                    int k;
+                    for(k=*num_params; k < method->mNumParams; k++) {
+                        sCLParam* param = method->mParams + k;
+
+                        int default_offset = param->mDefaultValueOffset;
+
+                        if(strcmp(CONS_str(&klass->mConst, default_offset), "") == 0) {
+                            exist_default_value = FALSE;
+                        }
+                    }
+                }
+
+                if((*num_params == method->mNumParams || exist_default_value) && i < method->mNumParams)
                 {
                     sNodeType* param;
                     sNodeType* solved_param;
@@ -563,7 +632,7 @@ static void append_type_name_to_constant_pool_and_code(sCompileInfo* info, sNode
 
 static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)
 {
-    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
     char method_name_and_params[size_method_name_and_params];
 
     xstrncpy(method_name_and_params, METHOD_NAME_AND_PARAMS(klass, method), size_method_name_and_params);
@@ -645,42 +714,42 @@ static BOOL single_operator(sNodeType* type, int byte_operand, int ubyte_operand
     if(type_identify_with_class_name(type, "byte")) {
         append_opecode_to_code(info->code, byte_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("byte");
+        info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "ubyte")) {
         append_opecode_to_code(info->code, ubyte_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("ubyte");
+        info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "short")) {
         append_opecode_to_code(info->code, short_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("short");
+        info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "ushort")) {
         append_opecode_to_code(info->code, ushort_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("ushort");
+        info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "int")) {
         append_opecode_to_code(info->code, int_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("int");
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "uint")) {
         append_opecode_to_code(info->code, uint_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("uint");
+        info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "long")) {
         append_opecode_to_code(info->code, long_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("long");
+        info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(type, "ulong")) {
         append_opecode_to_code(info->code, ulong_operand, info->no_output);
 
-        info->type = create_node_type_with_class_name("ulong");
+        info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
     }
 
     return TRUE;
@@ -698,7 +767,7 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
         compile_err_msg(info, "Invalid type for operand(%s). The left type is %s. The right type is %s.", op_string,CLASS_NAME(left_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -707,86 +776,86 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
         append_opecode_to_code(info->code, byte_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("byte");
+        info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "ubyte") && ubyte_operand != -1) {
         append_opecode_to_code(info->code, ubyte_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("ubyte");
+        info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "short") && short_operand != -1) {
         append_opecode_to_code(info->code, short_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("short");
+        info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "ushort") && ushort_operand != -1) {
         append_opecode_to_code(info->code, ushort_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("ushort");
+        info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "int") && int_operand != -1) {
         append_opecode_to_code(info->code, int_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("int");
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "uint") && uint_operand != -1) {
         append_opecode_to_code(info->code, uint_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("uint");
+        info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "long") && long_operand != -1) {
         append_opecode_to_code(info->code, long_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("long");
+        info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "ulong") && ulong_operand != -1) {
         append_opecode_to_code(info->code, ulong_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("ulong");
+        info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "float") && float_operand != -1) {
         append_opecode_to_code(info->code, float_operand, info->no_output);
 
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("float");
+        info->type = create_node_type_with_class_name("float", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "double") && double_operand != -1) {
         append_opecode_to_code(info->code, double_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("double");
+        info->type = create_node_type_with_class_name("double", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "Null") && null_operand != -1) {
         append_opecode_to_code(info->code, null_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("null");
+        info->type = create_node_type_with_class_name("null", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "char") && char_operand != -1) {
         append_opecode_to_code(info->code, char_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("char");
+        info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "bool") && bool_operand != -1) {
         append_opecode_to_code(info->code, bool_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "regex") && regex_operand != -1) {
         append_opecode_to_code(info->code, regex_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(left_type, "pointer") && pointer_operand != -1) {
         if(strcmp(op_string, "-") == 0) {
@@ -794,10 +863,10 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
                 append_opecode_to_code(info->code, OP_PPSUB, info->no_output);
                 info->stack_num--;
 
-                info->type = create_node_type_with_class_name("ulong");
+                info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
             }
             else {
-                sNodeType* ulong_type = create_node_type_with_class_name("ulong");
+                sNodeType* ulong_type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
                 cast_right_type_to_left_type(ulong_type, &right_type, info);
 
                 if(!type_identify_with_class_name(right_type, "ulong")) {
@@ -808,7 +877,7 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
                     append_opecode_to_code(info->code, pointer_operand, info->no_output);
                     info->stack_num--;
 
-                    info->type = create_node_type_with_class_name("pointer");
+                    info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
                 }
             }
         }
@@ -816,10 +885,10 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
             append_opecode_to_code(info->code, pointer_operand, info->no_output);
             info->stack_num--;
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
         }
         else {
-            sNodeType* ulong_type = create_node_type_with_class_name("ulong");
+            sNodeType* ulong_type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
             cast_right_type_to_left_type(ulong_type, &right_type, info);
 
             if(!type_identify_with_class_name(right_type, "ulong")) {
@@ -831,14 +900,14 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
                 info->stack_num--;
             }
 
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
     }
     else if(strcmp(op_string, "==") == 0 || strcmp(op_string, "!=") == 0) {
         append_opecode_to_code(info->code, object_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else {
         compile_err_msg(info, "%s.%s is not implemented", CLASS_NAME(left_type->mClass), op_string);
@@ -854,7 +923,7 @@ static BOOL binary_operator_for_bool(sNodeType* type, int bool_operand, sCompile
         append_opecode_to_code(info->code, bool_operand, info->no_output);
         info->stack_num--;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
 
     return TRUE;
@@ -876,7 +945,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
     }
 
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         cast_right_type_to_left_type(pointer_type, &left_type, info);
     }
 
@@ -888,7 +957,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("int");
+            right_type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "uint")) {
             append_opecode_to_code(info->code, OP_LDCUINT, info->no_output);
@@ -896,7 +965,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("uint");
+            right_type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "byte")) {
             append_opecode_to_code(info->code, OP_LDCBYTE, info->no_output);
@@ -904,7 +973,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("byte");
+            right_type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "ubyte")) {
             append_opecode_to_code(info->code, OP_LDCUBYTE, info->no_output);
@@ -912,7 +981,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("ubyte");
+            right_type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "short")) {
             append_opecode_to_code(info->code, OP_LDCSHORT, info->no_output);
@@ -920,7 +989,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("short");
+            right_type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "ushort")) {
             append_opecode_to_code(info->code, OP_LDCUSHORT, info->no_output);
@@ -928,7 +997,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("ushort");
+            right_type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "long")) {
             append_opecode_to_code(info->code, OP_LDCLONG, info->no_output);
@@ -936,7 +1005,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("long");
+            right_type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "ulong")) {
             append_opecode_to_code(info->code, OP_LDCULONG, info->no_output);
@@ -944,7 +1013,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("ulong");
+            right_type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "float")) {
             append_opecode_to_code(info->code, OP_LDCFLOAT, info->no_output);
@@ -952,7 +1021,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("float");
+            right_type = create_node_type_with_class_name("float", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(left_type, "ulong")) {
             append_opecode_to_code(info->code, OP_LDCDOUBLE, info->no_output);
@@ -960,7 +1029,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            right_type = create_node_type_with_class_name("double");
+            right_type = create_node_type_with_class_name("double", info->pinfo->mJS);
         }
 
         append_opecode_to_code(info->code, OP_REVERSE, info->no_output);
@@ -1039,7 +1108,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpComparisonNotEqual:
@@ -1048,7 +1117,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpComparisonGreaterEqual:
@@ -1057,7 +1126,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpComparisonLesserEqual:
@@ -1066,7 +1135,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpComparisonGreater:
@@ -1075,7 +1144,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpComparisonLesser:
@@ -1084,7 +1153,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
                 return FALSE;
             }
 
-            info->type = create_node_type_with_class_name("bool");
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             break;
             
         case kOpAnd:
@@ -1123,7 +1192,7 @@ static BOOL compile_operand(unsigned int node, sCompileInfo* info)
             else {
                 append_opecode_to_code(info->code, OP_LOGICAL_DENIAL, info->no_output);
 
-                info->type = create_node_type_with_class_name("bool");
+                info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             }
             break;
     }
@@ -1151,107 +1220,178 @@ unsigned int sNodeTree_create_and_and(unsigned int left_node, unsigned int right
 
 static BOOL compile_and_and(unsigned int node, sCompileInfo* info)
 {
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
-    }
+    if(info->pinfo->mJS) {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
 
-    /// compile expression ///
-    unsigned int left_node = gNodes[node].mLeft;
+        /// compile expression ///
+        unsigned int left_node = gNodes[node].mLeft;
 
-    if(!compile(left_node, info)) {
-        return FALSE;
-    }
-
-    sNodeType* left_type = info->type;
-
-    if(unboxig_posibility(left_type->mClass)) {
-        if(!unboxing_to_primitive_type(&left_type, info)) {
+        if(!compile(left_node, info)) {
             return FALSE;
         }
-    }
 
-    if(!type_identify_with_class_name(left_type, "bool")) {
-        compile_err_msg(info, "Left expression is not bool type");
-        info->err_num++;
+        sNodeType* left_type = info->type;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        if(unboxig_posibility(left_type->mClass)) {
+            if(!unboxing_to_primitive_type(&left_type, info)) {
+                return FALSE;
+            }
+        }
 
-        return TRUE;
-    }
+        if(!type_identify_with_class_name(left_type, "bool")) {
+            compile_err_msg(info, "Left expression is not bool type");
+            info->err_num++;
 
-    append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    append_opecode_to_code(info->code, OP_DUPE, info->no_output);
-    info->stack_num++;
+            return TRUE;
+        }
 
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
-    info->stack_num--;
+        append_opecode_to_code(info->code, OP_DUPE, info->no_output);
 
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 0, info->no_output);
-    info->stack_num++;
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
-    info->stack_num--;
+        append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
 
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-    info->stack_num--;
+        int goto_point = 0;
+        char label_end_point[LABEL_NAME_MAX];
 
-    /// goto the end point ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is false, jump to the end of and and expression
-    int goto_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
+        /// compile right expression ///
+        unsigned int right_node = gNodes[node].mRight;
 
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_and_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
-
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    /// compile right expression ///
-    unsigned int right_node = gNodes[node].mRight;
-
-    if(!compile(right_node, info)) {
-        return FALSE;
-    }
-
-    sNodeType* right_type = info->type;
-
-    if(unboxig_posibility(right_type->mClass)) {
-        if(!unboxing_to_primitive_type(&right_type, info)) {
+        if(!compile(right_node, info)) {
             return FALSE;
         }
+
+        sNodeType* right_type = info->type;
+
+        if(unboxig_posibility(right_type->mClass)) {
+            if(!unboxing_to_primitive_type(&right_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(right_type, "bool")) {
+            compile_err_msg(info, "Right expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+
+        append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
+    else {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
 
-    if(!type_identify_with_class_name(right_type, "bool")) {
-        compile_err_msg(info, "Right expression is not bool type");
-        info->err_num++;
+        /// compile expression ///
+        unsigned int left_node = gNodes[node].mLeft;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        if(!compile(left_node, info)) {
+            return FALSE;
+        }
 
-        return TRUE;
+        sNodeType* left_type = info->type;
+
+        if(unboxig_posibility(left_type->mClass)) {
+            if(!unboxing_to_primitive_type(&left_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(left_type, "bool")) {
+            compile_err_msg(info, "Left expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+
+        append_opecode_to_code(info->code, OP_DUPE, info->no_output);
+        info->stack_num++;
+
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+        info->stack_num++;
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+        append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+        info->stack_num--;
+
+        /// goto the end point ///
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is false, jump to the end of and and expression
+        int goto_point = info->code->mLen;
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        char label_end_point[LABEL_NAME_MAX];
+        create_label_name("label_and_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        /// compile right expression ///
+        unsigned int right_node = gNodes[node].mRight;
+
+        if(!compile(right_node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* right_type = info->type;
+
+        if(unboxig_posibility(right_type->mClass)) {
+            if(!unboxing_to_primitive_type(&right_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(right_type, "bool")) {
+            compile_err_msg(info, "Right expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+        info->stack_num--;
+
+        /// the end point ///
+        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
+        info->stack_num++;
+        append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
+        info->stack_num++;
+
+        append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+
+        append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
     }
-
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
-    info->stack_num--;
-
-    /// the end point ///
-    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
-    info->stack_num++;
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
-    info->stack_num++;
-
-    append_opecode_to_code(info->code, OP_ANDAND, info->no_output);
-    info->stack_num--;
-
-    info->type = create_node_type_with_class_name("bool");
-
-    append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
 
     return TRUE;
 }
@@ -1276,107 +1416,182 @@ unsigned int sNodeTree_create_or_or(unsigned int left_node, unsigned int right_n
 
 static BOOL compile_or_or(unsigned int node, sCompileInfo* info)
 {
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
-    }
+    if(info->pinfo->mJS) {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
 
-    /// compile expression ///
-    unsigned int left_node = gNodes[node].mLeft;
+        /// compile expression ///
+        unsigned int left_node = gNodes[node].mLeft;
 
-    if(!compile(left_node, info)) {
-        return FALSE;
-    }
-
-    sNodeType* left_type = info->type;
-
-    if(unboxig_posibility(left_type->mClass)) {
-        if(!unboxing_to_primitive_type(&left_type, info)) {
+        if(!compile(left_node, info)) {
             return FALSE;
         }
-    }
 
-    if(!type_identify_with_class_name(left_type, "bool")) {
-        compile_err_msg(info, "Left expression is not bool type");
-        info->err_num++;
+        sNodeType* left_type = info->type;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        if(unboxig_posibility(left_type->mClass)) {
+            if(!unboxing_to_primitive_type(&left_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(left_type, "bool")) {
+            compile_err_msg(info, "Left expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_DUPE, info->no_output);
+
+        append_opecode_to_code(info->code, OP_JS_NOT_IF, info->no_output);
+
+        int goto_point = 0;
+        char label_end_point[LABEL_NAME_MAX];
+
+        /// compile right expression ///
+        unsigned int right_node = gNodes[node].mRight;
+
+        if(!compile(right_node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* right_type = info->type;
+
+        if(unboxig_posibility(right_type->mClass)) {
+            if(!unboxing_to_primitive_type(&right_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(right_type, "bool")) {
+            compile_err_msg(info, "Right expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+
+        append_opecode_to_code(info->code, OP_OROR, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+
+        append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
 
         return TRUE;
     }
+    else {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
 
-    append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+        /// compile expression ///
+        unsigned int left_node = gNodes[node].mLeft;
 
-    append_opecode_to_code(info->code, OP_DUPE, info->no_output);
-    info->stack_num++;
-
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
-    info->stack_num--;
-
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
-    append_int_value_to_code(info->code, 1, info->no_output);
-    info->stack_num++;
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
-    info->stack_num--;
-
-    append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-    info->stack_num--;
-
-    /// goto the end point ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is true, jump to the end of || expression
-    int goto_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
-
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_or_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
-
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    /// compile right expression ///
-    unsigned int right_node = gNodes[node].mRight;
-
-    if(!compile(right_node, info)) {
-        return FALSE;
-    }
-
-    sNodeType* right_type = info->type;
-
-    if(unboxig_posibility(right_type->mClass)) {
-        if(!unboxing_to_primitive_type(&right_type, info)) {
+        if(!compile(left_node, info)) {
             return FALSE;
         }
+
+        sNodeType* left_type = info->type;
+
+        if(unboxig_posibility(left_type->mClass)) {
+            if(!unboxing_to_primitive_type(&left_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(left_type, "bool")) {
+            compile_err_msg(info, "Left expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_INC_ANDAND_OROR_ARRAY, info->no_output);
+
+        append_opecode_to_code(info->code, OP_DUPE, info->no_output);
+        info->stack_num++;
+
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_LEFT, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+        append_int_value_to_code(info->code, 1, info->no_output);
+        info->stack_num++;
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
+        append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+        info->stack_num--;
+
+        /// goto the end point ///
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the left expression is true, jump to the end of || expression
+        int goto_point = info->code->mLen;
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        char label_end_point[LABEL_NAME_MAX];
+        create_label_name("label_or_endpoint", label_end_point, LABEL_NAME_MAX, label_num);
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        /// compile right expression ///
+        unsigned int right_node = gNodes[node].mRight;
+
+        if(!compile(right_node, info)) {
+            return FALSE;
+        }
+
+        sNodeType* right_type = info->type;
+
+        if(unboxig_posibility(right_type->mClass)) {
+            if(!unboxing_to_primitive_type(&right_type, info)) {
+                return FALSE;
+            }
+        }
+
+        if(!type_identify_with_class_name(right_type, "bool")) {
+            compile_err_msg(info, "Right expression is not bool type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
+        info->stack_num--;
+
+        /// the end point ///
+        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
+        info->stack_num++;
+        append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
+        info->stack_num++;
+
+        append_opecode_to_code(info->code, OP_OROR, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+
+        append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
     }
-
-    if(!type_identify_with_class_name(right_type, "bool")) {
-        compile_err_msg(info, "Right expression is not bool type");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int"); // dummy
-
-        return TRUE;
-    }
-
-    append_opecode_to_code(info->code, OP_STORE_ANDAND_OROR_VALUE_RIGHT, info->no_output);
-    info->stack_num--;
-
-    /// the end point ///
-    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_LEFT, info->no_output);
-    info->stack_num++;
-    append_opecode_to_code(info->code, OP_GET_ANDAND_OROR_RESULT_RIGHT, info->no_output);
-    info->stack_num++;
-
-    append_opecode_to_code(info->code, OP_OROR, info->no_output);
-    info->stack_num--;
-
-    info->type = create_node_type_with_class_name("bool");
-
-    append_opecode_to_code(info->code, OP_DEC_ANDAND_OROR_ARRAY, info->no_output);
 
     return TRUE;
 }
@@ -1396,7 +1611,7 @@ unsigned int sNodeTree_create_byte_value(char value, unsigned int left, unsigned
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("byte");
+    gNodes[node].mType = create_node_type_with_class_name("byte", info->mJS);
 
     return node;
 }
@@ -1428,7 +1643,7 @@ unsigned int sNodeTree_create_cbyte_value(char value, unsigned int left, unsigne
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("byte");
+    gNodes[node].mType = create_node_type_with_class_name("byte", info->mJS);
 
     return node;
 }
@@ -1439,7 +1654,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Byte");
+    sCLClass* klass = get_class("Byte", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -1457,7 +1672,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, gNodes[node].uValue.mByteValue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("byte");
+    param_types[0] = create_node_type_with_class_name("byte", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -1472,7 +1687,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -1485,7 +1700,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Byte");
+        sNodeType* result_type2 = create_node_type_with_class_name("Byte", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -1523,7 +1738,7 @@ static BOOL compile_float_value(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("float");
+    info->type = create_node_type_with_class_name("float", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -1552,7 +1767,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Float");
+    sCLClass* klass = get_class("Float", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -1570,7 +1785,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
     append_float_value_to_code(info->code, fvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("float");
+    param_types[0] = create_node_type_with_class_name("float", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -1585,7 +1800,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -1598,7 +1813,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Float");
+        sNodeType* result_type2 = create_node_type_with_class_name("Float", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -1636,7 +1851,7 @@ static BOOL compile_double_value(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("double");
+    info->type = create_node_type_with_class_name("double", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -1665,7 +1880,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Double");
+    sCLClass* klass = get_class("Double", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -1683,7 +1898,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
     append_double_value_to_code(info->code, dvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("double");
+    param_types[0] = create_node_type_with_class_name("double", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -1698,7 +1913,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -1711,7 +1926,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Double");
+        sNodeType* result_type2 = create_node_type_with_class_name("Double", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -1739,7 +1954,7 @@ unsigned int sNodeTree_create_ubyte_value(unsigned char value, unsigned int left
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ubyte");
+    gNodes[node].mType = create_node_type_with_class_name("ubyte", info->mJS);
 
     return node;
 }
@@ -1771,7 +1986,7 @@ unsigned int sNodeTree_create_cubyte_value(unsigned char value, unsigned int lef
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ubyte");
+    gNodes[node].mType = create_node_type_with_class_name("ubyte", info->mJS);
 
     return node;
 }
@@ -1782,7 +1997,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("UByte");
+    sCLClass* klass = get_class("UByte", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -1800,7 +2015,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, ubvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("ubyte");
+    param_types[0] = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -1815,7 +2030,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -1828,7 +2043,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("UByte");
+        sNodeType* result_type2 = create_node_type_with_class_name("UByte", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -1856,7 +2071,7 @@ unsigned int sNodeTree_create_short_value(short value, unsigned int left, unsign
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("short");
+    gNodes[node].mType = create_node_type_with_class_name("short", info->mJS);
 
     return node;
 }
@@ -1888,7 +2103,7 @@ unsigned int sNodeTree_create_cshort_value(short value, unsigned int left, unsig
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("short");
+    gNodes[node].mType = create_node_type_with_class_name("short", info->mJS);
 
     return node;
 }
@@ -1899,7 +2114,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Short");
+    sCLClass* klass = get_class("Short", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -1917,7 +2132,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, svalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("short");
+    param_types[0] = create_node_type_with_class_name("short", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -1932,7 +2147,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -1945,7 +2160,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Short");
+        sNodeType* result_type2 = create_node_type_with_class_name("Short", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -1973,7 +2188,7 @@ unsigned int sNodeTree_create_ushort_value(unsigned short value, unsigned int le
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ushort");
+    gNodes[node].mType = create_node_type_with_class_name("ushort", info->mJS);
 
     return node;
 }
@@ -2005,7 +2220,7 @@ unsigned int sNodeTree_create_cushort_value(unsigned short value, unsigned int l
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ushort");
+    gNodes[node].mType = create_node_type_with_class_name("ushort", info->mJS);
 
     return node;
 }
@@ -2016,7 +2231,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("UShort");
+    sCLClass* klass = get_class("UShort", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -2034,7 +2249,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, usvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("ushort");
+    param_types[0] = create_node_type_with_class_name("ushort", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -2049,7 +2264,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -2062,7 +2277,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("UShort");
+        sNodeType* result_type2 = create_node_type_with_class_name("UShort", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -2090,7 +2305,7 @@ unsigned int sNodeTree_create_int_value(int value, unsigned int left, unsigned i
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("int");
+    gNodes[node].mType = create_node_type_with_class_name("int", info->mJS);
 
     return node;
 }
@@ -2102,7 +2317,7 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("int");
+    info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -2122,7 +2337,7 @@ unsigned int sNodeTree_create_cint_value(int value, unsigned int left, unsigned 
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("int");
+    gNodes[node].mType = create_node_type_with_class_name("int", info->mJS);
 
     return node;
 }
@@ -2133,7 +2348,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Integer");
+    sCLClass* klass = get_class("Integer", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -2151,7 +2366,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, ivalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("int");
+    param_types[0] = create_node_type_with_class_name("int", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -2166,7 +2381,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -2179,7 +2394,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Integer");
+        sNodeType* result_type2 = create_node_type_with_class_name("Integer", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -2207,7 +2422,7 @@ unsigned int sNodeTree_create_uint_value(unsigned int value, unsigned int left, 
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("uint");
+    gNodes[node].mType = create_node_type_with_class_name("uint", info->mJS);
 
     return node;
 }
@@ -2239,7 +2454,7 @@ unsigned int sNodeTree_create_cuint_value(unsigned int value, unsigned int left,
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("uint");
+    gNodes[node].mType = create_node_type_with_class_name("uint", info->mJS);
 
     return node;
 }
@@ -2250,7 +2465,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("UInteger");
+    sCLClass* klass = get_class("UInteger", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -2268,7 +2483,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
     append_int_value_to_code(info->code, uivalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("uint");
+    param_types[0] = create_node_type_with_class_name("uint", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -2283,7 +2498,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -2296,7 +2511,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("UInteger");
+        sNodeType* result_type2 = create_node_type_with_class_name("UInteger", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -2325,7 +2540,7 @@ unsigned int sNodeTree_create_long_value(clint64 value, unsigned int left, unsig
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("long");
+    gNodes[node].mType = create_node_type_with_class_name("long", info->mJS);
 
     return node;
 }
@@ -2357,7 +2572,7 @@ unsigned int sNodeTree_create_clong_value(clint64 value, unsigned int left, unsi
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("long");
+    gNodes[node].mType = create_node_type_with_class_name("long", info->mJS);
 
     return node;
 }
@@ -2368,7 +2583,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("Long");
+    sCLClass* klass = get_class("Long", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -2386,7 +2601,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
     append_long_value_to_code(info->code, lvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("long");
+    param_types[0] = create_node_type_with_class_name("long", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -2401,7 +2616,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -2414,7 +2629,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("Long");
+        sNodeType* result_type2 = create_node_type_with_class_name("Long", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -2442,7 +2657,7 @@ unsigned int sNodeTree_create_ulong_value(unsigned clint64 value, unsigned int l
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ulong");
+    gNodes[node].mType = create_node_type_with_class_name("ulong", info->mJS);
 
     return node;
 }
@@ -2474,7 +2689,7 @@ unsigned int sNodeTree_create_culong_value(unsigned clint64 value, unsigned int 
     gNodes[node].mRight = right;
     gNodes[node].mMiddle = middle;
 
-    gNodes[node].mType = create_node_type_with_class_name("ulong");
+    gNodes[node].mType = create_node_type_with_class_name("ulong", info->mJS);
 
     return node;
 }
@@ -2485,7 +2700,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
     sNodeType* generics_types2 = NULL;
 
-    sCLClass* klass = get_class("ULong");
+    sCLClass* klass = get_class("ULong", info->pinfo->mJS);
 
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
@@ -2503,7 +2718,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
     append_long_value_to_code(info->code, ulvalue, info->no_output);
 
     info->stack_num++;
-    param_types[0] = create_node_type_with_class_name("ulong");
+    param_types[0] = create_node_type_with_class_name("ulong", info->pinfo->mJS);
 
     if(!info->pinfo->exist_block_object_err) { // for interpreter completion
         sNodeType* right_method_generics_types = NULL;
@@ -2518,7 +2733,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -2531,7 +2746,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, method_index, info->no_output);
 
-        sNodeType* result_type2 = create_node_type_with_class_name("ULong");
+        sNodeType* result_type2 = create_node_type_with_class_name("ULong", info->pinfo->mJS);
         int size = get_var_size(result_type2);
         append_int_value_to_code(info->code, size, info->no_output);
 
@@ -2574,7 +2789,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "undeclared variable %s(5)", gNodes[node].uValue.sAssignVariable.mVarName);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -2600,7 +2815,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "invalid type(1)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -2616,7 +2831,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "The different type between left type and right type(1). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -2631,7 +2846,7 @@ static BOOL compile_store_variable(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
@@ -2670,16 +2885,16 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
     if(info->pinfo->get_type_for_interpreter) {
         if(strcmp(gNodes[node].uValue.mVarName, "self") == 0 && info->pinfo->klass) {
-            info->type = create_node_type_with_class_name(CLASS_NAME(info->pinfo->klass));
+            info->type = create_node_type_with_class_name(CLASS_NAME(info->pinfo->klass), info->pinfo->mJS);
             return TRUE;
         }
     }
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s(6)", gNodes[node].uValue.mVarName);
+        compile_err_msg(info, "undeclared variable %s(6)", info->pinfo->mJS, gNodes[node].uValue.mVarName);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -2691,7 +2906,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "can't get type of %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -2713,7 +2928,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "null type %s", gNodes[node].uValue.mVarName);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -2784,17 +2999,19 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(info->type, "Bool")) {
         append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
+
+    append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
 
     append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
     append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
@@ -2835,6 +3052,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
+    append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
     //// elif ///
     if(gNodes[node].uValue.sIf.mElifNum > 0) {
         *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
@@ -2844,6 +3063,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
         int j;
         for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+            append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+
             lv_table = clone_var_table(info->lv_table);
 
             /// compile expression ///
@@ -2859,17 +3080,19 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             if(type_identify_with_class_name(info->type, "Bool")) {
                 append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-                info->type = create_node_type_with_class_name("bool");
+                info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
             }
 
             if(!type_identify_with_class_name(info->type, "bool")) {
                 compile_err_msg(info, "This conditional type is not bool");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
+
+            append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
 
             append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
             append_int_value_to_code(info->code, sizeof(int)*5, info->no_output);
@@ -2905,7 +3128,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                     cast_right_type_to_left_type(if_result_type, &elif_result_type, info);
                 }
                 else {
-                    if_result_type = create_node_type_with_class_name("Anonymous");
+                    if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
                 }
             }
 
@@ -2924,6 +3147,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
             append_opecode_to_code(info->code, OP_LABEL, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
+
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
         }
     }
     else {
@@ -2932,6 +3157,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 
     /// else block ///
     if(else_node_block) {
+        append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
 
@@ -2946,7 +3173,7 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
                 cast_right_type_to_left_type(if_result_type, &else_result_type, info);
             }
             else {
-                if_result_type = create_node_type_with_class_name("Anonymous");
+                if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
             }
         }
 
@@ -2958,6 +3185,8 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
         num_end_points++;
         append_int_value_to_code(info->code, 0, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
     }
     else {
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
@@ -2977,22 +3206,16 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
     }
 
     int i;
+    for(i=0; i<gNodes[node].uValue.sIf.mElifNum; i++) {
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+    }
+
     for(i=0; i<num_end_points; i++) {
         *(int*)(info->code->mCodes + end_points[i]) = info->code->mLen;
     }
 
     append_opecode_to_code(info->code, OP_LABEL, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-/*
-if(!else_node_block) {
-    append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-    info->stack_num++;
-
-    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-    info->stack_num--;
-}
-*/
 
     if(info->pinfo->err_num == 0) { // for interpreter completion
         append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
@@ -3108,7 +3331,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
             append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
 
-            info->type = create_node_type_with_class_name("String");
+            info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
 
             info->stack_num--;
             info->stack_num++;
@@ -3122,16 +3345,16 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
             info->stack_num++;
 
-            info->type = create_node_type_with_class_name("String");
+            info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
 
             /// String.equals ///
-            sCLClass* string_class = get_class("String");
+            sCLClass* string_class = get_class("String", info->pinfo->mJS);
             char* method_name = "equals";
 
             sNodeType* param_types[PARAMS_MAX];
             int num_params = 1;
 
-            param_types[0] = create_node_type_with_class_name("String");
+            param_types[0] = create_node_type_with_class_name("String", info->pinfo->mJS);
 
             sNodeType* result_type = NULL;
             sNodeType* result_method_generics_types = NULL;
@@ -3143,7 +3366,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 
                 err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -3218,7 +3441,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
             }
             else if(when_result_type && !type_identify(info->type, when_result_type)) {
-                when_result_type = create_node_type_with_class_name("Anonymous");
+                when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
             }
             else {
                 when_result_type = info->type;
@@ -3264,7 +3487,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "Require String value for when match statment");
                     info->err_num++;
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                     return TRUE;
                 }
@@ -3288,7 +3511,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "When match value type should be regex.");
                     info->err_num++;
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                     return TRUE;
                 }
@@ -3359,7 +3582,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
                 }
                 else if(when_result_type && !type_identify(info->type, when_result_type)) {
-                    when_result_type = create_node_type_with_class_name("Anonymous");
+                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
                 }
                 else {
                     when_result_type = info->type;
@@ -3408,7 +3631,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         compile_err_msg(info, "When value type and when type is the different.");
                         info->err_num++;
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                         return TRUE;
                     }
@@ -3418,11 +3641,11 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         return FALSE;
                     }
 
-                    info->type = create_node_type_with_class_name("bool");
+                    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                 }
                 else {
                     /// check interface ///
-                    sCLClass* iequalable = get_class("IEqualable");
+                    sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
                     if(!check_implemented_methods_for_interface(iequalable, klass, TRUE)) {
                         compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
                         info->err_num++;
@@ -3432,7 +3655,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         compile_err_msg(info, "Dynamic class type can't be when argument");
                         info->err_num++;
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                         return TRUE;
                     }
@@ -3462,7 +3685,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
                             int num_real_params = num_params + 1;
 
-                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
                             char method_name_and_params[size_method_name_and_params];
                             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
@@ -3473,12 +3696,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
-
-                            sNodeType* result_type = create_node_type_with_class_name("bool");
+                            sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                             int size = get_var_size(result_type);
                             append_int_value_to_code(info->code, size, info->no_output);
 
                             append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 1, info->no_output);
                             append_int_value_to_code(info->code, 0, info->no_output);
 
                             info->stack_num -= num_params + 1;
@@ -3508,7 +3732,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             compile_err_msg(info, "When value type and when type is the different.");
                             info->err_num++;
 
-                            info->type = create_node_type_with_class_name("int"); // dummy
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                             return TRUE;
                         }
@@ -3523,7 +3747,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
                             int num_real_params = num_params + 1;
 
-                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
                             char method_name_and_params[size_method_name_and_params];
                             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
@@ -3536,11 +3760,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             append_int_value_to_code(info->code, num_real_params, info->no_output);
                             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
-                            sNodeType* result_type = create_node_type_with_class_name("bool");
+                            sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                             int size = get_var_size(result_type);
                             append_int_value_to_code(info->code, size, info->no_output);
 
                             append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 0, info->no_output);
+                            append_int_value_to_code(info->code, 1, info->no_output);
                             append_int_value_to_code(info->code, 0, info->no_output);
 
                             info->stack_num -= num_params + 1;
@@ -3570,7 +3796,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                             compile_err_msg(info, "When value type and when type is the different.");
                             info->err_num++;
 
-                            info->type = create_node_type_with_class_name("int"); // dummy
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                             return TRUE;
                         }
@@ -3643,7 +3869,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                 if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
                 }
                 else if(when_result_type && !type_identify(info->type, when_result_type)) {
-                    when_result_type = create_node_type_with_class_name("Anonymous");
+                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
                 }
                 else {
                     when_result_type = info->type;
@@ -3680,7 +3906,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
         if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
         }
         else if(when_result_type && !type_identify(info->type, when_result_type)) {
-            when_result_type = create_node_type_with_class_name("Anonymous");
+            when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
         }
         else {
             when_result_type = info->type;
@@ -3711,7 +3937,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "When result type is NULL");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -3776,14 +4002,14 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(info->type, "Bool")) {
         append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -3842,7 +4068,7 @@ static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
 
     return TRUE;
@@ -3902,14 +4128,14 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 
     if(type_identify_with_class_name(info->type, "Bool")) {
         append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
 
     if(!type_identify_with_class_name(info->type, "bool")) {
         compile_err_msg(info, "This conditional type is not bool");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -3981,7 +4207,7 @@ static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
     if(info->pinfo->err_num == 0) { // for interpreter completion
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
     else {
         info->type = expresson_type_in_block;   // for interpreter completion 
@@ -4016,13 +4242,13 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "Throw expressioin should be in a method definition");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
 
             /// compile expression ///
-            sNodeType* node_type = create_node_type_with_class_name("Exception");
+            sNodeType* node_type = create_node_type_with_class_name("Exception", info->pinfo->mJS);
             sCLClass* klass = node_type->mClass;
 
             append_opecode_to_code(info->code, OP_NEW, info->no_output);
@@ -4058,7 +4284,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
 
                     err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                     return TRUE;
                 }
@@ -4087,7 +4313,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "Invalid type of exception value");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -4096,14 +4322,14 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "Invalid stack num in the throw expression");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
 
             append_opecode_to_code(info->code, OP_THROW, info->no_output);
             info->stack_num = 0;  // no pop
-            info->type = create_node_type_with_class_name("Null");
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "call break in the out of loop");
@@ -4126,7 +4352,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
     
     return TRUE;
@@ -4152,11 +4378,11 @@ unsigned int sNodeTree_true_expression(sParserInfo* info)
 
 static BOOL compile_true_expression(unsigned int node, sCompileInfo* info)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_opecode_to_code(info->code, OP_LDCBOOL, info->no_output);
     append_int_value_to_code(info->code, 1, info->no_output);
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("bool");
+    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     
     return TRUE;
 }
@@ -4181,11 +4407,11 @@ unsigned int sNodeTree_false_expression(sParserInfo* info)
 
 static BOOL compile_false_expression(unsigned int node, sCompileInfo* info)
 {
-    append_opecode_to_code(info->code, OP_LDCINT, info->no_output);
+    append_opecode_to_code(info->code, OP_LDCBOOL, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("bool");
+    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     
     return TRUE;
 }
@@ -4213,7 +4439,7 @@ static BOOL compile_null_expression(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("Null");
+    info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     
     return TRUE;
 }
@@ -4238,7 +4464,7 @@ unsigned int sNodeTree_wildcard_expression(sParserInfo* info)
 
 static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)
 {
-    sCLClass* klass = get_class("WildCard");
+    sCLClass* klass = get_class("WildCard", info->pinfo->mJS);
 
     MASSERT(klass != NULL);
 
@@ -4249,7 +4475,7 @@ static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("WildCard");
+    info->type = create_node_type_with_class_name("WildCard", info->pinfo->mJS);
     
     return TRUE;
 }
@@ -4408,7 +4634,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
                     compile_err_msg(info, "require calllingClasMethod class method for dynamic class");
                     info->err_num++;
 
-                    info->type = create_node_type_with_class_name("int"); // dummy
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                     return TRUE;
                 }
@@ -4450,7 +4676,7 @@ static BOOL compile_class_method_call(unsigned int node, sCompileInfo* info)
 
                 err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
             }
 
             return TRUE;
@@ -4627,7 +4853,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                 compile_err_msg(info, "Require the calllingMethod method for dynamic class");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -4645,7 +4871,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
         if(!info->pinfo->exist_block_object_err) { // for interpreter completion
             int num_real_params = num_params + 1;
 
-            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 256;
+            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
             char method_name_and_params[size_method_name_and_params];
             create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
@@ -4658,10 +4884,12 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 
-            sNodeType* result_type = create_node_type_with_class_name("Anonymous");
+            sNodeType* result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
             int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
 
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
 
@@ -4695,7 +4923,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                 err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -4712,11 +4940,17 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
-
             int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
 
             append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+
+            BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
+            append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
+
             append_int_value_to_code(info->code, 0, info->no_output);
 
             info->stack_num -= num_params + 1;
@@ -4969,7 +5203,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                             compile_err_msg(info, "A cast method doesn't require params");
                             info->err_num++;
 
-                            info->type = create_node_type_with_class_name("int"); // dummy
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                             return TRUE;
                         }
@@ -4978,7 +5212,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                         char* cast_type_name = gCastMethods[cast_method_index].type_;
 
                         sNodeType* left_type = object_type;
-                        sNodeType* right_type = create_node_type_with_class_name(cast_type_name);
+                        sNodeType* right_type = create_node_type_with_class_name(cast_type_name, info->pinfo->mJS);
 
                         cast_right_type_to_left_type(left_type, &right_type, info);
                         info->type = right_type;
@@ -4993,7 +5227,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
                         }
 
-                        info->type = create_node_type_with_class_name("int"); // dummy
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                         return TRUE;
                     }
@@ -5017,6 +5251,12 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     append_int_value_to_code(info->code, size, info->no_output);
 
                     append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+
+                    char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+
+                    BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
+                    append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
                     append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
 
                     info->stack_num -= num_params + 1;
@@ -5104,7 +5344,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for method call");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5128,7 +5368,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Primitive class can't be called to method");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5171,7 +5411,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "identify method require one none primitive class param");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5180,7 +5420,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "Identify method require one none primitive class param");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5190,7 +5430,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->stack_num-=num_params + 1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(strcmp(method_name, "className") == 0) {
         //// go ///
@@ -5198,7 +5438,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "className method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5208,7 +5448,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->stack_num-=num_params + 1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("String");
+        info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
     }
     else if(strcmp(method_name, "toNull") == 0) {
         //// go ///
@@ -5216,7 +5456,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "toNull method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5228,7 +5468,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         
         return TRUE;
     }
@@ -5238,12 +5478,12 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "ID method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
 
-        info->type = create_node_type_with_class_name("int");
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         
         return TRUE;
     }
@@ -5253,7 +5493,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "allocatedSize method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5263,7 +5503,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->stack_num-=num_params + 1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("int");
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
     }
     else if(strcmp(method_name, "headOfMemory") == 0) {
         //// go ///
@@ -5271,7 +5511,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "headOfMemory method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5281,7 +5521,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->stack_num-=num_params + 1;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else if(strcmp(method_name, "toAnonymous") == 0) {
         //// go ///
@@ -5289,12 +5529,12 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "toAnonymous method doesn't require params");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
 
-        info->type = create_node_type_with_class_name("Anonymous");
+        info->type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(object_type, "Anonymous") && strcmp(method_name, "cast") == 0) {
         //// go ///
@@ -5302,14 +5542,14 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "cast method require one String Constant param");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
 
         char* class_name = gNodes[params[0]].uValue.sString.mString;
 
-        info->type = create_node_type_with_class_name(class_name);
+        info->type = create_node_type_with_class_name(class_name, info->pinfo->mJS);
 
         return TRUE;
     }
@@ -5319,7 +5559,7 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "is method require one String Constant param");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5335,14 +5575,14 @@ static BOOL compile_method_call(unsigned int node, sCompileInfo* info)
         info->stack_num-=2;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
 
         //// go ///
         char* class_name = gNodes[params[0]].uValue.sString.mString;
         if(gNodes[lnode].mNodeType == kNodeTypeLoadVariable) {
             sVar* var = get_variable_from_table(info->lv_table, gNodes[lnode].uValue.mVarName);
 
-            var->mType = create_node_type_with_class_name(class_name);
+            var->mType = create_node_type_with_class_name(class_name, info->pinfo->mJS);
         }
     }
     /// normal methods ///
@@ -5385,10 +5625,10 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
     sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
 
     if(generics_types->mClass == NULL) {
-        compile_err_msg(info, "Class not found for new operator");
+        compile_err_msg(info, "Class not found for new operator", info->pinfo->mJS);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5422,10 +5662,9 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "Array can't create with initialize method");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
-
         }
 
         info->type = generics_types2;
@@ -5464,7 +5703,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
                 err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -5486,6 +5725,12 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
                 append_int_value_to_code(info->code, size, info->no_output);
 
                 append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+
+                char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+
+                BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
+                append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
                 append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
 
                 info->stack_num -= num_params + 1;
@@ -5547,7 +5792,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         value_result_type = info->type;
     }
     else {
-        value_result_type = create_node_type_with_class_name("Null");
+        value_result_type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
 
     sCLClass* klass = info->pinfo->klass;
@@ -5558,7 +5803,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Return expression should be in a method definition or in a block object");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5569,7 +5814,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "There is in the initialize or finalize method");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5598,7 +5843,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Invalid type of return value(1)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5624,7 +5869,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
             }
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -5634,7 +5879,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Invalid type of return value(4)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5643,7 +5888,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     if(info->pinfo->err_num == 0) { // for interpreter completion
         info->stack_num = 0;  // no pop
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
 
     return TRUE;
@@ -5682,7 +5927,7 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Throw expressioin should be in a method definition");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5694,7 +5939,7 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Invalid type of exception value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5703,14 +5948,14 @@ static BOOL compile_throw_expression(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Invalid stack num in the throw expression");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
     append_opecode_to_code(info->code, OP_THROW, info->no_output);
     info->stack_num = 0;  // no pop
-    info->type = create_node_type_with_class_name("Null");
+    info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     
     return TRUE;
 }
@@ -5801,11 +6046,13 @@ static BOOL compile_try_expression(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
 
+        append_opecode_to_code(info->code, OP_CATCH_END, info->no_output);
+
         if(info->pinfo->err_num == 0) { // for interpreter completion
             append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
             info->stack_num++;
 
-            info->type = create_node_type_with_class_name("Null");
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         }
     }
 
@@ -5847,7 +6094,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for loading field");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -5869,8 +6116,8 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         }
     }
 
-    sCLClass* regex_class = get_class("regex");
-    sCLClass* char_class = get_class("char");
+    sCLClass* regex_class = get_class("regex", info->pinfo->mJS);
+    sCLClass* char_class = get_class("char", info->pinfo->mJS);
 
     /// special field ///
     if(array && strcmp(field_name, "length") == 0) {
@@ -5879,7 +6126,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         info->stack_num--;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("int");
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
     }
     else if(array && strcmp(field_name, "toArray") == 0) {
         cast_right_type_to_Array(&info->type, info);
@@ -5887,52 +6134,52 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
     else if(klass == char_class && strcmp(field_name, "to_upper") == 0) {
         append_opecode_to_code(info->code, OP_CHAR_UPPERCASE, info->no_output);
 
-        info->type = create_node_type_with_class_name("char");
+        info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
     }
     else if(klass == char_class && strcmp(field_name, "to_lower") == 0) {
         append_opecode_to_code(info->code, OP_CHAR_LOWERCASE, info->no_output);
 
-        info->type = create_node_type_with_class_name("char");
+        info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "global") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_GLOBAL, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "ignoreCase") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_IGNORE_CASE, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "multiline") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_MULTILINE, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "extended") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_EXTENDED, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "dotAll") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_DOTALL, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "anchored") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_ANCHORED, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "dollarEndOnly") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_DOLLAR_ENDONLY, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(klass == regex_class && strcmp(field_name, "ungreedy") == 0) {
         append_opecode_to_code(info->code, OP_GET_REGEX_UNGREEDY, info->no_output);
 
-        info->type = create_node_type_with_class_name("bool");
+        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(((klass->mFlags & CLASS_FLAGS_PRIMITIVE) || strcmp(CLASS_NAME(klass), "regex") == 0) && strcmp(field_name, "toString") == 0) {
         cast_right_type_to_String(&info->type, info);
@@ -6038,7 +6285,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "There is no field(%s) in this class(%s)(6)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -6059,6 +6306,7 @@ static BOOL compile_load_field(unsigned int node, sCompileInfo* info)
         int size = get_var_size(field_type);
 
         append_int_value_to_code(info->code, size, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
         info->stack_num--;
         info->stack_num++;
@@ -6108,7 +6356,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for object");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6127,7 +6375,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6142,7 +6390,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "There is no field(%s) in this class(%s)(1)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6165,7 +6413,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
 
@@ -6177,7 +6425,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_STORE_FIELD_OF_BUFFER, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_FIELD, info->no_output);
@@ -6196,6 +6444,7 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
 
     int size = get_var_size(info->type);
     append_int_value_to_code(info->code, size, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
     info->stack_num--;
 
@@ -6235,7 +6484,7 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "There is no field(%s) in this class(%s)(2)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6295,7 +6544,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6310,7 +6559,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "There is no field(%s) in this class(%s)(3)", field_name, CLASS_NAME(klass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6326,7 +6575,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(field_type->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
 
@@ -6339,7 +6588,7 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
@@ -6389,13 +6638,13 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         cast_right_type_to_left_type(pointer_type, &left_type, info);
     }
 
@@ -6422,7 +6671,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
         }
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -6520,13 +6769,13 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         cast_right_type_to_left_type(pointer_type, &left_type, info);
     }
 
@@ -6585,7 +6834,7 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
 static void increment_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -6617,7 +6866,7 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
         append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
@@ -6648,7 +6897,7 @@ static void increment_operand_core(unsigned int node, sCompileInfo* info, unsign
 static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -6695,7 +6944,7 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
         append_opecode_to_code(info->code, OP_STORE_FIELD_OF_BUFFER, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_FIELD, info->no_output);
@@ -6714,6 +6963,7 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
     int size = get_var_size(info->type);
 
     append_int_value_to_code(info->code, size, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
     info->stack_num--;
 
@@ -6740,7 +6990,7 @@ static BOOL increment_operand_core_for_field(unsigned int node, sCompileInfo* in
 static BOOL increment_operand_core_for_class_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -6776,7 +7026,7 @@ static BOOL increment_operand_core_for_class_field(unsigned int node, sCompileIn
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
@@ -6809,7 +7059,7 @@ static BOOL increment_operand_core_for_class_field(unsigned int node, sCompileIn
 static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -6841,7 +7091,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
         append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
         append_int_value_to_code(info->code, var_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE, info->no_output);
@@ -6872,7 +7122,7 @@ static void decrement_operand_core(unsigned int node, sCompileInfo* info, unsign
 static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -6919,7 +7169,7 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
         append_opecode_to_code(info->code, OP_STORE_FIELD_OF_BUFFER, info->no_output);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_FIELD, info->no_output);
@@ -6938,6 +7188,7 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
     int size = get_var_size(info->type);
 
     append_int_value_to_code(info->code, size, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
     info->stack_num--;
 
@@ -6964,7 +7215,7 @@ static BOOL decrement_operand_core_for_field(unsigned int node, sCompileInfo* in
 static BOOL decrement_operand_core_for_class_field(unsigned int node, sCompileInfo* info, unsigned int lnode, int add_operand, int sub_operand, int ldc_operand, BOOL monadic, BOOL with_value, sNodeType* left_type)
 {
     if(type_identify_with_class_name(left_type, "Buffer")) {
-        sNodeType* pointer_type = create_node_type_with_class_name("pointer");
+        sNodeType* pointer_type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         sNodeType* node_type = clone_node_type(left_type);
         cast_right_type_to_left_type(pointer_type, &node_type, info);
     }
@@ -7000,7 +7251,7 @@ static BOOL decrement_operand_core_for_class_field(unsigned int node, sCompileIn
         append_class_name_to_constant_pool_and_code(info, klass);
         append_int_value_to_code(info->code, field_index, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
@@ -7062,7 +7313,7 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
         compile_err_msg(info, "Invalid monadic increment operand");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7072,49 +7323,49 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
     if(gNodes[rnode].mNodeType == kNodeTypeLoadVariable) {
         if(type_identify_with_class_name(node_type, "int")) {
             increment_operand_core(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             increment_operand_core(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             increment_operand_core(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             increment_operand_core(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             increment_operand_core(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             increment_operand_core(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             increment_operand_core(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             increment_operand_core(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             increment_operand_core(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             increment_operand_core(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(4)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7124,67 +7375,67 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             if(!increment_operand_core_for_class_field(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(5)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7194,67 +7445,67 @@ static BOOL compile_monadic_increment_operand(unsigned int node, sCompileInfo* i
             if(!increment_operand_core_for_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             if(!increment_operand_core_for_field(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(6)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7294,7 +7545,7 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
         compile_err_msg(info, "Invalid increment operand(4)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7304,49 +7555,49 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
     if(gNodes[rnode].mNodeType == kNodeTypeLoadVariable) {
         if(type_identify_with_class_name(node_type, "int")) {
             decrement_operand_core(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             decrement_operand_core(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             decrement_operand_core(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             decrement_operand_core(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             decrement_operand_core(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             decrement_operand_core(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             decrement_operand_core(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             decrement_operand_core(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             decrement_operand_core(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             decrement_operand_core(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type);
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(7)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7356,67 +7607,67 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             if(!decrement_operand_core_for_class_field(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(8)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7426,67 +7677,67 @@ static BOOL compile_monadic_decrement_operand(unsigned int node, sCompileInfo* i
             if(!decrement_operand_core_for_field(node, info, rnode, OP_IADD, OP_ISUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("int");
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "uint")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_UIADD, OP_UISUB, OP_LDCUINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("uint");
+            info->type = create_node_type_with_class_name("uint", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "byte")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_BADD, OP_BSUB, OP_LDCBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("byte");
+            info->type = create_node_type_with_class_name("byte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ubyte")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_UBADD, OP_UBSUB, OP_LDCUBYTE, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ubyte");
+            info->type = create_node_type_with_class_name("ubyte", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "short")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_SADD, OP_SSUB, OP_LDCSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("short");
+            info->type = create_node_type_with_class_name("short", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ushort")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_USADD, OP_USSUB, OP_LDCUSHORT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ushort");
+            info->type = create_node_type_with_class_name("ushort", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "long")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_LADD, OP_LSUB, OP_LDCLONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("long");
+            info->type = create_node_type_with_class_name("long", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "ulong")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_ULADD, OP_ULSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("ulong");
+            info->type = create_node_type_with_class_name("ulong", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "pointer")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_PADD, OP_PSUB, OP_LDCULONG, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("pointer");
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
         }
         else if(type_identify_with_class_name(node_type, "char")) {
             if(!decrement_operand_core_for_field(node, info, rnode, OP_CADD, OP_CSUB, OP_LDCINT, TRUE, FALSE, node_type)) {
                 return FALSE;
             }
-            info->type = create_node_type_with_class_name("char");
+            info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
         }
         else {
             compile_err_msg(info, "Invalid type for increment operand(9)");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7531,7 +7782,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for loading element");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7540,7 +7791,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Clover2 can't get an element from this type.");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7561,12 +7812,12 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for element index");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
-    sNodeType* int_type = create_node_type_with_class_name("int");
+    sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
 
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
@@ -7574,7 +7825,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7633,7 +7884,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for object");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7642,7 +7893,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Clover2 can't get an element from this type.");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7665,12 +7916,12 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for element index");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
-    sNodeType* int_type = create_node_type_with_class_name("int");
+    sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
 
     cast_right_type_to_left_type(int_type, &middle_type, info);
 
@@ -7678,7 +7929,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Type of index should be number");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7697,7 +7948,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for right object type");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7716,7 +7967,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type3->mClass), CLASS_NAME(right_type2->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -7727,7 +7978,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
     if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
         append_opecode_to_code(info->code, OP_STORE_ELEMENT_OF_BUFFER, info->no_output);
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         append_opecode_to_code(info->code, OP_STORE_ELEMENT, info->no_output);
@@ -7769,7 +8020,7 @@ BOOL compile_char_value(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("char");
+    info->type = create_node_type_with_class_name("char", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -7828,7 +8079,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7849,7 +8100,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "String expression requires String object");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -7884,7 +8135,7 @@ BOOL compile_string_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
     info->stack_num -= num_string_expression;
 
-    info->type = create_node_type_with_class_name("String");
+    info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -7946,7 +8197,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7955,7 +8206,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -7976,7 +8227,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "String expression requires String object");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -8012,7 +8263,7 @@ BOOL compile_buffer_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
     info->stack_num -= num_string_expression;
 
-    info->type = create_node_type_with_class_name("Buffer");
+    info->type = create_node_type_with_class_name("Buffer", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -8072,7 +8323,7 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -8081,7 +8332,7 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -8102,7 +8353,7 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "String expression requires String object");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -8138,7 +8389,7 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
     info->stack_num++;
     info->stack_num -= num_string_expression;
 
-    info->type = create_node_type_with_class_name("Path");
+    info->type = create_node_type_with_class_name("Path", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -8172,7 +8423,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "undeclared variable %s(7)", gNodes[lnode].uValue.mVarName);
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
             return TRUE;
         }
 
@@ -8185,7 +8436,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
 
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else if(gNodes[lnode].mNodeType == kNodeTypeLoadField) {
         unsigned int llnode = gNodes[lnode].mLeft;
@@ -8200,7 +8451,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "no type for loading field address");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -8215,7 +8466,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "There is no field(%s) in this class(%s)(4)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -8227,7 +8478,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
         info->stack_num--;
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else if(gNodes[lnode].mNodeType == kNodeTypeLoadClassField) {
         sCLClass* klass = gNodes[lnode].uValue.sClassField.mClass;
@@ -8240,7 +8491,7 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "There is no field(%s) in this class(%s)(5)", field_name, CLASS_NAME(klass));
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -8253,17 +8504,13 @@ BOOL compile_get_address(unsigned int node, sCompileInfo* info)
 
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("pointer");
+        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
     }
     else {
         compile_err_msg(info, "Require variable name for getting address");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
-    }
-
-    if(info->method) {
-        info->method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;  // including getting address code should be runned in none native code
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
     }
 
     return TRUE;
@@ -8300,7 +8547,7 @@ BOOL compile_array_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in array value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8371,7 +8618,7 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in array value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8403,10 +8650,10 @@ static BOOL compile_carray_value(unsigned int node, sCompileInfo* info)
         }
     }
 
-    sNodeType* array_type = create_node_type_with_class_name("Array");
+    sNodeType* array_type = create_node_type_with_class_name("Array", info->pinfo->mJS);
     array_type->mNumGenericsTypes = 1;
     if(generics_type_is_object) {
-        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object", info->pinfo->mJS);
     }
     else {
         array_type->mGenericsTypes[0] = element_type;
@@ -8457,7 +8704,7 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
         compile_err_msg(info, "require element in array value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8490,16 +8737,16 @@ static BOOL compile_equalable_carray_value(unsigned int node, sCompileInfo* info
     }
 
     /// check implemeted interface ///
-    sCLClass* iequalable = get_class("IEqualable");
+    sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
     if(!check_implemented_methods_for_interface(iequalable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
-    sNodeType* array_type = create_node_type_with_class_name("EqualableArray");
+    sNodeType* array_type = create_node_type_with_class_name("EqualableArray", info->pinfo->mJS);
     array_type->mNumGenericsTypes = 1;
     if(generics_type_is_object) {
-        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object", info->pinfo->mJS);
     }
     else {
         array_type->mGenericsTypes[0] = element_type;
@@ -8550,7 +8797,7 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in array value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8583,16 +8830,16 @@ static BOOL compile_sortable_carray_value(unsigned int node, sCompileInfo* info)
     }
 
     /// check implemeted interface ///
-    sCLClass* isortable = get_class("ISortable");
+    sCLClass* isortable = get_class("ISortable", info->pinfo->mJS);
     if(!check_implemented_methods_for_interface(isortable, element_type->mClass, TRUE)) {
         compile_err_msg(info, "Require IEqualable implemented for array element type(%s).", CLASS_NAME(element_type->mClass));
         info->err_num++;
     }
 
-    sNodeType* array_type = create_node_type_with_class_name("SortableArray");
+    sNodeType* array_type = create_node_type_with_class_name("SortableArray", info->pinfo->mJS);
     array_type->mNumGenericsTypes = 1;
     if(generics_type_is_object) {
-        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object");
+        array_type->mGenericsTypes[0] = create_node_type_with_class_name("Object", info->pinfo->mJS);
     }
     else {
         array_type->mGenericsTypes[0] = element_type;
@@ -8665,7 +8912,7 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in list value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8693,11 +8940,11 @@ BOOL compile_list_value(unsigned int node, sCompileInfo* info)
 
         if(!type_identify(element_type, info->type)) 
         {
-            element_type = create_node_type_with_class_name("Object");
+            element_type = create_node_type_with_class_name("Object", info->pinfo->mJS);
         }
     }
 
-    sNodeType* list_type = create_node_type_with_class_name("List");
+    sNodeType* list_type = create_node_type_with_class_name("List", info->pinfo->mJS);
     list_type->mNumGenericsTypes = 1;
     list_type->mGenericsTypes[0] = element_type;
 
@@ -8745,7 +8992,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in list value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8770,7 +9017,7 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 
         boxing_to_lapper_class(&info->type, info);
 
-        sCLClass* iequalable = get_class("IEqualable");
+        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
         if(!check_implemented_methods_for_interface(iequalable, info->type->mClass, TRUE)) 
         {
             compile_err_msg(info, "Require IEqualable implemented for list element type(%s).", CLASS_NAME(info->type->mClass));
@@ -8779,11 +9026,11 @@ BOOL compile_equalable_list_value(unsigned int node, sCompileInfo* info)
 
         if(!type_identify(element_type, info->type))
         {
-            element_type = create_node_type_with_class_name("IEqualable");
+            element_type = create_node_type_with_class_name("IEqualable", info->pinfo->mJS);
         }
     }
 
-    sNodeType* list_type = create_node_type_with_class_name("EqualableList");
+    sNodeType* list_type = create_node_type_with_class_name("EqualableList", info->pinfo->mJS);
     list_type->mNumGenericsTypes = 1;
     list_type->mGenericsTypes[0] = element_type;
 
@@ -8831,7 +9078,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in list value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8856,7 +9103,7 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
 
         boxing_to_lapper_class(&info->type, info);
 
-        sCLClass* isortable = get_class("ISortable");
+        sCLClass* isortable = get_class("ISortable", info->pinfo->mJS);
         if(isortable && !check_implemented_methods_for_interface(isortable, info->type->mClass, TRUE)) 
         {
             compile_err_msg(info, "Require ISortable implemented for list element type(%s).", CLASS_NAME(info->type->mClass));
@@ -8865,15 +9112,15 @@ BOOL compile_sortable_list_value(unsigned int node, sCompileInfo* info)
 
         if(!type_identify(element_type, info->type))
         {
-            element_type = create_node_type_with_class_name("ISortable");
+            element_type = create_node_type_with_class_name("ISortable", info->pinfo->mJS);
         }
     }
 
-    sNodeType* list_type = create_node_type_with_class_name("SortableList");
+    sNodeType* list_type = create_node_type_with_class_name("SortableList", info->pinfo->mJS);
     list_type->mNumGenericsTypes = 1;
     list_type->mGenericsTypes[0] = element_type;
 
-    append_opecode_to_code(info->code, OP_CREATE_SORTALBE_LIST, info->no_output);
+    append_opecode_to_code(info->code, OP_CREATE_SORTABLE_LIST, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
     append_class_name_to_constant_pool_and_code(info, element_type->mClass);
     append_type_name_to_constant_pool_and_code(info, list_type);
@@ -8917,7 +9164,7 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in tuple value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -8941,7 +9188,7 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
 
     snprintf(class_name, CLASS_NAME_MAX, "Tuple%d", num_elements);
 
-    sNodeType* tuple_type = create_node_type_with_class_name(class_name);
+    sNodeType* tuple_type = create_node_type_with_class_name(class_name, info->pinfo->mJS);
     tuple_type->mNumGenericsTypes = num_elements;
     for(i=0; i<num_elements; i++) {
         tuple_type->mGenericsTypes[i] = element_types[i];
@@ -8989,7 +9236,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element for left value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9007,7 +9254,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "right type is invalid. type error");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9023,7 +9270,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "right type is invalid. type error");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9092,7 +9339,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "right element type is invalid. type error (%s,%s)", CLASS_NAME(left_element_type->mClass),  CLASS_NAME(right_element_type->mClass));
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -9108,7 +9355,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 append_opecode_to_code(info->code, OP_STORE_TO_BUFFER, info->no_output);
                 append_int_value_to_code(info->code, var_index, info->no_output);
 
-                info->type = create_node_type_with_class_name("pointer");
+                info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
             }
             else {
                 append_opecode_to_code(info->code, OP_STORE, info->no_output);
@@ -9157,7 +9404,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "There is no field(%s) in this class(%s)(1)", field_name, CLASS_NAME(klass));
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -9183,7 +9430,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "The different type between left type and right type(2). %s and %s", CLASS_NAME(solved_field_type->mClass), CLASS_NAME(right_element_type->mClass));
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -9196,7 +9443,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 append_opecode_to_code(info->code, OP_STORE_FIELD_OF_BUFFER, info->no_output);
                 append_int_value_to_code(info->code, field_index, info->no_output);
 
-                info->type = create_node_type_with_class_name("pointer");
+                info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
             }
             else {
                 append_opecode_to_code(info->code, OP_STORE_FIELD, info->no_output);
@@ -9216,6 +9463,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
             int size = get_var_size(info->type);
 
             append_int_value_to_code(info->code, size, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, field_name, info->no_output);
 
             info->stack_num--;
 
@@ -9233,7 +9481,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "There is no field(%s) in this class(%s)(3)", field_name, CLASS_NAME(klass));
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -9255,7 +9503,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "The different type between left type and right type(3). Left type is %s. Right type is %s.", CLASS_NAME(left_element_type->mClass), CLASS_NAME(right_element_type->mClass));
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
 
@@ -9268,7 +9516,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
                 append_class_name_to_constant_pool_and_code(info, klass);
                 append_int_value_to_code(info->code, field_index, info->no_output);
 
-                info->type = create_node_type_with_class_name("pointer");
+                info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
             }
             else {
                 append_opecode_to_code(info->code, OP_STORE_CLASS_FIELD, info->no_output);
@@ -9286,7 +9534,7 @@ static BOOL compile_multiple_asignment(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("Null");
+    info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -9303,7 +9551,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "require element in hash value");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9357,7 +9605,7 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         }
     }
 
-    sNodeType* hash_type = create_node_type_with_class_name("Hash");
+    sNodeType* hash_type = create_node_type_with_class_name("Hash", info->pinfo->mJS);
     hash_type->mNumGenericsTypes = 2;
     hash_type->mGenericsTypes[0] = key_type;
     hash_type->mGenericsTypes[1] = item_type;
@@ -9532,12 +9780,13 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     else {
         append_int_value_to_code(info->code, -1, info->no_output);
     }
+    append_int_value_to_code(info->code, num_params, info->no_output);
 
     info->stack_num++;
 
     /// make info->type ///
     if(!node_block->mUnClosedBlock) { // for interpreter completion
-        info->type = create_node_type_with_class_name("lambda");
+        info->type = create_node_type_with_class_name("lambda", info->pinfo->mJS);
 
         sNodeBlockType* node_block_type = alloc_node_block_type();
 
@@ -9555,12 +9804,6 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     }
 
     info->pinfo->exist_block_object_err = node_block->mUnClosedBlock; // for interpreter completion
-
-/*
-    if(!lambda && info->method) {
-        info->method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;  // including closure code should be runned in none native code
-    }
-*/
 
     return TRUE;
 }
@@ -9613,7 +9856,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     sCLClass* klass = gNodes[node].uValue.sFunction.mClass;
 
     /// make info->type ///
-    sNodeType* lambda_type = create_node_type_with_class_name("lambda");
+    sNodeType* lambda_type = create_node_type_with_class_name("lambda", info->pinfo->mJS);
 
     sNodeBlockType* node_block_type = alloc_node_block_type();
 
@@ -9634,7 +9877,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "undeclared variable %s(8)", gNodes[node].uValue.sFunction.mName);
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -9743,6 +9986,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
     else {
         append_int_value_to_code(info->code, -1, info->no_output);
     }
+    append_int_value_to_code(info->code, num_params, info->no_output);
 
     info->stack_num++;
 
@@ -9753,7 +9997,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "invalid type(2)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9767,7 +10011,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9864,7 +10108,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for block call");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -9875,7 +10119,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "No block type, clover2 can call block object only");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -9898,7 +10142,7 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Type error for block call(1)");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
         return TRUE;
     }
 
@@ -10019,7 +10263,7 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -10028,7 +10272,7 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
             compile_err_msg(info, "String expression requires String object");
             info->err_num++;
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -10049,7 +10293,7 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
                 compile_err_msg(info, "String expression requires String object");
                 info->err_num++;
 
-                info->type = create_node_type_with_class_name("int"); // dummy
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
@@ -10093,7 +10337,7 @@ static BOOL compile_regex(unsigned int node, sCompileInfo* info)
     info->stack_num++;
     info->stack_num -= num_string_expression;
 
-    info->type = create_node_type_with_class_name("regex");
+    info->type = create_node_type_with_class_name("regex", info->pinfo->mJS);
 
     return TRUE;
 }
@@ -10136,7 +10380,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "no type for implements");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -10147,7 +10391,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Primitive value doesn't have class info");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -10157,7 +10401,7 @@ static BOOL compile_implements(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_IMPLEMENTS, info->no_output);
     append_str_to_constant_pool_and_code(info->constant, info->code, interface_name, info->no_output);
 
-    info->type = create_node_type_with_class_name("bool");
+    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     info->stack_num++;
 
     return TRUE;
@@ -10200,7 +10444,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "inherit call must be in method");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
@@ -10255,7 +10499,7 @@ static BOOL compile_inherit_call(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, TRUE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -10306,7 +10550,7 @@ unsigned int sNodeTree_create_range(unsigned int head, unsigned int tail, sParse
 
 static BOOL compile_range(unsigned int node, sCompileInfo* info)
 {
-    sCLClass* klass = get_class("Range");
+    sCLClass* klass = get_class("Range", info->pinfo->mJS);
 
     sNodeType* param_types[PARAMS_MAX];
     int num_params = 2;
@@ -10353,13 +10597,13 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
         compile_err_msg(info, "Range value type is the diffrent.");
         info->err_num++;
 
-        info->type = create_node_type_with_class_name("int"); // dummy
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
         return TRUE;
     }
 
     /// create range object ///
-    sNodeType* node_type = create_node_type_with_class_name("Range");
+    sNodeType* node_type = create_node_type_with_class_name("Range", info->pinfo->mJS);
     node_type->mNumGenericsTypes = 1;
     node_type->mGenericsTypes[0] = head_type;
 
@@ -10409,7 +10653,7 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
 
             err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
-            info->type = create_node_type_with_class_name("int"); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
             return TRUE;
         }
@@ -10431,6 +10675,92 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
         info->type = node_type;
     }
     
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_js_array(int num_elements, unsigned int list_elements[], sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeJSArray;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sListValue.mListElements, list_elements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+    gNodes[node].uValue.sListValue.mNumListElements = num_elements;
+
+    return node;
+}
+
+BOOL compile_js_array(unsigned int node, sCompileInfo* info)
+{
+    unsigned int elements[LIST_VALUE_ELEMENT_MAX];
+    memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
+    int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
+
+    if(num_elements == 0) {
+        compile_err_msg(info, "require element in list value");
+        info->err_num++;
+
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+        return TRUE;
+    }
+
+    unsigned int first_element_node = elements[0];
+
+    if(!compile(first_element_node, info)) {
+        return FALSE;
+    }
+
+    boxing_to_lapper_class(&info->type, info);
+
+    sNodeType* element_type = info->type;
+
+    int i;
+    for(i=1; i<num_elements; i++) {
+        unsigned int element_node = elements[i];
+
+        if(!compile(element_node, info)) {
+            return FALSE;
+        }
+
+        boxing_to_lapper_class(&info->type, info);
+
+        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
+        if(iequalable && !check_implemented_methods_for_interface(iequalable, info->type->mClass, TRUE)) 
+        {
+            compile_err_msg(info, "Require IEqualable implemented for js array element type(%s).", CLASS_NAME(info->type->mClass));
+            info->err_num++;
+        }
+
+        if(!type_identify(element_type, info->type))
+        {
+            element_type = create_node_type_with_class_name("IEqualable", info->pinfo->mJS);
+        }
+    }
+
+    sNodeType* js_array_type = create_node_type_with_class_name("Array", info->pinfo->mJS);
+    js_array_type->mNumGenericsTypes = 1;
+    js_array_type->mGenericsTypes[0] = element_type;
+
+    append_opecode_to_code(info->code, OP_JS_ARRAY, info->no_output);
+    append_int_value_to_code(info->code, num_elements, info->no_output);
+    //append_class_name_to_constant_pool_and_code(info, element_type->mClass);
+    //append_type_name_to_constant_pool_and_code(info, js_array_type);
+
+    info->stack_num-= num_elements;
+    info->stack_num++;
+
+    info->type = js_array_type;
+
     return TRUE;
 }
 
@@ -10738,6 +11068,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeMultipleAsignment:
             puts("multiple asignment");
+            break;
+
+        case kNodeTypeJSArray:
+            puts("node type js array");
             break;
     }
 }
@@ -11186,6 +11520,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypeMultipleAsignment:
             if(!compile_multiple_asignment(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeJSArray:
+            if(!compile_js_array(node, info)) {
                 return FALSE;
             }
             break;

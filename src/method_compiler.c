@@ -15,7 +15,7 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             char class_name[CLASS_NAME_MAX+1];
             snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", i);
 
-            node_type->mGenericsTypes[i] = create_node_type_with_class_name(class_name);
+            node_type->mGenericsTypes[i] = create_node_type_with_class_name(class_name, info->mJS);
         }
 
         if(!add_variable_to_table(info->lv_table, "self", node_type, TRUE)) {
@@ -37,10 +37,6 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
         if(type_identify_with_class_name(param->mType, "pointer")) {
             including_pointer_param = TRUE;
         }
-    }
-
-    if(including_pointer_param) {
-        method->mFlags |= METHOD_FLAGS_NON_NATIVE_CODE;
     }
 
     sCompileInfo cinfo2;
@@ -102,6 +98,8 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                     return FALSE;
                 }
 
+                append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
+
                 last_result_type = cinfo2.type;
 
                 if(*info->p == ';') {
@@ -116,9 +114,6 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
                 }
                 else if(gNodes[node].mNodeType != kNodeTypeReturn) {
                     arrange_stack(&cinfo2);
-#ifdef ENABLE_INTERPRETER
-                append_opecode_to_code(cinfo2.code, OP_SIGINT, cinfo2.no_output);
-#endif
                 }
             }
 

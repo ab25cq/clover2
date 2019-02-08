@@ -16,8 +16,11 @@ Clover.test("reflection test3", ReflectionA.ClassField2.equals("ABC"));
 b:Class = new Class("ReflectionA");
 
 field := b.getField(0);
-
+field.name.equals("a");
+field.resultType.equals("int");
+println("5");
 Clover.test("reflection test4", field.name.equals("a") && field.resultType.equals("int"));
+println("4");
 
 method := b.getMethod(4);
 

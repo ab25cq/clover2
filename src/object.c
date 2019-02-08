@@ -31,7 +31,7 @@ BOOL free_object(CLObject self)
 
         char* field_class_name = CONS_str(&klass->mConst, field_type->mClassNameOffset);
 
-        sCLClass* field_class = get_class(field_class_name);
+        sCLClass* field_class = get_class(field_class_name, FALSE);
 
         BOOL value_is_object = !(field_class->mFlags & CLASS_FLAGS_NO_FREE_OBJECT);
 

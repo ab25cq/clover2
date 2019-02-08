@@ -1,0 +1,335 @@
+class System:js
+{
+    def println(str:String):static native {
+        console.log(str);
+    }
+    def print(str:String):static native {
+        process.stdout.write(str);
+    }
+    def println(num:int):static native {
+        console.log(num);
+    }
+}
+
+class Clover:js
+{
+    def test(str:String, exp:bool):static native {
+        process.stdout.write(str + "...");
+        console.log(exp);
+        console.assert(exp);
+    }
+}
+
+interface IEqualable:js
+{
+    def equals(right:Self): bool;
+    def toString(): String;
+    def clone(): Self;
+}
+
+interface ISortable:js
+{
+    def compare(item:Self): int;
+    def equals(right:Self): bool;
+    def toString(): String;
+    def clone(): Self;
+    def add(right:Self):Self;
+}
+
+interface IIteratorable:js
+{
+    def compare(item:Self): int;
+    def equals(right:Self): bool;
+    def toString(): String;
+    def clone(): Self;
+    def add(right:Self):Self;
+    def next(): Self;
+    def prev(): Self;
+}
+
+interface IHashKey:js
+{
+    def equals(right:Self): bool;
+    def toString(): String;
+    def clone(): Self;
+}
+
+class Array<T:IEqualable>:native js
+{
+    def initialize(num:int):native Array<T> {
+    }
+    def slice(n:int, n2:int): native Array<T> {
+        return this.slice(n, n2);
+    }
+    def length(): native int {
+        return this.length;
+    }
+    def includes(item:T):native bool {
+        for(var i=0; i<this.length; i++) {
+            if(this[i].equals__Self(item)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    def copyWithin(index:int, start:int=0): native Array<T> {
+        var end = this.length;
+        this.copyWithin(index, start, end);
+
+        return this;
+    }
+    def copyWithin(index:int, start:int, end:int): native Array<T> {
+        this.copyWithin(index, start, end);
+
+        return this;
+    }
+    def fill(data:IEqualable, start:int=0): native Array<T> {
+        var end = this.length;
+        this.fill(data, start, end);
+
+        return this;
+    }
+    def fill(data:IEqualable, start:int, end:int): native Array<T> {
+        this.fill(data, start, end);
+
+        return this;
+    }
+
+    def equals(array_:Array<T>): native bool {
+        if(this.length == array_.length) {
+            for(var i=0; i<this.length; i++) {
+                if(!this[i].equals__Self(array_[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+class Map:js
+{
+}
+
+class SortableList<T:ISortable>:js
+{
+    var ary:Array<T>;
+
+    def initialize(ary:Array<T>) {
+        self.ary = ary;
+    }
+
+    def constructor(ary:Array<T>):native SortableList<T> {
+        this.ary = ary;
+        return this;
+    }
+
+    def length(): native int {
+        return this.ary.length;
+    }
+
+    def items(i:int): native T {
+        return this.ary[i];
+    }
+
+    def equals(right:SortableList<T>):bool {
+        if(self.length() == right.length()) {
+            for(i := 0; i<self.length(); i++) {
+                if(!self.items(i).equals(right.items(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+}
+
+class Function:js
+{
+}
+
+class Lambda:js
+{
+    var function_:Function;
+    var lambda_:bool;
+    var parentVarNum:int;
+
+    def initialize(function_:Function, lambda_:bool, parent_var_num:int) {
+        self.function_ = function_;
+        self.lambda_ = lambda_;
+        self.parentVarNum = parent_var_num;
+    }
+
+    def constructor(function_:Function, lambda_:bool, parent_var_num:int):native Lambda 
+    {
+        this.function_ = function_;
+        this.lambda_ = lambda_;
+        this.parentVarNum = parent_var_num;
+        return this;
+    }
+}
+
+class Hash<T:IHashKey, T2:IEqualable>:js
+{
+    var map:Map;
+
+    def initialize(map:Map) {
+        self.map = map;
+    }
+
+    def constructor(map:Map):native Hash<T,T2> {
+        this.map = map;
+
+        return this;
+    }
+
+    def get(key:T): native T2 {
+        for(var [key2, value] of this.map.entries()) {
+            if(key2.equals__Self(key)) {
+                return value;
+            }
+        }
+
+        return null;
+    }
+}
+
+class String:native js
+{
+    def toString():native String {
+        return this;
+    }
+
+    def match(regex_:regex): native bool {
+        return regex_.test(this);
+    }
+    def clone(): native String {
+        return `${this}`;
+    }
+
+    def equals(str:String):native bool {
+        return this == str;
+    }
+}
+
+class Byte:js unboxing byte
+{
+}
+
+class UByte:js unboxing ubyte
+{
+}
+
+class Short:js unboxing short
+{
+}
+
+class UShort:js unboxing ushort
+{
+}
+
+class Integer:js unboxing int
+{
+    var num:int;
+
+    def initialize(num:int) {
+        self.num = num;
+    }
+
+    def constructor(num:int):native Integer {
+        this.num = num;
+
+        return this;
+    }
+
+    def compare(item:Integer): native int {
+        if(this.num < item.num) {
+            return -1;
+        }
+        else if(this.num > item.num) {
+            return 1;
+        }
+        else {
+            return 0;
+        }
+    }
+    def equals(right:Integer): native bool {
+        return this.num == right.num;
+    }
+    def toString(): native String {
+        return `${this.num}`;
+    }
+    def clone(): native Integer {
+        return new Integer(this.num);
+    }
+    def add(right:Integer):native Integer {
+        return new Integer(this.num + right.num);
+    }
+}
+
+class UInteger:js unboxing uint
+{
+}
+
+class Long:js unboxing long
+{
+}
+
+class ULong:js unboxing ulong
+{
+}
+
+class Float:js unboxing float
+{
+}
+
+class Double:js unboxing double
+{
+}
+
+class Pointer : js unboxing pointer
+{
+}
+
+class Char : js unboxing char
+{
+}
+
+class Buffer:js
+{
+}
+
+class Bool:js unboxing bool
+{
+}
+
+interface Object:js
+{
+}
+
+class Null:js
+{
+}
+
+class Error:js
+{
+}
+
+class Exception:js
+{
+    message:String;
+
+    def initialize(message:String) {
+        self.message = message;
+    }
+}
+

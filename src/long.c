@@ -2,7 +2,7 @@
 
 CLObject create_long(clint64 value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Long");
+    sCLClass* klass = get_class("Long", FALSE);
     CLObject obj = create_object(klass, "Long", info);
 
     sCLObject* obj_data = CLOBJECT(obj);
@@ -14,7 +14,7 @@ CLObject create_long(clint64 value, sVMInfo* info)
 
 CLObject create_ulong(unsigned clint64 value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("ULong");
+    sCLClass* klass = get_class("ULong", FALSE);
     CLObject obj = create_object(klass, "ULong", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

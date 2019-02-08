@@ -141,7 +141,7 @@ BOOL delete_comment(sBuf* source, sBuf* source2)
     return TRUE;
 }
 
-static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname)
+static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, int var_num, char* fname, BOOL js)
 {
     sBuf buf;
     sBuf_init(&buf);
@@ -177,7 +177,12 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
 
     *p2 = 0;
 
-    xstrncat(output_fname, ".ocl", PATH_MAX);
+    if(js) {
+        xstrncat(output_fname, ".ojscl", PATH_MAX);
+    }
+    else {
+        xstrncat(output_fname, ".ocl", PATH_MAX);
+    }
 
     FILE* f = fopen(output_fname, "w");
     if(f == NULL) {
@@ -193,7 +198,7 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
     return TRUE;
 }
 
-BOOL compile_script(char* fname, char* source)
+BOOL compile_script(char* fname, char* source, BOOL js)
 {
     sParserInfo info;
     memset(&info, 0, sizeof(sParserInfo));
@@ -204,6 +209,7 @@ BOOL compile_script(char* fname, char* source)
     info.sline = 1;
     info.lv_table = init_var_table();
     info.parse_phase = 0;
+    info.mJS = js;
 
     sCompileInfo cinfo;
     memset(&cinfo, 0, sizeof(sCompileInfo));
@@ -250,11 +256,9 @@ BOOL compile_script(char* fname, char* source)
                 return FALSE;
             }
 
-            arrange_stack(&cinfo);
-
-#ifdef ENABLE_INTERPRETER
             append_opecode_to_code(cinfo.code, OP_SIGINT, cinfo.no_output);
-#endif
+
+            arrange_stack(&cinfo);
         }
 
         if(*info.p == ';') {
@@ -272,7 +276,7 @@ BOOL compile_script(char* fname, char* source)
 
     int var_num = get_var_num(info.lv_table);
 
-    if(!write_code_and_constant_to_file(&code, &constant, var_num, fname)) {
+    if(!write_code_and_constant_to_file(&code, &constant, var_num, fname,js)) {
         sByteCode_free(&code);
         sConst_free(&constant);
         return FALSE;

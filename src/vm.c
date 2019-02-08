@@ -183,6 +183,18 @@ void show_inst(unsigned inst)
             puts("OP_LABEL");
             break;
 
+        case OP_JS_IF :
+            puts("OP_JS_IF");
+            break;
+
+        case OP_JS_ELSE :
+            puts("OP_JS_ELSE");
+            break;
+
+        case OP_JS_BLOCK_CLOSE :
+            puts("OP_JS_BLOCK_END");
+            break;
+
         case OP_STORE_VALUE_TO_GLOBAL:
             puts("OP_STORE_VALUE_TO_GLOBAL");
             break;
@@ -622,21 +634,21 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         void* func = method->mCFunctionPointer;
 
-        sCLClass* void_class = get_class("Null");
-        sCLClass* int_class = get_class("int");
-        sCLClass* uint_class = get_class("uint");
-        sCLClass* byte_class = get_class("byte");
-        sCLClass* ubyte_class = get_class("ubyte");
-        sCLClass* short_class = get_class("short");
-        sCLClass* ushort_class = get_class("ushort");
-        sCLClass* long_class = get_class("long");
-        sCLClass* ulong_class = get_class("ulong");
-        sCLClass* float_class = get_class("float");
-        sCLClass* double_class = get_class("double");
-        sCLClass* pointer_class = get_class("pointer");
-        sCLClass* bool_class = get_class("bool");
-        sCLClass* char_class = get_class("char");
-        sCLClass* lambda_class = get_class("lambda");
+        sCLClass* void_class = get_class("Null", FALSE);
+        sCLClass* int_class = get_class("int", FALSE);
+        sCLClass* uint_class = get_class("uint", FALSE);
+        sCLClass* byte_class = get_class("byte", FALSE);
+        sCLClass* ubyte_class = get_class("ubyte", FALSE);
+        sCLClass* short_class = get_class("short", FALSE);
+        sCLClass* ushort_class = get_class("ushort", FALSE);
+        sCLClass* long_class = get_class("long", FALSE);
+        sCLClass* ulong_class = get_class("ulong", FALSE);
+        sCLClass* float_class = get_class("float", FALSE);
+        sCLClass* double_class = get_class("double", FALSE);
+        sCLClass* pointer_class = get_class("pointer", FALSE);
+        sCLClass* bool_class = get_class("bool", FALSE);
+        sCLClass* char_class = get_class("char", FALSE);
+        sCLClass* lambda_class = get_class("lambda", FALSE);
 
         int int_result_value = 0;
         unsigned int uint_result_value = 0;
@@ -872,7 +884,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             result_object = result.mObjectValue;
         }
-        else if(result_class == get_class("Null")) {
+        else if(result_class == get_class("Null", FALSE)) {
             av_call(alist);
 
             *stack_ptr = lvar;
@@ -998,6 +1010,8 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
             result_object = result.mObjectValue;
         }
+    }
+    else if(method->mFlags & METHOD_FLAGS_JS) {
     }
     else {
         int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
@@ -1304,96 +1318,104 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
     return TRUE;
 }
 
-static BOOL load_class_with_initialize(char* class_name)
-{
-    sCLClass* klass = load_class(class_name, 0);
+BOOL gRunningInitializer = FALSE;
 
-    if(klass) {
-        if(!initialize_class(klass, FALSE)) {
-            return FALSE;
-        }
-    }
+BOOL load_fundamental_classes_on_runtime_for_js()
+{
+    load_class("String", 0, TRUE);
+    load_class("console", 0, TRUE);
+    load_class("Null", 0, TRUE);
+    load_class("Byte", 0, TRUE);
+    load_class("UByte", 0, TRUE);
+    load_class("Short", 0, TRUE);
+    load_class("UShort", 0, TRUE);
+    load_class("Integer", 0, TRUE);
+    load_class("UInteger", 0, TRUE);
+    load_class("Long", 0, TRUE);
+    load_class("ULong", 0, TRUE);
+    load_class("Float", 0, TRUE);
+    load_class("Double", 0, TRUE);
+    load_class("Pointer", 0, TRUE);
+    load_class("Char", 0, TRUE);
+    load_class("Buffer", 0, TRUE);
+    load_class("Bool", 0, TRUE);
+    load_class("Exception", 0, TRUE);
+    load_class("Object", 0, TRUE);
+    load_class("System", 0, TRUE);
+    load_class("Array", 0, TRUE);
+    load_class("Map", 0, TRUE);
+
+    gRunningInitializer = TRUE;
+    call_all_class_initializer();
+    gRunningInitializer = FALSE;
 
     return TRUE;
 }
 
-BOOL gRunningInitializer = FALSE;
-
 BOOL load_fundamental_classes_on_runtime()
 {
+    load_class("PcreOVec", 0, FALSE);
+    load_class("System", 0, FALSE);
+    load_class("Global", 0, FALSE);
+    load_class("String", 0, FALSE);
+    load_class("Buffer", 0, FALSE);
+    load_class("Exception", 0, FALSE);
+    load_class("Object", 0, FALSE);
+    load_class("Range", 0, FALSE);
+    load_class("Byte", 0, FALSE);
+    load_class("UByte", 0, FALSE);
+    load_class("Short", 0, FALSE);
+    load_class("UShort", 0, FALSE);
+    load_class("Integer", 0, FALSE);
+    load_class("UInteger", 0, FALSE);
+    load_class("Long", 0, FALSE);
+    load_class("ULong", 0, FALSE);
+    load_class("Float", 0, FALSE);
+    load_class("Double", 0, FALSE);
+    load_class("Pointer", 0, FALSE);
+    load_class("Char", 0, FALSE);
+    load_class("Bool", 0, FALSE);
+    load_class("Array", 0, FALSE);
+    load_class("EqualableArray", 0, FALSE);
+    load_class("SortableArray", 0, FALSE);
+    load_class("IHashKey", 0, FALSE);
+    load_class("IEqualable", 0, FALSE);
+    load_class("ISortable", 0, FALSE);
+    load_class("IIteratorable", 0, FALSE);
+    load_class("HashItem", 0, FALSE);
+    load_class("Hash", 0, FALSE);
+    load_class("ListItem", 0, FALSE);
+    load_class("List", 0, FALSE);
+    load_class("SortableList", 0, FALSE);
+    load_class("EqualableList", 0, FALSE);
+    load_class("Tuple1", 0, FALSE);
+    load_class("Tuple2", 0, FALSE);
+    load_class("Tuple3", 0, FALSE);
+    load_class("Tuple4", 0, FALSE);
+    load_class("Tuple5", 0, FALSE);
+    load_class("Tuple6", 0, FALSE);
+    load_class("Tuple7", 0, FALSE);
+    load_class("Tuple8", 0, FALSE);
+    load_class("Tuple9", 0, FALSE);
+    load_class("Tuple10", 0, FALSE);
+    load_class("File", 0, FALSE);
+    load_class("Path", 0, FALSE);
+    load_class("tm", 0, FALSE);
+    load_class("stat", 0, FALSE);
+    load_class("Directory", 0, FALSE);
+    load_class("termios", 0, FALSE);
+    load_class("Job", 0, FALSE);
+    load_class("Command", 0, FALSE);
+    load_class("Class", 0, FALSE);
+    load_class("Method", 0, FALSE);
+    load_class("MethodParam", 0, FALSE);
+    load_class("Field", 0, FALSE);
+    load_class("Thread", 0, FALSE);
+    load_class("Clover", 0, FALSE);
+    load_class("Null", 0, FALSE);
+
     gRunningInitializer = TRUE;
-    if(!load_class_with_initialize("PcreOVec")) { return FALSE; }
-    if(!load_class_with_initialize("System")) { return FALSE; }
-    if(!load_class_with_initialize("Global")) { return FALSE; }
-
-    if(!load_class_with_initialize("String")) { return FALSE; }
-    if(!load_class_with_initialize("Buffer")) { return FALSE; }
-
-    if(!load_class_with_initialize("Exception")) { return FALSE; }
-
-    if(!load_class_with_initialize("Object")) { return FALSE; }
-    if(!load_class_with_initialize("Range")) { return FALSE; }
-
-    if(!load_class_with_initialize("Byte")) { return FALSE; }
-    if(!load_class_with_initialize("UByte")) { return FALSE; }
-    if(!load_class_with_initialize("Short")) { return FALSE; }
-    if(!load_class_with_initialize("UShort")) { return FALSE; }
-    if(!load_class_with_initialize("Integer")) { return FALSE; }
-    if(!load_class_with_initialize("UInteger")) { return FALSE; }
-    if(!load_class_with_initialize("Long")) { return FALSE; }
-    if(!load_class_with_initialize("ULong")) { return FALSE; }
-
-    if(!load_class_with_initialize("Float")) { return FALSE; }
-    if(!load_class_with_initialize("Double")) { return FALSE; }
-
-    if(!load_class_with_initialize("Pointer")) { return FALSE; }
-    if(!load_class_with_initialize("Char")) { return FALSE; }
-    if(!load_class_with_initialize("Bool")) { return FALSE; }
-
-    if(!load_class_with_initialize("Array")) { return FALSE; }
-    if(!load_class_with_initialize("EqualableArray")) { return FALSE; }
-    if(!load_class_with_initialize("SortableArray")) { return FALSE; }
-
-    if(!load_class_with_initialize("IHashKey")) { return FALSE; }
-    if(!load_class_with_initialize("IEqualable")) { return FALSE; }
-    if(!load_class_with_initialize("ISortable")) { return FALSE; }
-
-    if(!load_class_with_initialize("HashItem")) { return FALSE; }
-    if(!load_class_with_initialize("Hash")) { return FALSE; }
-
-    if(!load_class_with_initialize("ListItem")) { return FALSE; }
-    if(!load_class_with_initialize("List")) { return FALSE; }
-    if(!load_class_with_initialize("SortableList")) { return FALSE; }
-    if(!load_class_with_initialize("EqualableList")) { return FALSE; }
-
-    if(!load_class_with_initialize("Tuple1")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple2")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple3")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple4")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple5")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple6")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple7")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple8")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple9")) { return FALSE; }
-    if(!load_class_with_initialize("Tuple10")) { return FALSE; }
-
-    if(!load_class_with_initialize("File")) { return FALSE; }
-    if(!load_class_with_initialize("Path")) { return FALSE; }
-    if(!load_class_with_initialize("tm")) { return FALSE; }
-    if(!load_class_with_initialize("stat")) { return FALSE; }
-    if(!load_class_with_initialize("Directory")) { return FALSE; }
-    if(!load_class_with_initialize("termios")) { return FALSE; }
-    if(!load_class_with_initialize("Job")) { return FALSE; }
-    if(!load_class_with_initialize("Command")) { return FALSE; }
-    if(!load_class_with_initialize("Class")) { return FALSE; }
-    if(!load_class_with_initialize("Method")) { return FALSE; }
-    if(!load_class_with_initialize("MethodParam")) { return FALSE; }
-    if(!load_class_with_initialize("Field")) { return FALSE; }
-    if(!load_class_with_initialize("Thread")) { return FALSE; }
-
-    if(!load_class_with_initialize("Clover")) { return FALSE; }
-    if(!load_class_with_initialize("Null")) { return FALSE; }
-
+    call_all_class_initializer();
     gRunningInitializer = FALSE;
 
     return TRUE;
@@ -1403,10 +1425,10 @@ void set_free_fun_to_classes()
 {
     sCLClass* klass;
 
-    klass = get_class("regex");
+    klass = get_class("regex", FALSE);
     klass->mFreeFun = regex_free_fun;
 
-    klass = get_class("lambda");
+    klass = get_class("lambda", FALSE);
 
     klass->mFreeFun = free_block;
 }
@@ -1427,6 +1449,20 @@ BOOL call_all_class_initializer()
         }
         p = p->mNextClass;
     }
+
+    vm_mutex_off();
+
+    return TRUE;
+}
+
+BOOL class_init_on_runtime_for_js()
+{
+    vm_mutex_on();
+    if(!load_fundamental_classes_on_runtime_for_js()) {
+        vm_mutex_off();
+        return FALSE;
+    }
+    set_free_fun_to_classes();
 
     vm_mutex_off();
 
@@ -1481,7 +1517,7 @@ void callOnException(CLObject message, BOOL in_try, sVMInfo* info)
     if(!in_calling_on_exception) {
         in_calling_on_exception = TRUE;
 
-        sCLClass* clover_class = get_class("Clover");
+        sCLClass* clover_class = get_class("Clover", FALSE);
 
         if(clover_class) {
             int method_index = -1;
@@ -1613,12 +1649,12 @@ void class_final_on_runtime()
     vm_mutex_off();
 }
 
-sCLClass* get_class_with_load_and_initialize(char* class_name)
+sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js)
 {
-    sCLClass* result = get_class(class_name);
+    sCLClass* result = get_class(class_name, js);
 
     if(result == NULL) {
-        result = load_class(class_name, 0);
+        result = load_class(class_name, 0, js);
 
         if(result == NULL) {
             //fprintf(stderr, "Clover2 can't load %s\n", class_name);
@@ -1723,12 +1759,10 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)
 {
-//    strcpy(method_name_and_params2, method_name_and_params);
-
     char* p = method_name_and_params;
     char* p2 = method_name_and_params2;
 
-    char* result = strstr(p, "(");
+    char* result = strstr(p, "__");
 
     memcpy(p2, p, result -p);
     p2 += result -p;
@@ -1959,6 +1993,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 }
                 break;
 
+            case OP_CATCH_END:
+                break;
+
             case OP_STORE_ANDAND_OROR_VALUE_LEFT:
                 set_andand_oror_left_value((stack_ptr-1)->mBoolValue, info);
                 stack_ptr--;
@@ -2038,6 +2075,21 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 pc += sizeof(int);
 
                 /// nothing to do, this opecode is for Just In Time Compile
+                }
+                break;
+
+            case OP_JS_IF: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
+            case OP_JS_ELSE: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
+            case OP_JS_BLOCK_CLOSE: {
+                /// nothing to do, this opecode is for JS Compile
                 }
                 break;
 
@@ -5234,7 +5286,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(1)");
@@ -5330,7 +5382,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
@@ -5392,6 +5444,12 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int class_method = *(int*)pc;
                     pc += sizeof(int);
 
+                    int native_method = *(int*)pc;
+                    pc += sizeof(int);
+
+                    BOOL result_type_is_bool = *(int*)pc;
+                    pc += sizeof(int);
+
                     unsigned int offset2 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
@@ -5399,7 +5457,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     if(class_method) {
                         char* class_name = CONS_str(constant, offset2);
 
-                        klass = get_class_with_load_and_initialize(class_name);
+                        klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                         if(klass == NULL) {
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
@@ -5444,9 +5502,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* method_name_and_params = CONS_str(constant, offset);
 
-                    char method_name_and_params2[METHOD_NAME_MAX + num_real_params * CLASS_NAME_MAX + 128];
+                    char method_name_and_params2[METHOD_NAME_MAX + num_real_params * CLASS_NAME_MAX + 1024];
                     Self_convertion_of_method_name_and_params(method_name_and_params, method_name_and_params2, CLASS_NAME(klass));
-
 
                     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params2);
                     if(method == NULL) {
@@ -5596,7 +5653,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                         char* class_name = CONS_str(constant, offset);
                         char* method_name = CONS_str(constant, offset2);
 
-                        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                        sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                         if(klass == NULL) {
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
@@ -5725,7 +5782,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(3)");
@@ -5767,6 +5824,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     pc += sizeof(int);
 
                     int tmp = *(int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int field_name_offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     CLObject obj = (stack_ptr -1)->mObjectValue;
@@ -5895,6 +5955,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
+                    unsigned int field_name_offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
                     CLObject obj = (stack_ptr -2)->mObjectValue;
                     CLVALUE value = *(stack_ptr-1);
 
@@ -5947,7 +6010,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* field_class_name = CONS_str(constant, class_name_offset);
 
-                    sCLClass* field_class = get_class_with_load_and_initialize(field_class_name);
+                    sCLClass* field_class = get_class_with_load_and_initialize(field_class_name, FALSE);
 
                     if(field_class == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(6-2) %s", field_class_name);
@@ -5982,6 +6045,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     pc += sizeof(int);
 
                     int size = *(int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int field_name_offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     CLObject obj = (stack_ptr -2)->mObjectValue;
@@ -6088,7 +6154,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(7)");
@@ -6137,7 +6203,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -6203,7 +6269,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(9)");
@@ -6250,7 +6316,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -15765,7 +15831,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                 char* class_name = CONS_str(constant, offset);
 
-                sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                 if(klass == NULL) {
                     entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(10)");
@@ -15799,7 +15865,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 sCLObject* array_data = CLOBJECT(array);
                 int array_num = array_data->mArrayNum;
 
-                sCLClass* klass2 = get_class("Array");
+                sCLClass* klass2 = get_class("Array", FALSE);
                 MASSERT(klass2 != NULL);
 
                 char type_name[OBJECT_TYPE_NAME_MAX];
@@ -16246,7 +16312,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16299,7 +16365,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(12)");
@@ -16368,7 +16434,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16440,7 +16506,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16512,7 +16578,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16569,7 +16635,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 }
                 break;
 
-            case OP_CREATE_SORTALBE_LIST:
+            case OP_CREATE_SORTABLE_LIST:
                 {
                     int num_elements = *(int*)pc;
                     pc += sizeof(int);
@@ -16582,7 +16648,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(13)");
@@ -16651,7 +16717,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16766,7 +16832,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                    sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                     if(klass == NULL) {
                         
@@ -16791,7 +16857,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     char* class_name2 = CONS_str(constant, offset2);
 
-                    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2);
+                    sCLClass* klass2 = get_class_with_load_and_initialize(class_name2, FALSE);
 
                     if(klass2 == NULL) {
                         
@@ -16898,6 +16964,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int class_name_offset = *(int*)pc;
                     pc += sizeof(int);
 
+                    int num_params = *(int*)pc;
+                    pc += sizeof(int);
+
                     sCLClass* klass = NULL;
                     if(class_name_offset == -1) {
                         klass = NULL;
@@ -16905,7 +16974,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     else {
                         char* class_name = CONS_str(constant, class_name_offset);
 
-                        sCLClass* klass = get_class_with_load_and_initialize(class_name);
+                        sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);
 
                         if(klass == NULL) {
                             entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "class not found(99) %s", class_name);

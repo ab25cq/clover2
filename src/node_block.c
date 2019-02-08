@@ -273,6 +273,8 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
             return FALSE;
         }
 
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+
         *block_last_type = info->type;
 
         if(i == block->mNumNodes -1 && result_type) {
@@ -288,10 +290,6 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         else {
             arrange_stack(info);
         }
-
-#ifdef ENABLE_INTERPRETER
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
-#endif
     }
 
     if(block->mNumNodes == 0) {
@@ -300,15 +298,13 @@ BOOL compile_block(sNodeBlock* block, sCompileInfo* info, sNodeType* result_type
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null");
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);;
+
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
 
         arrange_stack(info);
 
         *block_last_type = info->type;
-
-#ifdef ENABLE_INTERPRETER
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);;
-#endif
     }
 
     info->stack_num = stack_num_before;
@@ -340,12 +336,14 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
             return FALSE;
         }
 
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
+
         if(i == block->mNumNodes-1) {
             if(info->stack_num == 0) {
                 append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
                 info->stack_num++;
 
-                info->type = create_node_type_with_class_name("Null");
+                info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
             }
             else if(info->stack_num < 0) {
                 compile_err_msg(info, "Unexpected error. Stack pointer is invalid(stack number is %d)", info->stack_num);
@@ -365,10 +363,6 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
         else {
             arrange_stack(info);
         }
-
-#ifdef ENABLE_INTERPRETER
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
-#endif
     }
 
     if(block->mNumNodes == 0) {
@@ -377,13 +371,15 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
         append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
         info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null");
+        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+
+        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
 
         if(info->stack_num == 0) {
             append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
             info->stack_num++;
 
-            info->type = create_node_type_with_class_name("Null");
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         }
         else if(info->stack_num < 0) {
             compile_err_msg(info, "Unexpected error. Stack pointer is invalid(stack number is %d)", info->stack_num);
@@ -399,10 +395,6 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
                 info->stack_num--;
             }
         }
-
-#ifdef ENABLE_INTERPRETER
-        append_opecode_to_code(info->code, OP_SIGINT, info->no_output);
-#endif
     }
 
     info->stack_num = stack_num_before;

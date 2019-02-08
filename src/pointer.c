@@ -2,7 +2,7 @@
 
 CLObject create_pointer(char* value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Pointer");
+    sCLClass* klass = get_class("Pointer", FALSE);
     CLObject obj = create_object(klass, "Pointer", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

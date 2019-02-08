@@ -1,0 +1,173 @@
+Clover.test("num test1", 1 == 1);
+
+var a = 1;
+Clover.test("num test2", a == 1);
+
+if(1 == 1) {
+    a = 2;
+}
+
+Clover.test("num test3", a == 2);
+
+if(0 == 1) {
+    a = 3;
+}
+
+Clover.test("num test4", a == 2);
+
+if(1 == 2) {
+    a = 1;
+}
+else {
+    a = 3;
+}
+
+Clover.test("num test5", a == 3);
+
+if(1 == 2) {
+    a = 1;
+}
+elif(1 == 1) {
+    a = 2;
+}
+else {
+    a = 3;
+}
+
+Clover.test("num test6", a == 2);
+
+if(1 == 2) {
+    a = 1;
+}
+elif(0 == 1) {
+    a = 2;
+}
+elif(1 == 1) {
+    a = 3;
+}
+else {
+    a = 4;
+}
+
+Clover.test("num test7", a == 3);
+
+var b = Person("Ichiro",  29);
+
+b.hello();
+
+println("HELLO JS&CLOVER2 WORLD");
+
+var c = "ABC";
+
+Clover.test("string test1", c.equals("ABC"));
+
+var d = "123";
+var e = "456";
+
+Clover.test("string test2", "\{d}\{e}".equals("123456"));
+
+var f = new Integer(123);
+
+Clover.test("Integer test1", f == 123);
+
+var g = 123I;
+
+Clover.test("Integer test2", g == 123);
+
+var h:SortableList<Integer> = {1,2,3}
+
+Clover.test("list test1", h.length() == 3);
+Clover.test("list test2", h.equals({1,2,3}));
+
+Clover.test("string test3", "ABC".match(/^A/));
+
+var i = "^A";
+Clover.test("string test4", "ABC".match(/\{i}/));
+
+var j = ["AAA"=>1, "BBB"=>2];
+Clover.test("hash test1", j.get("AAA") == 1);
+
+var k = lambda(x:int,y:int):int { return x + y };
+Clover.test("lambda test1", k(1,2) == 3);
+
+var l = 9;
+
+var m = closure(x:int, y:int):int { return x + y + l };
+Clover.test("lambda test2", m(1, 2) == 12);
+Clover.test("lambda test3", l == 9);
+
+var n = 9;
+
+var o = closure(x:int, y:int):int { n = 5; return x + y + n };
+Clover.test("lambda test4", o(1, 2) == 8);
+Clover.test("lambda test5", n == 5);
+
+var m2 = closure(x:int):int { l = 6; return x + 2 + l };
+Clover.test("lambda test6", m2(1) == 9);
+
+Clover.test("lambda test7", l == 6);
+var m3 = closure():int {
+    var o = 94;
+
+    var p = closure():int {
+        l = 6; return l + o;
+    }
+
+    return p();
+}
+
+Clover.test("lambda test8", m3() == 100);
+
+Clover.test("lambda test9", l == 6);
+
+m4 := lambda(x:int, y:int):int { return x + y };
+
+Clover.test("lambda test10", m4(1,2) == 3);
+
+print("try test1...");
+try {
+    var person = Person("Ichiro",  29);
+
+    person.method();
+
+    println("FALSE");
+}
+catch(e:Exception) {
+    println(e.message);
+}
+
+Clover.test("true && false test1", true);
+Clover.test("true && false test2", !false);
+
+Clover.test("true && false test1", true && true);
+Clover.test("true && false test2", false || true);
+var m5 = 1;
+true || { m5 = 2; true }
+Clover.test("true && false test3", m5 == 1);
+false && { m5 = 3; true }
+Clover.test("true && false test4", m5 == 1);
+
+var m6 = new Person("Rei", 25);
+Clover.test("class name test1", m6.className().equals("object"));
+var m7 = [1,2,3];
+
+Clover.test("JS array test1", m7.equals([1,2,3]));
+Clover.test("JS array test2", m7.slice(0,2).equals([1,2]));
+Clover.test("JS array test3", [1,2,3].slice(0,2).equals([1,2]));
+Clover.test("JS array test4", [1,2,3].length() == 3);
+Clover.test("JS array test5", [1,2,3].includes(1));
+
+
+Clover.test("JS array test6", [1,2,3,4,5].copyWithin(-2).equals([1,2,3,1,2]));
+/*
+Clover.test("JS array test7", [1,2,3,4,5].copyWithin(0,3).equals([4,5,3,4,5]));
+Clover.test("JS array test8", [1,2,3,4,5].copyWithin(0,3,4).equals([4,2,3,4,5]));
+Clover.test("JS array test9", [1,2,3,4,5].copyWithin(0,-2,-1).equals([4,2,3,4,5]));
+Clover.test("JS array test10", [1,2,3].fill(4).equals([4,4,4]));
+Clover.test("JS array test11", [1,2,3].fill(4,1).equals([1,4,4]));
+Clover.test("JS array test12", [1,2,3].fill(4,1,2).equals([1,4,3]));
+Clover.test("JS array test13", [1,2,3].fill(4,1,1).equals([1,2,3]));
+Clover.test("JS array test13", [1,2,3].fill(4,3,3).equals([1,2,3]));
+Clover.test("JS array test13", [1,2,3].fill(4,-3,-2).equals([4,2,3]));
+Clover.test("JS array test14", Array<Integer>(3).fill(4).equals([4,4,4]));
+*/

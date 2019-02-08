@@ -2,7 +2,7 @@
 
 CLObject create_char(wchar_t value, sVMInfo* info)
 {
-    sCLClass* klass = get_class("Char");
+    sCLClass* klass = get_class("Char", FALSE);
     CLObject obj = create_object(klass, "Char", info);
 
     sCLObject* obj_data = CLOBJECT(obj);

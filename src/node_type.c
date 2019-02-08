@@ -110,7 +110,7 @@ static void skip_spaces_for_parse_class_name(char** p)
     }
 }
 
-static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParserInfoStruct* info)
+static sNodeType* parse_class_name(char** p, char** p2, char* buf, BOOL js)
 {
     sNodeType* node_type = alloc_node_type();
 
@@ -129,14 +129,14 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParse
 
             **p2 = 0;
 
-            node_type->mClass = get_class_with_load_and_initialize(buf);
+            node_type->mClass = get_class_with_load_and_initialize(buf, js);
 
             if(node_type->mClass == NULL) {
                 return NULL;
             }
 
             while(1) {
-                node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf, info);
+                node_type->mGenericsTypes[node_type->mNumGenericsTypes] = parse_class_name(p, p2, buf, js);
                 node_type->mNumGenericsTypes++;
 
                 if(node_type->mNumGenericsTypes >= GENERICS_TYPES_MAX) {
@@ -177,7 +177,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParse
         else if(**p == '>') {
             **p2 = 0;
 
-            node_type->mClass = get_class_with_load_and_initialize(buf);
+            node_type->mClass = get_class_with_load_and_initialize(buf, js);
 
             if(node_type->mClass == NULL) {
                 return NULL;
@@ -196,7 +196,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParse
     if(*p2 - buf > 0) {
         **p2 = 0;
 
-        node_type->mClass = get_class_with_load_and_initialize(buf);
+        node_type->mClass = get_class_with_load_and_initialize(buf, js);
 
         if(node_type->mClass == NULL) {
             return NULL;
@@ -206,39 +206,40 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, struct sParse
     return node_type;
 }
 
-sNodeType* create_node_type_with_class_name(char* class_name)
+sNodeType* create_node_type_with_class_name(char* class_name, BOOL js)
 {
     char buf[CLASS_NAME_MAX+1];
 
     char* p = class_name;
     char* p2 = buf;
 
-    return parse_class_name(&p, &p2, buf, NULL);
+    return parse_class_name(&p, &p2, buf, js);
 }
 
-sNodeType* create_node_type_with_generics_number(int generics_num)
+sNodeType* create_node_type_with_generics_number(int generics_num, BOOL js)
 {
     char class_name[CLASS_NAME_MAX+1];
 
     snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", generics_num);
 
-    return create_node_type_with_class_name(class_name);
+    return create_node_type_with_class_name(class_name, js);
 }
 
-sNodeType* create_node_type_with_method_generics_number(int generics_num)
+sNodeType* create_node_type_with_method_generics_number(int generics_num, BOOL js)
 {
     char class_name[CLASS_NAME_MAX+1];
 
     snprintf(class_name, CLASS_NAME_MAX, "MethodGenericsParametorClass%d", generics_num);
 
-    return create_node_type_with_class_name(class_name);
+    return create_node_type_with_class_name(class_name, js);
 }
 
 sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 {
+    BOOL js = klass->mFlags & CLASS_FLAGS_JS;
     sNodeType* node_type = alloc_node_type();
 
-    node_type->mClass = get_class_with_load_and_initialize(CONS_str(&klass->mConst, cl_type->mClassNameOffset));
+    node_type->mClass = get_class_with_load_and_initialize(CONS_str(&klass->mConst, cl_type->mClassNameOffset), js);
 
     MASSERT(node_type->mClass != NULL);
 
@@ -290,6 +291,8 @@ BOOL is_delegated_class(sNodeType* left_type, sNodeType* right_type)
 
 BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_generics_types, sNodeType* right_generics_types, sNodeType* left_method_generics, sNodeType* right_method_generics, BOOL output_message)
 {
+    BOOL js = left->mClass->mFlags & CLASS_FLAGS_JS;
+
     sNodeType* left2;
 
     if(left_method_generics) {
@@ -358,7 +361,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     {
         return TRUE;
     }
-    else if(type_identify_with_class_name(left3, "Buffer") && type_identify_with_class_name(right3, "pointer"))
+    else if(!js && type_identify_with_class_name(left3, "Buffer") && type_identify_with_class_name(right3, "pointer"))
     {
         return TRUE;
     }
@@ -431,7 +434,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
 BOOL substitution_posibility_with_class_name(sNodeType* left, char* right_class_name, BOOL output_message)
 {
-    return substitution_posibility(left, create_node_type_with_class_name(right_class_name), NULL , NULL, NULL, NULL, output_message);
+    return substitution_posibility(left, create_node_type_with_class_name(right_class_name, left->mClass->mFlags & CLASS_FLAGS_JS), NULL , NULL, NULL, NULL, output_message);
 }
 
 static BOOL is_numeric_type(sNodeType* type_)
@@ -479,7 +482,7 @@ BOOL operand_posibility(sNodeType* left, sNodeType* right, char* op_string)
 
 BOOL operand_posibility_with_class_name(sNodeType* left, char* right_class_name, char* op_string)
 {
-    return operand_posibility(left, create_node_type_with_class_name(right_class_name), op_string);
+    return operand_posibility(left, create_node_type_with_class_name(right_class_name, left->mClass->mFlags & CLASS_FLAGS_JS), op_string);
 }
 
 BOOL type_identify(sNodeType* left, sNodeType* right)
@@ -489,12 +492,13 @@ BOOL type_identify(sNodeType* left, sNodeType* right)
 
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
 {
-    return type_identify(left, create_node_type_with_class_name(right_class_name));
+    return type_identify(left, create_node_type_with_class_name(right_class_name, left->mClass->mFlags & CLASS_FLAGS_JS));
 }
 
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)
 {
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name);
+    BOOL js = klass->mFlags & CLASS_FLAGS_JS;
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name, js);
 
     MASSERT(klass2 != NULL);
 
@@ -619,7 +623,8 @@ sNodeType* create_generics_types_from_generics_params(sCLClass* klass)
     int i;
     for(i=0; i<klass->mNumGenerics; i++) {
         int offset = klass->mGenericsParamTypeOffsets[i];
-        sCLClass* interface = get_class_with_load_and_initialize(CONS_str(&klass->mConst, offset));
+        BOOL js = klass->mFlags & CLASS_FLAGS_JS;
+        sCLClass* interface = get_class_with_load_and_initialize(CONS_str(&klass->mConst, offset), js);
 
         MASSERT(interface != NULL);
 
@@ -743,6 +748,8 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
     sCLClass* left_class = left_type->mClass;
     sCLClass* right_class = right_type->mClass;
 
+    BOOL js = left_class->mFlags & CLASS_FLAGS_JS;
+
     /// ulong --> int or int --> ulong etc
     if(is_numeric_type_without_float(left_type) && is_numeric_type_without_float(right_type)) {
         return TRUE;
@@ -849,7 +856,7 @@ void make_boxing_type(sNodeType* type, sNodeType** result)
     sCLClass* klass = type->mClass;
 
     if(type->mArray) {
-        (*result)->mClass = get_class("Array");
+        (*result)->mClass = get_class("Array", klass->mFlags & CLASS_FLAGS_JS);
 
         (*result)->mNumGenericsTypes = 1;
 
