@@ -187,6 +187,18 @@ void show_inst(unsigned inst)
             puts("OP_JS_IF");
             break;
 
+        case OP_JS_ELSE_IF :
+            puts("OP_JS_ELSE_IF");
+            break;
+
+        case OP_JS_LOOP :
+            puts("OP_JS_LOOP");
+            break;
+
+        case OP_JS_BREAK :
+            puts("OP_JS_BREAK");
+            break;
+
         case OP_JS_ELSE :
             puts("OP_JS_ELSE");
             break;
@@ -1322,28 +1334,18 @@ BOOL gRunningInitializer = FALSE;
 
 BOOL load_fundamental_classes_on_runtime_for_js()
 {
+    load_class("Number", 0, TRUE);
     load_class("String", 0, TRUE);
-    load_class("console", 0, TRUE);
+    load_class("Array", 0, TRUE);
     load_class("Null", 0, TRUE);
-    load_class("Byte", 0, TRUE);
-    load_class("UByte", 0, TRUE);
-    load_class("Short", 0, TRUE);
-    load_class("UShort", 0, TRUE);
-    load_class("Integer", 0, TRUE);
-    load_class("UInteger", 0, TRUE);
-    load_class("Long", 0, TRUE);
-    load_class("ULong", 0, TRUE);
-    load_class("Float", 0, TRUE);
-    load_class("Double", 0, TRUE);
-    load_class("Pointer", 0, TRUE);
-    load_class("Char", 0, TRUE);
-    load_class("Buffer", 0, TRUE);
     load_class("Bool", 0, TRUE);
     load_class("Exception", 0, TRUE);
-    load_class("Object", 0, TRUE);
     load_class("System", 0, TRUE);
-    load_class("Array", 0, TRUE);
-    load_class("Map", 0, TRUE);
+    load_class("Object", 0, TRUE);
+    load_class("IHashKey", 0, TRUE);
+    load_class("IEqualable", 0, TRUE);
+    load_class("ISortable", 0, TRUE);
+    load_class("IIteratorable", 0, TRUE);
 
     gRunningInitializer = TRUE;
     call_all_class_initializer();
@@ -2083,12 +2085,27 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 }
                 break;
 
+            case OP_JS_ELSE_IF: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
             case OP_JS_ELSE: {
                 /// nothing to do, this opecode is for JS Compile
                 }
                 break;
 
             case OP_JS_BLOCK_CLOSE: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
+            case OP_JS_LOOP: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
+            case OP_JS_BREAK: {
                 /// nothing to do, this opecode is for JS Compile
                 }
                 break;
@@ -5447,10 +5464,16 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int native_method = *(int*)pc;
                     pc += sizeof(int);
 
+                    int pure_native_method = *(int*)pc;
+                    pc += sizeof(int);
+
                     BOOL result_type_is_bool = *(int*)pc;
                     pc += sizeof(int);
 
                     unsigned int offset2 = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int offset3 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     sCLClass* klass;

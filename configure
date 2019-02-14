@@ -4521,14 +4521,14 @@ CFLAGS="$CFLAGS -Qunused-arguments"
 if test $ENABLE_JIT = 1
 then
     CFLAGS="$CFLAGS -DENABLE_JIT"
-    OBJS="src/vm.o src/js.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
-    COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
+    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
+    COMPILER_OBJS="src/js.o src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
     JIT_OBJS="src/jit.o src/jit2.o src/jit3.o src/jit4.o src/jit5.o src/jit6.o"
     JIT_RUNTIME_OBJS="src/jit_runtime.o"
     JIT=1
 else
-    OBJS="src/vm.o src/js.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
-    COMPILER_OBJS="src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
+    OBJS="src/vm.o src/script.o src/object.o src/array.o src/string.o src/block.o src/regex.o src/integer.o src/byte.o src/short.o src/long.o src/float.o src/pointer.o src/char.o src/bool.o src/hash.o src/list.o src/tuple.o src/carray.o src/type.o src/stack.o src/heap.o src/exception.o src/native_method.o src/class_system.o src/class_clover.o src/class_clover_runtime.o src/clover_to_clang.o src/class_thread.o"
+    COMPILER_OBJS="src/js.o src/parser.o src/node_type.o src/node.o src/cast.o src/vtable.o src/script_ctime.o src/node_block.o src/node_block_type.o src/class_compiler.o src/klass_compile_time.o src/method_compiler.o src/module.o src/class_clover_compile_time.o"
     JIT_OBJS=
     JIT_RUNTIME_OBJS=
     JIT=0

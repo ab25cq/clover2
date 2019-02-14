@@ -772,7 +772,13 @@ static BOOL binary_operator(sNodeType* left_type, sNodeType* right_type, int byt
         return TRUE;
     }
 
-    if(type_identify_with_class_name(left_type, "byte") && byte_operand != -1) {
+    if((left_type->mClass->mFlags & CLASS_FLAGS_JS) && type_identify_with_class_name(left_type, "Number") && int_operand != -1) {
+        append_opecode_to_code(info->code, int_operand, info->no_output);
+        info->stack_num--;
+
+        info->type = create_node_type_with_class_name("Number", info->pinfo->mJS);
+    }
+    else if(type_identify_with_class_name(left_type, "byte") && byte_operand != -1) {
         append_opecode_to_code(info->code, byte_operand, info->no_output);
         info->stack_num--;
 
@@ -2317,7 +2323,12 @@ static BOOL compile_int_value(unsigned int node, sCompileInfo* info)
 
     info->stack_num++;
 
-    info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
+    if(info->pinfo->mJS) {
+        info->type = create_node_type_with_class_name("Number", info->pinfo->mJS);
+    }
+    else {
+        info->type = create_node_type_with_class_name("int", info->pinfo->mJS);
+    }
 
     return TRUE;
 }
@@ -2970,162 +2981,370 @@ unsigned int sNodeTree_if_expression(unsigned int expression_node, MANAGED sNode
 
 static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
-    }
-    sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
+    if(info->pinfo->mJS) {
+        /// compile expression ///
+        sVarTable* lv_table = clone_var_table(info->lv_table);
+        unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
 
-    char label_name_elif[LABEL_NAME_MAX];
-    create_label_name2("label_elif", label_name_elif, LABEL_NAME_MAX, label_num, 1);
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
 
-    char label_name_else[LABEL_NAME_MAX];
-    create_label_name("label_else", label_name_else, LABEL_NAME_MAX, label_num);
+        if(gNodes[node].uValue.sIf.mIfUnclosed) {
+            return FALSE;
+        }
 
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
 
-    /// compile expression ///
-    sVarTable* lv_table = clone_var_table(info->lv_table);
-    unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
 
-    if(!compile(expression_node, info)) {
-        return FALSE;
-    }
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    if(gNodes[node].uValue.sIf.mIfUnclosed) {
-        return FALSE;
-    }
+            return TRUE;
+        }
 
-    if(type_identify_with_class_name(info->type, "Bool")) {
-        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-    }
+        append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+        info->stack_num--;
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
-        compile_err_msg(info, "This conditional type is not bool");
-        info->err_num++;
+        sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
+        if(!compile_block_with_result(if_block, info)) {
+            return FALSE;
+        }
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+        restore_var_table(info->lv_table, lv_table);
 
-        return TRUE;
-    }
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+        sNodeType* if_result_type = info->type;
 
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
 
-    info->stack_num--;
+        //// elif ///
+        if(gNodes[node].uValue.sIf.mElifNum > 0) {
+            int j;
+            for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+                append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
 
-    /// block of if expression ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+                lv_table = clone_var_table(info->lv_table);
 
-    int goto_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
+                /// compile expression ///
+                unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
 
-    if(gNodes[node].uValue.sIf.mElifNum > 0) {
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
-    }
-    else {
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
-    }
+                if(!compile(elif_expression_node, info)) {
+                    return FALSE;
+                }
 
-    sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
-    if(!compile_block_with_result(if_block, info)) {
-        return FALSE;
-    }
+                if(gNodes[node].uValue.sIf.mElifUnclosed[j]) {
+                    return FALSE;
+                }
 
-    restore_var_table(info->lv_table, lv_table);
+                if(type_identify_with_class_name(info->type, "Bool")) {
+                    append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+                    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                }
 
-    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-    info->stack_num--;
+                if(!type_identify_with_class_name(info->type, "bool")) {
+                    compile_err_msg(info, "This conditional type is not bool");
+                    info->err_num++;
 
-    sNodeType* if_result_type = info->type;
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-    int end_points[ELIF_NUM_MAX+1];
-    end_points[0] = info->code->mLen;
-    int num_end_points = 1;
+                    return TRUE;
+                }
 
-    append_int_value_to_code(info->code, 0, info->no_output);
+                append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
 
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+                info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+                append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+                info->stack_num++;
 
-    //// elif ///
-    if(gNodes[node].uValue.sIf.mElifNum > 0) {
-        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
 
-        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+                /// block of if expression ///
+                sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
+                if(!compile_block_with_result(elif_block, info)) {
+                    return FALSE;
+                }
 
-        int j;
-        for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+                restore_var_table(info->lv_table, lv_table);
+
+                sNodeType* elif_result_type = info->type;
+
+                if(!type_identify(if_result_type, elif_result_type)) {
+                    if(cast_posibility(if_result_type, elif_result_type)) {
+                        cast_right_type_to_left_type(if_result_type, &elif_result_type, info);
+                    }
+                    else {
+                        if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                }
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+            }
+        }
+
+        sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
+
+        /// else block ///
+        if(else_node_block) {
             append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
 
-            lv_table = clone_var_table(info->lv_table);
-
-            /// compile expression ///
-            unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
-
-            if(!compile(elif_expression_node, info)) {
+            if(!compile_block_with_result(else_node_block, info)) {
                 return FALSE;
             }
 
-            if(gNodes[node].uValue.sIf.mElifUnclosed[j]) {
-                return FALSE;
+            sNodeType* else_result_type = info->type;
+
+            if(!type_identify(if_result_type, else_result_type)) {
+                if(cast_posibility(if_result_type, else_result_type)) {
+                    cast_right_type_to_left_type(if_result_type, &else_result_type, info);
+                }
+                else {
+                    if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                }
             }
 
-            if(type_identify_with_class_name(info->type, "Bool")) {
-                append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-                info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-            }
-
-            if(!type_identify_with_class_name(info->type, "bool")) {
-                compile_err_msg(info, "This conditional type is not bool");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                return TRUE;
-            }
-
-            append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
-
-            append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-            append_int_value_to_code(info->code, sizeof(int)*5, info->no_output);
-
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
 
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+        }
+        else {
             append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
             info->stack_num++;
 
             append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
+        }
 
-            /// block of if expression ///
-            append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
-            int goto_point = info->code->mLen;
-            append_int_value_to_code(info->code, 0, info->no_output);
+        int i;
+        for(i=0; i<gNodes[node].uValue.sIf.mElifNum; i++) {
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+        }
 
-            char label_name[LABEL_NAME_MAX];
-            create_label_name2("label_if_elif", label_name, LABEL_NAME_MAX, label_num, j);
-            append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
+            int size = get_var_size(if_result_type);
 
-            sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
-            if(!compile_block_with_result(elif_block, info)) {
+            append_int_value_to_code(info->code, size, info->no_output);
+            info->stack_num++;
+
+            info->type = if_result_type;
+        }
+    }
+    else {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
+        sNodeBlock* else_node_block = gNodes[node].uValue.sIf.mElseNodeBlock;
+
+        char label_name_elif[LABEL_NAME_MAX];
+        create_label_name2("label_elif", label_name_elif, LABEL_NAME_MAX, label_num, 1);
+
+        char label_name_else[LABEL_NAME_MAX];
+        create_label_name("label_else", label_name_else, LABEL_NAME_MAX, label_num);
+
+        char label_end_point[LABEL_NAME_MAX];
+        create_label_name("label_if_end", label_end_point, LABEL_NAME_MAX, label_num);
+
+        /// compile expression ///
+        sVarTable* lv_table = clone_var_table(info->lv_table);
+        unsigned int expression_node = gNodes[node].uValue.sIf.mExpressionNode;
+
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
+
+        if(gNodes[node].uValue.sIf.mIfUnclosed) {
+            return FALSE;
+        }
+
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
+
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+
+        append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+        append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+        info->stack_num--;
+
+        /// block of if expression ///
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+
+        int goto_point = info->code->mLen;
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        if(gNodes[node].uValue.sIf.mElifNum > 0) {
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+        }
+        else {
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
+        }
+
+        sNodeBlock* if_block = gNodes[node].uValue.sIf.mIfNodeBlock;
+        if(!compile_block_with_result(if_block, info)) {
+            return FALSE;
+        }
+
+        restore_var_table(info->lv_table, lv_table);
+
+        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        info->stack_num--;
+
+        sNodeType* if_result_type = info->type;
+
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+        int end_points[ELIF_NUM_MAX+1];
+        end_points[0] = info->code->mLen;
+        int num_end_points = 1;
+
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+        //// elif ///
+        if(gNodes[node].uValue.sIf.mElifNum > 0) {
+            *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_elif, info->no_output);
+
+            int j;
+            for(j=0; j<gNodes[node].uValue.sIf.mElifNum; j++) {
+                append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+
+                lv_table = clone_var_table(info->lv_table);
+
+                /// compile expression ///
+                unsigned int elif_expression_node = gNodes[node].uValue.sIf.mElifExpressionNodes[j];
+
+                if(!compile(elif_expression_node, info)) {
+                    return FALSE;
+                }
+
+                if(gNodes[node].uValue.sIf.mElifUnclosed[j]) {
+                    return FALSE;
+                }
+
+                if(type_identify_with_class_name(info->type, "Bool")) {
+                    append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+                    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                }
+
+                if(!type_identify_with_class_name(info->type, "bool")) {
+                    compile_err_msg(info, "This conditional type is not bool");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+
+                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                append_int_value_to_code(info->code, sizeof(int)*5, info->no_output);
+
+                info->stack_num--;
+
+                append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+                info->stack_num++;
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                /// block of if expression ///
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+                int goto_point = info->code->mLen;
+                append_int_value_to_code(info->code, 0, info->no_output);
+
+                char label_name[LABEL_NAME_MAX];
+                create_label_name2("label_if_elif", label_name, LABEL_NAME_MAX, label_num, j);
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
+
+                sNodeBlock* elif_block = gNodes[node].uValue.sIf.mElifNodeBlocks[j];
+                if(!compile_block_with_result(elif_block, info)) {
+                    return FALSE;
+                }
+
+                restore_var_table(info->lv_table, lv_table);
+
+                sNodeType* elif_result_type = info->type;
+
+                if(!type_identify(if_result_type, elif_result_type)) {
+                    if(cast_posibility(if_result_type, elif_result_type)) {
+                        cast_right_type_to_left_type(if_result_type, &elif_result_type, info);
+                    }
+                    else {
+                        if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                }
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+                end_points[num_end_points] = info->code->mLen;
+                num_end_points++;
+                append_int_value_to_code(info->code, 0, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+                MASSERT(num_end_points <= ELIF_NUM_MAX+1);
+
+                *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+                append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
+
+                append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+            }
+        }
+        else {
+            *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+        }
+
+        /// else block ///
+        if(else_node_block) {
+            append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+
+            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
+
+            if(!compile_block_with_result(else_node_block, info)) {
                 return FALSE;
             }
 
-            restore_var_table(info->lv_table, lv_table);
+            sNodeType* else_result_type = info->type;
 
-            sNodeType* elif_result_type = info->type;
-
-            if(!type_identify(if_result_type, elif_result_type)) {
-                if(cast_posibility(if_result_type, elif_result_type)) {
-                    cast_right_type_to_left_type(if_result_type, &elif_result_type, info);
+            if(!type_identify(if_result_type, else_result_type)) {
+                if(cast_posibility(if_result_type, else_result_type)) {
+                    cast_right_type_to_left_type(if_result_type, &else_result_type, info);
                 }
                 else {
                     if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
@@ -3141,90 +3360,46 @@ static BOOL compile_if_expression(unsigned int node, sCompileInfo* info)
             append_int_value_to_code(info->code, 0, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-            MASSERT(num_end_points <= ELIF_NUM_MAX+1);
-
-            *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, label_name, info->no_output);
-
             append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
         }
-    }
-    else {
-        *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-    }
+        else {
+            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
 
-    /// else block ///
-    if(else_node_block) {
-        append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
 
-        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+            info->stack_num--;
 
-        if(!compile_block_with_result(else_node_block, info)) {
-            return FALSE;
+            append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+            end_points[num_end_points] = info->code->mLen;
+            num_end_points++;
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
         }
 
-        sNodeType* else_result_type = info->type;
-
-        if(!type_identify(if_result_type, else_result_type)) {
-            if(cast_posibility(if_result_type, else_result_type)) {
-                cast_right_type_to_left_type(if_result_type, &else_result_type, info);
-            }
-            else {
-                if_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
-            }
+        int i;
+        for(i=0; i<gNodes[node].uValue.sIf.mElifNum; i++) {
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
         }
 
-        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-        info->stack_num--;
+        for(i=0; i<num_end_points; i++) {
+            *(int*)(info->code->mCodes + end_points[i]) = info->code->mLen;
+        }
 
-        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-        end_points[num_end_points] = info->code->mLen;
-        num_end_points++;
-        append_int_value_to_code(info->code, 0, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
-    }
-    else {
         append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, label_name_else, info->no_output);
-
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-
-        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-        info->stack_num--;
-
-        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-        end_points[num_end_points] = info->code->mLen;
-        num_end_points++;
-        append_int_value_to_code(info->code, 0, info->no_output);
         append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-    }
 
-    int i;
-    for(i=0; i<gNodes[node].uValue.sIf.mElifNum; i++) {
-        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
-    }
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
+            int size = get_var_size(if_result_type);
 
-    for(i=0; i<num_end_points; i++) {
-        *(int*)(info->code->mCodes + end_points[i]) = info->code->mLen;
-    }
+            append_int_value_to_code(info->code, size, info->no_output);
+            info->stack_num++;
 
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
-        int size = get_var_size(if_result_type);
-
-        append_int_value_to_code(info->code, size, info->no_output);
-        info->stack_num++;
-
-        info->type = if_result_type;
+            info->type = if_result_type;
+        }
     }
 
     return TRUE;
@@ -3270,168 +3445,1243 @@ unsigned int sNodeTree_when_expression(unsigned int expression_node, unsigned in
 
 static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
 {
-    unsigned int expression_node = gNodes[node].uValue.sWhen.mExpressionNode;
-    int num_when_block = gNodes[node].uValue.sWhen.mNumWhenBlock;
-    sNodeBlock* else_block = gNodes[node].uValue.sWhen.mElseBlock;
+    if(info->pinfo->mJS) {
+        unsigned int expression_node = gNodes[node].uValue.sWhen.mExpressionNode;
+        int num_when_block = gNodes[node].uValue.sWhen.mNumWhenBlock;
+        sNodeBlock* else_block = gNodes[node].uValue.sWhen.mElseBlock;
 
-    unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+        unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
 
-    int num_values[WHEN_BLOCK_MAX];
+        int num_values[WHEN_BLOCK_MAX];
 
-    sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
+        sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
 
-    sNodeType* when_types[WHEN_BLOCK_MAX];
-    sNodeType* when_types2[WHEN_BLOCK_MAX];
-    BOOL when_match[WHEN_BLOCK_MAX];
+        sNodeType* when_types[WHEN_BLOCK_MAX];
+        sNodeType* when_types2[WHEN_BLOCK_MAX];
+        BOOL when_match[WHEN_BLOCK_MAX];
 
-    int i;
-    for(i=0; i<num_when_block; i++) {
-        num_values[i] = gNodes[node].uValue.sWhen.mNumValues[i];
-        when_blocks[i] = gNodes[node].uValue.sWhen.mWhenBlocks[i];
-        when_types[i] = gNodes[node].uValue.sWhen.mWhenTypes[i];
-        when_types2[i] = gNodes[node].uValue.sWhen.mWhenTypes2[i];
-        when_match[i] = gNodes[node].uValue.sWhen.mMatch[i];
+        int else_num = 0;
 
-        int j;
-        for(j=0; j<num_values[i]; j++) {
-            value_nodes[i][j] = gNodes[node].uValue.sWhen.mValueNodes[i][j];
+        int i;
+        for(i=0; i<num_when_block; i++) {
+            num_values[i] = gNodes[node].uValue.sWhen.mNumValues[i];
+            when_blocks[i] = gNodes[node].uValue.sWhen.mWhenBlocks[i];
+            when_types[i] = gNodes[node].uValue.sWhen.mWhenTypes[i];
+            when_types2[i] = gNodes[node].uValue.sWhen.mWhenTypes2[i];
+            when_match[i] = gNodes[node].uValue.sWhen.mMatch[i];
+
+            int j;
+            for(j=0; j<num_values[i]; j++) {
+                value_nodes[i][j] = gNodes[node].uValue.sWhen.mValueNodes[i][j];
+            }
         }
-    }
 
-    char label_end_point[LABEL_NAME_MAX];
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
-    }
-    create_label_name("label_when_end", label_end_point, LABEL_NAME_MAX, label_num);
+        sNodeType* when_result_type = NULL;
 
-    sNodeType* when_result_type = NULL;
+        for(i=0; i<num_when_block; i++) {
+            if(when_types[i] || when_types2[i]) {
+                if(else_num > 0) {
+                    append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+                }
+                else_num++;
 
-    int end_points[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+                sNodeType* node_type;
 
-    for(i=0; i<num_when_block; i++) {
-        if(when_types[i] || when_types2[i]) {
-            sNodeType* node_type;
+                if(when_types[i]) {
+                    node_type = when_types[i];
+                }
+                else {
+                    node_type = when_types2[i];
+                }
 
-            if(when_types[i]) {
-                node_type = when_types[i];
+                /// left value ///
+                if(!compile(expression_node, info)) {
+                    return FALSE;
+                }
+
+                if(info->pinfo->exist_brace_unclosed) {
+                    return FALSE;
+                }
+
+                append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
+
+                info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                info->stack_num--;
+                info->stack_num++;
+
+                char* str = CLASS_NAME(node_type->mClass);
+                int num_string_expression = 0;
+
+                append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+                append_int_value_to_code(info->code, num_string_expression, info->no_output);
+
+                info->stack_num++;
+
+                info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                /// String.equals ///
+                sCLClass* string_class = get_class("String", info->pinfo->mJS);
+                char* method_name = "equals";
+
+                sNodeType* param_types[PARAMS_MAX];
+                int num_params = 1;
+
+                param_types[0] = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                sNodeType* result_type = NULL;
+                sNodeType* result_method_generics_types = NULL;
+                int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                if(method_index == -1) {
+                    compile_err_msg(info, "method not found(4)");
+                    info->err_num++;
+
+                    err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                append_class_name_to_constant_pool_and_code(info, string_class);
+                append_int_value_to_code(info->code, method_index, info->no_output);
+
+                int size = get_var_size(result_type);
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                info->stack_num-=2;
+                info->stack_num++;
+
+                info->type = result_type;
+
+                //// go ///
+                sNodeType* var_type = NULL;
+                if(when_types[i]) {
+                    if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable) {
+                        sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
+
+                        var_type = var->mType;
+
+                        var->mType = node_type;
+                    }
+                }
+
+                if(when_types[i]) {
+                    append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+                }
+                else {
+                    append_opecode_to_code(info->code, OP_JS_NOT_IF, info->no_output);
+                }
+
+                info->stack_num--;
+
+                if(!compile_block_with_result(when_blocks[i], info)) {
+                    return FALSE;
+                }
+
+                if(when_blocks[i]->mUnClosedBlock) {
+                    return FALSE;
+                }
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                }
+                else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                }
+                else {
+                    when_result_type = info->type;
+                }
+
+                append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+                /// restore var type ///
+                if(var_type) {
+                    sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
+
+                    var->mType = var_type;
+                }
+            }
+            /// when match ///
+            else if(when_match[i]) {
+                if(else_num > 0) {
+                    append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+                }
+                else_num++;
+
+                int j;
+                for(j=0; j<num_values[i]; j++) {
+                    /// left value ///
+                    if(!compile(expression_node, info)) {
+                        return FALSE;
+                    }
+
+                    if(info->pinfo->exist_brace_unclosed) {
+                        return FALSE;
+                    }
+
+                    sNodeType* left_type = info->type;
+                    sCLClass* klass = left_type->mClass;
+
+                    if(!type_identify_with_class_name(left_type, "String")) {
+                        compile_err_msg(info, "Require String value for when match statment");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                        return TRUE;
+                    }
+
+                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                    /// right value ///
+                    if(!compile(value_nodes[i][j], info)) {
+                        return FALSE;
+                    }
+
+                    if(info->pinfo->get_type_for_interpreter) {
+                        if(when_blocks[i] == NULL) {
+                            return FALSE;
+                        }
+                    }
+
+                    sNodeType* right_type = info->type;
+
+                    if(!type_identify_with_class_name(right_type, "regex")) {
+                        compile_err_msg(info, "When match value type should be regex.");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                        return TRUE;
+                    }
+
+                    sNodeType* param_types[PARAMS_MAX];
+                    int num_params = 1;
+
+                    char* method_name = "match";
+                    sNodeType* result_type = NULL;
+
+                    param_types[0] = right_type;
+
+                    sNodeType* result_method_generics_types = NULL;
+                    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                    sCLMethod* method = klass->mMethods + method_index2;
+
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    info->stack_num -= num_params + 1;
+                    info->stack_num++;
+
+                    info->type = result_type;
+
+                    append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+
+                    info->stack_num--;
+
+                    if(!compile_block_with_result(when_blocks[i], info)) {
+                        return FALSE;
+                    }
+
+                    if(when_blocks[i]->mUnClosedBlock) {
+                        return FALSE;
+                    }
+
+                    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                    info->stack_num--;
+
+                    if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                    }
+                    else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                        when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                    else {
+                        when_result_type = info->type;
+                    }
+
+                    append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+                }
             }
             else {
-                node_type = when_types2[i];
-            }
+                if(else_num > 0) {
+                    append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+                }
+                else_num++;
 
-            /// left value ///
-            if(!compile(expression_node, info)) {
+                int j;
+                for(j=0; j<num_values[i]; j++) {
+                    /// left value ///
+                    if(!compile(expression_node, info)) {
+                        return FALSE;
+                    }
+
+                    sNodeType* left_type = info->type;
+                    sCLClass* klass = left_type->mClass;
+
+                    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                        /// right value ///
+                        if(!compile(value_nodes[i][j], info)) {
+                            return FALSE;
+                        }
+
+                        if(info->pinfo->get_type_for_interpreter) {
+                            if(when_blocks[i] == NULL) {
+                                return FALSE;
+                            }
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(left_type, right_type)) {
+                            compile_err_msg(info, "When value type and when type is the different.");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                            return TRUE;
+                        }
+
+                        if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, OP_OBJ_IDENTIFY, "==", info))
+                        {
+                            return FALSE;
+                        }
+
+                        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                    }
+                    else {
+                        /// check interface ///
+                        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
+                        if(!check_implemented_methods_for_interface(iequalable, klass, TRUE)) {
+                            compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
+                            info->err_num++;
+                        }
+
+                        if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
+                            compile_err_msg(info, "Dynamic class type can't be when argument");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                            return TRUE;
+                        }
+                        else if(class_identify_with_class_name(klass, "Anonymous")) {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+                            sNodeType* right_type = info->type;
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+
+                            param_types[0] = right_type;
+
+                            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                                int num_real_params = num_params + 1;
+
+                                int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
+                                char method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                                append_int_value_to_code(info->code, num_real_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                                int size = get_var_size(result_type);
+                                append_int_value_to_code(info->code, size, info->no_output);
+
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+
+                                info->stack_num -= num_params + 1;
+                                info->stack_num++;
+
+                                info->type = result_type;
+                            }
+                        }
+                        else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+                        {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+                            sNodeType* right_type = info->type;
+
+                            if(!type_identify(left_type, right_type)) {
+                                compile_err_msg(info, "When value type and when type is the different.");
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                                return TRUE;
+                            }
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+
+                            param_types[0] = right_type;
+
+                            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                                int num_real_params = num_params + 1;
+
+                                int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
+                                char method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                                append_int_value_to_code(info->code, num_real_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+                                sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                                int size = get_var_size(result_type);
+                                append_int_value_to_code(info->code, size, info->no_output);
+
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+
+                                info->stack_num -= num_params + 1;
+                                info->stack_num++;
+
+                                info->type = result_type;
+                            }
+                        }
+                        else {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+
+                            sNodeType* right_type = info->type;
+
+                            if(!type_identify(left_type, right_type)) {
+                                compile_err_msg(info, "When value type and when type is the different.");
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                                return TRUE;
+                            }
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+                            sNodeType* result_type = NULL;
+
+                            param_types[0] = right_type;
+
+                            sNodeType* result_method_generics_types = NULL;
+                            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                            sCLMethod* method = klass->mMethods + method_index2;
+
+                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                            append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                            append_class_name_to_constant_pool_and_code(info, klass);
+                            append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                            int size = get_var_size(result_type);
+                            append_int_value_to_code(info->code, size, info->no_output);
+
+                            info->stack_num -= num_params + 1;
+                            info->stack_num++;
+
+                            info->type = result_type;
+                        }
+                    }
+
+                    append_opecode_to_code(info->code, OP_JS_IF, info->no_output);
+                    info->stack_num--;
+
+                    if(!compile_block_with_result(when_blocks[i], info)) {
+                        return FALSE;
+                    }
+
+                    if(when_blocks[i]->mUnClosedBlock) {
+                        return FALSE;
+                    }
+
+                    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                    info->stack_num--;
+
+                    if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                    }
+                    else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                        when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                    else {
+                        when_result_type = info->type;
+                    }
+
+                    append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+                }
+            }
+        }
+
+        if(else_block) {
+            append_opecode_to_code(info->code, OP_JS_ELSE, info->no_output);
+
+            if(!compile_block_with_result(else_block, info)) {
                 return FALSE;
             }
 
-            if(info->pinfo->exist_brace_unclosed) {
-                return FALSE;
-            }
-
-            append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
-
-            info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
-
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
             info->stack_num--;
+
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+            if(else_block->mUnClosedBlock) {
+                return FALSE;
+            }
+
+            if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+            }
+            else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+            }
+            else {
+                when_result_type = info->type;
+            }
+        }
+        else {
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
             info->stack_num++;
 
-            char* str = CLASS_NAME(node_type->mClass);
-            int num_string_expression = 0;
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+        }
 
-            append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
-            append_int_value_to_code(info->code, num_string_expression, info->no_output);
+        int l;
+        for(l=0; l<else_num-1; l++) {
+            append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+        }
 
-            info->stack_num++;
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
 
-            info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
-
-            /// String.equals ///
-            sCLClass* string_class = get_class("String", info->pinfo->mJS);
-            char* method_name = "equals";
-
-            sNodeType* param_types[PARAMS_MAX];
-            int num_params = 1;
-
-            param_types[0] = create_node_type_with_class_name("String", info->pinfo->mJS);
-
-            sNodeType* result_type = NULL;
-            sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
-
-            if(method_index == -1) {
-                compile_err_msg(info, "method not found(4)");
+            if(when_result_type == NULL) {
+                compile_err_msg(info, "When result type is NULL");
                 info->err_num++;
-
-                err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
 
                 info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
 
-            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-            append_int_value_to_code(info->code, info->sline, info->no_output);
+            int size = get_var_size(when_result_type);
 
-            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-
-            append_class_name_to_constant_pool_and_code(info, string_class);
-            append_int_value_to_code(info->code, method_index, info->no_output);
-
-            int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
-
-            info->stack_num-=2;
             info->stack_num++;
 
-            info->type = result_type;
+            info->type = when_result_type;
+        }
+    }
+    else {
+        unsigned int expression_node = gNodes[node].uValue.sWhen.mExpressionNode;
+        int num_when_block = gNodes[node].uValue.sWhen.mNumWhenBlock;
+        sNodeBlock* else_block = gNodes[node].uValue.sWhen.mElseBlock;
 
-            //// go ///
-            sNodeType* var_type = NULL;
-            if(when_types[i]) {
-                if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable) {
+        unsigned int value_nodes[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+
+        int num_values[WHEN_BLOCK_MAX];
+
+        sNodeBlock* when_blocks[WHEN_BLOCK_MAX];
+
+        sNodeType* when_types[WHEN_BLOCK_MAX];
+        sNodeType* when_types2[WHEN_BLOCK_MAX];
+        BOOL when_match[WHEN_BLOCK_MAX];
+
+        int i;
+        for(i=0; i<num_when_block; i++) {
+            num_values[i] = gNodes[node].uValue.sWhen.mNumValues[i];
+            when_blocks[i] = gNodes[node].uValue.sWhen.mWhenBlocks[i];
+            when_types[i] = gNodes[node].uValue.sWhen.mWhenTypes[i];
+            when_types2[i] = gNodes[node].uValue.sWhen.mWhenTypes2[i];
+            when_match[i] = gNodes[node].uValue.sWhen.mMatch[i];
+
+            int j;
+            for(j=0; j<num_values[i]; j++) {
+                value_nodes[i][j] = gNodes[node].uValue.sWhen.mValueNodes[i][j];
+            }
+        }
+
+        char label_end_point[LABEL_NAME_MAX];
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
+        create_label_name("label_when_end", label_end_point, LABEL_NAME_MAX, label_num);
+
+        sNodeType* when_result_type = NULL;
+
+        int end_points[WHEN_BLOCK_MAX][WHEN_BLOCK_MAX];
+
+        for(i=0; i<num_when_block; i++) {
+            if(when_types[i] || when_types2[i]) {
+                sNodeType* node_type;
+
+                if(when_types[i]) {
+                    node_type = when_types[i];
+                }
+                else {
+                    node_type = when_types2[i];
+                }
+
+                /// left value ///
+                if(!compile(expression_node, info)) {
+                    return FALSE;
+                }
+
+                if(info->pinfo->exist_brace_unclosed) {
+                    return FALSE;
+                }
+
+                append_opecode_to_code(info->code, OP_CLASSNAME, info->no_output);
+
+                info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                info->stack_num--;
+                info->stack_num++;
+
+                char* str = CLASS_NAME(node_type->mClass);
+                int num_string_expression = 0;
+
+                append_opecode_to_code(info->code, OP_CREATE_STRING, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, str, info->no_output);
+                append_int_value_to_code(info->code, num_string_expression, info->no_output);
+
+                info->stack_num++;
+
+                info->type = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                /// String.equals ///
+                sCLClass* string_class = get_class("String", info->pinfo->mJS);
+                char* method_name = "equals";
+
+                sNodeType* param_types[PARAMS_MAX];
+                int num_params = 1;
+
+                param_types[0] = create_node_type_with_class_name("String", info->pinfo->mJS);
+
+                sNodeType* result_type = NULL;
+                sNodeType* result_method_generics_types = NULL;
+                int method_index = search_for_method(string_class, "equals", param_types, num_params, FALSE, string_class->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                if(method_index == -1) {
+                    compile_err_msg(info, "method not found(4)");
+                    info->err_num++;
+
+                    err_msg_for_method_not_found(string_class, method_name, param_types, num_params, FALSE, info);
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                append_class_name_to_constant_pool_and_code(info, string_class);
+                append_int_value_to_code(info->code, method_index, info->no_output);
+
+                int size = get_var_size(result_type);
+                append_int_value_to_code(info->code, size, info->no_output);
+
+                info->stack_num-=2;
+                info->stack_num++;
+
+                info->type = result_type;
+
+                //// go ///
+                sNodeType* var_type = NULL;
+                if(when_types[i]) {
+                    if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable) {
+                        sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
+
+                        var_type = var->mType;
+
+                        var->mType = node_type;
+                    }
+                }
+
+                if(when_types[i]) {
+                    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                }
+                else {
+                    append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
+                }
+
+                append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+                info->stack_num--;
+
+                /// block of when expression ///
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
+
+                int goto_point = info->code->mLen;
+                append_int_value_to_code(info->code, 0, info->no_output);
+
+                int label_num = 0;
+                if(info->pinfo->klass) {
+                    label_num = info->pinfo->klass->mLabelNum++;
+                }
+
+                char label_name_next_when[LABEL_NAME_MAX];
+                create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
+
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+                if(!compile_block_with_result(when_blocks[i], info)) {
+                    return FALSE;
+                }
+
+                if(when_blocks[i]->mUnClosedBlock) {
+                    return FALSE;
+                }
+
+                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                info->stack_num--;
+
+                if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                }
+                else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                }
+                else {
+                    when_result_type = info->type;
+                }
+
+                append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+                end_points[i][0] = info->code->mLen;
+
+                append_int_value_to_code(info->code, 0, info->no_output);
+
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+                /// next when value ///
+                *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+                append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+                /// restore var type ///
+                if(var_type) {
                     sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
 
-                    var_type = var->mType;
-
-                    var->mType = node_type;
+                    var->mType = var_type;
                 }
             }
+            /// when match ///
+            else if(when_match[i]) {
+                int j;
+                for(j=0; j<num_values[i]; j++) {
+                    /// left value ///
+                    if(!compile(expression_node, info)) {
+                        return FALSE;
+                    }
 
-            if(when_types[i]) {
-                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                    if(info->pinfo->exist_brace_unclosed) {
+                        return FALSE;
+                    }
+
+                    sNodeType* left_type = info->type;
+                    sCLClass* klass = left_type->mClass;
+
+                    if(!type_identify_with_class_name(left_type, "String")) {
+                        compile_err_msg(info, "Require String value for when match statment");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                        return TRUE;
+                    }
+
+                    info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                    /// right value ///
+                    if(!compile(value_nodes[i][j], info)) {
+                        return FALSE;
+                    }
+
+                    if(info->pinfo->get_type_for_interpreter) {
+                        if(when_blocks[i] == NULL) {
+                            return FALSE;
+                        }
+                    }
+
+                    sNodeType* right_type = info->type;
+
+                    if(!type_identify_with_class_name(right_type, "regex")) {
+                        compile_err_msg(info, "When match value type should be regex.");
+                        info->err_num++;
+
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                        return TRUE;
+                    }
+
+                    sNodeType* param_types[PARAMS_MAX];
+                    int num_params = 1;
+
+                    char* method_name = "match";
+                    sNodeType* result_type = NULL;
+
+                    param_types[0] = right_type;
+
+                    sNodeType* result_method_generics_types = NULL;
+                    int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                    sCLMethod* method = klass->mMethods + method_index2;
+
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    info->stack_num -= num_params + 1;
+                    info->stack_num++;
+
+                    info->type = result_type;
+
+                    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+                    info->stack_num--;
+
+                    /// block of when expression ///
+                    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
+
+                    int goto_point = info->code->mLen;
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    int label_num = 0;
+                    if(info->pinfo->klass) {
+                        label_num = info->pinfo->klass->mLabelNum++;
+                    }
+
+                    char label_name_next_when[LABEL_NAME_MAX];
+                    create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
+
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+                    if(!compile_block_with_result(when_blocks[i], info)) {
+                        return FALSE;
+                    }
+
+                    if(when_blocks[i]->mUnClosedBlock) {
+                        return FALSE;
+                    }
+
+                    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                    info->stack_num--;
+
+                    if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                    }
+                    else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                        when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                    else {
+                        when_result_type = info->type;
+                    }
+
+                    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+                    end_points[i][j] = info->code->mLen;
+
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+                    /// next when value ///
+                    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+                    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+                }
             }
             else {
-                append_opecode_to_code(info->code, OP_COND_NOT_JUMP, info->no_output);
+                int j;
+                for(j=0; j<num_values[i]; j++) {
+                    /// left value ///
+                    if(!compile(expression_node, info)) {
+                        return FALSE;
+                    }
+
+                    sNodeType* left_type = info->type;
+                    sCLClass* klass = left_type->mClass;
+
+                    if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
+                        /// right value ///
+                        if(!compile(value_nodes[i][j], info)) {
+                            return FALSE;
+                        }
+
+                        if(info->pinfo->get_type_for_interpreter) {
+                            if(when_blocks[i] == NULL) {
+                                return FALSE;
+                            }
+                        }
+
+                        sNodeType* right_type = info->type;
+
+                        if(!type_identify(left_type, right_type)) {
+                            compile_err_msg(info, "When value type and when type is the different.");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                            return TRUE;
+                        }
+
+                        if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, OP_OBJ_IDENTIFY, "==", info))
+                        {
+                            return FALSE;
+                        }
+
+                        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                    }
+                    else {
+                        /// check interface ///
+                        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
+                        if(!check_implemented_methods_for_interface(iequalable, klass, TRUE)) {
+                            compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
+                            info->err_num++;
+                        }
+
+                        if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
+                            compile_err_msg(info, "Dynamic class type can't be when argument");
+                            info->err_num++;
+
+                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                            return TRUE;
+                        }
+                        else if(class_identify_with_class_name(klass, "Anonymous")) {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+                            sNodeType* right_type = info->type;
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+
+                            param_types[0] = right_type;
+
+                            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                                int num_real_params = num_params + 1;
+
+                                int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
+                                char method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                                append_int_value_to_code(info->code, num_real_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                                int size = get_var_size(result_type);
+                                append_int_value_to_code(info->code, size, info->no_output);
+
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+
+                                info->stack_num -= num_params + 1;
+                                info->stack_num++;
+
+                                info->type = result_type;
+                            }
+                        }
+                        else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
+                        {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+                            sNodeType* right_type = info->type;
+
+                            if(!type_identify(left_type, right_type)) {
+                                compile_err_msg(info, "When value type and when type is the different.");
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                                return TRUE;
+                            }
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+
+                            param_types[0] = right_type;
+
+                            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                                int num_real_params = num_params + 1;
+
+                                int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
+                                char method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+                                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                                append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                                append_int_value_to_code(info->code, num_real_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+
+                                sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+                                int size = get_var_size(result_type);
+                                append_int_value_to_code(info->code, size, info->no_output);
+
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 1, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+                                append_int_value_to_code(info->code, 0, info->no_output);
+
+                                info->stack_num -= num_params + 1;
+                                info->stack_num++;
+
+                                info->type = result_type;
+                            }
+                        }
+                        else {
+                            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                            /// right value ///
+                            if(!compile(value_nodes[i][j], info)) {
+                                return FALSE;
+                            }
+
+                            if(info->pinfo->get_type_for_interpreter) {
+                                if(when_blocks[i] == NULL) {
+                                    return FALSE;
+                                }
+                            }
+
+
+                            sNodeType* right_type = info->type;
+
+                            if(!type_identify(left_type, right_type)) {
+                                compile_err_msg(info, "When value type and when type is the different.");
+                                info->err_num++;
+
+                                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                                return TRUE;
+                            }
+
+                            sNodeType* param_types[PARAMS_MAX];
+                            int num_params = 1;
+
+                            char* method_name = "equals";
+                            sNodeType* result_type = NULL;
+
+                            param_types[0] = right_type;
+
+                            sNodeType* result_method_generics_types = NULL;
+                            int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                            sCLMethod* method = klass->mMethods + method_index2;
+
+                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                            append_int_value_to_code(info->code, info->sline, info->no_output);
+
+
+                            append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+
+                            append_class_name_to_constant_pool_and_code(info, klass);
+                            append_int_value_to_code(info->code, method_index2, info->no_output);
+
+                            int size = get_var_size(result_type);
+                            append_int_value_to_code(info->code, size, info->no_output);
+
+                            info->stack_num -= num_params + 1;
+                            info->stack_num++;
+
+                            info->type = result_type;
+                        }
+                    }
+
+                    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+                    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+
+                    info->stack_num--;
+
+                    /// block of when expression ///
+                    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
+
+                    int goto_point = info->code->mLen;
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    int label_num = 0;
+                    if(info->pinfo->klass) {
+                        label_num = info->pinfo->klass->mLabelNum++;
+                    }
+
+                    char label_name_next_when[LABEL_NAME_MAX];
+                    create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
+
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+
+                    if(!compile_block_with_result(when_blocks[i], info)) {
+                        return FALSE;
+                    }
+
+                    if(when_blocks[i]->mUnClosedBlock) {
+                        return FALSE;
+                    }
+
+                    append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+                    info->stack_num--;
+
+                    if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
+                    }
+                    else if(when_result_type && !type_identify(info->type, when_result_type)) {
+                        when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
+                    }
+                    else {
+                        when_result_type = info->type;
+                    }
+
+                    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+                    end_points[i][j] = info->code->mLen;
+
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+                    /// next when value ///
+                    *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
+
+                    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+                }
             }
+        }
 
-            append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-
-            info->stack_num--;
-
-            /// block of when expression ///
-            append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
-
-            int goto_point = info->code->mLen;
-            append_int_value_to_code(info->code, 0, info->no_output);
-
-            int label_num = 0;
-            if(info->pinfo->klass) {
-                label_num = info->pinfo->klass->mLabelNum++;
-            }
-
-            char label_name_next_when[LABEL_NAME_MAX];
-            create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
-
-            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
-
-            if(!compile_block_with_result(when_blocks[i], info)) {
+        if(else_block) {
+            if(!compile_block_with_result(else_block, info)) {
                 return FALSE;
             }
 
-            if(when_blocks[i]->mUnClosedBlock) {
+            if(else_block->mUnClosedBlock) {
                 return FALSE;
             }
 
@@ -3446,508 +4696,44 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
             else {
                 when_result_type = info->type;
             }
-
-            append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-            end_points[i][0] = info->code->mLen;
-
-            append_int_value_to_code(info->code, 0, info->no_output);
-
-            append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-            /// next when value ///
-            *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-            append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-            append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
-
-            /// restore var type ///
-            if(var_type) {
-                sVar* var = get_variable_from_table(info->lv_table, gNodes[expression_node].uValue.mVarName);
-
-                var->mType = var_type;
-            }
-        }
-        /// when match ///
-        else if(when_match[i]) {
-            int j;
-            for(j=0; j<num_values[i]; j++) {
-                /// left value ///
-                if(!compile(expression_node, info)) {
-                    return FALSE;
-                }
-
-                if(info->pinfo->exist_brace_unclosed) {
-                    return FALSE;
-                }
-
-                sNodeType* left_type = info->type;
-                sCLClass* klass = left_type->mClass;
-
-                if(!type_identify_with_class_name(left_type, "String")) {
-                    compile_err_msg(info, "Require String value for when match statment");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                    return TRUE;
-                }
-
-                info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                /// right value ///
-                if(!compile(value_nodes[i][j], info)) {
-                    return FALSE;
-                }
-
-                if(info->pinfo->get_type_for_interpreter) {
-                    if(when_blocks[i] == NULL) {
-                        return FALSE;
-                    }
-                }
-
-                sNodeType* right_type = info->type;
-
-                if(!type_identify_with_class_name(right_type, "regex")) {
-                    compile_err_msg(info, "When match value type should be regex.");
-                    info->err_num++;
-
-                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                    return TRUE;
-                }
-
-                sNodeType* param_types[PARAMS_MAX];
-                int num_params = 1;
-
-                char* method_name = "match";
-                sNodeType* result_type = NULL;
-
-                param_types[0] = right_type;
-
-                sNodeType* result_method_generics_types = NULL;
-                int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
-
-                sCLMethod* method = klass->mMethods + method_index2;
-
-                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                append_int_value_to_code(info->code, info->sline, info->no_output);
-
-
-                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-
-                append_class_name_to_constant_pool_and_code(info, klass);
-                append_int_value_to_code(info->code, method_index2, info->no_output);
-
-                int size = get_var_size(result_type);
-                append_int_value_to_code(info->code, size, info->no_output);
-
-                info->stack_num -= num_params + 1;
-                info->stack_num++;
-
-                info->type = result_type;
-
-                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-                append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-
-                info->stack_num--;
-
-                /// block of when expression ///
-                append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
-
-                int goto_point = info->code->mLen;
-                append_int_value_to_code(info->code, 0, info->no_output);
-
-                int label_num = 0;
-                if(info->pinfo->klass) {
-                    label_num = info->pinfo->klass->mLabelNum++;
-                }
-
-                char label_name_next_when[LABEL_NAME_MAX];
-                create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
-
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
-
-                if(!compile_block_with_result(when_blocks[i], info)) {
-                    return FALSE;
-                }
-
-                if(when_blocks[i]->mUnClosedBlock) {
-                    return FALSE;
-                }
-
-                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-                info->stack_num--;
-
-                if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
-                }
-                else if(when_result_type && !type_identify(info->type, when_result_type)) {
-                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
-                }
-                else {
-                    when_result_type = info->type;
-                }
-
-                append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-                end_points[i][j] = info->code->mLen;
-
-                append_int_value_to_code(info->code, 0, info->no_output);
-
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-                /// next when value ///
-                *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-                append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
-            }
         }
         else {
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+
+            append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
+            info->stack_num--;
+        }
+
+        for(i=0; i<num_when_block; i++) {
             int j;
             for(j=0; j<num_values[i]; j++) {
-                /// left value ///
-                if(!compile(expression_node, info)) {
-                    return FALSE;
-                }
-
-                sNodeType* left_type = info->type;
-                sCLClass* klass = left_type->mClass;
-
-                if(klass->mFlags & CLASS_FLAGS_PRIMITIVE) {
-                    /// right value ///
-                    if(!compile(value_nodes[i][j], info)) {
-                        return FALSE;
-                    }
-
-                    if(info->pinfo->get_type_for_interpreter) {
-                        if(when_blocks[i] == NULL) {
-                            return FALSE;
-                        }
-                    }
-
-                    sNodeType* right_type = info->type;
-
-                    if(!type_identify(left_type, right_type)) {
-                        compile_err_msg(info, "When value type and when type is the different.");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                        return TRUE;
-                    }
-
-                    if(!binary_operator(left_type, right_type, OP_BEQ, OP_UBEQ, OP_SEQ, OP_USEQ, OP_IEQ, OP_UIEQ, OP_LEQ, OP_ULEQ, OP_FEQ, OP_DEQ, OP_PEQ, OP_IEQ, OP_CEQ, OP_IEQ, OP_REGEQ, OP_OBJ_IDENTIFY, "==", info))
-                    {
-                        return FALSE;
-                    }
-
-                    info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-                }
-                else {
-                    /// check interface ///
-                    sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
-                    if(!check_implemented_methods_for_interface(iequalable, klass, TRUE)) {
-                        compile_err_msg(info, "Require IEqualable implemented for when value classs(%s)", CLASS_NAME(klass));
-                        info->err_num++;
-                    }
-
-                    if(klass->mFlags & CLASS_FLAGS_DYNAMIC_CLASS) {
-                        compile_err_msg(info, "Dynamic class type can't be when argument");
-                        info->err_num++;
-
-                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                        return TRUE;
-                    }
-                    else if(class_identify_with_class_name(klass, "Anonymous")) {
-                        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                        /// right value ///
-                        if(!compile(value_nodes[i][j], info)) {
-                            return FALSE;
-                        }
-
-                        if(info->pinfo->get_type_for_interpreter) {
-                            if(when_blocks[i] == NULL) {
-                                return FALSE;
-                            }
-                        }
-
-                        sNodeType* right_type = info->type;
-
-                        sNodeType* param_types[PARAMS_MAX];
-                        int num_params = 1;
-
-                        char* method_name = "equals";
-
-                        param_types[0] = right_type;
-
-                        if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                            int num_real_params = num_params + 1;
-
-                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
-                            char method_name_and_params[size_method_name_and_params];
-                            create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
-
-                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                            append_int_value_to_code(info->code, info->sline, info->no_output);
-
-                            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-                            append_int_value_to_code(info->code, num_real_params, info->no_output);
-                            append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
-                            sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-                            int size = get_var_size(result_type);
-                            append_int_value_to_code(info->code, size, info->no_output);
-
-                            append_int_value_to_code(info->code, 0, info->no_output);
-                            append_int_value_to_code(info->code, 0, info->no_output);
-                            append_int_value_to_code(info->code, 1, info->no_output);
-                            append_int_value_to_code(info->code, 0, info->no_output);
-
-                            info->stack_num -= num_params + 1;
-                            info->stack_num++;
-
-                            info->type = result_type;
-                        }
-                    }
-                    else if(klass->mFlags & CLASS_FLAGS_INTERFACE)
-                    {
-                        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                        /// right value ///
-                        if(!compile(value_nodes[i][j], info)) {
-                            return FALSE;
-                        }
-
-                        if(info->pinfo->get_type_for_interpreter) {
-                            if(when_blocks[i] == NULL) {
-                                return FALSE;
-                            }
-                        }
-
-                        sNodeType* right_type = info->type;
-
-                        if(!type_identify(left_type, right_type)) {
-                            compile_err_msg(info, "When value type and when type is the different.");
-                            info->err_num++;
-
-                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                            return TRUE;
-                        }
-
-                        sNodeType* param_types[PARAMS_MAX];
-                        int num_params = 1;
-
-                        char* method_name = "equals";
-
-                        param_types[0] = right_type;
-
-                        if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                            int num_real_params = num_params + 1;
-
-                            int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
-                            char method_name_and_params[size_method_name_and_params];
-                            create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
-
-                            append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                            append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                            append_int_value_to_code(info->code, info->sline, info->no_output);
-
-
-                            append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-                            append_int_value_to_code(info->code, num_real_params, info->no_output);
-                            append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
-
-                            sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-                            int size = get_var_size(result_type);
-                            append_int_value_to_code(info->code, size, info->no_output);
-
-                            append_int_value_to_code(info->code, 0, info->no_output);
-                            append_int_value_to_code(info->code, 0, info->no_output);
-                            append_int_value_to_code(info->code, 1, info->no_output);
-                            append_int_value_to_code(info->code, 0, info->no_output);
-
-                            info->stack_num -= num_params + 1;
-                            info->stack_num++;
-
-                            info->type = result_type;
-                        }
-                    }
-                    else {
-                        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-                        /// right value ///
-                        if(!compile(value_nodes[i][j], info)) {
-                            return FALSE;
-                        }
-
-                        if(info->pinfo->get_type_for_interpreter) {
-                            if(when_blocks[i] == NULL) {
-                                return FALSE;
-                            }
-                        }
-
-
-                        sNodeType* right_type = info->type;
-
-                        if(!type_identify(left_type, right_type)) {
-                            compile_err_msg(info, "When value type and when type is the different.");
-                            info->err_num++;
-
-                            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                            return TRUE;
-                        }
-
-                        sNodeType* param_types[PARAMS_MAX];
-                        int num_params = 1;
-
-                        char* method_name = "equals";
-                        sNodeType* result_type = NULL;
-
-                        param_types[0] = right_type;
-
-                        sNodeType* result_method_generics_types = NULL;
-                        int method_index2 = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
-
-                        sCLMethod* method = klass->mMethods + method_index2;
-
-                        append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                        append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                        append_int_value_to_code(info->code, info->sline, info->no_output);
-
-
-                        append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-
-                        append_class_name_to_constant_pool_and_code(info, klass);
-                        append_int_value_to_code(info->code, method_index2, info->no_output);
-
-                        int size = get_var_size(result_type);
-                        append_int_value_to_code(info->code, size, info->no_output);
-
-                        info->stack_num -= num_params + 1;
-                        info->stack_num++;
-
-                        info->type = result_type;
-                    }
-                }
-
-                append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-                append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-
-                info->stack_num--;
-
-                /// block of when expression ///
-                append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of the block
-
-                int goto_point = info->code->mLen;
-                append_int_value_to_code(info->code, 0, info->no_output);
-
-                int label_num = 0;
-                if(info->pinfo->klass) {
-                    label_num = info->pinfo->klass->mLabelNum++;
-                }
-
-                char label_name_next_when[LABEL_NAME_MAX];
-                create_label_name2("label_name_next_when", label_name_next_when, LABEL_NAME_MAX, label_num, 1);
-
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
-
-                if(!compile_block_with_result(when_blocks[i], info)) {
-                    return FALSE;
-                }
-
-                if(when_blocks[i]->mUnClosedBlock) {
-                    return FALSE;
-                }
-
-                append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-                info->stack_num--;
-
-                if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
-                }
-                else if(when_result_type && !type_identify(info->type, when_result_type)) {
-                    when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
-                }
-                else {
-                    when_result_type = info->type;
-                }
-
-                append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-                end_points[i][j] = info->code->mLen;
-
-                append_int_value_to_code(info->code, 0, info->no_output);
-
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-                /// next when value ///
-                *(int*)(info->code->mCodes + goto_point) = info->code->mLen;
-
-                append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, label_name_next_when, info->no_output);
+                *(int*)(info->code->mCodes + end_points[i][j]) = info->code->mLen;
             }
         }
-    }
 
-    if(else_block) {
-        if(!compile_block_with_result(else_block, info)) {
-            return FALSE;
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
+
+            if(when_result_type == NULL) {
+                compile_err_msg(info, "When result type is NULL");
+                info->err_num++;
+
+                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                return TRUE;
+            }
+
+            int size = get_var_size(when_result_type);
+
+            append_int_value_to_code(info->code, size, info->no_output);
+            info->stack_num++;
+
+            info->type = when_result_type;
         }
-
-        if(else_block->mUnClosedBlock) {
-            return FALSE;
-        }
-
-        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-        info->stack_num--;
-
-        if(when_result_type && type_identify_with_class_name(when_result_type, "Anonymous")) {
-        }
-        else if(when_result_type && !type_identify(info->type, when_result_type)) {
-            when_result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
-        }
-        else {
-            when_result_type = info->type;
-        }
-    }
-    else {
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-
-        append_opecode_to_code(info->code, OP_STORE_VALUE_TO_GLOBAL, info->no_output);
-        info->stack_num--;
-    }
-
-    for(i=0; i<num_when_block; i++) {
-        int j;
-        for(j=0; j<num_values[i]; j++) {
-            *(int*)(info->code->mCodes + end_points[i][j]) = info->code->mLen;
-        }
-    }
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        append_opecode_to_code(info->code, OP_POP_VALUE_FROM_GLOBAL, info->no_output);
-
-        if(when_result_type == NULL) {
-            compile_err_msg(info, "When result type is NULL");
-            info->err_num++;
-
-            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-            return TRUE;
-        }
-
-        int size = get_var_size(when_result_type);
-
-        append_int_value_to_code(info->code, size, info->no_output);
-        info->stack_num++;
-
-        info->type = when_result_type;
     }
 
     return TRUE;
@@ -3976,99 +4762,151 @@ unsigned int sNodeTree_while_expression(unsigned int expression_node, MANAGED sN
 
 static BOOL compile_while_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
+    if(info->pinfo->mJS) {
+        append_opecode_to_code(info->code, OP_JS_LOOP, info->no_output);
+
+        /// compile expression ///
+        unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
+
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
+
+        if(info->pinfo->get_type_for_interpreter && gNodes[node].uValue.sWhile.mWhileNodeBlock == NULL) {
+            return FALSE;
+        }
+
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
+
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_JS_NOT_IF, info->no_output);
+        info->stack_num--;
+
+        append_opecode_to_code(info->code, OP_JS_BREAK, info->no_output);
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+        sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(while_block, info, NULL, &block_last_type)) {
+            return FALSE;
+        }
+
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
+
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+        }
     }
+    else {
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
 
-    /// compile expression ///
-    unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
+        /// compile expression ///
+        unsigned int expression_node = gNodes[node].uValue.sWhile.mExpressionNode;
 
-    int start_point = info->code->mLen;
+        int start_point = info->code->mLen;
 
-    char start_point_label_name[LABEL_NAME_MAX];
-    create_label_name("while_start_point", start_point_label_name, LABEL_NAME_MAX, label_num);
+        char start_point_label_name[LABEL_NAME_MAX];
+        create_label_name("while_start_point", start_point_label_name, LABEL_NAME_MAX, label_num);
 
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
 
-    if(!compile(expression_node, info)) {
-        return FALSE;
-    }
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
 
-    if(info->pinfo->get_type_for_interpreter && gNodes[node].uValue.sWhile.mWhileNodeBlock == NULL) {
-        return FALSE;
-    }
+        if(info->pinfo->get_type_for_interpreter && gNodes[node].uValue.sWhile.mWhileNodeBlock == NULL) {
+            return FALSE;
+        }
 
-    if(type_identify_with_class_name(info->type, "Bool")) {
-        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-    }
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
-        compile_err_msg(info, "This conditional type is not bool");
-        info->err_num++;
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        return TRUE;
-    }
+            return TRUE;
+        }
 
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-    info->stack_num--;
+        append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+        append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+        info->stack_num--;
 
-    /// block of while expression ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
-    int end_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
+        /// block of while expression ///
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+        int end_point = info->code->mLen;
+        append_int_value_to_code(info->code, 0, info->no_output);
 
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_while", label_end_point, LABEL_NAME_MAX, label_num);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+        char label_end_point[LABEL_NAME_MAX];
+        create_label_name("label_while", label_end_point, LABEL_NAME_MAX, label_num);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    char* break_point_label_name_before = info->break_point_label_name;
-    info->break_point_label_name = label_end_point;
+        char* break_point_label_name_before = info->break_point_label_name;
+        info->break_point_label_name = label_end_point;
 
-    int num_break_points = 0;
-    int break_points[BREAK_NUM_MAX+1];
-    memset(break_points, 0, sizeof(int)*BREAK_NUM_MAX);
+        int num_break_points = 0;
+        int break_points[BREAK_NUM_MAX+1];
+        memset(break_points, 0, sizeof(int)*BREAK_NUM_MAX);
 
-    int* num_break_points_before = info->num_break_points;
-    int* break_points_before = info->break_points;
+        int* num_break_points_before = info->num_break_points;
+        int* break_points_before = info->break_points;
 
-    info->num_break_points = &num_break_points;
-    info->break_points = break_points;
+        info->num_break_points = &num_break_points;
+        info->break_points = break_points;
 
-    sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
-    sNodeType* block_last_type = NULL;
-    if(!compile_block(while_block, info, NULL, &block_last_type)) {
-        return FALSE;
-    }
+        sNodeBlock* while_block = gNodes[node].uValue.sWhile.mWhileNodeBlock;
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(while_block, info, NULL, &block_last_type)) {
+            return FALSE;
+        }
 
-    info->num_break_points = num_break_points_before;
-    info->break_points = break_points_before;
-    info->break_point_label_name = break_point_label_name_before;
+        info->num_break_points = num_break_points_before;
+        info->break_points = break_points_before;
+        info->break_point_label_name = break_point_label_name_before;
 
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-    append_int_value_to_code(info->code, start_point, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+        append_int_value_to_code(info->code, start_point, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
 
-    *(int*)(info->code->mCodes + end_point) = info->code->mLen;
+        *(int*)(info->code->mCodes + end_point) = info->code->mLen;
 
-    int i;
-    for(i=0; i<num_break_points; i++) {
-        *(int*)(info->code->mCodes + break_points[i]) = info->code->mLen;
-    }
+        int i;
+        for(i=0; i<num_break_points; i++) {
+            *(int*)(info->code->mCodes + break_points[i]) = info->code->mLen;
+        }
 
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
 
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
 
-        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+        }
     }
 
     return TRUE;
@@ -4099,118 +4937,192 @@ unsigned int sNodeTree_for_expression(unsigned int expression_node1, unsigned in
 
 static BOOL compile_for_expression(unsigned int node, sCompileInfo* info)
 {
-    int label_num = 0;
-    if(info->pinfo->klass) {
-        label_num = info->pinfo->klass->mLabelNum++;
-    }
+    if(info->pinfo->mJS) {
+        /// compile expression ///
+        unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
 
-    /// compile expression ///
-    unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
 
-    if(!compile(expression_node, info)) {
-        return FALSE;
-    }
+        arrange_stack(info);
 
-    arrange_stack(info);
+        append_opecode_to_code(info->code, OP_JS_LOOP, info->no_output);
 
-    /// compile expression ///
-    unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
+        /// compile expression ///
+        unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
 
-    int start_point = info->code->mLen;
-    char start_point_label_name[LABEL_NAME_MAX];
-    create_label_name("for_start_point", start_point_label_name, LABEL_NAME_MAX, label_num);
+        if(!compile(expression_node2, info)) {
+            return FALSE;
+        }
 
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
-    if(!compile(expression_node2, info)) {
-        return FALSE;
-    }
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
 
-    if(type_identify_with_class_name(info->type, "Bool")) {
-        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
-        info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
-    }
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
 
-    if(!type_identify_with_class_name(info->type, "bool")) {
-        compile_err_msg(info, "This conditional type is not bool");
-        info->err_num++;
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            return TRUE;
+        }
 
-        return TRUE;
-    }
+        append_opecode_to_code(info->code, OP_JS_NOT_IF, info->no_output);
+        info->stack_num--;
 
-    append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
-    append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
-    info->stack_num--;
+        append_opecode_to_code(info->code, OP_JS_BREAK, info->no_output);
 
-    /// block of for expression ///
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
-    int end_point = info->code->mLen;
-    append_int_value_to_code(info->code, 0, info->no_output);
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
 
-    char label_end_point[LABEL_NAME_MAX];
-    create_label_name("label_for_end", label_end_point, LABEL_NAME_MAX, label_num);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+        sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(for_block, info, NULL, &block_last_type)) {
+            return FALSE;
+        }
 
-    char* break_point_label_name_before = info->break_point_label_name;
-    info->break_point_label_name = label_end_point;
+        sNodeType* expresson_type_in_block = info->type;        // for interpreter completion
 
-    int num_break_points = 0;
-    int break_points[BREAK_NUM_MAX+1];
-    memset(break_points, 0, sizeof(int)*BREAK_NUM_MAX);
+        /// expression 3 ///
+        unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
 
-    int* num_break_points_before = info->num_break_points;
-    int* break_points_before = info->break_points;
+        if(!compile(expression_node3, info)) {
+            return FALSE;
+        }
 
-    info->num_break_points = &num_break_points;
-    info->break_points = break_points;
+        if(info->pinfo->exist_brace_unclosed) {
+            return FALSE;
+        }
 
-    sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
-    sNodeType* block_last_type = NULL;
-    if(!compile_block(for_block, info, NULL, &block_last_type)) {
-        return FALSE;
-    }
+        arrange_stack(info);
 
-    sNodeType* expresson_type_in_block = info->type;        // for interpreter completion
+        append_opecode_to_code(info->code, OP_JS_BLOCK_CLOSE, info->no_output);
 
-    info->num_break_points = num_break_points_before;
-    info->break_points = break_points_before;
-    info->break_point_label_name = break_point_label_name_before;
-
-    /// expression 3 ///
-    unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
-
-    if(!compile(expression_node3, info)) {
-        return FALSE;
-    }
-
-    if(info->pinfo->exist_brace_unclosed) {
-        return FALSE;
-    }
-
-    arrange_stack(info);
-
-    append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-    append_int_value_to_code(info->code, start_point, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
-    *(int*)(info->code->mCodes + end_point) = info->code->mLen;
-
-    append_opecode_to_code(info->code, OP_LABEL, info->no_output);
-    append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
-
-    int i;
-    for(i=0; i<num_break_points; i++) {
-        *(int*)(info->code->mCodes + break_points[i]) = info->code->mLen;
-    }
-
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+        if(info->pinfo->err_num == 0) {
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+        }
+        else {
+            info->type = expresson_type_in_block;
+        }
     }
     else {
-        info->type = expresson_type_in_block;   // for interpreter completion 
+        int label_num = 0;
+        if(info->pinfo->klass) {
+            label_num = info->pinfo->klass->mLabelNum++;
+        }
+
+        /// compile expression ///
+        unsigned int expression_node = gNodes[node].uValue.sFor.mExpressionNode;
+
+        if(!compile(expression_node, info)) {
+            return FALSE;
+        }
+
+        arrange_stack(info);
+
+        /// compile expression ///
+        unsigned int expression_node2 = gNodes[node].uValue.sFor.mExpressionNode2;
+
+        int start_point = info->code->mLen;
+        char start_point_label_name[LABEL_NAME_MAX];
+        create_label_name("for_start_point", start_point_label_name, LABEL_NAME_MAX, label_num);
+
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
+        if(!compile(expression_node2, info)) {
+            return FALSE;
+        }
+
+        if(type_identify_with_class_name(info->type, "Bool")) {
+            append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+            info->type = create_node_type_with_class_name("bool", info->pinfo->mJS);
+        }
+
+        if(!type_identify_with_class_name(info->type, "bool")) {
+            compile_err_msg(info, "This conditional type is not bool");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        append_opecode_to_code(info->code, OP_COND_JUMP, info->no_output);
+        append_int_value_to_code(info->code, sizeof(int)*3, info->no_output);
+        info->stack_num--;
+
+        /// block of for expression ///
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output); // if the conditional expression is false, jump to the end of if block
+        int end_point = info->code->mLen;
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        char label_end_point[LABEL_NAME_MAX];
+        create_label_name("label_for_end", label_end_point, LABEL_NAME_MAX, label_num);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        char* break_point_label_name_before = info->break_point_label_name;
+        info->break_point_label_name = label_end_point;
+
+        int num_break_points = 0;
+        int break_points[BREAK_NUM_MAX+1];
+        memset(break_points, 0, sizeof(int)*BREAK_NUM_MAX);
+
+        int* num_break_points_before = info->num_break_points;
+        int* break_points_before = info->break_points;
+
+        info->num_break_points = &num_break_points;
+        info->break_points = break_points;
+
+        sNodeBlock* for_block = gNodes[node].uValue.sFor.mForNodeBlock;
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(for_block, info, NULL, &block_last_type)) {
+            return FALSE;
+        }
+
+        sNodeType* expresson_type_in_block = info->type;        // for interpreter completion
+
+        info->num_break_points = num_break_points_before;
+        info->break_points = break_points_before;
+        info->break_point_label_name = break_point_label_name_before;
+
+        /// expression 3 ///
+        unsigned int expression_node3 = gNodes[node].uValue.sFor.mExpressionNode3;
+
+        if(!compile(expression_node3, info)) {
+            return FALSE;
+        }
+
+        if(info->pinfo->exist_brace_unclosed) {
+            return FALSE;
+        }
+
+        arrange_stack(info);
+
+        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+        append_int_value_to_code(info->code, start_point, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, start_point_label_name, info->no_output);
+        *(int*)(info->code->mCodes + end_point) = info->code->mLen;
+
+        append_opecode_to_code(info->code, OP_LABEL, info->no_output);
+        append_str_to_constant_pool_and_code(info->constant, info->code, label_end_point, info->no_output);
+
+        int i;
+        for(i=0; i<num_break_points; i++) {
+            *(int*)(info->code->mCodes + break_points[i]) = info->code->mLen;
+        }
+
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
+        }
+        else {
+            info->type = expresson_type_in_block;   // for interpreter completion 
+        }
     }
 
     return TRUE;
@@ -4236,123 +5148,128 @@ unsigned int sNodeTree_break_expression(sParserInfo* info)
 
 static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
 {
-    if(info->num_break_points == NULL) {
-        if(info->in_block) {
-            if(info->method == NULL) {
-                compile_err_msg(info, "Throw expressioin should be in a method definition");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                return TRUE;
-            }
-
-            /// compile expression ///
-            sNodeType* node_type = create_node_type_with_class_name("Exception", info->pinfo->mJS);
-            sCLClass* klass = node_type->mClass;
-
-            append_opecode_to_code(info->code, OP_NEW, info->no_output);
-            append_class_name_to_constant_pool_and_code(info, klass);
-            append_type_name_to_constant_pool_and_code(info, node_type);
-            append_int_value_to_code(info->code, 0, info->no_output);
-
-            info->stack_num++;
-
-            int num_params = 1;
-            unsigned int params[PARAMS_MAX];
-            char* message = MSTRDUP("break");
-            params[0] = sNodeTree_create_string_value(MANAGED message, NULL, NULL, 0, info->pinfo);
-
-            sNodeType* param_types[PARAMS_MAX];
-            char* method_name = "initialize";
-
-            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-            BOOL exist_lazy_lamda_compile = FALSE;
-            if(!compile_params(klass, method_name, &num_params, params, param_types, NULL, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
-                return FALSE;
-            }
-
-            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-                sNodeType* result_type;
-                sNodeType* result_method_generics_types = NULL;
-                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
-
-                if(method_index == -1) {
-                    compile_err_msg(info, "method not found(6)");
+    if(info->pinfo->mJS) {
+        append_opecode_to_code(info->code, OP_JS_BREAK, info->no_output);
+    }
+    else {
+        if(info->num_break_points == NULL) {
+            if(info->in_block) {
+                if(info->method == NULL) {
+                    compile_err_msg(info, "Throw expressioin should be in a method definition");
                     info->err_num++;
-
-                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
                     info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                     return TRUE;
                 }
 
-                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                append_int_value_to_code(info->code, info->sline, info->no_output);
+                /// compile expression ///
+                sNodeType* node_type = create_node_type_with_class_name("Exception", info->pinfo->mJS);
+                sCLClass* klass = node_type->mClass;
 
-                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                append_opecode_to_code(info->code, OP_NEW, info->no_output);
                 append_class_name_to_constant_pool_and_code(info, klass);
-                append_int_value_to_code(info->code, method_index, info->no_output);
+                append_type_name_to_constant_pool_and_code(info, node_type);
+                append_int_value_to_code(info->code, 0, info->no_output);
 
-                int size = get_var_size(result_type);
-                append_int_value_to_code(info->code, size, info->no_output);
-
-                info->stack_num-=num_params+1;
                 info->stack_num++;
 
-                info->type = node_type;
+                int num_params = 1;
+                unsigned int params[PARAMS_MAX];
+                char* message = MSTRDUP("break");
+                params[0] = sNodeTree_create_string_value(MANAGED message, NULL, NULL, 0, info->pinfo);
+
+                sNodeType* param_types[PARAMS_MAX];
+                char* method_name = "initialize";
+
+                info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+                BOOL exist_lazy_lamda_compile = FALSE;
+                if(!compile_params(klass, method_name, &num_params, params, param_types, NULL, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
+                    return FALSE;
+                }
+
+                if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                    sNodeType* result_type;
+                    sNodeType* result_method_generics_types = NULL;
+                    int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, NULL, NULL, NULL, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                    if(method_index == -1) {
+                        compile_err_msg(info, "method not found(6)");
+                        info->err_num++;
+
+                        err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+                        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                        return TRUE;
+                    }
+
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index, info->no_output);
+
+                    int size = get_var_size(result_type);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    info->stack_num-=num_params+1;
+                    info->stack_num++;
+
+                    info->type = node_type;
+                }
+
+                sNodeType* exception_type = info->type;
+
+                if(!is_exception_type(exception_type))
+                {
+                    compile_err_msg(info, "Invalid type of exception value");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                if(info->stack_num != 1) {
+                    compile_err_msg(info, "Invalid stack num in the throw expression");
+                    info->err_num++;
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                append_opecode_to_code(info->code, OP_THROW, info->no_output);
+                info->stack_num = 0;  // no pop
+                info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
             }
-
-            sNodeType* exception_type = info->type;
-
-            if(!is_exception_type(exception_type))
-            {
-                compile_err_msg(info, "Invalid type of exception value");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                return TRUE;
+            else {
+                compile_err_msg(info, "call break in the out of loop");
+                return FALSE;
             }
-
-            if(info->stack_num != 1) {
-                compile_err_msg(info, "Invalid stack num in the throw expression");
-                info->err_num++;
-
-                info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-                return TRUE;
-            }
-
-            append_opecode_to_code(info->code, OP_THROW, info->no_output);
-            info->stack_num = 0;  // no pop
-            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         }
         else {
-            compile_err_msg(info, "call break in the out of loop");
-            return FALSE;
+            append_opecode_to_code(info->code, OP_GOTO, info->no_output);
+            info->break_points[*info->num_break_points] = info->code->mLen;
+            (*info->num_break_points)++;
+
+            if(*info->num_break_points >= BREAK_NUM_MAX) {
+                compile_err_msg(info, "overflow break number");
+                return FALSE;
+            }
+
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, info->break_point_label_name, info->no_output);
+
+            append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
+            info->stack_num++;
+
+            info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
         }
-    }
-    else {
-        append_opecode_to_code(info->code, OP_GOTO, info->no_output);
-        info->break_points[*info->num_break_points] = info->code->mLen;
-        (*info->num_break_points)++;
-
-        if(*info->num_break_points >= BREAK_NUM_MAX) {
-            compile_err_msg(info, "overflow break number");
-            return FALSE;
-        }
-
-        append_int_value_to_code(info->code, 0, info->no_output);
-        append_str_to_constant_pool_and_code(info->constant, info->code, info->break_point_label_name, info->no_output);
-
-        append_opecode_to_code(info->code, OP_LDCNULL, info->no_output);
-        info->stack_num++;
-
-        info->type = create_node_type_with_class_name("Null", info->pinfo->mJS);
     }
     
     return TRUE;
@@ -4892,6 +5809,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_int_value_to_code(info->code, 0, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
 
             info->stack_num -= num_params + 1;
             info->stack_num++;
@@ -4944,7 +5863,8 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_int_value_to_code(info->code, size, info->no_output);
 
             append_int_value_to_code(info->code, 0, info->no_output);
-            append_int_value_to_code(info->code, 0, info->no_output);
+            append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+            append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
 
             char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
 
@@ -4952,6 +5872,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
 
             append_int_value_to_code(info->code, 0, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, METHOD_NAME2(klass, method), info->no_output);
 
             info->stack_num -= num_params + 1;
             info->stack_num++;
@@ -5252,12 +6173,14 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
 
                     append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
                     append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
 
                     char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
 
                     BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
                     append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
                     append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+                    append_int_value_to_code(info->code, 0, info->no_output);
 
                     info->stack_num -= num_params + 1;
                     info->stack_num++;
@@ -5726,12 +6649,14 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 
                 append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
                 append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
 
                 char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
 
                 BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
                 append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
                 append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+                append_int_value_to_code(info->code, 0, info->no_output);
 
                 info->stack_num -= num_params + 1;
                 info->stack_num++;
@@ -9180,7 +10105,6 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
         }
 
         boxing_to_lapper_class(&info->type, info);
-
         element_types[i] = info->type;
     }
 
@@ -9192,6 +10116,13 @@ static BOOL compile_tuple_value(unsigned int node, sCompileInfo* info)
     tuple_type->mNumGenericsTypes = num_elements;
     for(i=0; i<num_elements; i++) {
         tuple_type->mGenericsTypes[i] = element_types[i];
+
+        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
+        if(!check_implemented_methods_for_interface(iequalable, element_types[i]->mClass, TRUE)) 
+        {
+            compile_err_msg(info, "Require IEqualable implemented for tuple element type(%s).", CLASS_NAME(element_types[i]->mClass));
+            info->err_num++;
+        }
     }
 
     append_opecode_to_code(info->code, OP_CREATE_TUPLE, info->no_output);
@@ -9605,10 +10536,29 @@ BOOL compile_hash_value(unsigned int node, sCompileInfo* info)
         }
     }
 
-    sNodeType* hash_type = create_node_type_with_class_name("Hash", info->pinfo->mJS);
+    sNodeType* hash_type;
+    if(info->pinfo->mJS) {
+        hash_type = create_node_type_with_class_name("Map", info->pinfo->mJS);
+    }
+    else {
+        hash_type = create_node_type_with_class_name("Hash", info->pinfo->mJS);
+    }
     hash_type->mNumGenericsTypes = 2;
     hash_type->mGenericsTypes[0] = key_type;
     hash_type->mGenericsTypes[1] = item_type;
+
+    sCLClass* ihashkey = get_class("IHashKey", info->pinfo->mJS);
+    if(!check_implemented_methods_for_interface(ihashkey, key_type->mClass, TRUE)) 
+    {
+        compile_err_msg(info, "Require IHashkey implemented for hash key type(%s).", CLASS_NAME(key_type->mClass));
+        info->err_num++;
+    }
+
+    sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
+    if(!check_implemented_methods_for_interface(iequalable, item_type->mClass, TRUE)) {
+        compile_err_msg(info, "Require IEqualable implemented for hash item class(%s)", CLASS_NAME(item_type->mClass));
+        info->err_num++;
+    }
 
     append_opecode_to_code(info->code, OP_CREATE_HASH, info->no_output);
     append_int_value_to_code(info->code, num_elements, info->no_output);
@@ -10705,45 +11655,43 @@ BOOL compile_js_array(unsigned int node, sCompileInfo* info)
     memcpy(elements, gNodes[node].uValue.sListValue.mListElements, sizeof(unsigned int)*LIST_VALUE_ELEMENT_MAX);
     int num_elements = gNodes[node].uValue.sListValue.mNumListElements;
 
+
+    sNodeType* element_type;
     if(num_elements == 0) {
-        compile_err_msg(info, "require element in list value");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
+        element_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
     }
+    else {
+        unsigned int first_element_node = elements[0];
 
-    unsigned int first_element_node = elements[0];
-
-    if(!compile(first_element_node, info)) {
-        return FALSE;
-    }
-
-    boxing_to_lapper_class(&info->type, info);
-
-    sNodeType* element_type = info->type;
-
-    int i;
-    for(i=1; i<num_elements; i++) {
-        unsigned int element_node = elements[i];
-
-        if(!compile(element_node, info)) {
+        if(!compile(first_element_node, info)) {
             return FALSE;
         }
 
         boxing_to_lapper_class(&info->type, info);
 
-        sCLClass* iequalable = get_class("IEqualable", info->pinfo->mJS);
-        if(iequalable && !check_implemented_methods_for_interface(iequalable, info->type->mClass, TRUE)) 
-        {
-            compile_err_msg(info, "Require IEqualable implemented for js array element type(%s).", CLASS_NAME(info->type->mClass));
-            info->err_num++;
-        }
+        element_type = info->type;
 
-        if(!type_identify(element_type, info->type))
-        {
-            element_type = create_node_type_with_class_name("IEqualable", info->pinfo->mJS);
+        int i;
+        for(i=1; i<num_elements; i++) {
+            unsigned int element_node = elements[i];
+
+            if(!compile(element_node, info)) {
+                return FALSE;
+            }
+
+            boxing_to_lapper_class(&info->type, info);
+
+            sCLClass* isortable = get_class("ISortable", info->pinfo->mJS);
+            if(isortable && !check_implemented_methods_for_interface(isortable, info->type->mClass, TRUE)) 
+            {
+                compile_err_msg(info, "Require ISortable implemented for js array element type(%s).", CLASS_NAME(info->type->mClass));
+                info->err_num++;
+            }
+
+            if(!type_identify(element_type, info->type))
+            {
+                element_type = create_node_type_with_class_name("ISortable", info->pinfo->mJS);
+            }
         }
     }
 

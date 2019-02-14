@@ -34,9 +34,11 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
             return FALSE;
         }
 
+/*
         if(type_identify_with_class_name(param->mType, "pointer")) {
             including_pointer_param = TRUE;
         }
+*/
     }
 
     sCompileInfo cinfo2;

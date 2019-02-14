@@ -766,6 +766,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
                 break;
 
+            case OP_JS_ELSE_IF: {
+                /// nothing to do, this is for JS compile
+                }
+                break;
+
             case OP_JS_ELSE: {
                 /// nothing to do, this is for JS compile
                 }
@@ -773,6 +778,16 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
             case OP_JS_BLOCK_CLOSE: {
                 /// nothing to do, this is for JS compile
+                }
+                break;
+
+            case OP_JS_LOOP: {
+                /// nothing to do, this opecode is for JS Compile
+                }
+                break;
+
+            case OP_JS_BREAK: {
+                /// nothing to do, this opecode is for JS Compile
                 }
                 break;
 
@@ -1236,10 +1251,16 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int native_method = *(int*)pc;
                 pc += sizeof(int);
 
+                int pure_native_method = *(int*)pc;
+                pc += sizeof(int);
+
                 BOOL result_type_is_bool = *(int*)pc;
                 pc += sizeof(int);
 
                 unsigned int offset2 = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                int offset3 = *(int*)pc;
                 pc += sizeof(int);
 
                 /// get object value from llvm stack ///

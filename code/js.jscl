@@ -65,51 +65,34 @@ var d = "123";
 var e = "456";
 
 Clover.test("string test2", "\{d}\{e}".equals("123456"));
-
-var f = new Integer(123);
-
-Clover.test("Integer test1", f == 123);
-
-var g = 123I;
-
-Clover.test("Integer test2", g == 123);
-
-var h:SortableList<Integer> = {1,2,3}
-
-Clover.test("list test1", h.length() == 3);
-Clover.test("list test2", h.equals({1,2,3}));
-
 Clover.test("string test3", "ABC".match(/^A/));
 
 var i = "^A";
 Clover.test("string test4", "ABC".match(/\{i}/));
 
-var j = ["AAA"=>1, "BBB"=>2];
-Clover.test("hash test1", j.get("AAA") == 1);
-
-var k = lambda(x:int,y:int):int { return x + y };
+var k = lambda(x:Number,y:Number):Number { return x + y };
 Clover.test("lambda test1", k(1,2) == 3);
 
 var l = 9;
 
-var m = closure(x:int, y:int):int { return x + y + l };
+var m = closure(x:Number, y:Number):Number { return x + y + l };
 Clover.test("lambda test2", m(1, 2) == 12);
 Clover.test("lambda test3", l == 9);
 
 var n = 9;
 
-var o = closure(x:int, y:int):int { n = 5; return x + y + n };
+var o = closure(x:Number, y:Number):Number { n = 5; return x + y + n };
 Clover.test("lambda test4", o(1, 2) == 8);
 Clover.test("lambda test5", n == 5);
 
-var m2 = closure(x:int):int { l = 6; return x + 2 + l };
+var m2 = closure(x:Number):Number { l = 6; return x + 2 + l };
 Clover.test("lambda test6", m2(1) == 9);
 
 Clover.test("lambda test7", l == 6);
-var m3 = closure():int {
+var m3 = closure():Number {
     var o = 94;
 
-    var p = closure():int {
+    var p = closure():Number {
         l = 6; return l + o;
     }
 
@@ -120,7 +103,7 @@ Clover.test("lambda test8", m3() == 100);
 
 Clover.test("lambda test9", l == 6);
 
-m4 := lambda(x:int, y:int):int { return x + y };
+m4 := lambda(x:Number, y:Number):Number { return x + y };
 
 Clover.test("lambda test10", m4(1,2) == 3);
 
@@ -159,7 +142,6 @@ Clover.test("JS array test5", [1,2,3].includes(1));
 
 
 Clover.test("JS array test6", [1,2,3,4,5].copyWithin(-2).equals([1,2,3,1,2]));
-/*
 Clover.test("JS array test7", [1,2,3,4,5].copyWithin(0,3).equals([4,5,3,4,5]));
 Clover.test("JS array test8", [1,2,3,4,5].copyWithin(0,3,4).equals([4,2,3,4,5]));
 Clover.test("JS array test9", [1,2,3,4,5].copyWithin(0,-2,-1).equals([4,2,3,4,5]));
@@ -167,7 +149,266 @@ Clover.test("JS array test10", [1,2,3].fill(4).equals([4,4,4]));
 Clover.test("JS array test11", [1,2,3].fill(4,1).equals([1,4,4]));
 Clover.test("JS array test12", [1,2,3].fill(4,1,2).equals([1,4,3]));
 Clover.test("JS array test13", [1,2,3].fill(4,1,1).equals([1,2,3]));
-Clover.test("JS array test13", [1,2,3].fill(4,3,3).equals([1,2,3]));
-Clover.test("JS array test13", [1,2,3].fill(4,-3,-2).equals([4,2,3]));
-Clover.test("JS array test14", Array<Integer>(3).fill(4).equals([4,4,4]));
-*/
+Clover.test("JS array test14", [1,2,3].fill(4,3,3).equals([1,2,3]));
+Clover.test("JS array test15", [1,2,3].fill(4,-3,-2).equals([4,2,3]));
+
+Clover.test("JS array test16", Array<Number>(3).fill(4).equals([4,4,4]));
+var plants = ["broccoli", "cauliflower", "cabbage", "kale", "tomato"];
+Clover.test("JS array test17", plants.pop().equals("tomato"));
+Clover.test("JS array test18", plants.equals(["broccoli", "cauliflower", "cabbage", "kale"]));
+
+var animals = ["pigs", "goats", "sheep"];
+
+Clover.test("JS array test18", animals.push("cows") == 4);
+Clover.test("JS array test19", animals.equals(["pigs", "goats", "sheep", "cows"]));
+
+var array1 = ["one", "two", "three"];
+
+Clover.test("JS array test20", array1.reverse().equals(["three", "two", "one"]));
+Clover.test("JS array test21", array1.equals(["three", "two", "one"]));
+
+var array2 = [1, 2, 3];
+
+var firstElement = array2.shift();
+
+Clover.test("JS array test22", firstElement == 1);
+Clover.test("JS array test23", array2.equals([2,3]));
+
+Clover.test("JS lambda test X", b.method2(1,2) {return it + it2;} == 3);
+
+var months = ["March", "Jan", "Feb", "Dec"];
+
+Clover.test("JS array test24", months.sort().equals(["Dec", "Feb", "Jan", "March"]));
+Clover.test("JS array test25", months.equals(["Dec", "Feb", "Jan", "March"]));
+
+var array3 = [1, 30, 4, 21, 100000];
+Clover.test("JS array test25", array3.sort().equals([1, 4, 21, 30, 100000]));
+Clover.test("JS array test25", array3.equals([1, 4, 21, 30, 100000]));
+
+var myFish = ["angel", "clown", "mandarin", "sturgeon"];
+var removed = myFish.splice(2, 0, "drum");
+
+Clover.test("JS array test26", myFish.equals(["angel", "clown", "drum", "mandarin", "sturgeon"]) && removed.equals([]));
+
+var myFish2 = ["angel", "clown", "drum", "mandarin", "sturgeon"];
+var removed2 = myFish2.splice(3, 1);
+
+Clover.test("JS array test27", myFish2.equals(["angel", "clown", "drum", "sturgeon"]) && removed2.equals(["mandarin"]));
+
+var myFish3 = ["angel", "clown", "drum", "sturgeon"];
+var removed3 = myFish3.splice(2, 1, "trumpet");
+
+Clover.test("JS array test28", myFish3.equals(["angel", "clown", "trumpet", "sturgeon"]) && removed3.equals(["drum"]));
+
+var myFish4 = ["angel", "clown", "trumpet", "sturgeon"];
+var removed4 = myFish4.splice(0, 2, "parrot", "anemone", "blue");
+
+Clover.test("JS array test29", myFish4.equals(["parrot", "anemone", "blue", "trumpet", "sturgeon"]) && removed4.equals(["angel", "clown"]));
+
+var myFish5 = ["parrot", "anemone", "blue", "trumpet", "sturgeon"];
+var removed5 = myFish5.splice(myFish5.length() - 3, 2);
+
+Clover.test("JS array test30", myFish5.equals(["parrot", "anemone", "sturgeon"]) && removed5.equals(["blue", "trumpet"]));
+
+var myFish6 = ["angel", "clown", "mandarin", "sturgeon"];
+var removed6 = myFish6.splice(-2, 1);
+
+Clover.test("JS array test31", myFish6.equals(["angel", "clown", "sturgeon"]) && removed6.equals(["mandarin"]));
+
+var myFish7 = ["angel", "clown", "mandarin", "sturgeon"];
+var removed7 = myFish7.splice(2);
+
+Clover.test("JS array test32", myFish7.equals(["angel", "clown"]) && removed7.equals(["mandarin", "sturgeon"]));
+
+var alpha = ["a", "b", "c"];
+var numeric = ["1", "2", "3"];
+
+Clover.test("JS array test33", alpha.concat(numeric).equals(["a", "b", "c", "1", "2", "3"]));
+
+for(jj:=0; jj<6; jj++) {
+    println(jj);
+}
+
+Clover.test("JS loop test1", jj == 6);
+xxx := 123;
+
+when(xxx) {
+    case (123) {
+        xxx = 345;
+    }
+    else {
+        xxx = 234;
+    }
+}
+
+Clover.test("JS loop test2", xxx == 345);
+
+aa := 125;
+
+print("when test...");
+when(aa) {
+    case( 1 ){
+        println("FALSE");
+        System.assert(false);
+    }
+    case (123,125) {
+        println("TRUE");
+    }
+    else {
+        println("FALSE");
+        System.assert(false);
+    }
+}
+
+bb := "ABC";
+
+print("when test2...");
+when(bb) {
+    case ("A") {
+        println("FALSE");
+        System.assert(false);
+    }
+    case("ABC") {
+        println("TRUE");
+    }
+    else {
+        println("FALSE");
+        System.assert(false);
+    }
+}
+
+cc := when(123) {
+    case(123) {
+        "ABC";
+    }
+
+    case (234) {
+        "DEF";
+        System.assert(false);
+    }
+
+    else {
+        "GHI";
+        System.assert(false);
+    }
+}
+
+Clover.test("when test3", cc.cast("String").equals("ABC"));
+
+dd := when(234) {
+    case (123) {
+        "ABC";
+        System.assert(false);
+    }
+
+    case (234) {
+        123;
+    }
+
+    else {
+        "GHI";
+        System.assert(false);
+    }
+}
+
+Clover.test("when test4", dd.cast("Number").equals(123));
+
+ee := "Array<String>";
+
+ff := when(ee) {
+    match (/.+<String>/) {
+        123;
+    }
+    else {
+        456;
+    }
+}
+
+Clover.test("when test5", ff == 123);
+
+Clover.test("JS array test34", [1, 30, 39, 29, 10, 13].every(closure(it:Number):bool { return it < 40 }));
+Clover.test("JS array test35", [1, 30, 39, 29, 10, 13].every { it < 40; });
+Clover.test("JS array test36", ![1, 30, 39, 29, 10, 41].every { it < 40; });
+
+var array_unshift1 = [1,2,3];
+Clover.test("JS array test37", array_unshift1.unshift(4, 5) == 5);
+Clover.test("JS array test38", array_unshift1.equals([4, 5, 1,2,3]));
+
+println([1,2,3,4,5,6].filter { it > 3 });
+
+Clover.test("JS array test39", [1,2,3,4,5,6].filter { it > 3 }.equals([4,5,6]));
+Clover.test("JS array test40", [1,2,3,4,5,6].find { it > 3 } ==  4);
+Clover.test("JS array test41", [1,2,3,4,5,6].findIndex { it > 3 } ==  3);
+
+println([1,2,3,4,5,6].indexOf(3));
+#println([1,2,3,4,5,6,1].indexOf(1, 2));
+
+Clover.test("JS array test42", [1,2,3,4,5,6].indexOf(3) == 2 && [1,2,3,4,5,6,1].indexOf(1, 2) == 6);
+
+Clover.test("JS array test43", b.method3());
+
+var kkk = 0;
+while(kkk < 3) {
+    println(kkk);
+    kkk++;
+}
+
+var tuple2:Tuple2<Number,Number> = (1,2);
+
+Clover.test("tuple test1", tuple2.value1 == 1 && tuple2.value2 == 2);
+
+var tuple3:Tuple3<Number,String,String> = new Tuple3<Number, String, String>();
+
+tuple3.value1 = 111;
+tuple3.value2 = "ABC";
+tuple3.value3 = "DEF";
+
+Clover.test("tuple test2", tuple3.value1 == 111 && tuple3.value2.equals("ABC") && tuple3.value3.equals("DEF"));
+
+var tuple9 = (1, "AAA", 2, "BBB", 3, "CCC", 4, "DDD", "EEE");
+
+Clover.test("tuple test3", tuple9.value1 == 1 && tuple9.value2.equals("AAA") && tuple9.value3 == 2 && tuple9.value4.equals("BBB") && tuple9.value5 == 3 && tuple9.value6.equals("CCC") && tuple9.value7 == 4 && tuple9.value8.equals("DDD") && tuple9.value9.equals("EEE"));
+
+var map1 = ["AAA"=>1, "BBB"=>2];
+
+var iterator1 = map1.entries();
+
+while(true) {
+    var iterator_result = iterator1.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+
+Clover.test("map test1", map1.get("AAA") == 1);
+
+var map2 = [Person("ichiro", 29)=>1, Person("jiro",30)=>2];
+
+var iterator2 = map2.entries();
+
+while(true) {
+    var iterator_result = iterator2.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+
+Clover.test("map test2", map2.get(Person("ichiro", 29)) == 1);
+
+jiro := Person("ichiro", 29).clone();
+
+Clover.test("map test3", map2.get(jiro) == 1);
+
+var tuple4 = (111, "AAA");
+
+(x2, y2) := tuple4;
+
+Clover.test("tuple test1", x2 == 111 && y2.equals("AAA"));

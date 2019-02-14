@@ -492,7 +492,13 @@ BOOL type_identify(sNodeType* left, sNodeType* right)
 
 BOOL type_identify_with_class_name(sNodeType* left, char* right_class_name)
 {
-    return type_identify(left, create_node_type_with_class_name(right_class_name, left->mClass->mFlags & CLASS_FLAGS_JS));
+    sNodeType* right = create_node_type_with_class_name(right_class_name, left->mClass->mFlags & CLASS_FLAGS_JS);
+
+    if(right == NULL) {
+        return FALSE;
+    }
+
+    return type_identify(left, right);
 }
 
 BOOL class_identify_with_class_name(sCLClass* klass, char* class_name)

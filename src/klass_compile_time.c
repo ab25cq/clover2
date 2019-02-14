@@ -231,7 +231,7 @@ void set_method_index_to_class(sCLClass* klass)
     }
 }
 
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, BOOL pure_native_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info)
 {
     if(klass->mNumMethods == klass->mSizeMethods) {
         int new_size = klass->mSizeMethods * 2;
@@ -244,7 +244,7 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
 
     *appended_method = klass->mMethods + num_methods;
 
-    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (klass->mFlags & CLASS_FLAGS_JS ? METHOD_FLAGS_JS:0)| ((static_|| (native_&& !(klass->mFlags & CLASS_FLAGS_JS))||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0) | (dynamic_ ? METHOD_FLAGS_DYNAMIC:0);
+    klass->mMethods[num_methods].mFlags = (native_ ? METHOD_FLAGS_NATIVE : 0) | (klass->mFlags & CLASS_FLAGS_JS ? METHOD_FLAGS_JS:0)| ((static_|| (native_&& !(klass->mFlags & CLASS_FLAGS_JS))||strcmp(clibrary_path, "") != 0) ? METHOD_FLAGS_CLASS_METHOD:0) | (strcmp(clibrary_path, "") != 0 ? METHOD_FLAGS_C_FUNCTION:0) | (dynamic_ ? METHOD_FLAGS_DYNAMIC:0) | (pure_native_ ? METHOD_FLAGS_PURE_NATIVE:0);
     klass->mMethods[num_methods].mFlags |= (klass->mFlags & CLASS_FLAGS_JS ? METHOD_FLAGS_JS:0);
     klass->mMethods[num_methods].mNameOffset = append_str_to_constant_pool(&klass->mConst, method_name, FALSE);
 
@@ -737,6 +737,19 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
     char* name1 = METHOD_NAME2(klass1, method1);
     char* name2 = METHOD_NAME2(klass2, method2);
 
+    if((klass1->mFlags & CLASS_FLAGS_JS) != (klass2->mFlags & CLASS_FLAGS_JS))
+    {
+        return FALSE;
+    }
+
+    if((klass1->mFlags & CLASS_FLAGS_JS) && (method1->mFlags & METHOD_FLAGS_PURE_NATIVE))
+    {
+        if(!(method2->mFlags & METHOD_FLAGS_PURE_NATIVE))
+        {
+            return FALSE;
+        }
+    }
+
     if(strcmp(name1, name2) != 0) {
         return FALSE;
     }
@@ -785,7 +798,8 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
 BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* right_class, BOOL output_message)
 {
     sCLClass* anonymous_class = get_class("Anonymous", left_class->mFlags & CLASS_FLAGS_JS);
-    if(right_class == anonymous_class) {
+    sCLClass* null_class = get_class("Null", left_class->mFlags & CLASS_FLAGS_JS);
+    if(right_class == anonymous_class || right_class == null_class) {
         return TRUE;
     }
     else if(right_class->mFlags & CLASS_FLAGS_PRIMITIVE) {
@@ -819,10 +833,9 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
     return TRUE;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
 /// write class to a class file 
-////////////////////////////////////////////////////////////////////////////////
-
+/////////////////////////////////////////////////////////////
 static void append_const_to_buffer(sBuf* buf, sConst* constant)
 {
     sBuf_append_int(buf, constant->mLen);

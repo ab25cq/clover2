@@ -76,9 +76,18 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core String.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Function.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Lambda.ojsclcl
-	PWD=`pwd`; ./cclover2 -core Integer.ojsclcl
-	PWD=`pwd`; ./cclover2 -core SortableList.ojsclcl
-	PWD=`pwd`; ./cclover2 -core Hash.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Number.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Bool.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Map.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple1.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple2.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple3.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple4.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple5.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple6.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple7.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple8.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Tuple9.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Exception.ojsclcl
 	PWD=`pwd`; ./cclover2 -core System.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Clover.ojsclcl
@@ -546,29 +555,28 @@ install:
 	$(INSTALL) -m 644 Exception.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Lambda.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Byte.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 UByte.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Short.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 UShort.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Integer.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 UInteger.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Long.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 ULong.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Float.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Double.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Pointer.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Char.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Buffer.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Number.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Bool.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Exception.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Array.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 IEqualable.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ISortable.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 IIteratorable.ojsclcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Integer.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Iterator.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 IteratorResult.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Number.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Bool.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Exception.js $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 SortableList.js $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 Hash.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Map.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple1.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple2.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple3.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple4.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple5.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple6.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple7.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple8.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple9.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 System.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Clover.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Lambda.js $(DESTDIR)/share/clover2
@@ -794,9 +802,18 @@ js-test:
 	cp String.js code/
 	cp Clover.js code/
 	cp System.js code/
-	cp Integer.js code/
-	cp SortableList.js code/
-	cp Hash.js code/
+	cp Number.js code/
+	cp Bool.js code/
+	cp Map.js code/
+	cp Tuple1.js code/
+	cp Tuple2.js code/
+	cp Tuple3.js code/
+	cp Tuple4.js code/
+	cp Tuple5.js code/
+	cp Tuple6.js code/
+	cp Tuple7.js code/
+	cp Tuple8.js code/
+	cp Tuple9.js code/
 	cp Lambda.js code/
 	cp Exception.js code/
 	PWD=`pwd` ./cclover2 code/js.jscl

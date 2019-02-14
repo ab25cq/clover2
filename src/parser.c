@@ -2321,6 +2321,11 @@ BOOL parse_type_for_new(sNodeType** result_type, unsigned int* array_num, sParse
         }
     }
 
+    if(generics_num != (*result_type)->mClass->mNumGenerics) {
+        parser_err_msg(info, "Invalid genrics parametor number");
+        info->err_num++;
+    }
+
     return TRUE;
 }
 
@@ -3025,73 +3030,82 @@ static BOOL parse_js_array_value_or_hash_value(unsigned int* node, sParserInfo* 
     memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
     memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
 
-    while(1) {
-        unsigned int node = 0;
-        if(!expression(&node, info)) {
-            return FALSE;
-        }
-
-        if(*info->p == '=' && *(info->p+1) == '>') {
-            info->p+=2;
-            skip_spaces_and_lf(info);
-
-            hash_keys[num_elements] = node;
-
-            unsigned int node2 = 0;
-            if(!expression(&node2, info)) {
+    if(*info->p == ']') {
+        info->p++;
+        skip_spaces_and_lf(info);
+    }
+    else {
+        while(1) {
+            unsigned int node = 0;
+            if(!expression(&node, info)) {
                 return FALSE;
             }
 
-            hash_items[num_elements] = node2;
-
-            num_elements++;
-
-            if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info, "overflow hash value elements");
-                return FALSE;
-            }
-
-            if(*info->p == ',') {
-                info->p++;
+            if(*info->p == '=' && *(info->p+1) == '>') {
+                info->p+=2;
                 skip_spaces_and_lf(info);
-            }
-            else if(*info->p == ']') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
+
+                hash_keys[num_elements] = node;
+
+                unsigned int node2 = 0;
+                if(!expression(&node2, info)) {
+                    return FALSE;
+                }
+
+                hash_items[num_elements] = node2;
+
+                num_elements++;
+
+                if(num_elements >= HASH_VALUE_ELEMENT_MAX) {
+                    parser_err_msg(info, "overflow hash value elements");
+                    return FALSE;
+                }
+
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ']') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "invalid hash value");
+                    info->err_num++;
+                }
             }
             else {
-                parser_err_msg(info, "invalid hash value");
-                info->err_num++;
-            }
-        }
-        else {
-            array_elements[num_elements] = node;
+                array_elements[num_elements] = node;
 
-            num_elements++;
+                num_elements++;
 
-            if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
-                parser_err_msg(info, "overflow array value elements");
-                return FALSE;
-            }
+                if(num_elements >= ARRAY_VALUE_ELEMENT_MAX) {
+                    parser_err_msg(info, "overflow array value elements");
+                    return FALSE;
+                }
 
-            if(*info->p == ',') {
-                info->p++;
-                skip_spaces_and_lf(info);
-            }
-            else if(*info->p == ']') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-            else {
-                parser_err_msg(info, "invalid array value");
-                info->err_num++;
+                if(*info->p == ',') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+                else if(*info->p == ']') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "invalid array value");
+                    info->err_num++;
+                }
             }
         }
     }
 
-    if(array_elements[0] != 0 && hash_keys[0] != 0) {
+    if(array_elements[0] == 0 && hash_keys[0] == 0) {
+        *node = sNodeTree_create_js_array(num_elements, array_elements, info);
+    }
+    else if(array_elements[0] != 0 && hash_keys[0] != 0) {
         parser_err_msg(info, "invalid hash or array value");
         info->err_num++;
     }
@@ -4373,18 +4387,20 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
         BOOL list_value = FALSE;
 
-        char* p_before = info->p;
-        int sline_before = info->sline;
+        if(!info->mJS) {
+            char* p_before = info->p;
+            int sline_before = info->sline;
 
-        unsigned int tmp = 0;
-        (void)expression(&tmp, info);
+            unsigned int tmp = 0;
+            (void)expression(&tmp, info);
 
-        if(*info->p == ',') {
-            list_value = TRUE;
+            if(*info->p == ',') {
+                list_value = TRUE;
+            }
+
+            info->p = p_before;
+            info->sline = sline_before;
         }
-
-        info->p = p_before;
-        info->sline = sline_before;
 
         if(list_value) {
             if(!parse_sortable_list_value(node, info, '}')) {

@@ -373,7 +373,7 @@ static BOOL parse_throws_and_clibrary(sParserInfo* info, BOOL* throw_existance, 
     return TRUE;
 }
 
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, BOOL* pure_native_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size)
 {
     /// method generics ///
     if(*info->p == '<') {
@@ -426,6 +426,9 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
             }
             else if(strcmp(buf, "dynamic") == 0) {
                 *dynamic_ = TRUE;
+            }
+            else if(strcmp(buf, "pure_native") == 0) {
+                *pure_native_ = TRUE;
             }
             else {
                 info->p = p_saved;
@@ -562,6 +565,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 BOOL native_ = FALSE;
                 BOOL static_ = FALSE;
                 BOOL dynamic_ = FALSE;
+                BOOL pure_native_ = FALSE;
 
                 sGenericsParamInfo method_generics_info;
                 memset(&method_generics_info, 0, sizeof(sGenericsParamInfo));
@@ -584,7 +588,7 @@ static BOOL field_delegation(sParserInfo* info, sCompileInfo* cinfo, sCLClass* k
                 clibrary_path[0] = '\0';
 
                 sCLMethod* appended_method = NULL;
-                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, &method_generics_info, &appended_method, clibrary_path, info)) 
+                if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, pure_native_, &method_generics_info, &appended_method, clibrary_path, info)) 
                 {
                     parser_err_msg(info, "add_method_to_class failed");
                     return FALSE;
@@ -617,12 +621,13 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
         BOOL dynamic_ = FALSE;
+        BOOL pure_native_ = FALSE;
 
         char clibrary_path[PATH_MAX];
         clibrary_path[0] = '\0';
 
         sCLMethod* appended_method = NULL;
-        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, NULL, &appended_method, clibrary_path, info))
+        if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, pure_native_, NULL, &appended_method, clibrary_path, info))
         {
             parser_err_msg(info, "add_method_to_class failed");
             return FALSE;
@@ -649,12 +654,13 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
             BOOL native_ = FALSE;
             BOOL static_ = FALSE;
             BOOL dynamic_ = FALSE;
+            BOOL pure_native_ = FALSE;
 
             char clibrary_path[PATH_MAX];
             clibrary_path[0] = '\0';
 
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, NULL, &appended_method, clibrary_path, info))
+            if(!add_method_to_class(klass, method_name, parser_params, num_params, result_type, native_, static_, dynamic_, pure_native_, NULL, &appended_method, clibrary_path, info))
             {
                 parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
@@ -736,33 +742,46 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         BOOL native_ = FALSE;
         BOOL static_ = FALSE;
         BOOL dynamic_ = FALSE;
+        BOOL pure_native_ = FALSE;
         BOOL js = info->klass->mFlags & CLASS_FLAGS_JS;
         char clibrary_path[PATH_MAX+1];
 
         clibrary_path[0] = '\0';
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, info, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pure_native_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             sCLMethod* appended_method = NULL;
-            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, dynamic_, &info->method_generics_info, &appended_method, clibrary_path, info))
+            if(!add_method_to_class(info->klass, method_name, params, num_params, result_type, native_, static_, dynamic_, pure_native_, &info->method_generics_info, &appended_method, clibrary_path, info))
             {
                 parser_err_msg(info, "add_method_to_class failed");
                 return FALSE;
             }
         }
 
-        if(native_ && js && *info->p == ';') {
-            info->p++;
-            skip_spaces_and_lf(info);
-        }
-        else if((native_ && !js)|| interface || strcmp(clibrary_path, "") != 0) {
+        if((native_ && !js) || interface || strcmp(clibrary_path, "") != 0) 
+        {
             if(*info->p == ';') {
                 info->p++;
                 skip_spaces_and_lf(info);
+            }
+        }
+        else if(pure_native_ && js) {
+            if(*info->p == ';') {
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+            else if(*info->p == '{') {
+                if(!skip_block(info)) {
+                    return FALSE;
+                }
+            }
+            else {
+                parser_err_msg(info, "require { or ;");
+                info->err_num++;
             }
         }
         else {
@@ -1248,11 +1267,12 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         BOOL static_ = FALSE;
         BOOL dynamic_ = FALSE;
         char clibrary_path[PATH_MAX];
+        BOOL pure_native_ = FALSE;
         BOOL js = info->klass->mFlags & CLASS_FLAGS_JS;
 
         clibrary_path[0] = '\0';
 
-        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, info, clibrary_path, PATH_MAX)) 
+        if(!parse_method_name_and_params(method_name, METHOD_NAME_MAX, params, &num_params, &result_type, &native_, &static_, &dynamic_, &pure_native_, info, clibrary_path, PATH_MAX)) 
         {
             return FALSE;
         }
@@ -1261,7 +1281,13 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         info->klass->mMethodIndexOnCompileTime++;
 
         if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
-            if(native_ && js) {
+            if((native_ && !js) || interface || strcmp(clibrary_path, "") != 0) {
+                if(*info->p == ';') {
+                    info->p++;
+                    skip_spaces_and_lf(info);
+                }
+            }
+            else if(pure_native_ && js) {
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1281,14 +1307,28 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
                     add_native_code_to_method(method, &native_code);
                 }
                 else {
-                    parser_err_msg(info, "Require native code");
+                    parser_err_msg(info, "require { or ;");
                     info->err_num++;
                 }
             }
-            else if(native_ || interface || strcmp(clibrary_path, "") != 0) {
-                if(*info->p == ';') {
-                    info->p++;
-                    skip_spaces_and_lf(info);
+            else if(native_ && js) {
+                if(*info->p == '{') {
+                    char* code_head = info->p;
+
+                    if(!skip_block(info)) {
+                        return FALSE;
+                    }
+
+                    char* code_end = info->p;
+
+                    sBuf native_code;
+                    sBuf_init(&native_code);
+                    sBuf_append(&native_code, code_head, code_end - code_head);
+                    add_native_code_to_method(method, &native_code);
+                }
+                else {
+                    parser_err_msg(info, "Require native code");
+                    info->err_num++;
                 }
             }
             else {

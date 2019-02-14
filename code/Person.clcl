@@ -1,11 +1,18 @@
+interface InterfaceTest:js
+{
+    def equals(item:Self): bool;
+}
+
 class Person: js
 {
     var name:String;
-    var age:int;
+    var age:Number;
 
-    def initialize(name:String, age:int) {
-        self.name = name;
-        self.age = age;
+    def initialize(name:String, age:Number): pure_native Person {
+        this.name = name.clone();
+        this.age = age;
+
+        return this;
     }
     def hello() {
         println("HELLO WORLD");
@@ -14,5 +21,21 @@ class Person: js
     }
     def method(): throws Exception {
         throw Exception("true");
+    }
+    def method2(x:Number, y:Number, block_:lambda(Number, Number):Number):Number {
+        return block_(x, y);
+    }
+    def method3():bool {
+        object:InterfaceTest = [1,2,3];
+        return object.equals([1,2,3]);
+    }
+    def equals(right:Person): pure_native bool {
+        return this.name.equals(right.name) && this.age == right.age;
+    }
+    def toString(): pure_native String {
+        return "{".add(this.name).add(",").add(this.age.toString()).add("}");
+    }
+    def clone(): pure_native Person {
+        return new Person().initialize(this.name, this.age);
     }
 }

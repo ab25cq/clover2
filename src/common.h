@@ -237,6 +237,7 @@ typedef struct sCLParamStruct sCLParam;
 #define METHOD_FLAGS_C_FUNCTION 0x20
 #define METHOD_FLAGS_DYNAMIC 0x40
 #define METHOD_FLAGS_JS 0x80
+#define METHOD_FLAGS_PURE_NATIVE 0x100
 
 #define EXCEPTION_MESSAGE_MAX 1024
 #define STACK_TRACE_MAX 64
@@ -1151,6 +1152,10 @@ extern int gBufferToPointerCastCount;
 #define OP_SXOR 108
 #define OP_SOR 109
 
+#define OP_JS_LOOP 120
+#define OP_JS_BREAK 121
+#define OP_JS_ELSE_IF 122
+
 #define OP_USADD 150
 #define OP_USSUB 151
 #define OP_USMULT 152
@@ -1928,7 +1933,7 @@ void show_inst(unsigned inst);
 #define PARSE_PHASE_MAX 8
 
 BOOL compile_class_source(char* fname, char* source);
-BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size);
+BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParserParam* params, int* num_params, sNodeType** result_type, BOOL* native_, BOOL* static_, BOOL* dynamic_, BOOL* pure_native_, sParserInfo* info, char* clibrary_path, size_t clibrary_path_size);
 
 /// cycle.c ///
 void set_dependency_compile();
@@ -1938,7 +1943,7 @@ void dependency_final();
 
 /// klass_compile_time.c ///
 void add_native_code_to_method(sCLMethod* method, sBuf* native_code);
-BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
+BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, BOOL pure_native_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
 BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
