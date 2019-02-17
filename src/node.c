@@ -260,6 +260,7 @@ BOOL compile_params_method_default_value(sCLClass* klass, char* method_name, int
                         info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
                         info2.next_command_is_to_bool = FALSE;
                         info2.exist_block_object_err = info->pinfo->exist_block_object_err;
+                        info2.mJS = info->pinfo->mJS;
 
                         unsigned int node = 0;
                         if(!expression(&node, &info2)) {
@@ -685,7 +686,7 @@ static void err_msg_for_method_not_found(sCLClass* klass, char* method_name, sNo
             compile_err_msg(info, "parametor#%d is NULL(unexpected parametor)", i);
         }
         else {
-            compile_err_msg(info, "parametor#%d is %s", i, CLASS_NAME(param_types[i]->mClass));
+            compile_err_msg(info, "parametor#%d is %s(js %d)", i, CLASS_NAME(param_types[i]->mClass), param_types[i]->mClass->mFlags & CLASS_FLAGS_JS);
         }
     }
 }
@@ -2902,7 +2903,7 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
     }
 
     if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s(6)", info->pinfo->mJS, gNodes[node].uValue.mVarName);
+        compile_err_msg(info, "undeclared variable %s(6)", gNodes[node].uValue.mVarName);
         info->err_num++;
 
         info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
@@ -6005,6 +6006,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     info2.get_type_for_interpreter = info->pinfo->get_type_for_interpreter;
                     info2.next_command_is_to_bool = FALSE;
                     info2.exist_block_object_err = info->pinfo->exist_block_object_err;
+                    info2.mJS = info->pinfo->mJS;
 
                     BOOL lambda = FALSE;
 

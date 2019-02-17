@@ -373,6 +373,7 @@ BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lamb
     }
 
     sNodeBlock* node_block = NULL;
+
     if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
         return FALSE;
     }

@@ -37,7 +37,7 @@ class Clover:js
 interface IEqualable:js
 {
     def equals(right:Self): pure_native bool;
-    def toString(): pure_native String;
+    def toString(): String;
     def clone(): pure_native Self;
 }
 
@@ -45,7 +45,7 @@ interface ISortable:js
 {
     def equals(right:Self): pure_native bool;
     def compare(item:Self): pure_native Number;
-    def toString(): pure_native String;
+    def toString(): String;
     def clone(): pure_native Self;
     def add(right:Self):Self;
 }
@@ -54,7 +54,7 @@ interface IIteratorable:js
 {
     def equals(right:Self): pure_native bool;
     def compare(item:Self): pure_native Number;
-    def toString(): pure_native String;
+    def toString(): String;
     def clone(): pure_native Self;
     def add(right:Self):Self;
     def next(): Self;
@@ -64,22 +64,22 @@ interface IIteratorable:js
 interface IHashKey:js
 {
     def equals(right:Self): pure_native bool;
-    def toString(): pure_native String;
+    def toString(): String;
     def clone(): pure_native Self;
 }
 
 class Array<T:ISortable>:native js
 {
+    var length: Number;
+
     def initialize(num:Number):native Array<T> {
         return this;
     }
     def items(n:Number): native T {
         return this[n];
     }
+    def slice(n:Number): pure_native Array<T>;
     def slice(n:Number, n2:Number): pure_native Array<T>;
-    def length(): native Number {
-        return this.length;
-    }
     def includes(item:T):native bool {
         for(var i=0; i<this.length; i++) {
             if(this[i].equals(item)) {
@@ -115,8 +115,7 @@ class Array<T:ISortable>:native js
     def equals(array_:Array<T>): pure_native bool {
         if(this.length == array_.length) {
             for(var i=0; i<this.length; i++) {
-                if(!this[i].equals(array_[i])) 
-                {
+                if(!this[i].equals(array_[i])) {
                     return false;
                 }
             }
@@ -139,11 +138,11 @@ class Array<T:ISortable>:native js
         return item;
     }
 
-    def toString():pure_native String {
-        var result= "Array {";
+    def toString(): native String {
+        var result = "Array {";
 
         for(var i= 0; i<this.length; i++) {
-            result = result + this[i].toString();
+            result = result + this[i].toString__();
 
             if(i < this.length-1) {
                 result = result + ",";
@@ -228,13 +227,22 @@ class Array<T:ISortable>:native js
     def concat(array_:Array<T>):pure_native Array<T>;
 
     def every(block_:lambda(T):bool):bool {
-        len := self.length();
+        len := self.length;
         for(i:=0; i<len; i++) {
             if(!block_(self.items(i))) {
                 return false;
             }
         }
         return true;
+    }
+    def some(block_:lambda(T):bool):bool {
+        len := self.length;
+        for(i:=0; i<len; i++) {
+            if(block_(self.items(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     def unshift(item1:T): pure_native Number;
@@ -255,7 +263,7 @@ class Array<T:ISortable>:native js
     def filter(block_:lambda(T):bool):Array<T> {
         result := Array<T>(0);
 
-        for(i:=0; i<length(); i++) {
+        for(i:=0; i<self.length; i++) {
             if(block_(items(i))) {
                 result.push(items(i));
             }
@@ -267,7 +275,7 @@ class Array<T:ISortable>:native js
     def find(block_:lambda(T):bool):T? {
         result := Array<T>(0);
 
-        for(i:=0; i<length(); i++) {
+        for(i:=0; i<self.length; i++) {
             if(block_(items(i))) {
                 return items(i);
             }
@@ -279,7 +287,7 @@ class Array<T:ISortable>:native js
     def findIndex(block_:lambda(T):bool):Number {
         result := Array<T>(0);
 
-        for(i:=0; i<length(); i++) {
+        for(i:=0; i<self.length; i++) {
             if(block_(items(i))) {
                 return i;
             }
@@ -289,7 +297,7 @@ class Array<T:ISortable>:native js
     }
 
     def forEach(block_:lambda(T)) {
-        for(i:=0; i<length(); i++) {
+        for(i:=0; i<self.length; i++) {
             block_(items(i))
         }
     }
@@ -307,6 +315,56 @@ class Array<T:ISortable>:native js
         }
 
         return -1;
+    }
+
+    def join(): native String {
+        return this.join();
+    }
+
+    def join(str:String): native String {
+        return this.join(str);
+    }
+
+    def lastIndexOf(item:T): native Number {
+        for(var i= this.length-1; i>=0; i--) {
+            if(this[i].equals(item)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    def lastIndexOf(item:T, fromIndex:Number): native Number {
+        if(fromIndex < 0) {
+            fromIndex += this.length;
+        }
+
+        if(fromIndex >= this.length) {
+            fromIndex = this.length - 1;
+        }
+
+        for(var i = fromIndex; i>=0; i--) {
+            if(this[i].equals(item)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    def entries(): pure_native Iterator;
+
+    def keys(): pure_native Iterator;
+    def values(): pure_native Iterator;
+
+    def <R:ISortable> map(trans:lambda(T):R): Array<R> {
+        result:Array<R> = Array<R>(0);
+
+        for(i:=0; i<self.length; i++) {
+            result.push(trans(items(i)));
+        }
+
+        return result;
     }
 }
 
@@ -336,8 +394,8 @@ class Tuple1 <T:IEqualable>: js
         return this.value1.equals(right.value1);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "}";
     }
 }
 
@@ -373,8 +431,8 @@ class Tuple2 <T:IEqualable, T2:IEqualable>: js
         return this.value1.equals(right.value1) && this.value2.equals(right.value2);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "}";
     }
 }
 
@@ -416,8 +474,8 @@ class Tuple3 <T:IEqualable, T2:IEqualable, T3:IEqualable>: js
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "," + this.value3.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "," + this.value3.toString__() + "}";
     }
 }
 
@@ -465,8 +523,8 @@ class Tuple4 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable>: js
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "," + this.value3.toString() + "," + this.value4.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "," + this.value3.toString__() + "," + this.value4.toString__() + "}";
     }
 }
 
@@ -520,8 +578,8 @@ class Tuple5 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4) && this.value5.equals(right.value5);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + ","+ this.value2.toString() + "," + this.value3.toString() + "," + this.value4.toString() + "," + this.value5.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + ","+ this.value2.toString__() + "," + this.value3.toString__() + "," + this.value4.toString__() + "," + this.value5.toString__() + "}";
     }
 }
 
@@ -581,8 +639,8 @@ class Tuple6 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4) && this.value5.equals(right.value5) && this.value6.equals(right.value6);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "," + this.value3.toString() + "," + this.value4.toString() + "," + this.value5.toString() + "," + this.value6.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "," + this.value3.toString__() + "," + this.value4.toString__() + "," + this.value5.toString__() + "," + this.value6.toString__() + "}";
     }
 }
 
@@ -648,8 +706,8 @@ class Tuple7 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4) && this.value5.equals(right.value5) && this.value6.equals(right.value6) && this.value7.equals(right.value7);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "," + this.value3.toString() + "," + this.value4.toString() + "," + this.value5.toString() + "," + this.value6.toString() + "," + this.value7.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "," + this.value3.toString__() + "," + this.value4.toString__() + "," + this.value5.toString__() + "," + this.value6.toString__() + "," + this.value7.toString__() + "}";
     }
 }
 
@@ -721,8 +779,8 @@ class Tuple8 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4) && this.value5.equals(right.value5) && this.value6.equals(right.value6) && this.value7.equals(right.value7) && this.value8.equals(right.value8);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + ","+ this.value3.toString() + "," + this.value4.toString() + ","+ this.value5.toString() + "," + this.value6.toString() + "," + this.value7.toString() + "," + this.value8.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + ","+ this.value3.toString__() + "," + this.value4.toString__() + ","+ this.value5.toString__() + "," + this.value6.toString__() + "," + this.value7.toString__() + "," + this.value8.toString__() + "}";
     }
 }
 
@@ -800,8 +858,8 @@ class Tuple9 <T:IEqualable, T2:IEqualable, T3:IEqualable, T4:IEqualable, T5:IEqu
         return this.value1.equals(right.value1) && this.value2.equals(right.value2) && this.value3.equals(right.value3) && this.value4.equals(right.value4) && this.value5.equals(right.value5) && this.value6.equals(right.value6) && this.value7.equals(right.value7) && this.value8.equals(right.value8) && this.value9.equals(right.value9);
     }
 
-    def toString():pure_native String {
-        return "tuple {" + this.value1.toString() + "," + this.value2.toString() + "," + this.value3.toString() + "," + this.value4.toString() + "," + this.value5.toString() + "," + this.value6.toString() + "," + this.value7.toString() + "," + this.value8.toString() + "," + this.value9.toString() + "}";
+    def toString():native String {
+        return "tuple {" + this.value1.toString__() + "," + this.value2.toString__() + "," + this.value3.toString__() + "," + this.value4.toString__() + "," + this.value5.toString__() + "," + this.value6.toString__() + "," + this.value7.toString__() + "," + this.value8.toString__() + "," + this.value9.toString__() + "}";
     }
 }
 
@@ -818,6 +876,8 @@ interface Iterator:js
 
 class Map<T:IHashKey, T2:IEqualable>:native js
 {
+    var size:Number;
+
     def initialize(num:Number):native Map<T, T2> {
         return this;
     }
@@ -832,6 +892,45 @@ class Map<T:IHashKey, T2:IEqualable>:native js
         }
 
         return null;
+    }
+
+    def set(key:T, item:T2): pure_native;
+
+    def clear(): pure_native;
+
+    def delete(key:T): native bool {
+        for(var [key2, value] of this.entries()) {
+            if(key2.equals(key)) {
+                this.delete(key);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    def has(key:T): native bool {
+        for(var [key2, value] of this.entries()) {
+            if(key2.equals(key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    def forEach(block_:lambda(T, T2)) {
+        var it = self.entries();
+
+        while(true) {
+            var it_res = it.next();
+
+            if(it_res.done) {
+                break;
+            }
+
+            block_(it_res.value.items(0), it_res.value.items(1));
+        }
     }
 }
 
@@ -865,8 +964,8 @@ class String:native js
     def initialize(str:String):native String {
         return this;
     }
-    def toString():pure_native String {
-        return this;
+    def toString():native String {
+        return new String(this);
     }
 
     def match(regex_:regex): native bool {
@@ -893,6 +992,124 @@ class String:native js
     def add(right:String):native String {
         return this + right;
     }
+    def charAt(index:Number):pure_native String;
+    def charCodeAt(index:Number):pure_native Number;
+    #def charPointAt(index:Number):pure_native Number;
+    def concat(str:String):pure_native String;
+    def includes(str:String):pure_native bool;
+    def includes(str:String, index:Number):pure_native bool;
+    def endsWith(str:String):pure_native bool;
+    def endsWith(str:String, index:Number):pure_native bool;
+    def indexOf(str:String):pure_native Number;
+    def lastIndexOf(str:String):pure_native Number;
+    def localeCompare(str:String):pure_native Number;
+    def normalize(str:String): pure_native String;
+    def padEnd(num:Number): pure_native String;
+    def padEnd(num:Number, str:String): pure_native String;
+    def padStart(num:Number): pure_native String;
+    def padStart(num:Number, str:String): pure_native String;
+    def repeat(num:Number): pure_native String;
+    def replace(regex_:regex, str:String): pure_native String;
+    def search(regex_:regex): pure_native Number;
+    def slice(index:Number): pure_native String;
+    def slice(index:Number, index2:Number): pure_native String;
+    def split(str:String):pure_native Array<String>;
+    def split(str:String, limit:Number):pure_native Array<String>;
+    def split(regex_:regex):pure_native Array<String>;
+    def split(regex_:regex, limit:Number):pure_native Array<String>;
+    def startsWith(str:String):pure_native bool;
+    def startsWith(str:String, index:Number):pure_native bool;
+    def substring(indexStart:Number):pure_native String;
+    def substring(indexStart:Number, indexEnd:Number):pure_native String;
+    def toLowerCase():pure_native String;
+    def toUpperCase():pure_native String;
+    def trim():pure_native String;
+    def trimEnd():pure_native String;
+    def trimStart():pure_native String;
+}
+
+class Set<T:ISortable>:native js
+{
+    size: Number;
+
+    def initialize(array:Array<T>):native Set<T> {
+        for(var i=0; i<array.length; i++) {
+            this.add__GenericsParametorClass0(array[i]);
+        }
+        return this;
+    }
+
+    def entries(): pure_native Iterator;
+    def keys(): pure_native Iterator;
+    def values(): pure_native Iterator;
+
+    def add(value:T):native Set<T> {
+        var it = this.entries();
+
+        var found = false;
+
+        while(true) {
+            var it_res = it.next();
+
+            if(it_res.done) {
+                break;
+            }
+
+            if(it_res.value[0].equals(value)) {
+                found = true;
+            }
+        }
+
+        if(!found) {
+            this.add(value);
+        }
+        
+        return this;
+    }
+
+    def has(value:T): pure_native bool;
+
+    def clear(): pure_native;
+
+    def delete(value:T): pure_native bool;
+
+    def equals(right:Set<T>): pure_native bool {
+        if(this.size != right.size) {
+            return false;
+        }
+
+        var it = this.entries();
+        var it2 = right.entries();
+
+        while(true) {
+            var it_res = it.next();
+            var it_res2 = it2.next();
+
+            if(it_res.done) {
+                break;
+            }
+
+            if(!it_res.value[0].equals(it_res2.value[0])) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    def forEach(block_:lambda(T)) {
+        var it = self.entries();
+
+        while(true) {
+            var it_res = it.next();
+
+            if(it_res.done) {
+                break;
+            }
+
+            block_(it_res.value.items(0));
+        }
+    }
 }
 
 class Number:native js
@@ -915,8 +1132,8 @@ class Number:native js
     def equals(right:Number): pure_native bool {
         return this == right;
     }
-    def toString(): pure_native String {
-        return `${this}`;
+    def toString(): native String {
+        return new String(this);
     }
     def clone(): pure_native Number {
         return this;
@@ -940,7 +1157,7 @@ class Bool:js unboxing bool
         return this;
     }
 
-    def toString():pure_native String {
+    def toString():native String {
         if(self.num) {
             return "true";
         }

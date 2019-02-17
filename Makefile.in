@@ -79,6 +79,7 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core Number.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Bool.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Map.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Set.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple1.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple2.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple3.ojsclcl
@@ -568,6 +569,7 @@ install:
 	$(INSTALL) -m 644 Bool.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Exception.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Map.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Set.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Tuple1.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Tuple2.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Tuple3.js $(DESTDIR)/share/clover2
@@ -805,6 +807,7 @@ js-test:
 	cp Number.js code/
 	cp Bool.js code/
 	cp Map.js code/
+	cp Set.js code/
 	cp Tuple1.js code/
 	cp Tuple2.js code/
 	cp Tuple3.js code/

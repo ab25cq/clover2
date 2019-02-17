@@ -137,7 +137,7 @@ var m7 = [1,2,3];
 Clover.test("JS array test1", m7.equals([1,2,3]));
 Clover.test("JS array test2", m7.slice(0,2).equals([1,2]));
 Clover.test("JS array test3", [1,2,3].slice(0,2).equals([1,2]));
-Clover.test("JS array test4", [1,2,3].length() == 3);
+Clover.test("JS array test4", [1,2,3].length == 3);
 Clover.test("JS array test5", [1,2,3].includes(1));
 
 
@@ -206,7 +206,7 @@ var removed4 = myFish4.splice(0, 2, "parrot", "anemone", "blue");
 Clover.test("JS array test29", myFish4.equals(["parrot", "anemone", "blue", "trumpet", "sturgeon"]) && removed4.equals(["angel", "clown"]));
 
 var myFish5 = ["parrot", "anemone", "blue", "trumpet", "sturgeon"];
-var removed5 = myFish5.splice(myFish5.length() - 3, 2);
+var removed5 = myFish5.splice(myFish5.length - 3, 2);
 
 Clover.test("JS array test30", myFish5.equals(["parrot", "anemone", "sturgeon"]) && removed5.equals(["blue", "trumpet"]));
 
@@ -412,3 +412,137 @@ var tuple4 = (111, "AAA");
 (x2, y2) := tuple4;
 
 Clover.test("tuple test1", x2 == 111 && y2.equals("AAA"));
+
+var map3 = ["AAA"=>1, "BBB"=>2];
+map3.set("CCC", 3);
+
+Clover.test("map test4", map3.get("CCC") == 3 && map3.size == 3);
+
+Clover.test("array test44", [1,2,3].join("+").equals("1+2+3") && [1,2,3].join().equals("1,2,3"));
+
+Clover.test("array test45", [1,2,3,1,2,3].lastIndexOf(1) == 3 && [1,2,3,1,2,3].lastIndexOf(1,2) == 0 && [1,2,3,1,2,3].lastIndexOf(1,-1) == 3 && [1,2,3,1,2,3].lastIndexOf(1, -4) == 0);
+
+var it3 = ["AAA", "BBB", "CCC"].entries();
+
+while(true) {
+    var iterator_result = it3.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+
+var it4 = ["AAA", "BBB", "CCC"].keys();
+
+while(true) {
+    var iterator_result = it4.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+
+Clover.test("array test46", [1,2,3].map { it * 2 }.equals([2,4,6]));
+Clover.test("array test47", [1,2,3].map { it.toString() }.equals(["1", "2", "3"]));
+Clover.test("array test48", [1,2,3,4,5].some { it % 2 == 0});
+
+var it5 = ["AAA", "BBB", "CCC"].values();
+
+while(true) {
+    var iterator_result = it5.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+
+var map4 = ["AAA"=>1, "BBB"=>2];
+
+map4.clear();
+
+Clover.test("map test5", map4.size == 0);
+
+var map5 = ["AAA"=>1, "BBB"=>2];
+
+Clover.test("map test6", map5.has("AAA"));
+
+map5.delete("AAA");
+
+Clover.test("map test7", !map5.has("AAA"));
+
+["AAA"=>1, "BBB"=>2, "CCC"=>3].forEach {
+    println(it.toString());
+    println(it2.toString());
+}
+
+Clover.test("string test5", "ABC".charAt(0).equals("A"));
+Clover.test("string test6", "ABC".charCodeAt(0) == 65);
+#Clover.test("string test7", "ABC".charPointAt(1) == 66);
+Clover.test("string test8", "ABC".concat("DEF").equals("ABCDEF"));
+Clover.test("string test9", "ABC".includes("BC"));
+Clover.test("string test10", !"ABC".includes("BC",2));
+Clover.test("string test11", "ABC".endsWith("BC"));
+Clover.test("string test12", "ABC".indexOf("BC") == 1);
+Clover.test("string test13", "ABCABC".lastIndexOf("BC") == 4);
+Clover.test("string test14", "A".localeCompare("B") < 0);
+Clover.test("string test15", "B".localeCompare("A") > 0);
+Clover.test("string test16", "A".localeCompare("A") == 0);
+Clover.test("string test17", "ABC".padEnd(6).equals("ABC   "));
+Clover.test("string test18", "ABC".padEnd(6,"123456").equals("ABC123"));
+Clover.test("string test19", "ABC".padStart(6).equals("   ABC"));
+Clover.test("string test20", "ABC".padStart(6, "123456").equals("123ABC"));
+Clover.test("string test21", "ABC".repeat(0).equals(""));
+Clover.test("string test22", "ABC".repeat(2).equals("ABCABC"));
+Clover.test("string test23", "ABC".replace(/BC/, "DEF").equals("ADEF"));
+Clover.test("string test24", "ABCBC".replace(/BC/g, "DEF").equals("ADEFDEF"));
+Clover.test("string test25", "ABCBC".search(/BC/) == 1);
+Clover.test("string test26", "ABCBC".slice(0,2).equals("AB"));
+Clover.test("string test27", "ABCBC".slice(1,-2).equals("BC"));
+Clover.test("string test28", "ABC,DEF,GHI".split(",").equals(["ABC", "DEF", "GHI"]));
+Clover.test("string test29", "ABC,DEF,GHI".split(/,/).equals(["ABC", "DEF", "GHI"]));
+Clover.test("string test30", "ABC".startsWith("ABC"));
+Clover.test("string test31", "ABC".startsWith("BC", 1));
+Clover.test("string test32", "ABC".substring(1).equals("BC"));
+Clover.test("string test33", "ABCABC".substring(2,5).equals("CAB"));
+Clover.test("string test34", "ABCABC".toLowerCase().equals("abcabc"));
+Clover.test("string test35", "abcabc".toUpperCase().equals("ABCABC"));
+Clover.test("string test36", "   abcabc   ".trim().equals("abcabc"));
+Clover.test("string test37", "   abcabc   ".trimEnd().equals("   abcabc"));
+Clover.test("string test38", "   abcabc   ".trimStart().equals("abcabc   "));
+
+var set1 = Set<Number>([1,2,3,3]);
+set1.add(3);
+
+Clover.test("set test1", set1.equals(Set<Number>([1,2,3])));
+
+set1.clear();
+
+Clover.test("set test2", set1.size == 0);
+
+var set2 = Set<String>(["AAA", "AAA", "BBB", "BBB", "CCC"]);
+
+Clover.test("set test3", set2.delete("CCC"));
+Clover.test("set test4", !set2.delete("CCC"));
+Clover.test("set test5", set2.equals(Set<String>(["AAA", "BBB"])));
+
+var set3 = Set<Number>([1,2,3,3]);
+
+set3.forEach {
+    it.println();
+}
+
+var map6 = ["AAA"=>1, "BBB"=>2];
+
+map6.forEach {
+    println(it);
+    println(it2);
+}

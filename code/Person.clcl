@@ -32,8 +32,8 @@ class Person: js
     def equals(right:Person): pure_native bool {
         return this.name.equals(right.name) && this.age == right.age;
     }
-    def toString(): pure_native String {
-        return "{".add(this.name).add(",").add(this.age.toString()).add("}");
+    def toString(): native String {
+        return "{".add(this.name).add(",").add(this.age.toString__()).add("}");
     }
     def clone(): pure_native Person {
         return new Person().initialize(this.name, this.age);

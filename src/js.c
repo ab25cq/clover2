@@ -595,6 +595,7 @@ static void load_js_fundamental_classes(sVMInfo* info)
     load_js_class("String", info);
     load_js_class("Lambda", info);
     load_js_class("Map", info);
+    load_js_class("Set", info);
     load_js_class("Tuple1", info);
     load_js_class("Tuple2", info);
     load_js_class("Tuple3", info);

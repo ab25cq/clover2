@@ -305,6 +305,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
         left2 = left;
     }
 
+
     sNodeType* right2;
 
     if(right_method_generics) {
