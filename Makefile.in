@@ -564,7 +564,26 @@ install:
 	$(INSTALL) -m 644 ISortable.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 IIteratorable.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Iterator.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 IHashKey.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Null.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 IteratorResult.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Set.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple1.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple2.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple3.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple4.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple5.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple6.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple7.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple8.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Tuple9.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Map.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Document.ojsclcl $(DESTDIR)/share/clover2
+
+	$(INSTALL) -m 644 String.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Function.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Number.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Bool.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Exception.js $(DESTDIR)/share/clover2
