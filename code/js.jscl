@@ -546,3 +546,12 @@ map6.forEach {
     println(it);
     println(it2);
 }
+
+var array4 = [1,2,3];
+
+Clover.test("array element test1", array4[0] == 1 && array4[1] == 2);
+
+array4[0] = 3;
+
+Clover.test("array element test2", array4[0] == 3);
+

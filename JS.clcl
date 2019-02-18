@@ -23,6 +23,14 @@ class System:js
     def assert(exp:bool): static native {
         console.assert(exp);
     }
+
+    var document:static Document;
+
+    def initialize():native static {
+        if(!process.argv[0].match(/node$/)) {
+            System.document = new Document();
+        }
+    }
 }
 
 class Clover:js
@@ -1188,3 +1196,10 @@ class Exception:js
     }
 }
 
+class Document:js
+{
+    def initialize():native Document {
+        return this;
+    }
+    def write(str:String):pure_native;
+}

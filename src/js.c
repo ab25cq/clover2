@@ -24,7 +24,7 @@ BOOL js_class_compiler(char* sname)
     sCLClass* klass = get_class_with_load(class_name, TRUE);
 
     if(klass == NULL) {
-        fprintf(stderr, "can't load classs(%s)\n", class_name);
+        fprintf(stderr, "can't load class(%s)(1)\n", class_name);
         return FALSE;
     }
 
@@ -319,6 +319,16 @@ BOOL js_class_compiler(char* sname)
         snprintf(line ,1024, "}");
         sBuf_append_str(info.js_source, line);
         sBuf_append_str(info.js_source, "\n");
+
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field = klass->mClassFields + i;
+            char* field_name = CONS_str(&klass->mConst, field->mNameOffset);
+
+            snprintf(line, 1024, "%s.%s = null;", CLASS_NAME(klass), field_name);
+
+            sBuf_append_str(info.js_source, line);
+            sBuf_append_str(info.js_source, "\n");
+        }
     }
 
     char path[PATH_MAX];
@@ -541,10 +551,10 @@ static BOOL search_for_js_class_file(char* class_name, char* class_file_name, si
 
 void load_js_class(char* class_name, sVMInfo* info)
 {
-    sCLClass* klass = get_class_with_load_and_initialize(class_name, TRUE);
+    sCLClass* klass = get_class_with_load(class_name, TRUE);
 
     if(klass == NULL) {
-        fprintf(stderr, "can't load %s\n", class_name);
+        fprintf(stderr, "can't load %s(2)\n", class_name);
         exit(2);
     }
 
@@ -553,7 +563,7 @@ void load_js_class(char* class_name, sVMInfo* info)
 
         if(!search_for_js_class_file(class_name, class_file_name, PATH_MAX))
         {
-            fprintf(stderr, "can't load %s\n", class_name);
+            fprintf(stderr, "can't load %s(3)\n", class_name);
             exit(2);
         }
 
@@ -578,6 +588,19 @@ void load_js_class(char* class_name, sVMInfo* info)
             }
 
             fclose(f);
+
+            int i;
+            for(i=0; i<klass->mNumMethods; i++) {
+                sCLMethod* method = klass->mMethods + i;
+
+                if((method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(METHOD_NAME2(klass, method), "initialize") == 0 && method->mNumParams == 0)
+                {
+                    char line[1024];
+                    snprintf(line, 1024, "%s.initialize__();\n", CLASS_NAME(klass));
+
+                    sBuf_append(&source_file, line, strlen(line));
+                }
+            }
 
             sBuf_append_str(info->js_class_source, source_file.mBuf);
 
@@ -1177,7 +1200,7 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
 
                     char* class_name = CONS_str(constant, offset);
 
-                    sCLClass* klass = get_class_with_load_and_initialize(class_name, TRUE);
+                    sCLClass* klass = get_class_with_load(class_name, TRUE);
 
                     if(klass == NULL) {
                         js_err_msg(info, "class not found(%s)\n", class_name);
@@ -1242,7 +1265,7 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                     if(class_method) {
                         char* class_name = CONS_str(constant, offset2);
 
-                        klass = get_class_with_load_and_initialize(class_name, TRUE);
+                        klass = get_class_with_load(class_name, TRUE);
                         if(klass == NULL) {
                             js_err_msg(info, "Class not found(%s)", class_name);
                             return FALSE;
@@ -2183,6 +2206,114 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
                 }
+                }
+                break;
+
+            case OP_LOAD_ELEMENT:
+                {
+                    int tmp = *(int*)pc;
+                    pc += sizeof(int);
+
+                    snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-2]; var tmp2 = clover2Stack[clover2StackIndex-1]; clover2StackIndex-=2;");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = tmp[tmp2]; clover2StackIndex++");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+                }
+                break;
+
+            case OP_STORE_ELEMENT:
+                {
+                    snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-3]; var tmp2 = clover2Stack[clover2StackIndex-2]; var tmp3 = clover2Stack[clover2StackIndex-1]; clover2StackIndex-=3;");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "tmp[tmp2] = tmp3");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = tmp3; clover2StackIndex++;");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+                }
+                break;
+
+            case OP_LOAD_CLASS_FIELD: {
+                unsigned int offset = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                int tmp = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                sCLClass* klass = get_class_with_load(class_name, TRUE);
+
+                if(klass == NULL) {
+                    js_err_msg(info, "class not found(%s)\n", class_name);
+                    return FALSE;
+                }
+
+                if(field_index < 0 || field_index >= klass->mNumClassFields) 
+                {
+                    js_err_msg(info, "invalid field number\n");
+                    return FALSE;
+                }
+
+                sCLField* field = klass->mClassFields + field_index;
+
+                int field_name_offset = field->mNameOffset;
+
+                char* field_name = CONS_str(&klass->mConst, field_name_offset);
+
+                load_js_class(class_name, info);
+
+                snprintf(line, 1024, "clover2Stack[clover2StackIndex] = %s.%s; clover2StackIndex++", class_name, field_name);
+
+                sBuf_append_str(info->js_source, line);
+                sBuf_append_str(info->js_source, "\n");
+                }
+                break;
+
+            case OP_STORE_CLASS_FIELD: {
+                unsigned int offset = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                int field_index = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                sCLClass* klass = get_class_with_load(class_name, TRUE);
+
+                if(klass == NULL) {
+                    js_err_msg(info, "class not found(%s)\n", class_name);
+                    return FALSE;
+                }
+
+                if(field_index < 0 || field_index >= klass->mNumClassFields) 
+                {
+                    js_err_msg(info, "invalid field number\n");
+                    return FALSE;
+                }
+
+                sCLField* field = klass->mClassFields + field_index;
+
+                int field_name_offset = field->mNameOffset;
+
+                char* field_name = CONS_str(&klass->mConst, field_name_offset);
+
+                load_js_class(class_name, info);
+
+                snprintf(line, 1024, "%s.%s = clover2Stack[clover2StackIndex-1];", class_name, field_name);
+
+                sBuf_append_str(info->js_source, line);
+                sBuf_append_str(info->js_source, "\n");
                 }
                 break;
 

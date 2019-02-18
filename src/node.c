@@ -8694,84 +8694,160 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
 
 BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
 {
-    /// compile left node ///
-    unsigned int lnode = gNodes[node].mLeft;
+    if(info->pinfo->mJS) {
+        /// compile left node ///
+        unsigned int lnode = gNodes[node].mLeft;
 
-    if(!compile(lnode, info)) {
-        return FALSE;
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* left_type = info->type;
+
+        if(left_type == NULL 
+            || type_identify_with_class_name(left_type, "Null"))
+        {
+            compile_err_msg(info, "no type for loading element");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        if(!type_identify_with_class_name(left_type, "Array"))
+        {
+            compile_err_msg(info, "Clover2 can't get an element from this type.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        /// compile middle node ///
+        unsigned int mnode = gNodes[node].mMiddle;
+
+        if(!compile(mnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* middle_type = info->type;
+
+        /// check ///
+        if(middle_type == NULL 
+            || type_identify_with_class_name(middle_type, "Null"))
+        {
+            compile_err_msg(info, "no type for element index");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        if(!substitution_posibility_with_class_name(middle_type, "Number", TRUE)) {
+            compile_err_msg(info, "Type of index should be number");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        /// generate code ///
+        sNodeType* var_type = clone_node_type(left_type->mGenericsTypes[0]);
+
+        append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+
+        int size = get_var_size(var_type);
+        append_int_value_to_code(info->code, size, info->no_output);
+
+        info->stack_num-=2;
+        info->stack_num++;
+
+        info->type = var_type;
     }
+    else {
+        /// compile left node ///
+        unsigned int lnode = gNodes[node].mLeft;
 
-    sNodeType* left_type = info->type;
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
 
-    if(left_type == NULL 
-        || type_identify_with_class_name(left_type, "Null"))
-    {
-        compile_err_msg(info, "no type for loading element");
-        info->err_num++;
+        sNodeType* left_type = info->type;
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+        if(left_type == NULL 
+            || type_identify_with_class_name(left_type, "Null"))
+        {
+            compile_err_msg(info, "no type for loading element");
+            info->err_num++;
 
-        return TRUE;
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        if(left_type->mArray == FALSE) {
+            compile_err_msg(info, "Clover2 can't get an element from this type.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        /// compile middle node ///
+        unsigned int mnode = gNodes[node].mMiddle;
+
+        if(!compile(mnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* middle_type = info->type;
+
+        /// check ///
+        if(middle_type == NULL 
+            || type_identify_with_class_name(middle_type, "Null"))
+        {
+            compile_err_msg(info, "no type for element index");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
+
+        cast_right_type_to_left_type(int_type, &middle_type, info);
+
+        if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
+            compile_err_msg(info, "Type of index should be number");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        /// generate code ///
+        sNodeType* var_type = clone_node_type(left_type);
+
+        var_type->mArray = FALSE;
+
+        append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+
+        int size = get_var_size(var_type);
+        append_int_value_to_code(info->code, size, info->no_output);
+
+        info->stack_num-=2;
+        info->stack_num++;
+
+        info->type = clone_node_type(left_type);
+        info->type->mArray = FALSE;
     }
-
-    if(left_type->mArray == FALSE) {
-        compile_err_msg(info, "Clover2 can't get an element from this type.");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    /// compile middle node ///
-    unsigned int mnode = gNodes[node].mMiddle;
-
-    if(!compile(mnode, info)) {
-        return FALSE;
-    }
-
-    sNodeType* middle_type = info->type;
-
-    /// check ///
-    if(middle_type == NULL 
-        || type_identify_with_class_name(middle_type, "Null"))
-    {
-        compile_err_msg(info, "no type for element index");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
-
-    cast_right_type_to_left_type(int_type, &middle_type, info);
-
-    if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
-        compile_err_msg(info, "Type of index should be number");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    /// generate code ///
-    sNodeType* var_type = clone_node_type(left_type);
-
-    var_type->mArray = FALSE;
-
-    append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
-
-    int size = get_var_size(var_type);
-    append_int_value_to_code(info->code, size, info->no_output);
-
-    info->stack_num-=2;
-    info->stack_num++;
-
-    info->type = clone_node_type(left_type);
-    info->type->mArray = FALSE;
 
     return TRUE;
 }
@@ -8796,124 +8872,225 @@ unsigned int sNodeTree_create_store_array_element(unsigned int array, unsigned i
 
 BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
 {
-    /// compile left node ///
-    unsigned int lnode = gNodes[node].mLeft;
+    if(info->pinfo->mJS) {
+        /// compile left node ///
+        unsigned int lnode = gNodes[node].mLeft;
 
-    if(!compile(lnode, info)) {
-        return FALSE;
-    }
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
 
-    sNodeType* left_type = info->type;
+        sNodeType* left_type = info->type;
 
-    if(left_type == NULL 
-        || type_identify_with_class_name(left_type, "Null"))
-    {
-        compile_err_msg(info, "no type for object");
-        info->err_num++;
+        if(left_type == NULL 
+            || type_identify_with_class_name(left_type, "Null"))
+        {
+            compile_err_msg(info, "no type for object");
+            info->err_num++;
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        return TRUE;
-    }
+            return TRUE;
+        }
 
-    if(left_type->mArray == FALSE) {
-        compile_err_msg(info, "Clover2 can't get an element from this type.");
-        info->err_num++;
+        if(!type_identify_with_class_name(left_type, "Array"))
+        {
+            compile_err_msg(info, "Clover2 can't get an element from this type.");
+            info->err_num++;
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        return TRUE;
-    }
+            return TRUE;
+        }
 
-    sNodeType* left_type2;
-    solve_generics_for_variable(left_type, &left_type2, info->pinfo);
+        /// compile middle node ///
+        unsigned int mnode = gNodes[node].mMiddle;
 
-    /// compile middle node ///
-    unsigned int mnode = gNodes[node].mMiddle;
+        if(!compile(mnode, info)) {
+            return FALSE;
+        }
 
-    if(!compile(mnode, info)) {
-        return FALSE;
-    }
+        sNodeType* middle_type = info->type;
 
-    sNodeType* middle_type = info->type;
+        if(middle_type == NULL 
+            || type_identify_with_class_name(middle_type, "Null"))
+        {
+            compile_err_msg(info, "no type for element index");
+            info->err_num++;
 
-    if(middle_type == NULL 
-        || type_identify_with_class_name(middle_type, "Null"))
-    {
-        compile_err_msg(info, "no type for element index");
-        info->err_num++;
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            return TRUE;
+        }
 
-        return TRUE;
-    }
+        if(!substitution_posibility_with_class_name(middle_type, "Number", TRUE)) {
+            compile_err_msg(info, "Type of index should be number");
+            info->err_num++;
 
-    sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    cast_right_type_to_left_type(int_type, &middle_type, info);
+            return TRUE;
+        }
 
-    if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
-        compile_err_msg(info, "Type of index should be number");
-        info->err_num++;
+        /// compile right node ///
+        unsigned int rnode = gNodes[node].mRight;
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+        if(!compile(rnode, info)) {
+            return FALSE;
+        }
 
-        return TRUE;
-    }
+        sNodeType* right_type = info->type;
 
-    /// compile right node ///
-    unsigned int rnode = gNodes[node].mRight;
+        if(right_type == NULL)
+        {
+            compile_err_msg(info, "no type for right object type");
+            info->err_num++;
 
-    if(!compile(rnode, info)) {
-        return FALSE;
-    }
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    sNodeType* right_type = info->type;
+            return TRUE;
+        }
 
-    if(right_type == NULL)
-    {
-        compile_err_msg(info, "no type for right object type");
-        info->err_num++;
+        sNodeType* var_type = left_type->mGenericsTypes[0];
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+        if(!substitution_posibility(var_type, right_type, NULL, NULL, NULL, NULL, TRUE)) {
+            compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(var_type->mClass), CLASS_NAME(right_type->mClass));
+            info->err_num++;
 
-        return TRUE;
-    }
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-    sNodeType* right_type2;
-    solve_generics_for_variable(right_type, &right_type2, info->pinfo);
+            return TRUE;
+        }
 
-    sNodeType* left_type3 = clone_node_type(left_type2);
-    left_type3->mArray = FALSE;
+        store_delegated_varialbe(var_type, right_type, info);
 
-    if(cast_posibility(left_type3, right_type2)) {
-        cast_right_type_to_left_type(left_type3, &right_type2, info);
-    }
-
-    if(!substitution_posibility(left_type3, right_type2, NULL, NULL, NULL, NULL, TRUE)) {
-        compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type3->mClass), CLASS_NAME(right_type2->mClass));
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    store_delegated_varialbe(left_type3, right_type2, info);
-
-    //// generate code ///
-    if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
-        append_opecode_to_code(info->code, OP_STORE_ELEMENT_OF_BUFFER, info->no_output);
-
-        info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
-    }
-    else {
+        //// generate code ///
         append_opecode_to_code(info->code, OP_STORE_ELEMENT, info->no_output);
 
-        info->type = right_type2;
-    }
+        info->type = right_type;
 
-    info->stack_num-=2;
+        info->stack_num-=2;
+    }
+    else {
+        /// compile left node ///
+        unsigned int lnode = gNodes[node].mLeft;
+
+        if(!compile(lnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* left_type = info->type;
+
+        if(left_type == NULL 
+            || type_identify_with_class_name(left_type, "Null"))
+        {
+            compile_err_msg(info, "no type for object");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        if(left_type->mArray == FALSE) {
+            compile_err_msg(info, "Clover2 can't get an element from this type.");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type2;
+        solve_generics_for_variable(left_type, &left_type2, info->pinfo);
+
+        /// compile middle node ///
+        unsigned int mnode = gNodes[node].mMiddle;
+
+        if(!compile(mnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* middle_type = info->type;
+
+        if(middle_type == NULL 
+            || type_identify_with_class_name(middle_type, "Null"))
+        {
+            compile_err_msg(info, "no type for element index");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* int_type = create_node_type_with_class_name("int", info->pinfo->mJS);
+
+        cast_right_type_to_left_type(int_type, &middle_type, info);
+
+        if(!substitution_posibility_with_class_name(middle_type, "int", TRUE)) {
+            compile_err_msg(info, "Type of index should be number");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        /// compile right node ///
+        unsigned int rnode = gNodes[node].mRight;
+
+        if(!compile(rnode, info)) {
+            return FALSE;
+        }
+
+        sNodeType* right_type = info->type;
+
+        if(right_type == NULL)
+        {
+            compile_err_msg(info, "no type for right object type");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* right_type2;
+        solve_generics_for_variable(right_type, &right_type2, info->pinfo);
+
+        sNodeType* left_type3 = clone_node_type(left_type2);
+        left_type3->mArray = FALSE;
+
+        if(cast_posibility(left_type3, right_type2)) {
+            cast_right_type_to_left_type(left_type3, &right_type2, info);
+        }
+
+        if(!substitution_posibility(left_type3, right_type2, NULL, NULL, NULL, NULL, TRUE)) {
+            compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(left_type3->mClass), CLASS_NAME(right_type2->mClass));
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        store_delegated_varialbe(left_type3, right_type2, info);
+
+        //// generate code ///
+        if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
+            append_opecode_to_code(info->code, OP_STORE_ELEMENT_OF_BUFFER, info->no_output);
+
+            info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
+        }
+        else {
+            append_opecode_to_code(info->code, OP_STORE_ELEMENT, info->no_output);
+
+            info->type = right_type2;
+        }
+
+        info->stack_num-=2;
+    }
 
     return TRUE;
 }
