@@ -555,3 +555,17 @@ array4[0] = 3;
 
 Clover.test("array element test2", array4[0] == 3);
 
+var funa = lambda(x:Number, y:Number):Number { return x + y };
+
+Clover.test("1 + 2", funa(1, 2) == 3);
+
+var a2 = 1;
+
+def funb(x:Number, y:Number):Number {
+    a2 = 2;
+    return a2 + x + y;
+}
+
+Clover.test("function test", funb(2, 3) == 7 && a2 == 2);
+
+

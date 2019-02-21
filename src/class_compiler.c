@@ -636,7 +636,7 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
         field->mNumGetterMethodIndex = klass->mNumMethods -1;
 
         /// setter ///
-        if(!private_) {
+        if(!private_ && !(field->mFlags & FIELD_FLAGS_READONLY)) {
             /// getter ///
             char* method_name = field_name;
 
@@ -836,7 +836,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
             char header_path[PATH_MAX];
             header_path[0] = '\0';
 
-            if(!add_class_field_to_class(info->klass, element_name, private_, protected_, field_type, num_enum++, header_path)) 
+            if(!add_class_field_to_class(info->klass, element_name, private_, protected_, TRUE, field_type, num_enum++, header_path)) 
             {
                 return FALSE;
             }
@@ -859,13 +859,23 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
     }
     /// variable ///
     else {
-        if(strcmp(buf, "var") == 0) {
+        BOOL readonly = FALSE;
+        if(strcmp(buf, "var") == 0)
+        {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "val") == 0)
+        {
+            readonly = TRUE;
+
             if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
                 return FALSE;
             }
         }
 
-        BOOL private_ = FALSE;
+        BOOL private_ = readonly;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
         BOOL delegate_ = FALSE;
@@ -880,7 +890,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 
         if(info->err_num == 0 && (info->klass->mFlags & CLASS_FLAGS_ALLOCATED)) {
             if(static_) {
-                if(!add_class_field_to_class(info->klass, buf, private_, protected_, result_type, -1, header_path)) {
+                if(!add_class_field_to_class(info->klass, buf, private_, protected_, readonly, result_type, -1, header_path)) {
                     return FALSE;
                 }
             }
@@ -890,7 +900,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
                     info->err_num++;
                 }
 
-                if(!add_field_to_class(info->klass, buf, private_, protected_, delegate_, result_type)) {
+                if(!add_field_to_class(info->klass, buf, private_, protected_, delegate_, readonly, result_type)) {
                     return FALSE;
                 }
             }
@@ -1413,13 +1423,22 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
     }
     /// variable ///
     else {
-        if(strcmp(buf, "var") == 0) {
+        BOOL readonly = FALSE;
+        if(strcmp(buf, "var") == 0)
+        {
+            if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "val") == 0)
+        {
+            readonly = TRUE;
             if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
                 return FALSE;
             }
         }
 
-        BOOL private_ = FALSE;
+        BOOL private_ = readonly;
         BOOL protected_ = FALSE;
         BOOL static_ = FALSE;
         BOOL delegate_ = FALSE;

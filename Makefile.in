@@ -580,6 +580,8 @@ install:
 	$(INSTALL) -m 644 Map.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Document.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 DOMString.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Element.ojsclcl $(DESTDIR)/share/clover2
 
 	$(INSTALL) -m 644 String.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Array.js $(DESTDIR)/share/clover2

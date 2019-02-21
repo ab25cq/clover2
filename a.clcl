@@ -1,18 +1,8 @@
 class ClassA
 {
-    a:long;
+    var a:int;
 
     def initialize() {
         a = 5;
-    }
-
-    def alignment() {
-println("\{self.a}");
-        self.a = (self.a + 3) & ~3;
-println("\{self.a}");
-    }
-
-    def toString():String {
-        return "ClassA";
     }
 }

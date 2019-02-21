@@ -428,7 +428,7 @@ static int get_value_from_header(char* header_path, char* field_name)
     return -1;
 }
 
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path)
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL readonly, sNodeType* result_type, int initialize_value, char* header_path)
 {
     if(klass->mNumClassFields == klass->mSizeClassFields) {
         int new_size = klass->mSizeClassFields * 2;
@@ -439,7 +439,7 @@ BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL p
 
     const int num_fields = klass->mNumClassFields;
 
-    klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0);
+    klass->mClassFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0) | (readonly ? FIELD_FLAGS_READONLY:0);
     klass->mClassFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
     if(header_path[0] != '\0') {
@@ -1123,7 +1123,7 @@ BOOL write_all_modified_classes()
     return TRUE;
 }
 
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, sNodeType* result_type)
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type)
 {
     if(klass->mNumFields == klass->mSizeFields) {
         int new_size = klass->mSizeFields * 2;
@@ -1134,7 +1134,7 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
 
     const int num_fields = klass->mNumFields;
 
-    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0) | (delegated ? FIELD_FLAGS_DELEGATED:0);
+    klass->mFields[num_fields].mFlags = (private_ ? FIELD_FLAGS_PRIVATE : 0) | (protected_ ? FIELD_FLAGS_PROTECTED:0) | (delegated ? FIELD_FLAGS_DELEGATED:0) | (readonly ? FIELD_FLAGS_READONLY:0);
     klass->mFields[num_fields].mNameOffset = append_str_to_constant_pool(&klass->mConst, name, FALSE);
 
     klass->mFields[num_fields].mNumDelegatedMethod = 0;

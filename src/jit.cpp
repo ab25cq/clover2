@@ -1419,6 +1419,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
                 LVALUE* block_object_value = llvm_stack_ptr - num_params -1;
 
                 /// go ///

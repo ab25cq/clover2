@@ -461,6 +461,13 @@ BOOL js_compiler(char* fname)
     sBuf_append_str(info.js_source, line);
     sBuf_append_str(info.js_source, "\n");
 
+/*
+    snprintf(line, 1024, "if(!process.argv[0].match(/node$/)) { if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { WebView.setWebContentsDebuggingEnabled(true); } }");
+
+    sBuf_append_str(info.js_source, line);
+    sBuf_append_str(info.js_source, "\n");
+*/
+
     int param_num = 0;
 
     if(!js(&code, &constant, var_num, param_num, NULL, &info)) {
@@ -2012,7 +2019,7 @@ show_js_stack(info);
                     snprintf(line, 1024, "}\n");
                     sBuf_append_str(info->js_source, line);
 
-                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number(lambda__, %s, %d); clover2StackIndex++;", lambda ? "true":"false", parent_var_num);
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String(lambda__, %s, %d, \"\"); clover2StackIndex++;", lambda ? "true":"false", parent_var_num);
 
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
@@ -2046,6 +2053,11 @@ show_js_stack(info);
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
+                    int block_name_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    char* block_name = CONS_str(constant, block_name_offset);
+
                     snprintf(line, 1024, "var stack_point = clover2StackIndex");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
@@ -2076,7 +2088,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "tmp = lambda_object.function_(clover2Stack, clover2StackIndex, exception);");
+                    snprintf(line, 1024, "if(lambda_object.funcName == \"\") { tmp = lambda_object.function_(clover2Stack, clover2StackIndex, exception); } else { tmp = %s(); }", block_name);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
@@ -2314,6 +2326,76 @@ show_js_stack(info);
 
                 sBuf_append_str(info->js_source, line);
                 sBuf_append_str(info->js_source, "\n");
+                }
+                break;
+
+            case OP_JS_FUNCTION:
+                {
+                    unsigned int code_offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int code_len = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    sByteCode codes2;
+                    codes2.mCodes = CONS_str(constant, code_offset);
+                    codes2.mLen = code_len;
+
+
+                    int constant_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int constant_len = *(int*)pc;
+                    pc += sizeof(int);
+
+                    sConst constant2;
+                    constant2.mConst = CONS_str(constant, constant_offset);
+                    constant2.mLen = constant_len;
+
+                    int block_var_num = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int parent_var_num = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int lambda = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int block_id = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int class_name_offset = *(int*)pc;
+                    pc += sizeof(int);
+
+                    int num_params = *(int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int func_name_offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    char* func_name = CONS_str(constant, func_name_offset);
+
+                    snprintf(line, 1024, "function %s () {", func_name);
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, info))
+                    {
+                        return FALSE;
+                    }
+
+                    snprintf(line, 1024, "return clover2Stack[clover2StackIndex-1];");
+
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "}\n");
+                    sBuf_append_str(info->js_source, line);
+
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String(null, %s, %d, \"%s\"); clover2StackIndex++;", lambda ? "true":"false", parent_var_num, func_name);
+
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
                 }
                 break;
 

@@ -340,6 +340,7 @@ typedef struct sCLMethodStruct sCLMethod;
 #define FIELD_FLAGS_PROTECTED 0x02
 #define FIELD_FLAGS_MODIFIED 0x04
 #define FIELD_FLAGS_DELEGATED 0x08
+#define FIELD_FLAGS_READONLY 0x10
 
 struct sCLFieldStruct {
     clint64 mFlags;
@@ -833,6 +834,7 @@ struct sNodeTreeStruct
         } sFunction;
 
         struct {
+            char mBlockName[METHOD_NAME_MAX];
             unsigned int mParams[PARAMS_MAX];
             int mNumParams;
         } sBlockCall;
@@ -985,7 +987,7 @@ unsigned int sNodeTree_create_buffer_value(MANAGED char* value, int len, sNodeBl
 unsigned int sNodeTree_try_expression(MANAGED sNodeBlock* try_node_block, MANAGED sNodeBlock* catch_node_block, char* exception_var_name, sParserInfo* info);
 
 unsigned int sNodeTree_create_block_object(sParserParam* params, int num_params, sNodeType* result_type, MANAGED sNodeBlock* node_block, BOOL lambda, sParserInfo* info, BOOL omit_result_type, BOOL omit_params, sVarTable* old_table, BOOL question_operator);
-unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info);
+unsigned int sNodeTree_create_block_call(unsigned int block, char* block_name, int num_params, unsigned int params[], sParserInfo* info);
 unsigned int sNodeTree_conditional_expression(unsigned int expression_node, unsigned int true_expression_node, unsigned int false_expression_node, sParserInfo* info);
 unsigned int sNodeTree_create_normal_block(MANAGED sNodeBlock* node_block, sParserInfo* info);
 unsigned int sNodeTree_create_array_value(int num_elements, unsigned int array_elements[], sParserInfo* info);
@@ -1904,6 +1906,8 @@ extern int gBufferToPointerCastCount;
 #define OP_CREATE_BLOCK_OBJECT 9012
 #define OP_CREATE_REGEX 9013
 #define OP_JS_ARRAY 9014
+#define OP_JS_FUNCTION 9015
+#define OP_INVOKE_JS_FUNCTION 9016
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js);
@@ -1946,7 +1950,7 @@ void add_native_code_to_method(sCLMethod* method, sBuf* native_code);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, BOOL pure_native_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
 BOOL add_typedef_to_class(sCLClass* klass, char* class_name1, char* class_name2);
-BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, sNodeType* result_type, int initialize_value, char* header_path);
+BOOL add_class_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL readonly, sNodeType* result_type, int initialize_value, char* header_path);
 void add_code_to_method(sCLMethod* method, sByteCode* code, int var_num);
 BOOL write_all_modified_classes();
 int search_for_method(sCLClass* klass, char* method_name, sNodeType** param_types, int num_params, BOOL search_for_class_method, int start_point, sNodeType* left_generics_type, sNodeType* right_generics_type, sNodeType* right_method_generics, sNodeType** result_type, BOOL lazy_lambda_compile, sNodeType** method_generics_types, struct sParserInfoStruct* info);
@@ -1963,7 +1967,7 @@ BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 BOOL is_method_param_name(char* name);
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, sNodeType* result_type);
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type);
 BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, char* field_type_name);
 BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value);
 

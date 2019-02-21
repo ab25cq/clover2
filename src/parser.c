@@ -2693,7 +2693,7 @@ static BOOL postposition_operator(unsigned int* node, sParserInfo* info, int* nu
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
+                    *node = sNodeTree_create_block_call(*node, "", num_params, params, info);
                 }
                 else if(is_assign_operator(info)) {
                     unsigned int node2 = clone_node(*node);
@@ -5022,7 +5022,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         return FALSE;
                     }
 
-                    *node = sNodeTree_create_block_call(*node, num_params, params, info);
+                    *node = sNodeTree_create_block_call(*node, buf, num_params, params, info);
                 }
             }
             /// the field name in the same class ///

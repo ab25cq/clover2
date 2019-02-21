@@ -7325,6 +7325,23 @@ static BOOL compile_store_field(unsigned int node, sCompileInfo* info)
     sCLField* field = klass->mFields + field_index;
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
 
+    if(field->mFlags & FIELD_FLAGS_READONLY)
+    {
+        sCLClass* klass = info->pinfo->klass;
+        sCLMethod* method = info->method;
+        char* method_name = METHOD_NAME2(klass, method);
+
+        if(klass == NULL || method == NULL || strcmp(method_name, "initialize") != 0)
+        {
+            compile_err_msg(info, "This field is readonly");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+    }
+
     /// solve generics ///
     sNodeType* solved_field_type;
     if(!solve_generics_types_for_node_type(field_type, ALLOC &solved_field_type, generics_types, TRUE, FALSE)) 
@@ -7493,6 +7510,23 @@ static BOOL compile_store_class_field(unsigned int node, sCompileInfo* info)
 
     sCLField* field = klass->mClassFields + field_index;
     sNodeType* field_type = create_node_type_from_cl_type(field->mResultType, klass);
+
+    if((field->mFlags & FIELD_FLAGS_READONLY))
+    {
+        sCLClass* klass = info->pinfo->klass;
+        sCLMethod* method = info->method;
+        char* method_name = METHOD_NAME2(klass, method);
+
+        if(klass == NULL || method == NULL || strcmp(method_name, "initialize") != 0)
+        {
+            compile_err_msg(info, "This field is readonly");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+    }
 
     if(cast_posibility(field_type, right_type)) {
         cast_right_type_to_left_type(field_type, &right_type, info);
@@ -10970,195 +11004,389 @@ unsigned int sNodeTree_create_function(char* fun_name, sParserParam* params, int
 
 BOOL compile_function(unsigned int node, sCompileInfo* info)
 {
-    /// rename variables ///
-    int num_params = gNodes[node].uValue.sFunction.mNumParams;
-    sParserParam* params[PARAMS_MAX];
+    if(info->pinfo->mJS) {
+        /// rename variables ///
+        int num_params = gNodes[node].uValue.sFunction.mNumParams;
+        sParserParam* params[PARAMS_MAX];
 
-    int i;
-    for(i=0; i<num_params; i++) {
-        params[i] = gNodes[node].uValue.sFunction.mParams + i;
-    }
+        int i;
+        for(i=0; i<num_params; i++) {
+            params[i] = gNodes[node].uValue.sFunction.mParams + i;
+        }
 
-    sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
-    sNodeBlock* node_block = gNodes[node].uValue.sFunction.mBlockObjectCode;
-    BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
-    sCLClass* klass = gNodes[node].uValue.sFunction.mClass;
+        sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
+        sNodeBlock* node_block = gNodes[node].uValue.sFunction.mBlockObjectCode;
+        BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
+        sCLClass* klass = gNodes[node].uValue.sFunction.mClass;
+        /// make info->type ///
+        sNodeType* lambda_type = create_node_type_with_class_name("lambda", info->pinfo->mJS);
 
-    /// make info->type ///
-    sNodeType* lambda_type = create_node_type_with_class_name("lambda", info->pinfo->mJS);
+        sNodeBlockType* node_block_type = alloc_node_block_type();
 
-    sNodeBlockType* node_block_type = alloc_node_block_type();
+        node_block_type->mNumParams = num_params;
+        node_block_type->mResultType = result_type;
+        for(i=0; i<num_params; i++) {
+            node_block_type->mParams[i] = params[i]->mType;
+        }
 
-    node_block_type->mNumParams = num_params;
-    node_block_type->mResultType = result_type;
-    for(i=0; i<num_params; i++) {
-        node_block_type->mParams[i] = params[i]->mType;
-    }
+        node_block_type->mLambda = lambda;
 
-    node_block_type->mLambda = lambda;
+        lambda_type->mBlockType = node_block_type;
 
-    lambda_type->mBlockType = node_block_type;
+        /// store local variable ///
+        sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
 
-    /// store local variable ///
-    sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
+        if(var == NULL) {
+            compile_err_msg(info, "undeclared variable %s(8)", gNodes[node].uValue.sFunction.mName);
+            info->err_num++;
 
-    if(var == NULL) {
-        compile_err_msg(info, "undeclared variable %s(8)", gNodes[node].uValue.sFunction.mName);
-        info->err_num++;
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            return TRUE;
+        }
 
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-        return TRUE;
-    }
+        sNodeType* right_type = lambda_type;
 
-    sNodeType* right_type = lambda_type;
+        /// type inference ///
+        if(gNodes[node].mType == NULL) {
+            gNodes[node].mType = right_type;
+        }
+        if(var->mType == NULL) {
+            var->mType = right_type;
+        }
 
-    /// type inference ///
-    if(gNodes[node].mType == NULL) {
-        gNodes[node].mType = right_type;
-    }
-    if(var->mType == NULL) {
-        var->mType = right_type;
-    }
+        /// compile block ///
+        sByteCode codes;
+        sConst constant;
 
-    /// compile block ///
-    sByteCode codes;
-    sConst constant;
+        sByteCode_init(&codes);
+        sConst_init(&constant);
 
-    sByteCode_init(&codes);
-    sConst_init(&constant);
+        sByteCode* codes_before = info->code;
+        sConst* constant_before = info->constant;
 
-    sByteCode* codes_before = info->code;
-    sConst* constant_before = info->constant;
+        info->code = &codes;
+        info->constant = &constant;
 
-    info->code = &codes;
-    info->constant = &constant;
+        BOOL in_block_before = info->in_block;
+        info->in_block = TRUE;
 
-    BOOL in_block_before = info->in_block;
-    info->in_block = TRUE;
+        sNodeType* block_result_type_before = info->block_result_type;
+        info->block_result_type = result_type;
 
-    sNodeType* block_result_type_before = info->block_result_type;
-    info->block_result_type = result_type;
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(node_block, info, result_type, &block_last_type)) {
+            sByteCode_free(&codes);
+            sConst_free(&constant);
+            info->code = codes_before;
+            info->constant = constant_before;
+            info->block_result_type = block_result_type_before;
+            info->in_block = in_block_before;
+            return FALSE;
+        }
 
-    sNodeType* block_last_type = NULL;
-    if(!compile_block(node_block, info, result_type, &block_last_type)) {
-        sByteCode_free(&codes);
-        sConst_free(&constant);
+        info->block_result_type = block_result_type_before;
+        info->in_block = in_block_before;
+
+        sNodeType* expresson_type_in_block = info->type;
+
         info->code = codes_before;
         info->constant = constant_before;
         info->block_result_type = block_result_type_before;
+
+        int var_num;
+        int parent_param_num;
+        if(node_block->mLVTable) {
+            var_num = get_var_num(node_block->mLVTable);
+
+            parent_param_num = get_parent_var_num_of_sum(node_block->mLVTable);
+
+            var_num += parent_param_num;
+        }
+        else {
+            var_num = 0;
+            parent_param_num = 0;
+        }
+
+        int num_block_object = -1;
+        if(klass) {
+            num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
+        }
+
+        /// make block object ///
+        append_opecode_to_code(info->code, OP_JS_FUNCTION, info->no_output);
+
+        int offset = sConst_append(info->constant, codes.mCodes, codes.mLen, info->no_output);
+        append_int_value_to_code(info->code, offset, info->no_output);
+        append_int_value_to_code(info->code, codes.mLen, info->no_output);
+
+        int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
+        append_int_value_to_code(info->code, offset2, info->no_output);
+        append_int_value_to_code(info->code, constant.mLen, info->no_output);
+
+        if(klass == NULL) {
+            sByteCode_free(&codes);
+            sConst_free(&constant);
+        }
+
+        append_int_value_to_code(info->code, var_num, info->no_output);
+
+        if(lambda) {
+            int parent_var_num = 0;
+            append_int_value_to_code(info->code, parent_var_num, info->no_output);
+            append_int_value_to_code(info->code, TRUE, info->no_output);
+        }
+        else {
+            int parent_var_num = get_parent_var_num_of_sum(node_block->mLVTable);
+            append_int_value_to_code(info->code, parent_var_num, info->no_output);
+            append_int_value_to_code(info->code, FALSE, info->no_output);
+        }
+
+        append_int_value_to_code(info->code, num_block_object, info->no_output);
+
+        if(klass) {
+            append_class_name_to_constant_pool_and_code(info, klass);
+        }
+        else {
+            append_int_value_to_code(info->code, -1, info->no_output);
+        }
+        append_int_value_to_code(info->code, num_params, info->no_output);
+        char* function_name = gNodes[node].uValue.sFunction.mName;
+        append_str_to_constant_pool_and_code(info->constant, info->code, function_name, info->no_output);
+
+        info->stack_num++;
+
+        /// type check ///
+        sNodeType* left_type = var->mType;
+        if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
+        {
+            compile_err_msg(info, "invalid type(2)");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type2;
+        solve_generics_for_variable(left_type, &left_type2, info->pinfo);
+
+        cast_right_type_to_left_type(left_type2, &right_type, info);
+
+        if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL, TRUE)) {
+            compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sFunction.mName);
+
+        MASSERT(var_index != -1);
+
+        append_opecode_to_code(info->code, OP_STORE, info->no_output);
+        append_int_value_to_code(info->code, var_index, info->no_output);
+
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            info->type = left_type2;
+        }
+        else {
+            info->type = expresson_type_in_block;
+        }
+        append_int_value_to_code(info->code, !(info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
+    }
+    else {
+        /// rename variables ///
+        int num_params = gNodes[node].uValue.sFunction.mNumParams;
+        sParserParam* params[PARAMS_MAX];
+
+        int i;
+        for(i=0; i<num_params; i++) {
+            params[i] = gNodes[node].uValue.sFunction.mParams + i;
+        }
+
+        sNodeType* result_type = gNodes[node].uValue.sFunction.mResultType;
+        sNodeBlock* node_block = gNodes[node].uValue.sFunction.mBlockObjectCode;
+        BOOL lambda = gNodes[node].uValue.sFunction.mLambda;
+        sCLClass* klass = gNodes[node].uValue.sFunction.mClass;
+
+        /// make info->type ///
+        sNodeType* lambda_type = create_node_type_with_class_name("lambda", info->pinfo->mJS);
+
+        sNodeBlockType* node_block_type = alloc_node_block_type();
+
+        node_block_type->mNumParams = num_params;
+        node_block_type->mResultType = result_type;
+        for(i=0; i<num_params; i++) {
+            node_block_type->mParams[i] = params[i]->mType;
+        }
+
+        node_block_type->mLambda = lambda;
+
+        lambda_type->mBlockType = node_block_type;
+
+        /// store local variable ///
+        sVar* var = get_variable_from_table(info->lv_table, gNodes[node].uValue.sFunction.mName);
+
+        if(var == NULL) {
+            compile_err_msg(info, "undeclared variable %s(8)", gNodes[node].uValue.sFunction.mName);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+            return TRUE;
+        }
+
+        sNodeType* right_type = lambda_type;
+
+        /// type inference ///
+        if(gNodes[node].mType == NULL) {
+            gNodes[node].mType = right_type;
+        }
+        if(var->mType == NULL) {
+            var->mType = right_type;
+        }
+
+        /// compile block ///
+        sByteCode codes;
+        sConst constant;
+
+        sByteCode_init(&codes);
+        sConst_init(&constant);
+
+        sByteCode* codes_before = info->code;
+        sConst* constant_before = info->constant;
+
+        info->code = &codes;
+        info->constant = &constant;
+
+        BOOL in_block_before = info->in_block;
+        info->in_block = TRUE;
+
+        sNodeType* block_result_type_before = info->block_result_type;
+        info->block_result_type = result_type;
+
+        sNodeType* block_last_type = NULL;
+        if(!compile_block(node_block, info, result_type, &block_last_type)) {
+            sByteCode_free(&codes);
+            sConst_free(&constant);
+            info->code = codes_before;
+            info->constant = constant_before;
+            info->block_result_type = block_result_type_before;
+            info->in_block = in_block_before;
+            return FALSE;
+        }
+
+        info->block_result_type = block_result_type_before;
         info->in_block = in_block_before;
-        return FALSE;
+
+        sNodeType* expresson_type_in_block = info->type;
+
+        info->code = codes_before;
+        info->constant = constant_before;
+        info->block_result_type = block_result_type_before;
+
+        int var_num;
+        int parent_param_num;
+        if(node_block->mLVTable) {
+            var_num = get_var_num(node_block->mLVTable);
+
+            parent_param_num = get_parent_var_num_of_sum(node_block->mLVTable);
+
+            var_num += parent_param_num;
+        }
+        else {
+            var_num = 0;
+            parent_param_num = 0;
+        }
+
+        int num_block_object = -1;
+        if(klass) {
+            num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
+        }
+
+        /// make block object ///
+        append_opecode_to_code(info->code, OP_CREATE_BLOCK_OBJECT, info->no_output);
+
+        int offset = sConst_append(info->constant, codes.mCodes, codes.mLen, info->no_output);
+        append_int_value_to_code(info->code, offset, info->no_output);
+        append_int_value_to_code(info->code, codes.mLen, info->no_output);
+
+        int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
+        append_int_value_to_code(info->code, offset2, info->no_output);
+        append_int_value_to_code(info->code, constant.mLen, info->no_output);
+
+        if(klass == NULL) {
+            sByteCode_free(&codes);
+            sConst_free(&constant);
+        }
+
+        append_int_value_to_code(info->code, var_num, info->no_output);
+
+        if(lambda) {
+            int parent_var_num = 0;
+            append_int_value_to_code(info->code, parent_var_num, info->no_output);
+            append_int_value_to_code(info->code, TRUE, info->no_output);
+        }
+        else {
+            int parent_var_num = get_parent_var_num_of_sum(node_block->mLVTable);
+            append_int_value_to_code(info->code, parent_var_num, info->no_output);
+            append_int_value_to_code(info->code, FALSE, info->no_output);
+        }
+
+        append_int_value_to_code(info->code, num_block_object, info->no_output);
+
+        if(klass) {
+            append_class_name_to_constant_pool_and_code(info, klass);
+        }
+        else {
+            append_int_value_to_code(info->code, -1, info->no_output);
+        }
+        append_int_value_to_code(info->code, num_params, info->no_output);
+
+        info->stack_num++;
+
+        /// type check ///
+        sNodeType* left_type = var->mType;
+        if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
+        {
+            compile_err_msg(info, "invalid type(2)");
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* left_type2;
+        solve_generics_for_variable(left_type, &left_type2, info->pinfo);
+
+        cast_right_type_to_left_type(left_type2, &right_type, info);
+
+        if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL, TRUE)) {
+            compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sFunction.mName);
+
+        MASSERT(var_index != -1);
+
+        append_opecode_to_code(info->code, OP_STORE, info->no_output);
+        append_int_value_to_code(info->code, var_index, info->no_output);
+
+        if(info->pinfo->err_num == 0) { // for interpreter completion
+            info->type = left_type2;
+        }
+        else {
+            info->type = expresson_type_in_block;
+        }
+        append_int_value_to_code(info->code, !(info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
     }
-
-    info->block_result_type = block_result_type_before;
-    info->in_block = in_block_before;
-
-    sNodeType* expresson_type_in_block = info->type;
-
-    info->code = codes_before;
-    info->constant = constant_before;
-    info->block_result_type = block_result_type_before;
-
-    int var_num;
-    int parent_param_num;
-    if(node_block->mLVTable) {
-        var_num = get_var_num(node_block->mLVTable);
-
-        parent_param_num = get_parent_var_num_of_sum(node_block->mLVTable);
-
-        var_num += parent_param_num;
-    }
-    else {
-        var_num = 0;
-        parent_param_num = 0;
-    }
-
-    int num_block_object = -1;
-    if(klass) {
-        num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
-    }
-
-    /// make block object ///
-    append_opecode_to_code(info->code, OP_CREATE_BLOCK_OBJECT, info->no_output);
-
-    int offset = sConst_append(info->constant, codes.mCodes, codes.mLen, info->no_output);
-    append_int_value_to_code(info->code, offset, info->no_output);
-    append_int_value_to_code(info->code, codes.mLen, info->no_output);
-
-    int offset2 = sConst_append(info->constant, constant.mConst, constant.mLen, info->no_output);
-    append_int_value_to_code(info->code, offset2, info->no_output);
-    append_int_value_to_code(info->code, constant.mLen, info->no_output);
-
-    if(klass == NULL) {
-        sByteCode_free(&codes);
-        sConst_free(&constant);
-    }
-
-    append_int_value_to_code(info->code, var_num, info->no_output);
-
-    if(lambda) {
-        int parent_var_num = 0;
-        append_int_value_to_code(info->code, parent_var_num, info->no_output);
-        append_int_value_to_code(info->code, TRUE, info->no_output);
-    }
-    else {
-        int parent_var_num = get_parent_var_num_of_sum(node_block->mLVTable);
-        append_int_value_to_code(info->code, parent_var_num, info->no_output);
-        append_int_value_to_code(info->code, FALSE, info->no_output);
-    }
-
-    append_int_value_to_code(info->code, num_block_object, info->no_output);
-
-    if(klass) {
-        append_class_name_to_constant_pool_and_code(info, klass);
-    }
-    else {
-        append_int_value_to_code(info->code, -1, info->no_output);
-    }
-    append_int_value_to_code(info->code, num_params, info->no_output);
-
-    info->stack_num++;
-
-    /// type check ///
-    sNodeType* left_type = var->mType;
-    if(gNodes[node].mType->mClass == NULL || left_type == NULL || right_type == NULL || left_type->mClass == NULL || right_type->mClass == NULL) 
-    {
-        compile_err_msg(info, "invalid type(2)");
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    sNodeType* left_type2;
-    solve_generics_for_variable(left_type, &left_type2, info->pinfo);
-
-    cast_right_type_to_left_type(left_type2, &right_type, info);
-
-    if(!substitution_posibility(left_type2, right_type, NULL, NULL, NULL, NULL, TRUE)) {
-        compile_err_msg(info, "The different type between left type and right type(8). Left type is %s. Right type is %s.", CLASS_NAME(left_type2->mClass), CLASS_NAME(right_type->mClass));
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    int var_index = get_variable_index(info->lv_table, gNodes[node].uValue.sFunction.mName);
-
-    MASSERT(var_index != -1);
-
-    append_opecode_to_code(info->code, OP_STORE, info->no_output);
-    append_int_value_to_code(info->code, var_index, info->no_output);
-
-    if(info->pinfo->err_num == 0) { // for interpreter completion
-        info->type = left_type2;
-    }
-    else {
-        info->type = expresson_type_in_block;
-    }
-    append_int_value_to_code(info->code, !(info->type->mClass->mFlags & CLASS_FLAGS_NO_FREE_OBJECT), info->no_output);
 
     return TRUE;
 }
@@ -11197,7 +11425,7 @@ static BOOL compile_normal_block(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
-unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, unsigned int params[], sParserInfo* info)
+unsigned int sNodeTree_create_block_call(unsigned int block, char* block_name, int num_params, unsigned int params[], sParserInfo* info)
 {
     unsigned int node = alloc_node();
 
@@ -11213,6 +11441,7 @@ unsigned int sNodeTree_create_block_call(unsigned int block, int num_params, uns
     gNodes[node].mType = NULL;
 
     gNodes[node].uValue.sBlockCall.mNumParams = num_params;
+    xstrncpy(gNodes[node].uValue.sBlockCall.mBlockName, block_name, METHOD_NAME_MAX);
 
     int i;
     for(i=0; i<gNodes[node].uValue.sBlockCall.mNumParams; i++) {
@@ -11314,6 +11543,8 @@ BOOL compile_block_call(unsigned int node, sCompileInfo* info)
     sNodeType* result_type2 = block_type->mResultType;
     int size = get_var_size(result_type2);
     append_int_value_to_code(info->code, size, info->no_output);
+    char* block_name = gNodes[node].uValue.sBlockCall.mBlockName;
+    append_str_to_constant_pool_and_code(info->constant, info->code, block_name, info->no_output);
 
     info->stack_num-=(num_params+1);
     info->stack_num++;

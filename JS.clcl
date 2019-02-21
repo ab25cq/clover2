@@ -24,11 +24,15 @@ class System:js
         console.assert(exp);
     }
 
+    def alert(obj:Any): static native {
+        alert(obj);
+    }
+
     var document:static Document;
 
     def initialize():native static {
-        if(!process.argv[0].match(/node$/)) {
-            System.document = new Document();
+        if(typeof document !== 'undefined') {
+            System.document = document;
         }
     }
 }
@@ -951,18 +955,21 @@ class Lambda:js
     var function_:Function;
     var lambda_:bool;
     var parentVarNum:Number;
+    var funcName:String
 
-    def initialize(function_:Function, lambda_:bool, parent_var_num:Number) {
+    def initialize(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String) {
         self.function_ = function_;
         self.lambda_ = lambda_;
         self.parentVarNum = parent_var_num;
+        self.funcName = func_name;
     }
 
-    def constructor(function_:Function, lambda_:bool, parent_var_num:Number):native Lambda 
+    def constructor(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String):native Lambda 
     {
         this.function_ = function_;
         this.lambda_ = lambda_;
         this.parentVarNum = parent_var_num;
+        this.funcName = func_name;
         return this;
     }
 }
@@ -1196,10 +1203,29 @@ class Exception:js
     }
 }
 
+class DOMString:native js
+{
+}
+
+module MElement
+{
+    var innerHTML:String;
+}
+
+class Element:native js
+{
+    include MElement;
+}
+
 class Document:js
 {
+/*
     def initialize():native Document {
         return this;
     }
+*/
     def write(str:String):pure_native;
+
+    def getElementById(str:String): pure_native Element;
 }
+

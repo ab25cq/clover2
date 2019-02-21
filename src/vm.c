@@ -5767,6 +5767,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     int size = *(int*)pc;
                     pc += sizeof(int);
 
+                    int offset = *(int*)pc;
+                    pc += sizeof(int);
+
                     CLObject block_object = (stack_ptr-num_params-1)->mObjectValue;
 
                     if(!invoke_block(block_object, stack, var_num, num_params, &stack_ptr, info)) 
