@@ -1217,6 +1217,32 @@ class Element:native js
     include MElement;
 }
 
+class Node:native js
+{
+    include MElement;
+
+    var childNodes:NodeList;
+    var children:NodeList;
+}
+
+class NodeList:native js
+{
+    var length:Number;
+
+    def item(n:Number): pure_native Node {
+        retuurn this[n];
+    }
+    def entries(): pure_native Iterator;
+    def keys(): pure_native Iterator;
+    def values(): pure_native Iterator;
+
+    def forEach(block_:lambda(Node)) {
+        for(i:=0; i<self.length; i++) {
+            block_(item(i))
+        }
+    }
+}
+
 class Document:js
 {
 /*
@@ -1227,5 +1253,6 @@ class Document:js
     def write(str:String):pure_native;
 
     def getElementById(str:String): pure_native Element;
+    def getElementsByTagName(str:String): pure_native NodeList;
 }
 
