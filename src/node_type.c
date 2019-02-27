@@ -295,6 +295,7 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
 
     sNodeType* left2;
 
+
     if(left_method_generics) {
         if(!solve_generics_types_for_node_type(left, ALLOC &left2, left_method_generics, FALSE, TRUE)) 
         {

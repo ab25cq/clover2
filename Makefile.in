@@ -80,6 +80,7 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core Bool.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Map.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Set.ojsclcl
+	PWD=`pwd`; ./cclover2 -core WebSocket.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple1.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple2.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple3.ojsclcl
@@ -552,6 +553,7 @@ install:
 	$(INSTALL) -m 644 Clover.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Object.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 String.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 WebSocket.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Error.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Exception.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
@@ -580,10 +582,14 @@ install:
 	$(INSTALL) -m 644 Map.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Document.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Event.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 EventListnerOpetion.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 NodeList.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 WebSocket.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Node.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Element.ojsclcl $(DESTDIR)/share/clover2
 
+	$(INSTALL) -m 644 WebSocket.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 String.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Array.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.js $(DESTDIR)/share/clover2
@@ -824,6 +830,7 @@ js-test:
 	cp Person.js code/
 	cp Exception.js code/
 	cp String.js code/
+	cp WebSocket.js code/
 	cp Clover.js code/
 	cp System.js code/
 	cp Number.js code/

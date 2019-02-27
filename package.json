@@ -1,0 +1,27 @@
+{
+  "name": "clover2",
+  "version": "1.0.0",
+  "description": "version 10.1.1",
+  "main": "Array.js",
+  "directories": {
+    "example": "examples",
+    "man": "man"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/ab25cq/clover2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ab25cq/clover2/issues"
+  },
+  "homepage": "https://github.com/ab25cq/clover2#readme",
+  "dependencies": {
+    "ws": "^6.1.4"
+  }
+}

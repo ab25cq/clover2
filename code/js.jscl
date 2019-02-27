@@ -568,4 +568,12 @@ def funb(x:Number, y:Number):Number {
 
 Clover.test("function test", funb(2, 3) == 7 && a2 == 2);
 
+xyz := Map<String,Number>();
 
+xyz2 := Array<Number>(5);
+
+xyz3 := String("ABC");
+
+xyz4 := Bool(true);
+
+xyz5 := Number();

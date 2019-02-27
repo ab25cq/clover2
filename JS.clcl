@@ -49,7 +49,7 @@ class Clover:js
 interface IEqualable:js
 {
     def equals(right:Self): pure_native bool;
-    def toString(): String;
+    def toString(): native String;
     def clone(): pure_native Self;
 }
 
@@ -57,18 +57,18 @@ interface ISortable:js
 {
     def equals(right:Self): pure_native bool;
     def compare(item:Self): pure_native Number;
-    def toString(): String;
+    def toString(): native String;
     def clone(): pure_native Self;
-    def add(right:Self):Self;
+    def add(right:Self):pure_native Self;
 }
 
 interface IIteratorable:js
 {
     def equals(right:Self): pure_native bool;
     def compare(item:Self): pure_native Number;
-    def toString(): String;
+    def toString(): native String;
     def clone(): pure_native Self;
-    def add(right:Self):Self;
+    def add(right:Self):pure_native Self;
     def next(): Self;
     def prev(): Self;
 }
@@ -76,7 +76,7 @@ interface IIteratorable:js
 interface IHashKey:js
 {
     def equals(right:Self): pure_native bool;
-    def toString(): String;
+    def toString(): native String;
     def clone(): pure_native Self;
 }
 
@@ -84,9 +84,7 @@ class Array<T:ISortable>:native js
 {
     var length: Number;
 
-    def initialize(num:Number):native Array<T> {
-        return this;
-    }
+    def constructor(num:Number):pure_native Array<T>;
     def items(n:Number): native T {
         return this[n];
     }
@@ -890,9 +888,7 @@ class Map<T:IHashKey, T2:IEqualable>:native js
 {
     var size:Number;
 
-    def initialize(num:Number):native Map<T, T2> {
-        return this;
-    }
+    def constructor():pure_native Map<T, T2>;
 
     def entries(): pure_native Iterator;
 
@@ -955,31 +951,79 @@ class Lambda:js
     var function_:Function;
     var lambda_:bool;
     var parentVarNum:Number;
-    var funcName:String
+    var funcName:String;
+    var numParams:Number;
+    var stackPoint:Number;
+    var lvar:Number;
+    var listener:bool;
 
-    def initialize(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String) {
-        self.function_ = function_;
-        self.lambda_ = lambda_;
-        self.parentVarNum = parent_var_num;
-        self.funcName = func_name;
-    }
-
-    def constructor(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String):native Lambda 
+    def constructor(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String, num_params:Number, lvar:Number):native Lambda 
     {
         this.function_ = function_;
         this.lambda_ = lambda_;
         this.parentVarNum = parent_var_num;
         this.funcName = func_name;
+        this.numParams = num_params;
+        this.lvar = lvar;
+        this.listener = false;
+
         return this;
+    }
+
+    def run(): pure_native {
+        var stack_point = clover2StackIndex;
+
+        var params_top = clover2StackIndex-this.numParams-1;
+        var lambda_object = clover2Stack[params_top];
+
+        var lambda_params = clover2Stack.slice(params_top+1, params_top+1+this.numParams);
+        var parent_var_num = lambda_object.parentVarNum;
+
+        if(!lambda_object.lamda_) { 
+            for(var i=0; i<parent_var_num; i++) { 
+                clover2Stack[clover2StackIndex] = clover2Stack[lvar+i];
+                clover2StackIndex++; 
+            }
+        }
+
+        for(var i=0; i<lambda_params.length; i++) { 
+            clover2Stack[clover2StackIndex] = lambda_params[i]; 
+            clover2StackIndex++; 
+        }
+
+        tmp = lambda_object.function_(); 
+
+        clover2StackIndex = stack_point;
+
+        if(!lambda_object.lambda_) {
+            for(var i=0; i<parent_var_num; i++) { 
+                clover2Stack[lvar+i] = clover2Stack[stack_point+i]
+            }
+        }
+
+        clover2StackIndex -= this.numParams+1;
+
+        clover2Stack[clover2StackIndex] = tmp; 
+        clover2StackIndex++
+    }
+
+    def copyParentStack(lvar:Number): pure_native {
+        for(var i=0; i<this.parentVarNum; i++) { 
+            clover2Stack[lvar+i] = clover2Stack[this.lvar+i];
+        }
+    }
+
+    def copyBackParentStack(lvar:Number):pure_native {
+        for(var i=0; i<this.parentVarNum; i++) { 
+            clover2Stack[this.lvar+i] = clover2Stack[lvar+i];
+        }
     }
 }
 
 class String:native js
 {
-    def initialize(str:String):native String {
-        return this;
-    }
-    def toString():native String {
+    def constructor(str:String):pure_native String;
+    def toString(): native String {
         return new String(this);
     }
 
@@ -1047,7 +1091,7 @@ class Set<T:ISortable>:native js
 {
     size: Number;
 
-    def initialize(array:Array<T>):native Set<T> {
+    def constructor(array:Array<T>):pure_native Set<T> {
         for(var i=0; i<array.length; i++) {
             this.add__GenericsParametorClass0(array[i]);
         }
@@ -1129,9 +1173,7 @@ class Set<T:ISortable>:native js
 
 class Number:native js
 {
-    def initialize():native Number {
-        return this;
-    }
+    def constructor():pure_native Number;
 
     def compare(item:Number): pure_native Number {
         if(this < item) {
@@ -1167,6 +1209,12 @@ class Bool:js unboxing bool
     var num:bool;
 
     def constructor(num:bool):native Bool {
+        this.num = num;
+
+        return this;
+    }
+
+    def initialize(num:bool): native Bool {
         this.num = num;
 
         return this;
@@ -1245,14 +1293,44 @@ class NodeList:native js
 
 class Document:js
 {
-/*
-    def initialize():native Document {
-        return this;
-    }
-*/
     def write(str:String):pure_native;
 
     def getElementById(str:String): pure_native Element;
     def getElementsByTagName(str:String): pure_native NodeList;
+}
+
+class EventListnerOpetion:native js
+{
+    var capture:bool;
+    var once:bool;
+    var passive:bool;
+
+    def initialize(capture:bool, once:bool, passive:bool):native EventListnerOpetion {
+        this.capture = capture;
+        this.once = once;
+        this.passive = passive
+
+        return this;
+    }
+}
+
+class Event:native js
+{
+    def contructor(): pure_native;
+
+    type:String;
+
+}
+
+class WebSocket:native js
+{
+    def constructor(str:String): pure_native;
+    def constructor(str:String, protocol:String): pure_native;
+    def constructor(str:String, protocol:Array<String>): pure_native;
+
+    def addEventListener(type:String, listener:lambda(Event)): native {
+        listener.listener = true;
+        this.addEventListener(type, listener.function_);
+    }
 }
 

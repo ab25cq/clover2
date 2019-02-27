@@ -1,6 +1,6 @@
 #include "common.h"
 
-BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, sVMInfo* info);
+BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, sVMInfo* info);
 void load_js_class(char* class_name, sVMInfo* info);
 
 BOOL js_class_compiler(char* sname) 
@@ -66,8 +66,7 @@ BOOL js_class_compiler(char* sname)
             if((method->mFlags & METHOD_FLAGS_PURE_NATIVE) && method->mNativeCodes == NULL)
             {
             }
-            else if((method->mFlags & METHOD_FLAGS_NATIVE) || (method->mFlags & METHOD_FLAGS_PURE_NATIVE)) 
-            {
+            else {
                 if(method->mFlags & METHOD_FLAGS_PURE_NATIVE) 
                 {
                     snprintf(line ,1024, "%s.prototype.%s = function (", class_name, METHOD_NAME2(klass, method));
@@ -93,9 +92,35 @@ BOOL js_class_compiler(char* sname)
                 sBuf_append_str(info.js_source, ")");
 
                 sBuf_append_str(info.js_source, "\n");
-                
-                sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
-                sBuf_append_str(info.js_source, "\n");
+
+                if((method->mFlags & METHOD_FLAGS_NATIVE) || (method->mFlags & METHOD_FLAGS_PURE_NATIVE)) 
+                {
+                    sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
+                    sBuf_append_str(info.js_source, "\n");
+                }
+                else {
+                    snprintf(line ,1024, "{");
+                    sBuf_append_str(info.js_source, line);
+                    sBuf_append_str(info.js_source, "\n");
+
+                    sByteCode* code = &method->mByteCodes;
+                    sConst* constant = &klass->mConst;
+                    int var_num = method->mVarNum;
+                    int param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
+
+                    if(!js(code, constant, var_num, param_num, klass, NULL, &info)) {
+                        MFREE(info.running_class_name);
+                        MFREE(info.running_method_name);
+                        MFREE(output.mBuf);
+                        sConst_free(&js_const);
+                        MFREE(js_class_source.mBuf);
+                        return FALSE;
+                    }
+
+                    snprintf(line ,1024, "}");
+                    sBuf_append_str(info.js_source, line);
+                    sBuf_append_str(info.js_source, "\n");
+                }
 
                 if(method->mFlags & METHOD_FLAGS_PURE_NATIVE) 
                 {
@@ -116,40 +141,10 @@ BOOL js_class_compiler(char* sname)
                         }
                     }
                     sBuf_append_str(info.js_source, ")");
-
-                    sBuf_append_str(info.js_source, "\n");
                     
                     sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
                     sBuf_append_str(info.js_source, "\n");
                 }
-            }
-            else {
-                if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) 
-                {
-                    sBuf_append_str(info.js_source, "static ");
-                }
-
-                sByteCode* code = &method->mByteCodes;
-                sConst* constant = &klass->mConst;
-                int var_num = method->mVarNum;
-                int param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
-
-                snprintf(line ,1024, "%s.prototype.%s = function (clover2Stack, clover2StackIndex, exception) {", class_name, CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
-                sBuf_append_str(info.js_source, line);
-                sBuf_append_str(info.js_source, "\n");
-
-                if(!js(code, constant, var_num, param_num, klass, &info)) {
-                    MFREE(info.running_class_name);
-                    MFREE(info.running_method_name);
-                    MFREE(output.mBuf);
-                    sConst_free(&js_const);
-                    MFREE(js_class_source.mBuf);
-                    return FALSE;
-                }
-
-                snprintf(line ,1024, "}");
-                sBuf_append_str(info.js_source, line);
-                sBuf_append_str(info.js_source, "\n");
             }
 
             MFREE(info.running_method_name);
@@ -189,8 +184,7 @@ BOOL js_class_compiler(char* sname)
             if((method->mFlags & METHOD_FLAGS_PURE_NATIVE) && method->mNativeCodes == NULL)
             {
             }
-            else if((method->mFlags & METHOD_FLAGS_NATIVE) || (method->mFlags & METHOD_FLAGS_PURE_NATIVE)) 
-            {
+            else {
                 if(method->mFlags & METHOD_FLAGS_CLASS_METHOD)
                 {
                     sBuf_append_str(info.js_source, "static ");
@@ -222,9 +216,36 @@ BOOL js_class_compiler(char* sname)
 
                 sBuf_append_str(info.js_source, "\n");
                 
-                sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
-                sBuf_append_str(info.js_source, "\n");
+                if((method->mFlags & METHOD_FLAGS_NATIVE) || (method->mFlags & METHOD_FLAGS_PURE_NATIVE)) 
+                {
+                    sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
+                    sBuf_append_str(info.js_source, "\n");
+                }
+                else {
+                    sByteCode* code = &method->mByteCodes;
+                    sConst* constant = &klass->mConst;
+                    int var_num = method->mVarNum;
+                    int param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
+                    snprintf(line ,1024, "{");
+                    sBuf_append_str(info.js_source, line);
+                    sBuf_append_str(info.js_source, "\n");
+
+                    if(!js(code, constant, var_num, param_num, klass, NULL, &info)) {
+                        MFREE(info.running_class_name);
+                        MFREE(info.running_method_name);
+                        MFREE(output.mBuf);
+                        sConst_free(&js_const);
+                        MFREE(js_class_source.mBuf);
+                        return FALSE;
+                    }
+
+                    snprintf(line ,1024, "}");
+                    sBuf_append_str(info.js_source, line);
+                    sBuf_append_str(info.js_source, "\n");
+                }
+
+                /// method name and params name definition ///
                 if(method->mFlags & METHOD_FLAGS_PURE_NATIVE) 
                 {
                     if(method->mFlags & METHOD_FLAGS_CLASS_METHOD)
@@ -253,62 +274,6 @@ BOOL js_class_compiler(char* sname)
                     sBuf_append_str(info.js_source, "\n");
                     
                     sBuf_append(info.js_source, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
-                    sBuf_append_str(info.js_source, "\n");
-                }
-            }
-            else {
-                if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) {
-                    sBuf_append_str(info.js_source, "static ");
-                }
-
-                sByteCode* code = &method->mByteCodes;
-                sConst* constant = &klass->mConst;
-                int var_num = method->mVarNum;
-                int param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
-
-                snprintf(line ,1024, "%s(clover2Stack, clover2StackIndex, exception){", CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
-                sBuf_append_str(info.js_source, line);
-                sBuf_append_str(info.js_source, "\n");
-
-                if(!js(code, constant, var_num, param_num, klass, &info)) {
-                    MFREE(info.running_class_name);
-                    MFREE(info.running_method_name);
-                    MFREE(output.mBuf);
-                    sConst_free(&js_const);
-                    MFREE(js_class_source.mBuf);
-                    return FALSE;
-                }
-
-
-                snprintf(line ,1024, "}");
-                sBuf_append_str(info.js_source, line);
-                sBuf_append_str(info.js_source, "\n");
-
-                /// normal name ///
-                if(strcmp(METHOD_NAME2(klass, method), "constructor") != 0) {
-                    if(method->mFlags & METHOD_FLAGS_CLASS_METHOD) {
-                        sBuf_append_str(info.js_source, "static ");
-                    }
-
-                    snprintf(line ,1024, "%s(clover2Stack, clover2StackIndex, exception){", CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
-                    sBuf_append_str(info.js_source, line);
-                    sBuf_append_str(info.js_source, "\n");
-
-                    if(!js(code, constant, var_num, param_num, klass, &info)) {
-                        MFREE(info.running_class_name);
-                        MFREE(info.running_method_name);
-                        MFREE(output.mBuf);
-                        sConst_free(&js_const);
-                        MFREE(js_class_source.mBuf);
-                        return FALSE;
-                    }
-                    snprintf(line, 1024, "return clover2Stack[clover2StackIndex-1];");
-
-                    sBuf_append_str(info.js_source, line);
-                    sBuf_append_str(info.js_source, "\n");
-
-                    snprintf(line ,1024, "}");
-                    sBuf_append_str(info.js_source, line);
                     sBuf_append_str(info.js_source, "\n");
                 }
             }
@@ -441,8 +406,18 @@ BOOL js_compiler(char* fname)
     sBuf_append_str(info.js_source, line);
     sBuf_append_str(info.js_source, "\n");
 
+    snprintf(line, 1024, "var funcToLambda = new Map();");
+
+    sBuf_append_str(info.js_source, line);
+    sBuf_append_str(info.js_source, "\n");
+
     sBuf js_class_source;
     sBuf_init(&js_class_source);
+
+    sBuf require_source;
+    sBuf_init(&require_source);
+
+    info.require_source = &require_source;
 
     info.js_class_source = &js_class_source;
     info.js_compiling_class_source = FALSE;
@@ -461,6 +436,12 @@ BOOL js_compiler(char* fname)
     sBuf_append_str(info.js_source, line);
     sBuf_append_str(info.js_source, "\n");
 
+    snprintf(line, 1024, "function typeOfNativeObject(obj) { var object_type = typeOf(obj); return object_type == 'array' || object_type == 'number' || object_type == 'string' || object_type == 'map'; }");
+
+    sBuf_append_str(info.js_source, line);
+    sBuf_append_str(info.js_source, "\n");
+
+
 /*
     snprintf(line, 1024, "if(!process.argv[0].match(/node$/)) { if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) { WebView.setWebContentsDebuggingEnabled(true); } }");
 
@@ -470,7 +451,7 @@ BOOL js_compiler(char* fname)
 
     int param_num = 0;
 
-    if(!js(&code, &constant, var_num, param_num, NULL, &info)) {
+    if(!js(&code, &constant, var_num, param_num, NULL, NULL, &info)) {
         MFREE(info.running_class_name);
         MFREE(info.running_method_name);
         fclose(f);
@@ -481,6 +462,7 @@ BOOL js_compiler(char* fname)
         sConst_free(&constant);
         sConst_free(&js_const);
         MFREE(js_class_source.mBuf);
+        MFREE(require_source.mBuf);
         return FALSE;
     }
 
@@ -503,6 +485,7 @@ BOOL js_compiler(char* fname)
     snprintf(path, PATH_MAX, "%s.js", fname);
 
     FILE* f2 = fopen(path, "w");
+    fprintf(f2, "%s", require_source.mBuf);
     fprintf(f2, "%s", js_class_source.mBuf);
     fprintf(f2, "%s", output.mBuf);
     fclose(f2);
@@ -518,6 +501,7 @@ BOOL js_compiler(char* fname)
     MFREE(info.running_method_name);
     sConst_free(&js_const);
     MFREE(js_class_source.mBuf);
+    MFREE(require_source.mBuf);
 
     return TRUE;
 }
@@ -609,7 +593,21 @@ void load_js_class(char* class_name, sVMInfo* info)
                 }
             }
 
+            if(klass->mFlags & CLASS_FLAGS_NATIVE) {
+                char line[1024];
+                snprintf(line, 1024, "if(typeof(%s) != 'undefined') {\n", CLASS_NAME(klass));
+
+                sBuf_append(info->js_class_source, line, strlen(line));
+            }
+
             sBuf_append_str(info->js_class_source, source_file.mBuf);
+
+            if(klass->mFlags & CLASS_FLAGS_NATIVE) {
+                char line[1024];
+                snprintf(line, 1024, "}\n");
+
+                sBuf_append(info->js_class_source, line, strlen(line));
+            }
 
             MFREE(source_file.mBuf);
 
@@ -751,124 +749,83 @@ BOOL invoke_js_method(sCLClass* klass, BOOL native, sBuf* native_codes, BOOL cla
 {
     char line[1024];
 
-    if(native || pure_native)
+    if(class_method)
     {
-        if(class_method)
-        {
-            sBuf buf;
-            sBuf_init(&buf);
+        sBuf buf;
+        sBuf_init(&buf);
 
-            sBuf_append_str(&buf, CLASS_NAME(klass));
-            sBuf_append_str(&buf, ".");
+        sBuf_append_str(&buf, CLASS_NAME(klass));
+        sBuf_append_str(&buf, ".");
 
-            if(pure_native) {
-                sBuf_append_str(&buf, method_name);
-                sBuf_append_str(&buf, "(");
-            }
-            else {
-                sBuf_append_str(&buf, method_name_and_params);
-                sBuf_append_str(&buf, "(");
-            }
-
-            int i = 0;
-            for(i=0; i<num_params; i++)
-            {
-                snprintf(line, 1024, "clover2Stack[clover2StackIndex+%d]", -num_params + i);
-
-                sBuf_append_str(&buf, line);
-
-                if(i < num_params-1) {
-                    sBuf_append_str(&buf, ",");
-                }
-            }
-
-            sBuf_append_str(&buf, ")");
-
-            snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params);
-
-            sBuf_append_str(info->js_source, line);
-            sBuf_append_str(info->js_source, "\n");
-
-            MFREE(buf.mBuf);
+        if(pure_native) {
+            sBuf_append_str(&buf, method_name);
+            sBuf_append_str(&buf, "(");
         }
         else {
-            sBuf buf;
-            sBuf_init(&buf);
+            sBuf_append_str(&buf, method_name_and_params);
+            sBuf_append_str(&buf, "(");
+        }
 
-            snprintf(line, 1024, "clover2Stack[clover2StackIndex-%d]", num_params+1);
+        int i = 0;
+        for(i=0; i<num_params; i++)
+        {
+            snprintf(line, 1024, "clover2Stack[clover2StackIndex+%d]", -num_params + i);
 
             sBuf_append_str(&buf, line);
 
-            sBuf_append_str(&buf, ".");
-
-            if(pure_native) {
-                sBuf_append_str(&buf, method_name);
-                sBuf_append_str(&buf, "(");
+            if(i < num_params-1) {
+                sBuf_append_str(&buf, ",");
             }
-            else {
-                sBuf_append_str(&buf, method_name_and_params);
-                sBuf_append_str(&buf, "(");
-            }
-
-            int i = 0;
-            for(i=0; i<num_params; i++)
-            {
-                snprintf(line, 1024, "clover2Stack[clover2StackIndex+%d]", -num_params + i);
-
-                sBuf_append_str(&buf, line);
-
-                if(i < num_params-1) {
-                    sBuf_append_str(&buf, ",");
-                }
-            }
-
-            sBuf_append_str(&buf, ")");
-
-            snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params+1);
-
-            sBuf_append_str(info->js_source, line);
-            sBuf_append_str(info->js_source, "\n");
-
-            MFREE(buf.mBuf);
         }
+
+        sBuf_append_str(&buf, ")");
+
+        snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params);
+
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
+        MFREE(buf.mBuf);
     }
     else {
-        if(class_method)
-        {
-            sBuf buf;
-            sBuf_init(&buf);
+        sBuf buf;
+        sBuf_init(&buf);
 
-            sBuf_append_str(&buf, CLASS_NAME(klass));
-            sBuf_append_str(&buf, ".");
+        snprintf(line, 1024, "clover2Stack[clover2StackIndex-%d]", num_params+1);
 
-            sBuf_append_str(&buf, method_name_and_params);
-            sBuf_append_str(&buf, "(clover2Stack, clover2StackIndex, exception);");
+        sBuf_append_str(&buf, line);
 
-            snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params);
+        sBuf_append_str(&buf, ".");
 
-            sBuf_append_str(info->js_source, line);
-            sBuf_append_str(info->js_source, "\n");
-
-            MFREE(buf.mBuf);
+        if(pure_native) {
+            sBuf_append_str(&buf, method_name);
+            sBuf_append_str(&buf, "(");
         }
         else {
-            sBuf buf;
-            sBuf_init(&buf);
+            sBuf_append_str(&buf, method_name_and_params);
+            sBuf_append_str(&buf, "(");
+        }
 
-            snprintf(line, 1024, "clover2Stack[clover2StackIndex-%d].", 1+num_params);
+        int i = 0;
+        for(i=0; i<num_params; i++)
+        {
+            snprintf(line, 1024, "clover2Stack[clover2StackIndex+%d]", -num_params + i);
 
             sBuf_append_str(&buf, line);
 
-            sBuf_append_str(&buf, method_name_and_params);
-            sBuf_append_str(&buf, "(clover2Stack, clover2StackIndex, exception);");
-
-            snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params+1);
-
-            sBuf_append_str(info->js_source, line);
-            sBuf_append_str(info->js_source, "\n");
-
-            MFREE(buf.mBuf);
+            if(i < num_params-1) {
+                sBuf_append_str(&buf, ",");
+            }
         }
+
+        sBuf_append_str(&buf, ")");
+
+        snprintf(line, 1024, "tmp = %s; clover2StackIndex -= %d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", buf.mBuf, num_params+1);
+
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
+        MFREE(buf.mBuf);
     }
 
     if(result_type_is_bool) {
@@ -880,7 +837,7 @@ BOOL invoke_js_method(sCLClass* klass, BOOL native, sBuf* native_codes, BOOL cla
     return TRUE;
 }
 
-BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, sVMInfo* info)
+BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, sVMInfo* info)
 {
     reset_js_load_class();
 
@@ -910,6 +867,16 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
     snprintf(line, 1024, "clover2StackIndex = lvar + %d", var_num);
     sBuf_append_str(info->js_source, line);
     sBuf_append_str(info->js_source, "\n");
+
+    if(func_name) {
+        snprintf(line, 1024, "var lambda = funcToLambda.get('%s');", func_name);
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
+        snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyParentStack(lvar); }");
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+    }
 
     while(pc - code->mCodes < code->mLen) {
         unsigned int inst = *(unsigned int*)pc;
@@ -965,6 +932,15 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                 break;
 
             case OP_RETURN: {
+                if(func_name) {
+                    snprintf(line, 1024, "var lambda = funcToLambda.get('%s');", func_name);
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyBackParentStack(lvar); }");
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+                }
 //print_inst("OP_RETURN", info);
                 snprintf(line, 1024, "return clover2Stack[clover2StackIndex-1];");
 
@@ -1759,10 +1735,12 @@ show_js_stack(info);
                 BOOL flg_array = *(int*)pc;
                 pc += sizeof(int);
 
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
                 char* class_name = CONS_str(constant, offset);
 
                 sCLClass* klass = get_class_with_load(class_name, TRUE);
-//print_inst(class_name, info);
 
                 load_js_class(class_name, info);
 
@@ -1771,7 +1749,23 @@ show_js_stack(info);
                     return FALSE;
                 }
 
-                if(flg_array) {
+                if(klass->mFlags & CLASS_FLAGS_NATIVE) {
+                    snprintf(line, 1024, "tmp = new %s(", class_name);
+                    sBuf_append_str(info->js_source, line);
+
+                    int i;
+                    for(i=0; i<num_params; i++) {
+                        snprintf(line, 1024, "clover2Stack[clover2StackIndex-%d]", num_params-i);
+                        sBuf_append_str(info->js_source, line);
+
+                        if(i < num_params - 1) {
+                            sBuf_append_str(info->js_source, ",");
+                        }
+                    }
+                    snprintf(line, 1024, "); clover2StackIndex-=%d; clover2Stack[clover2StackIndex] = tmp; clover2StackIndex++", num_params);
+
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
                 }
                 else {
                     snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new %s(); clover2StackIndex++;", class_name);
@@ -1893,7 +1887,7 @@ show_js_stack(info);
                             sBuf_append_str(info->js_source, "_");
                         }
                     }
-                    sBuf_append_str(info->js_source, "(clover2Stack, clover2StackIndex, exception)\n");
+                    sBuf_append_str(info->js_source, "()\n");
 
                     snprintf(line, 1024, "clover2StackIndex -= %d;", num_elements);
 
@@ -2002,11 +1996,24 @@ show_js_stack(info);
                     int num_params = *(int*)pc;
                     pc += sizeof(int);
 
-                    snprintf(line, 1024, "var lambda__ = function (clover2Stack, clover2StackIndex, exception) {");
+                    char func_name[CLASS_NAME_MAX +128];
+                    if(class_name_offset == -1) {
+                        static int block_num = 0;
+                        block_num++;
+
+                        snprintf(func_name, CLASS_NAME_MAX + 128, "lambda%d", block_num);
+                    }
+                    else {
+                        snprintf(func_name, CLASS_NAME_MAX + 128, "%s%d", CONS_str(constant, class_name_offset), block_id);
+                    }
+                    
+
+                    snprintf(line, 1024, "var lambda__ = function %s () {", func_name);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, info))
+
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, info))
                     {
                         return FALSE;
                     }
@@ -2019,7 +2026,11 @@ show_js_stack(info);
                     snprintf(line, 1024, "}\n");
                     sBuf_append_str(info->js_source, line);
 
-                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String(lambda__, %s, %d, \"\"); clover2StackIndex++;", lambda ? "true":"false", parent_var_num);
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String_Number_Number(lambda__, %s, %d, \"\", %d, lvar); clover2StackIndex++;", lambda ? "true":"false", parent_var_num, num_params);
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "funcToLambda.set('%s', clover2Stack[clover2StackIndex-1])", func_name);
 
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
@@ -2088,7 +2099,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "if(lambda_object.funcName == \"\") { tmp = lambda_object.function_(clover2Stack, clover2StackIndex, exception); } else { tmp = %s(); }", block_name);
+                    snprintf(line, 1024, "if(lambda_object.funcName == \"\") { tmp = lambda_object.function_(); } else { tmp = %s(); }", block_name);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
@@ -2283,7 +2294,7 @@ show_js_stack(info);
 
                 char* field_name = CONS_str(&klass->mConst, field_name_offset);
 
-                load_js_class(class_name, info);
+                //load_js_class(class_name, info);
 
                 snprintf(line, 1024, "clover2Stack[clover2StackIndex] = %s.%s; clover2StackIndex++", class_name, field_name);
 
@@ -2320,7 +2331,7 @@ show_js_stack(info);
 
                 char* field_name = CONS_str(&klass->mConst, field_name_offset);
 
-                load_js_class(class_name, info);
+                //load_js_class(class_name, info);
 
                 snprintf(line, 1024, "%s.%s = clover2Stack[clover2StackIndex-1];", class_name, field_name);
 
@@ -2379,7 +2390,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, info))
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, NULL, info))
                     {
                         return FALSE;
                     }
@@ -2392,10 +2403,27 @@ show_js_stack(info);
                     snprintf(line, 1024, "}\n");
                     sBuf_append_str(info->js_source, line);
 
-                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String(null, %s, %d, \"%s\"); clover2StackIndex++;", lambda ? "true":"false", parent_var_num, func_name);
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String_Number_Number(null, %s, %d, \"%s\", %d, lvar); clover2StackIndex++;", lambda ? "true":"false", parent_var_num, func_name, num_params);
 
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
+                }
+                break;
+
+            case OP_REQUIRE: {
+                unsigned int offset = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                unsigned int offset2 = *(unsigned int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+                char* file_name = CONS_str(constant, offset2);
+
+                snprintf(line, 1024, "if(typeof(%s) == 'undefined') { var %s = require('%s'); }\n", class_name, class_name, file_name);
+
+                sBuf_append_str(info->require_source, line);
+                sBuf_append_str(info->js_source, "\n");
                 }
                 break;
 
@@ -2409,6 +2437,16 @@ if(next_inst != OP_JS_ELSE && inst != OP_JS_BLOCK_CLOSE) {
 show_js_stack(info);
 }
 */
+    }
+
+    if(func_name) {
+        snprintf(line, 1024, "var lambda = funcToLambda.get('%s');", func_name);
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
+        snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyBackParentStack(lvar); }");
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
     }
 
 /*

@@ -5806,6 +5806,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     BOOL flg_array = *(int*)pc;
                     pc += sizeof(int);
 
+                    int num_params = *(int*)pc;
+                    pc += sizeof(int);
+
                     char* class_name = CONS_str(constant, offset);
 
                     sCLClass* klass = get_class_with_load_and_initialize(class_name, FALSE);

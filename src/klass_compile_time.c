@@ -742,18 +742,6 @@ static BOOL check_same_interface_of_two_methods(sCLMethod* method1, sCLClass* kl
         return FALSE;
     }
 
-    if((klass1->mFlags & CLASS_FLAGS_JS) && (method1->mFlags & METHOD_FLAGS_PURE_NATIVE))
-    {
-        if(!(method2->mFlags & METHOD_FLAGS_PURE_NATIVE))
-        {
-            return FALSE;
-        }
-    }
-
-    if(strcmp(name1, name2) != 0) {
-        return FALSE;
-    }
-
     sNodeType* result_type1 = create_node_type_from_cl_type(method1->mResultType, klass1);
     sNodeType* result_type2 = create_node_type_from_cl_type(method2->mResultType, klass2);
 

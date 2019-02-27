@@ -1667,6 +1667,7 @@ static BOOL compile_cbyte_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "Byte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -1780,6 +1781,7 @@ static BOOL compile_cfloat_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "Float", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -1892,6 +1894,7 @@ static BOOL compile_cdouble_value(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "Double", info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -2010,6 +2013,7 @@ static BOOL compile_cubyte_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -2127,6 +2131,7 @@ static BOOL compile_cshort_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "UByte", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -2243,6 +2248,7 @@ static BOOL compile_cushort_value(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "UShort", info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -2366,6 +2372,7 @@ static BOOL compile_cint_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "Integer", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -2482,6 +2489,7 @@ static BOOL compile_cuint_value(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "UInteger", info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -2601,6 +2609,7 @@ static BOOL compile_clong_value(unsigned int node, sCompileInfo* info)
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "Long", info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -2717,6 +2726,7 @@ static BOOL compile_culong_value(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "ULong", info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -5172,6 +5182,7 @@ static BOOL compile_break_expression(unsigned int node, sCompileInfo* info)
                 append_class_name_to_constant_pool_and_code(info, klass);
                 append_type_name_to_constant_pool_and_code(info, node_type);
                 append_int_value_to_code(info->code, 0, info->no_output);
+                append_int_value_to_code(info->code, 0, info->no_output);
 
                 info->stack_num++;
 
@@ -5389,6 +5400,7 @@ static BOOL compile_wildcard_expression(unsigned int node, sCompileInfo* info)
     append_opecode_to_code(info->code, OP_NEW, info->no_output);
     append_class_name_to_constant_pool_and_code(info, klass);
     append_str_to_constant_pool_and_code(info->constant, info->code, "WildCard", info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
     append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
@@ -6547,44 +6559,11 @@ unsigned int sNodeTree_create_new_operator(sNodeType* node_type, unsigned int* p
 
 static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
 {
-    sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
+    if(info->pinfo->mJS) {
+        sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
 
-    if(generics_types->mClass == NULL) {
-        compile_err_msg(info, "Class not found for new operator", info->pinfo->mJS);
-        info->err_num++;
-
-        info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
-
-        return TRUE;
-    }
-
-    sNodeType* generics_types2;
-    solve_generics_for_variable(generics_types, &generics_types2, info->pinfo);
-
-    sCLClass* klass = generics_types2->mClass;
-    unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
-
-    if(array_num > 0) {
-        if(!compile(array_num, info)) {
-            return FALSE;
-        }
-    }
-
-    sNodeType* node_type = generics_types2;
-
-
-    append_opecode_to_code(info->code, OP_NEW, info->no_output);
-    append_class_name_to_constant_pool_and_code(info, klass);
-    append_type_name_to_constant_pool_and_code(info, node_type);
-    append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
-
-    info->stack_num++;
-
-    if(array_num > 0) {
-        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
-
-        if(num_params > 0) {
-            compile_err_msg(info, "Array can't create with initialize method");
+        if(generics_types->mClass == NULL) {
+            compile_err_msg(info, "Class not found for new operator", info->pinfo->mJS);
             info->err_num++;
 
             info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
@@ -6592,95 +6571,294 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        info->type = generics_types2;
-        info->type->mArray = TRUE;
+        sNodeType* generics_types2;
+        solve_generics_for_variable(generics_types, &generics_types2, info->pinfo);
 
-        info->stack_num--;
-    }
-    else {
-        sNodeType* param_types[PARAMS_MAX];
+        sCLClass* klass = generics_types2->mClass;
+        unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
 
-        int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+        if(!(klass->mFlags & CLASS_FLAGS_JS)) {
+            compile_err_msg(info, "not Java Script Class", info->pinfo->mJS);
+            info->err_num++;
 
-        char* method_name = "initialize";
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        unsigned int params[PARAMS_MAX];
+            return TRUE;
+        }
+        if(array_num > 0) {
+            compile_err_msg(info, "Invalid Java Script Class", info->pinfo->mJS);
+            info->err_num++;
 
-        memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
-        info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
-
-        BOOL exist_lazy_lamda_compile = FALSE;
-        if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
-            return FALSE;
+            return TRUE;
         }
 
-        if(!info->pinfo->exist_block_object_err) { // for interpreter completion
-            sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+        if(klass->mFlags & CLASS_FLAGS_NATIVE) {
+            sNodeType* node_type = generics_types2;
 
-            sNodeType* result_type;
-            sNodeType* result_method_generics_types = NULL;
-            int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+            sNodeType* param_types[PARAMS_MAX];
 
-            if(method_index == -1) {
-                compile_err_msg(info, "method not found(6)");
+            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+
+            char* method_name = "constructor";
+
+            unsigned int params[PARAMS_MAX];
+
+            memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
+
+            BOOL exist_lazy_lamda_compile = FALSE;
+            if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
+                return FALSE;
+            }
+
+            append_opecode_to_code(info->code, OP_NEW, info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_type_name_to_constant_pool_and_code(info, node_type);
+            append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
+            append_int_value_to_code(info->code, num_params, info->no_output);
+
+            info->stack_num -= num_params;
+
+            info->stack_num++;
+
+            info->type = generics_types2;
+        }
+        else {
+            sNodeType* node_type = generics_types2;
+
+            append_opecode_to_code(info->code, OP_NEW, info->no_output);
+            append_class_name_to_constant_pool_and_code(info, klass);
+            append_type_name_to_constant_pool_and_code(info, node_type);
+            append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+
+            info->stack_num++;
+
+            sNodeType* param_types[PARAMS_MAX];
+
+            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+
+            char* method_name = "initialize";
+
+            unsigned int params[PARAMS_MAX];
+
+            memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
+
+            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
+
+            BOOL exist_lazy_lamda_compile = FALSE;
+            if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
+                return FALSE;
+            }
+
+            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
+
+                sNodeType* result_type;
+                sNodeType* result_method_generics_types = NULL;
+                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, &result_method_generics_types, info->pinfo);
+
+                if(method_index == -1) {
+                    compile_err_msg(info, "method not found(6)");
+                    info->err_num++;
+
+                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                sCLMethod* method = klass->mMethods + method_index;
+
+                if(method->mFlags & METHOD_FLAGS_DYNAMIC) {
+                    int num_real_params = method->mNumParams + 1;
+
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                    append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                    append_int_value_to_code(info->code, num_real_params, info->no_output);
+                    append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+
+                    int size = get_var_size(generics_types2);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
+
+                    char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+
+                    BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
+                    append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    info->stack_num -= num_params + 1;
+                    info->stack_num++;
+
+                    info->type = generics_types2;
+                }
+                else {
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index, info->no_output);
+
+                    int size = get_var_size(generics_types2);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    info->stack_num-=num_params+1;
+                    info->stack_num++;
+
+                    info->type = generics_types2;
+                }
+            }
+        }
+    }
+    else {
+        sNodeType* generics_types = gNodes[node].uValue.sNewOperator.mType;
+
+        if(generics_types->mClass == NULL) {
+            compile_err_msg(info, "Class not found for new operator", info->pinfo->mJS);
+            info->err_num++;
+
+            info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+            return TRUE;
+        }
+
+        sNodeType* generics_types2;
+        solve_generics_for_variable(generics_types, &generics_types2, info->pinfo);
+
+        sCLClass* klass = generics_types2->mClass;
+        unsigned int array_num = gNodes[node].uValue.sNewOperator.mArrayNum;
+
+        if(array_num > 0) {
+            if(!compile(array_num, info)) {
+                return FALSE;
+            }
+        }
+
+        sNodeType* node_type = generics_types2;
+
+
+        append_opecode_to_code(info->code, OP_NEW, info->no_output);
+        append_class_name_to_constant_pool_and_code(info, klass);
+        append_type_name_to_constant_pool_and_code(info, node_type);
+        append_int_value_to_code(info->code, array_num ? 1:0, info->no_output);
+        append_int_value_to_code(info->code, 0, info->no_output);
+
+        info->stack_num++;
+
+        if(array_num > 0) {
+            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
+
+            if(num_params > 0) {
+                compile_err_msg(info, "Array can't create with initialize method");
                 info->err_num++;
-
-                err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
 
                 info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
 
                 return TRUE;
             }
 
-            sCLMethod* method = klass->mMethods + method_index;
+            info->type = generics_types2;
+            info->type->mArray = TRUE;
 
-            if(method->mFlags & METHOD_FLAGS_DYNAMIC) {
-                int num_real_params = method->mNumParams + 1;
+            info->stack_num--;
+        }
+        else {
+            sNodeType* param_types[PARAMS_MAX];
 
-                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                append_int_value_to_code(info->code, info->sline, info->no_output);
+            int num_params = gNodes[node].uValue.sNewOperator.mNumParams;
 
-                append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
-                append_int_value_to_code(info->code, num_real_params, info->no_output);
-                append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+            char* method_name = "initialize";
 
-                int size = get_var_size(generics_types2);
-                append_int_value_to_code(info->code, size, info->no_output);
+            unsigned int params[PARAMS_MAX];
 
-                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
-                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
-                append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
+            memcpy(params, gNodes[node].uValue.sNewOperator.mParams, sizeof(unsigned int)*PARAMS_MAX);
 
-                char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+            info->pinfo->exist_block_object_err = FALSE; // for interpreter completion
 
-                BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
-                append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
-                append_int_value_to_code(info->code, 0, info->no_output);
-
-                info->stack_num -= num_params + 1;
-                info->stack_num++;
-
-                info->type = generics_types2;
+            BOOL exist_lazy_lamda_compile = FALSE;
+            if(!compile_params(klass, method_name, &num_params, params, param_types, generics_types2, info, FALSE, &exist_lazy_lamda_compile, FALSE)) {
+                return FALSE;
             }
-            else {
-                append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
-                append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
-                append_int_value_to_code(info->code, info->sline, info->no_output);
 
-                append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
-                append_class_name_to_constant_pool_and_code(info, klass);
-                append_int_value_to_code(info->code, method_index, info->no_output);
+            if(!info->pinfo->exist_block_object_err) { // for interpreter completion
+                sNodeType* right_method_generics_types = get_methocs_generics_type(info->pinfo);
 
-                int size = get_var_size(generics_types2);
-                append_int_value_to_code(info->code, size, info->no_output);
+                sNodeType* result_type;
+                sNodeType* result_method_generics_types = NULL;
+                int method_index = search_for_method(klass, method_name, param_types, num_params, FALSE, klass->mNumMethods-1, generics_types2, generics_types2, right_method_generics_types, &result_type, FALSE, &result_method_generics_types, info->pinfo);
 
-                info->stack_num-=num_params+1;
-                info->stack_num++;
+                if(method_index == -1) {
+                    compile_err_msg(info, "method not found(6)");
+                    info->err_num++;
 
-                info->type = generics_types2;
+                    err_msg_for_method_not_found(klass, method_name, param_types, num_params, FALSE, info);
+
+                    info->type = create_node_type_with_class_name("int", info->pinfo->mJS); // dummy
+
+                    return TRUE;
+                }
+
+                sCLMethod* method = klass->mMethods + method_index;
+
+                if(method->mFlags & METHOD_FLAGS_DYNAMIC) {
+                    int num_real_params = method->mNumParams + 1;
+
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                    append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
+                    append_int_value_to_code(info->code, num_real_params, info->no_output);
+                    append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+
+                    int size = get_var_size(generics_types2);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_CLASS_METHOD, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_NATIVE, info->no_output);
+                    append_int_value_to_code(info->code, method->mFlags & METHOD_FLAGS_PURE_NATIVE, info->no_output);
+
+                    char* result_class_name = CONS_str(&klass->mConst, method->mResultType->mClassNameOffset);
+
+                    BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
+                    append_int_value_to_code(info->code, result_type_is_bool, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, CLASS_NAME(klass), info->no_output);
+                    append_int_value_to_code(info->code, 0, info->no_output);
+
+                    info->stack_num -= num_params + 1;
+                    info->stack_num++;
+
+                    info->type = generics_types2;
+                }
+                else {
+                    append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
+                    append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
+                    append_int_value_to_code(info->code, info->sline, info->no_output);
+
+                    append_opecode_to_code(info->code, OP_INVOKE_METHOD, info->no_output);
+                    append_class_name_to_constant_pool_and_code(info, klass);
+                    append_int_value_to_code(info->code, method_index, info->no_output);
+
+                    int size = get_var_size(generics_types2);
+                    append_int_value_to_code(info->code, size, info->no_output);
+
+                    info->stack_num-=num_params+1;
+                    info->stack_num++;
+
+                    info->type = generics_types2;
+                }
             }
         }
     }
@@ -11971,6 +12149,7 @@ static BOOL compile_range(unsigned int node, sCompileInfo* info)
     append_str_to_constant_pool_and_code(info->constant, info->code, "Range", info->no_output);
     append_type_name_to_constant_pool_and_code(info, node_type);
     append_int_value_to_code(info->code, 0, info->no_output);
+    append_int_value_to_code(info->code, 0, info->no_output);
 
     info->stack_num++;
 
@@ -12118,6 +12297,40 @@ BOOL compile_js_array(unsigned int node, sCompileInfo* info)
     info->stack_num++;
 
     info->type = js_array_type;
+
+    return TRUE;
+}
+
+unsigned int sNodeTree_create_require(char* class_name, char* file_name, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeRequire;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    memcpy(gNodes[node].uValue.sRequire.mClassName, class_name, METHOD_NAME_MAX);
+    memcpy(gNodes[node].uValue.sRequire.mFileName, file_name, METHOD_NAME_MAX);
+
+    return node;
+}
+
+BOOL compile_require(unsigned int node, sCompileInfo* info)
+{
+    char* class_name = gNodes[node].uValue.sRequire.mClassName;
+    char* file_name = gNodes[node].uValue.sRequire.mFileName;
+
+    append_opecode_to_code(info->code, OP_REQUIRE, info->no_output);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, class_name, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, file_name, info->no_output);
 
     return TRUE;
 }
@@ -12430,6 +12643,10 @@ void show_node(unsigned int node)
 
         case kNodeTypeJSArray:
             puts("node type js array");
+            break;
+
+        case kNodeTypeRequire:
+            puts("require");
             break;
     }
 }
@@ -12888,6 +13105,11 @@ BOOL compile(unsigned int node, sCompileInfo* info)
             }
             break;
 
+        case kNodeTypeRequire:
+            if(!compile_require(node, info)) {
+                return FALSE;
+            }
+            break;
     }
 
     return TRUE;

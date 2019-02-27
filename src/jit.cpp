@@ -1477,6 +1477,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int flg_array = *(int*)pc;
                 pc += sizeof(int);
 
+                int num_params = *(int*)pc;
+                pc += sizeof(int);
+
                 /// load class in runtime ///
                 char* class_name2 = CONS_str(constant, offset);
                 Function* load_class_fun = TheModule->getFunction("get_class_with_load_and_initialize");

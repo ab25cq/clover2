@@ -4659,6 +4659,29 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(info->mJS && strcmp(buf, "require") == 0) {
+            skip_spaces_and_lf(info);
+
+            char class_name[METHOD_NAME_MAX];
+
+            /// name ///
+            if(!parse_word(class_name, METHOD_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            skip_spaces_and_lf(info);
+
+            char file_name[METHOD_NAME_MAX];
+
+            /// name ///
+            if(!parse_word(file_name, METHOD_NAME_MAX, info, TRUE, FALSE)) {
+                return FALSE;
+            }
+
+            skip_spaces_and_lf(info);
+
+            *node = sNodeTree_create_require(class_name, file_name, info);
+        }
 
         /// local variable ////
         else if(!including_slash && *info->p == ':') {
