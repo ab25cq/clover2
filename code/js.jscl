@@ -577,3 +577,19 @@ xyz3 := String("ABC");
 xyz4 := Bool(true);
 
 xyz5 := Number();
+
+var int8array = Int8Array(16);
+
+Clover.test("int8array test", int8array.length == 16);
+
+int8array[0] = 16;
+int8array[1] = 32;
+
+Clover.test("int8array test", int8array[0] == 16 && int8array[1] == 32);
+
+var int8array2 = Int8Array([40, 1, 2]);
+
+int8array2.sort();
+
+Clover.test("int8array test2", int8array2[0] == 1 && int8array2[1] == 2 && int8array2[2] == 40);
+

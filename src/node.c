@@ -8903,6 +8903,10 @@ unsigned int sNodeTree_create_load_array_element(unsigned int array, unsigned in
     return node;
 }
 
+static BOOL is_able_to_get_element_type(sNodeType* node_type)
+{
+    return type_identify_with_class_name(node_type, "Array") || type_identify_with_class_name(node_type, "Int8Array") || type_identify_with_class_name(node_type, "Uint8Array") || type_identify_with_class_name(node_type, "Uint8ClampedArray") || type_identify_with_class_name(node_type, "Int16Array") || type_identify_with_class_name(node_type, "Uint16Array") || type_identify_with_class_name(node_type, "Int32Array") || type_identify_with_class_name(node_type, "Uint32Array") || type_identify_with_class_name(node_type, "Float32Array") || type_identify_with_class_name(node_type, "Float64Array");
+}
 
 BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
 {
@@ -8927,8 +8931,7 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        if(!type_identify_with_class_name(left_type, "Array"))
-        {
+        if(!is_able_to_get_element_type(left_type)) {
             compile_err_msg(info, "Clover2 can't get an element from this type.");
             info->err_num++;
 
@@ -8968,7 +8971,13 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
         }
 
         /// generate code ///
-        sNodeType* var_type = clone_node_type(left_type->mGenericsTypes[0]);
+        sNodeType* var_type;
+        if(type_identify_with_class_name(left_type, "Array")) {
+            var_type = clone_node_type(left_type->mGenericsTypes[0]);
+        }
+        else {
+            var_type = create_node_type_with_class_name("Number", info->pinfo->mJS);
+        }
 
         append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
 
@@ -9105,8 +9114,7 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        if(!type_identify_with_class_name(left_type, "Array"))
-        {
+        if(!is_able_to_get_element_type(left_type)) {
             compile_err_msg(info, "Clover2 can't get an element from this type.");
             info->err_num++;
 
@@ -9163,7 +9171,13 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
             return TRUE;
         }
 
-        sNodeType* var_type = left_type->mGenericsTypes[0];
+        sNodeType* var_type;
+        if(type_identify_with_class_name(left_type, "Array")) {
+            var_type = left_type->mGenericsTypes[0];
+        }
+        else {
+            var_type = create_node_type_with_class_name("Number", info->pinfo->mJS);
+        }
 
         if(!substitution_posibility(var_type, right_type, NULL, NULL, NULL, NULL, TRUE)) {
             compile_err_msg(info, "The different type between left type and right type(7). %s and %s", CLASS_NAME(var_type->mClass), CLASS_NAME(right_type->mClass));

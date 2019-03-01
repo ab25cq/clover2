@@ -1337,6 +1337,15 @@ BOOL load_fundamental_classes_on_runtime_for_js()
     load_class("Number", 0, TRUE);
     load_class("String", 0, TRUE);
     load_class("Array", 0, TRUE);
+    load_class("Int8Array", 0, TRUE);
+    load_class("Uint8Array", 0, TRUE);
+    load_class("Uint8ClampedArray", 0, TRUE);
+    load_class("Int16Array", 0, TRUE);
+    load_class("Uint16Array", 0, TRUE);
+    load_class("Int32Array", 0, TRUE);
+    load_class("Uint32Array", 0, TRUE);
+    load_class("Float32Array", 0, TRUE);
+    load_class("Float64Array", 0, TRUE);
     load_class("Null", 0, TRUE);
     load_class("Bool", 0, TRUE);
     load_class("Exception", 0, TRUE);

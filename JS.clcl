@@ -215,6 +215,12 @@ class Array<T:ISortable>:native js
         }
     }
 
+    def sort(fun:lambda(T, T):Number):native Array<T> {
+        if(this.length > 0) {
+            return this.quickSort(0, this.length-1, fun.function_);
+        }
+    }
+
     def splice(index:Number): pure_native Array<T>;
     def splice(index:Number, len:Number): pure_native Array<T>;
     def splice(index:Number, len:Number, item1:T): pure_native Array<T>;
@@ -1319,18 +1325,322 @@ class Event:native js
     def contructor(): pure_native;
 
     type:String;
+    data:String;
+}
 
+class ArrayBuffer:native js 
+{
+    var byteLength:Number;
+    var length:Number;
+
+    def isView(any:Any):pure_native bool;
+    def constructor(len:Number): pure_native;
+}
+
+class Blob:native js
+{
+    val size:Number;
+    val type:String;
+
+#    def constructor(array:Array<ArrayBuffer>): pure_native;
+#    def constructor(array:Array<ArrayBufferView>): pure_native;
+#    def constructor(array:Array<Blob>): pure_native;
+    def constructor(array:Array<String>): pure_native;
+#    def constructor(array:Array<ArrayBuffer>, type:String): pure_native;
+#    def constructor(array:Array<ArrayBufferView>, type:String): pure_native;
+#    def constructor(array:Array<Blob>, type:String): pure_native;
+    def constructor(array:Array<String>, type:String): pure_native;
+}
+
+module MTypedArray
+{
+    var length:Number;
+
+    def constructor(len:Number): pure_native;
+    def constructor(array_:Array<Number>): pure_native;
+
+    def items(n:Number): native Number {
+        return this[n];
+    }
+    def put(index:Number, n:Number):native {
+        this[index] = n;
+    }
+
+    def copyWithin(index:Number, start:Number=0): native SELF {
+        var end = this.length;
+        this.copyWithin(index, start, end);
+
+        return this;
+    }
+    def copyWithin(index:Number, start:Number, end:Number): native SELF {
+        this.copyWithin(index, start, end);
+
+        return this;
+    }
+    def entries(): pure_native Iterator;
+    def every(block_:lambda(Number):bool):bool {
+        len := self.length;
+        for(i:=0; i<len; i++) {
+            if(!block_(self.items(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+    def fill(data:Number, start:Number=0): native SELF {
+        var end = this.length;
+        this.fill(data, start, end);
+
+        return this;
+    }
+    def fill(data:Number, start:Number, end:Number): native SELF {
+        this.fill(data, start, end);
+
+        return this;
+    }
+    def filter(block_:lambda(Number):bool):SELF {
+        result := SELF(self.length);
+
+        n := 0;
+
+        for(i:=0; i<self.length; i++) {
+            if(block_(items(i))) {
+                result.put(n++, items(i));
+            }
+        }
+
+        return result;
+    }
+    def find(block_:lambda(Number):bool):Number? {
+        result := SELF(0);
+
+        for(i:=0; i<self.length; i++) {
+            if(block_(items(i))) {
+                return items(i);
+            }
+        }
+
+        return null;
+    }
+    def findIndex(block_:lambda(Number):bool):Number {
+        result := SELF(0);
+
+        for(i:=0; i<self.length; i++) {
+            if(block_(items(i))) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    def forEach(block_:lambda(Number)) {
+        for(i:=0; i<self.length; i++) {
+            block_(items(i))
+        }
+    }
+    def includes(item:Number):native bool {
+        for(var i=0; i<this.length; i++) {
+            if(this[i] == item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    def indexOf(item:Number, count:Number=1):native Number {
+        var n = 0;
+        for(var i= 0; i<this.length; i++) {
+            if(this[i] == item) {
+                n++;
+
+                if(n == count) {
+                    return i;
+                }
+            }
+        }
+
+        return -1;
+    }
+    def join(): native String {
+        return this.join();
+    }
+    def join(str:String): native String {
+        return this.join(str);
+    }
+    def keys(): pure_native Iterator;
+    def values(): pure_native Iterator;
+    def lastIndexOf(item:Number): native Number {
+        for(var i= this.length-1; i>=0; i--) {
+            if(this[i] == item) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    def lastIndexOf(item:Number, fromIndex:Number): native Number {
+        if(fromIndex < 0) {
+            fromIndex += this.length;
+        }
+
+        if(fromIndex >= this.length) {
+            fromIndex = this.length - 1;
+        }
+
+        for(var i = fromIndex; i>=0; i--) {
+            if(this[i] == item) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    def map(trans:lambda(Number):Number): SELF {
+        result := SELF(self.length);
+
+        n := 0;
+
+        for(i:=0; i<self.length; i++) {
+            result.put(n++, trans(items(i)));
+        }
+
+        return result;
+    }
+    def reverse(): pure_native SELF;
+    def slice(n:Number): pure_native SELF;
+    def slice(n:Number, n2:Number): pure_native SELF;
+    def some(block_:lambda(Number):bool):bool {
+        len := self.length;
+        for(i:=0; i<len; i++) {
+            if(block_(self.items(i))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    def sort(): native SELF {
+        return this.sort();
+    }
+
+    def sort(block_:lambda(Number, Number):Number): native SELF {
+        return this.sort(block_.function_);
+    }
+
+    def subarray(begin:Number): native SELF {
+        return this.subarray(begin);
+    }
+    def subarray(begin:Number, end:Number): native SELF {
+        return this.subarray(begin, end);
+    }
+
+    def toString(): pure_native String;
+}
+
+class Int8Array:native js
+{
+    include MTypedArray;
+}
+
+class Uint8Array:native js
+{
+    include MTypedArray;
+}
+
+class Uint8ClampedArray:native js
+{
+    include MTypedArray;
+}
+
+class Int16Array:native js
+{
+    include MTypedArray;
+}
+
+class Uint16Array:native js
+{
+    include MTypedArray;
+}
+
+class Int32Array:native js
+{
+    include MTypedArray;
+}
+
+class Uint32Array:native js
+{
+    include MTypedArray;
+}
+
+class Float32Array:native js
+{
+    include MTypedArray;
+}
+
+class Float64Array:native js
+{
+    include MTypedArray;
+}
+
+class DataView:native js
+{
+    var length:Number;
+
+    def constructor(len:Number): pure_native;
 }
 
 class WebSocket:native js
 {
+    var binaryType:String;
+    var buffferAmount: Number;
+    var extensions:String;
+    var protocol:String;
+    var readyState:Number;
+    var url:String;
+
     def constructor(str:String): pure_native;
     def constructor(str:String, protocol:String): pure_native;
     def constructor(str:String, protocol:Array<String>): pure_native;
 
-    def addEventListener(type:String, listener:lambda(Event)): native {
-        listener.listener = true;
-        this.addEventListener(type, listener.function_);
+    var onopen:lambda(Event);
+    var onerror:lambda(Event);
+    var onmessage:lambda(Event);
+    var onclose:lambda(Event);
+
+    def onopen(block_:lambda(Event)):native {
+        block_.listener = true;
+        this.onopen = block_.function_;
     }
+
+    def onerror(block_:lambda(Event)):native {
+        block_.listener = true;
+        this.onerror = block_.function_;
+    }
+
+    def onmessage(block_:lambda(Event)):native {
+        block_.listener = true;
+        this.onmessage = block_.function_;
+    }
+
+    def onclose(block_:lambda(Event)):native {
+        block_.listener = true;
+        this.onclose = block_.function_;
+    }
+
+    def close(): pure_native;
+    def close(code:Number, reason:String): pure_native;
+
+    def send(str:String): pure_native;
+    def send(buffer:ArrayBuffer): pure_native;
+    def send(blob:Blob):pure_native;
+    def send(buf:Int8Array): pure_native;
+    def send(buf:Uint8Array): pure_native;
+    def send(buf:Uint8ClampedArray): pure_native;
+    def send(buf:Int16Array): pure_native;
+    def send(buf:Uint16Array): pure_native;
+    def send(buf:Int32Array): pure_native;
+    def send(buf:Uint32Array): pure_native;
+    def send(buf:Float32Array): pure_native;
+    def send(buf:Float64Array): pure_native;
+    def send(buf:DataView): pure_native;
 }
 

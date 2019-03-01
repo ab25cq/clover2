@@ -869,13 +869,18 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
     sBuf_append_str(info->js_source, "\n");
 
     if(func_name) {
-        snprintf(line, 1024, "var lambda = funcToLambda.get('%s');", func_name);
+        snprintf(line, 1024, "var _lambda = funcToLambda.get('%s');", func_name);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyParentStack(lvar); }");
+        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener) { _lambda.copyParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
+
+        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
     }
 
     while(pc - code->mCodes < code->mLen) {

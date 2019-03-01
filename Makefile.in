@@ -39,7 +39,7 @@ NODEJS=@NODEJS@
 ##########################################################
 # main
 ##########################################################
-all: cclover2 clover2 tyclover2 $(INTERPRETER) SortableArray.oclcl libclover2.so.1.0.0 jit-compile
+all: cclover2 clover2 tyclover2 $(INTERPRETER) SortableArray.oclcl String.ojsclcl libclover2.so.1.0.0 jit-compile
 #	if which ctags > /dev/null; then if test $(OS) = DARWIN; then ctags src/*.c > /dev/null 2>&1; else ctags -R; fi; fi
 
 cclover2: config.h src/compiler.o $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS) $(JIT_OBJS) $(JIT_RUNTIME_OBJS)
@@ -57,7 +57,7 @@ iclover2: config.h src/interpreter.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(J
 tyclover2: config.h src/get_type.o $(COMMON_OBJS) $(OBJS) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS)
 	if test $(JIT) = 1; then $(CXX) -o tyclover2 src/get_type.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(JIT_RUNTIME_OBJS) $(CFLAGS) $(LIBS) $(CXXFLAGS); else $(CC) -o tyclover2 src/get_type.o $(COMMON_OBJS) $(OBJS:src/class_clover_runtime.o=) $(COMPILER_OBJS) $(CFLAGS) $(LIBS); fi
 
-SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl JS.clcl
+SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Command.clcl File.clcl MyOwnLibrary.clcl CGI.clcl Reflection.clcl Socket.clcl SystemCalls.clcl Thread.clcl CLibrary.clcl
 	PWD=`pwd`; ./cclover2 -core Fundamental.clcl
 	PWD=`pwd`; ./cclover2 -core Thread.clcl
 	PWD=`pwd`; ./cclover2 -core String.clcl
@@ -71,8 +71,9 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core CGI.clcl
 	PWD=`pwd`; ./cclover2 -core Socket.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
-	PWD=`pwd`; ./cclover2 -core JS.clcl
 
+String.ojsclcl: JS.clcl
+	PWD=`pwd`; ./cclover2 -core JS.clcl
 	PWD=`pwd`; ./cclover2 -core String.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Function.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Lambda.ojsclcl
@@ -94,6 +95,16 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core System.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Clover.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Int8Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Uint8Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Uint8ClampedArray.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Int16Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Uint16Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Int32Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Uint32Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Float32Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Float64Array.ojsclcl
+	PWD=`pwd`; ./cclover2 -core DataView.ojsclcl
 
 libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
 	$(CC) -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS) $(JIT_RUNTIME_OBJS)
@@ -582,7 +593,19 @@ install:
 	$(INSTALL) -m 644 Map.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Document.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Blob.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int8Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint8Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint8ClampedArray.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int16Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint16Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int32Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint32Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Float32Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Float64Array.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 DataView.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Event.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ArrayBuffer.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 EventListnerOpetion.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 NodeList.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 WebSocket.ojsclcl $(DESTDIR)/share/clover2
@@ -592,6 +615,16 @@ install:
 	$(INSTALL) -m 644 WebSocket.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 String.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int8Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint8Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint8ClampedArray.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int16Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint16Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Int32Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Uint32Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Float32Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Float64Array.js $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 DataView.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Function.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Number.js $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Bool.js $(DESTDIR)/share/clover2
@@ -826,28 +859,6 @@ test:
 js-test:
 	PWD=`pwd` ./cclover2 code/Person.clcl
 	PWD=`pwd` ./cclover2 Person.ojsclcl
-	cp Person.ojsclcl code/
-	cp Person.js code/
-	cp Exception.js code/
-	cp String.js code/
-	cp WebSocket.js code/
-	cp Clover.js code/
-	cp System.js code/
-	cp Number.js code/
-	cp Bool.js code/
-	cp Map.js code/
-	cp Set.js code/
-	cp Tuple1.js code/
-	cp Tuple2.js code/
-	cp Tuple3.js code/
-	cp Tuple4.js code/
-	cp Tuple5.js code/
-	cp Tuple6.js code/
-	cp Tuple7.js code/
-	cp Tuple8.js code/
-	cp Tuple9.js code/
-	cp Lambda.js code/
-	cp Exception.js code/
 	PWD=`pwd` ./cclover2 code/js.jscl
 	PWD=`pwd` ./cclover2 code/js.ojscl
 	PWD=`pwd` $(NODEJS) code/js.js
