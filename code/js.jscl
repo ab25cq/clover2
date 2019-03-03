@@ -618,3 +618,34 @@ while(true) {
     println(iterator_result.done);
 }
 Clover.test("int8array test7", Int8Array([4,5,7,4,5]).every { it > 3 });
+Clover.test("int8array test8", Int8Array([1, 30, 39, 29, 10, 13]).every { it < 40; });
+Clover.test("int8array test9", !Int8Array([1, 30, 39, 29, 10, 41]).every { it < 40; });
+
+Clover.test("int8array test10", Int8Array([1,2,3,4,5,6]).filter { it > 3 }.equals(Int8Array([4,5,6,0,0,0])));
+Clover.test("int8array test11", Int8Array([1,2,3,4,5,6]).find { it > 3 } ==  4);
+Clover.test("int8array test12", Int8Array([1,2,3,4,5,6]).findIndex { it > 3 } ==  3);
+
+Clover.test("int8array test13", Int8Array([1,2,3,4,5,6]).indexOf(3) == 2 && Int8Array([1,2,3,4,5,6,1]).indexOf(1, 2) == 6);
+
+Clover.test("int8array test14", Int8Array([1,2,3,4,5,6]).slice(0,2).equals(Int8Array([1,2])));
+
+Clover.test("int8array test15", Int8Array([1,2,3,4,5,6]).length == 6);
+Clover.test("int8array test16", Int8Array([1,2,3,4,5,6]).includes(1));
+Clover.test("int8array test17", Int8Array([1,2,3,4,5,6]).fill(4).equals(Int8Array([4,4,4,4,4,4])));
+Clover.test("int8array test18", Int8Array([1,2,3,4,5,6]).fill(4,1,2).equals(Int8Array([1,4,3,4,5,6])));
+Clover.test("int8array test19", Int8Array([1,2,3,4,5,6]).fill(4,1,2).equals(Int8Array([1,4,3,4,5,6])));
+Clover.test("int8array test20", Int8Array(3).fill(4).equals(Int8Array([4,4,4])));
+Clover.test("int8array test21", Int8Array([1,2,3]).reverse().equals(Int8Array([3,2,1])));
+Clover.test("int8array test22", Int8Array([4,1,5]).sort().equals(Int8Array([1,4,5])));
+
+Clover.test("int8array test23", Int8Array([4,1,5]).join().equals("4,1,5"));
+Clover.test("int8array test24", Int8Array([4,1,5]).join(" ").equals("4 1 5"));
+Clover.test("int8array test25", Int8Array([1,2,3,1,2,3]).lastIndexOf(1) == 3 && Int8Array([1,2,3,1,2,3]).lastIndexOf(1,2) == 0 && Int8Array([1,2,3,1,2,3]).lastIndexOf(1,-1) == 3 && Int8Array([1,2,3,1,2,3]).lastIndexOf(1, -4) == 0);
+Clover.test("int8array test26", Int8Array([1,2,3]).map { it * 2 }.equals(Int8Array([2,4,6])));
+Clover.test("int8array test27", Int8Array([1,2,3]).some { it == 2 });
+
+Clover.test("int8array test28", Int8Array([1,2,3]).subarray(1,3).equals(Int8Array([2,3])));
+
+var int8array4 = Int8Array(8).set([1,2,3], 3);
+
+#Clover.test("int8array test29", int8array4.equals(Int8Array([0,0,0,1,2,3,0,0])));

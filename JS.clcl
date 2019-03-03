@@ -1339,7 +1339,7 @@ module MTypedArray
             return true;
         }
         else {
-            return fasel;
+            return false;
         }
     }
 
@@ -1511,6 +1511,8 @@ module MTypedArray
     }
 
     def toString(): pure_native String;
+
+    def set(array_:Array<Number>, offset:Number): pure_native;
 }
 
 class Int8Array:native js
