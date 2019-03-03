@@ -873,11 +873,11 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener) { _lambda.copyParentStack(lvar); }");
+        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener && !_lambda.lambda_) { _lambda.copyParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
+        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener && !_lambda.lambda_) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
@@ -942,12 +942,17 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyBackParentStack(lvar); }");
+                    snprintf(line, 1024, "if(lambda != undefined && lambda.listener && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
                 }
 //print_inst("OP_RETURN", info);
-                snprintf(line, 1024, "return clover2Stack[clover2StackIndex-1];");
+                snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d", param_num);
+
+                sBuf_append_str(info->js_source, line);
+                sBuf_append_str(info->js_source, "\n");
+
+                snprintf(line, 1024, "return tmp");
 
                 sBuf_append_str(info->js_source, line);
                 sBuf_append_str(info->js_source, "\n");
@@ -2074,13 +2079,11 @@ show_js_stack(info);
 
                     char* block_name = CONS_str(constant, block_name_offset);
 
-                    snprintf(line, 1024, "var stack_point = clover2StackIndex");
+                    snprintf(line, 1024, "var params_top = clover2StackIndex-%d", num_params+1);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-//show_js_stack(info);
-
-                    snprintf(line, 1024, "var params_top = clover2StackIndex-%d; var lambda_object = clover2Stack[params_top]", num_params+1);
+                    snprintf(line, 1024, "var lambda_object = clover2Stack[params_top]");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
@@ -2092,15 +2095,11 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "if(!lambda_object.lamda_) { for(var i=0; i<parent_var_num; i++) { clover2Stack[clover2StackIndex] = clover2Stack[lvar+i]; clover2StackIndex++ }}");
+                    snprintf(line, 1024, "if(!lambda_object.lambda_) { clover2StackIndex -= %d; clover2StackIndex += parent_var_num; }", num_params);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "var index_point = clover2StackIndex;");
-                    sBuf_append_str(info->js_source, line);
-                    sBuf_append_str(info->js_source, "\n");
-
-                    snprintf(line, 1024, "for(var i=0; i<lambda_params.length; i++) { clover2Stack[clover2StackIndex] = lambda_params[i]; clover2StackIndex++; }");
+                    snprintf(line, 1024, "if(!lambda_object.lambda_) { for(var i=0; i<lambda_params.length; i++) { clover2Stack[clover2StackIndex] = lambda_params[i]; clover2StackIndex++; } }");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
@@ -2108,15 +2107,11 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "clover2StackIndex = stack_point");
-                    sBuf_append_str(info->js_source, line);
-                    sBuf_append_str(info->js_source, "\n");
-
-                    snprintf(line, 1024, "if(!lambda_object.lambda_) {for(var i=0; i<parent_var_num; i++) { clover2Stack[lvar+i] = clover2Stack[stack_point+i]}}");
-                    sBuf_append_str(info->js_source, line);
-                    sBuf_append_str(info->js_source, "\n");
-
                     snprintf(line, 1024, "clover2StackIndex -= %d", num_params+1);
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "if(!lambda_object.lambda_) { clover2StackIndex -= parent_var_num; }");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
@@ -2395,7 +2390,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, NULL, info))
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, info))
                     {
                         return FALSE;
                     }
@@ -2408,7 +2403,12 @@ show_js_stack(info);
                     snprintf(line, 1024, "}\n");
                     sBuf_append_str(info->js_source, line);
 
-                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String_Number_Number(null, %s, %d, \"%s\", %d, lvar); clover2StackIndex++;", lambda ? "true":"false", parent_var_num, func_name, num_params);
+                    snprintf(line, 1024, "clover2Stack[clover2StackIndex] = new Lambda().constructor__Function_bool_Number_String_Number_Number(null, %s, %d, \"%s\", %d, lvar); clover2StackIndex++;", "false", parent_var_num, func_name, num_params);
+
+                    sBuf_append_str(info->js_source, line);
+                    sBuf_append_str(info->js_source, "\n");
+
+                    snprintf(line, 1024, "funcToLambda.set('%s', clover2Stack[clover2StackIndex-1])", func_name);
 
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
@@ -2449,16 +2449,15 @@ show_js_stack(info);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(lambda != undefined && lambda.listener) { lambda.copyBackParentStack(lvar); }");
+        snprintf(line, 1024, "if(lambda != undefined && lambda.listener && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
     }
 
-/*
-    snprintf(line, 1024, "clover2StackIndex = lvar");
+    snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d; return tmp;", param_num);
+
     sBuf_append_str(info->js_source, line);
     sBuf_append_str(info->js_source, "\n");
-*/
 
     return TRUE;
 }

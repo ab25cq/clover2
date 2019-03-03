@@ -971,46 +971,9 @@ class Lambda:js
         this.funcName = func_name;
         this.numParams = num_params;
         this.lvar = lvar;
-        this.listener = false;
+        this.listener = true;
 
         return this;
-    }
-
-    def run(): pure_native {
-        var stack_point = clover2StackIndex;
-
-        var params_top = clover2StackIndex-this.numParams-1;
-        var lambda_object = clover2Stack[params_top];
-
-        var lambda_params = clover2Stack.slice(params_top+1, params_top+1+this.numParams);
-        var parent_var_num = lambda_object.parentVarNum;
-
-        if(!lambda_object.lamda_) { 
-            for(var i=0; i<parent_var_num; i++) { 
-                clover2Stack[clover2StackIndex] = clover2Stack[lvar+i];
-                clover2StackIndex++; 
-            }
-        }
-
-        for(var i=0; i<lambda_params.length; i++) { 
-            clover2Stack[clover2StackIndex] = lambda_params[i]; 
-            clover2StackIndex++; 
-        }
-
-        tmp = lambda_object.function_(); 
-
-        clover2StackIndex = stack_point;
-
-        if(!lambda_object.lambda_) {
-            for(var i=0; i<parent_var_num; i++) { 
-                clover2Stack[lvar+i] = clover2Stack[stack_point+i]
-            }
-        }
-
-        clover2StackIndex -= this.numParams+1;
-
-        clover2Stack[clover2StackIndex] = tmp; 
-        clover2StackIndex++
     }
 
     def copyParentStack(lvar:Number): pure_native {
@@ -1365,6 +1328,20 @@ module MTypedArray
     def put(index:Number, n:Number):native {
         this[index] = n;
     }
+    def equals(right:SELF): native bool {
+        if(this.length == right.length) {
+            for(var i = 0; i < this.length; i++) {
+                if(this[i] != right[i]) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else {
+            return fasel;
+        }
+    }
 
     def copyWithin(index:Number, start:Number=0): native SELF {
         var end = this.length;
@@ -1607,22 +1584,18 @@ class WebSocket:native js
     var onclose:lambda(Event);
 
     def onopen(block_:lambda(Event)):native {
-        block_.listener = true;
         this.onopen = block_.function_;
     }
 
     def onerror(block_:lambda(Event)):native {
-        block_.listener = true;
         this.onerror = block_.function_;
     }
 
     def onmessage(block_:lambda(Event)):native {
-        block_.listener = true;
         this.onmessage = block_.function_;
     }
 
     def onclose(block_:lambda(Event)):native {
-        block_.listener = true;
         this.onclose = block_.function_;
     }
 

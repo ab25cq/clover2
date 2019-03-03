@@ -70,13 +70,15 @@ Clover.test("string test3", "ABC".match(/^A/));
 var i = "^A";
 Clover.test("string test4", "ABC".match(/\{i}/));
 
+
 var k = lambda(x:Number,y:Number):Number { return x + y };
 Clover.test("lambda test1", k(1,2) == 3);
-
 var l = 9;
 
 var m = closure(x:Number, y:Number):Number { return x + y + l };
 Clover.test("lambda test2", m(1, 2) == 12);
+
+
 Clover.test("lambda test3", l == 9);
 
 var n = 9;
@@ -566,7 +568,8 @@ def funb(x:Number, y:Number):Number {
     return a2 + x + y;
 }
 
-Clover.test("function test", funb(2, 3) == 7 && a2 == 2);
+Clover.test("function test1", funb(2, 3) == 7);
+Clover.test("function test2", a2 == 2);
 
 xyz := Map<String,Number>();
 
@@ -593,3 +596,25 @@ int8array2.sort();
 
 Clover.test("int8array test2", int8array2[0] == 1 && int8array2[1] == 2 && int8array2[2] == 40);
 
+var int8array3 = Int8Array([1,2,3,4,5]);
+
+int8array3 = int8array3.copyWithin(-2);
+
+Clover.test("int8array test3", Int8Array([1,2,3,4,5]).copyWithin(-2).equals(Int8Array([1,2,3,1,2])));
+Clover.test("int8array test4", Int8Array([1,2,3,4,5]).copyWithin(0,3).equals(Int8Array([4,5,3,4,5])));
+Clover.test("int8array test5", Int8Array([1,2,3,4,5]).copyWithin(0,3,4).equals(Int8Array([4,2,3,4,5])));
+Clover.test("int8array test6", Int8Array([1,2,3,4,5]).copyWithin(0,-2,-1).equals(Int8Array([4,2,3,4,5])));
+
+var it6 = Int8Array([4,7,1]).entries();
+
+while(true) {
+    var iterator_result = it6.next();
+
+    if(iterator_result.done) {
+        break;
+    }
+
+    println(iterator_result.value);
+    println(iterator_result.done);
+}
+Clover.test("int8array test7", Int8Array([4,5,7,4,5]).every { it > 3 });
