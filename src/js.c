@@ -873,11 +873,11 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener && !_lambda.lambda_) { _lambda.copyParentStack(lvar); }");
+        snprintf(line, 1024, "if(_lambda != undefined && !_lambda.lambda_) { _lambda.copyParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener && !_lambda.lambda_) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
+        snprintf(line, 1024, "if(_lambda != undefined && !_lambda.lambda_) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
@@ -942,7 +942,7 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    snprintf(line, 1024, "if(lambda != undefined && lambda.listener && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
+                    snprintf(line, 1024, "if(lambda != undefined && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
                 }
@@ -2016,7 +2016,6 @@ show_js_stack(info);
                     else {
                         snprintf(func_name, CLASS_NAME_MAX + 128, "%s%d", CONS_str(constant, class_name_offset), block_id);
                     }
-                    
 
                     snprintf(line, 1024, "var lambda__ = function %s () {", func_name);
                     sBuf_append_str(info->js_source, line);
@@ -2449,7 +2448,7 @@ show_js_stack(info);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
-        snprintf(line, 1024, "if(lambda != undefined && lambda.listener && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
+        snprintf(line, 1024, "if(lambda != undefined && !_lambda.lambda_) { lambda.copyBackParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
     }

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.1.7
+
+    Continue to implement the output of Java Script source 
+
 version 10.1.6
 
     Continue to implement the output of Java Script source 
