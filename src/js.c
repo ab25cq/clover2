@@ -1,6 +1,6 @@
 #include "common.h"
 
-BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, sVMInfo* info);
+BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, BOOL return_value, sVMInfo* info);
 void load_js_class(char* class_name, sVMInfo* info);
 
 BOOL js_class_compiler(char* sname) 
@@ -108,7 +108,7 @@ BOOL js_class_compiler(char* sname)
                     int var_num = method->mVarNum;
                     int param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
-                    if(!js(code, constant, var_num, param_num, klass, NULL, &info)) {
+                    if(!js(code, constant, var_num, param_num, klass, NULL, TRUE, &info)) {
                         MFREE(info.running_class_name);
                         MFREE(info.running_method_name);
                         MFREE(output.mBuf);
@@ -231,7 +231,7 @@ BOOL js_class_compiler(char* sname)
                     sBuf_append_str(info.js_source, line);
                     sBuf_append_str(info.js_source, "\n");
 
-                    if(!js(code, constant, var_num, param_num, klass, NULL, &info)) {
+                    if(!js(code, constant, var_num, param_num, klass, NULL, TRUE, &info)) {
                         MFREE(info.running_class_name);
                         MFREE(info.running_method_name);
                         MFREE(output.mBuf);
@@ -451,7 +451,7 @@ BOOL js_compiler(char* fname)
 
     int param_num = 0;
 
-    if(!js(&code, &constant, var_num, param_num, NULL, NULL, &info)) {
+    if(!js(&code, &constant, var_num, param_num, NULL, NULL, FALSE, &info)) {
         MFREE(info.running_class_name);
         MFREE(info.running_method_name);
         fclose(f);
@@ -837,7 +837,7 @@ BOOL invoke_js_method(sCLClass* klass, BOOL native, sBuf* native_codes, BOOL cla
     return TRUE;
 }
 
-BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, sVMInfo* info)
+BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass* klass, char* func_name, BOOL return_value, sVMInfo* info)
 {
     reset_js_load_class();
 
@@ -2023,7 +2023,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, "\n");
 
 
-                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, info))
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, TRUE, info))
                     {
                         return FALSE;
                     }
@@ -2390,7 +2390,7 @@ show_js_stack(info);
                     sBuf_append_str(info->js_source, line);
                     sBuf_append_str(info->js_source, "\n");
 
-                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, info))
+                    if(!js(&codes2, &constant2, block_var_num, num_params + parent_var_num, klass, func_name, TRUE, info))
                     {
                         return FALSE;
                     }
@@ -2454,10 +2454,17 @@ show_js_stack(info);
         sBuf_append_str(info->js_source, "\n");
     }
 
-    snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d; return tmp;", param_num);
+    
+    snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d;", param_num);
 
     sBuf_append_str(info->js_source, line);
     sBuf_append_str(info->js_source, "\n");
+
+    if(return_value) {
+        snprintf(line, 1024, "return tmp;");
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+    }
 
     return TRUE;
 }
