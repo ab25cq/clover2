@@ -961,6 +961,7 @@ class Lambda:js
     var numParams:Number;
     var stackPoint:Number;
     var lvar:Number;
+    var listener:bool;
 
     def constructor(function_:Function, lambda_:bool, parent_var_num:Number, func_name:String, num_params:Number, lvar:Number):native Lambda 
     {
@@ -970,6 +971,7 @@ class Lambda:js
         this.funcName = func_name;
         this.numParams = num_params;
         this.lvar = lvar;
+        this.listener = false;
 
         return this;
     }
@@ -1584,18 +1586,22 @@ class WebSocket:native js
     var onclose:lambda(Event);
 
     def onopen(block_:lambda(Event)):native {
+        block_.listener = true;
         this.onopen = block_.function_;
     }
 
     def onerror(block_:lambda(Event)):native {
+        block_.listener = true;
         this.onerror = block_.function_;
     }
 
     def onmessage(block_:lambda(Event)):native {
+        block_.listener = true;
         this.onmessage = block_.function_;
     }
 
     def onclose(block_:lambda(Event)):native {
+        block_.listener = true;
         this.onclose = block_.function_;
     }
 

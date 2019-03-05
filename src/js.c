@@ -860,6 +860,11 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
     sBuf_append_str(info->js_source, line);
     sBuf_append_str(info->js_source, "\n");
 
+    snprintf(line, 1024, "var clover2StackBefore = null; var clover2StackIndexBefore = -1;");
+
+    sBuf_append_str(info->js_source, line);
+    sBuf_append_str(info->js_source, "\n");
+
     snprintf(line, 1024, "var lvar = clover2StackIndex-%d", param_num);
     sBuf_append_str(info->js_source, line);
     sBuf_append_str(info->js_source, "\n");
@@ -873,6 +878,10 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
 
+        snprintf(line, 1024, "if(_lambda != undefined && _lambda.listener) { clover2StackBefore = clover2Stack; clover2StackIndexBefore = clover2StackIndex; clover2Stack = clover2Stack.slice(0); lvar = 0; clover2StackIndex = lvar + %d }", var_num);
+        sBuf_append_str(info->js_source, line);
+        sBuf_append_str(info->js_source, "\n");
+
         snprintf(line, 1024, "if(_lambda != undefined && !_lambda.lambda_) { _lambda.copyParentStack(lvar); }");
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
@@ -880,7 +889,6 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
         snprintf(line, 1024, "if(_lambda != undefined && !_lambda.lambda_) { for(var i=0; i<%s.arguments.length; i++) { clover2Stack[lvar+_lambda.parentVarNum+i] = %s.arguments[i]; } }", func_name, func_name);
         sBuf_append_str(info->js_source, line);
         sBuf_append_str(info->js_source, "\n");
-
     }
 
     while(pc - code->mCodes < code->mLen) {
@@ -947,6 +955,11 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                     sBuf_append_str(info->js_source, "\n");
                 }
 //print_inst("OP_RETURN", info);
+
+                snprintf(line, 1024, "if(clover2StackBefore != null) { clover2Stack = clover2StackBefore; clover2StackIndex = clover2StackIndexBefore; }");
+                sBuf_append_str(info->js_source, line);
+                sBuf_append_str(info->js_source, "\n");
+
                 snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d", param_num);
 
                 sBuf_append_str(info->js_source, line);
@@ -2453,6 +2466,9 @@ show_js_stack(info);
         sBuf_append_str(info->js_source, "\n");
     }
 
+    snprintf(line, 1024, "if(clover2StackBefore != null) { clover2Stack = clover2StackBefore; clover2StackIndex = clover2StackIndexBefore; }");
+    sBuf_append_str(info->js_source, line);
+    sBuf_append_str(info->js_source, "\n");
     
     snprintf(line, 1024, "tmp = clover2Stack[clover2StackIndex-1]; clover2StackIndex=lvar+%d;", param_num);
 
