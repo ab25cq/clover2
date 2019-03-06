@@ -21,7 +21,7 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
 
     method_name_and_params[0] = '\0';
 
-    xstrncpy(method_name_and_params, "initialize__", 1024);
+    xstrncpy(method_name_and_params, "initialize(", 1024);
 
     int i;
     for(i=0; i<num_elements; i++) {
@@ -29,8 +29,11 @@ BOOL initialize_tuple_object(CLObject tuple_object, int num_elements, CLObject* 
         snprintf(class_name, CLASS_NAME_MAX, "GenericsParametorClass%d", i);
         xstrncat(method_name_and_params, class_name, 1024);
 
-        if(i != num_elements-1) {
-            xstrncat(method_name_and_params, "_", 1024);
+        if(i == num_elements-1) {
+            xstrncat(method_name_and_params, ")", 1024);
+        }
+        else {
+            xstrncat(method_name_and_params, ",", 1024);
         }
     }
 

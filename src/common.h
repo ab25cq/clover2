@@ -312,6 +312,7 @@ struct sCLMethodStruct {
     unsigned int mNameOffset;
     unsigned int mPathOffset;
     unsigned int mMethodNameAndParamsOffset;
+    unsigned int mJSMethodNameAndParamsOffset;
     unsigned int mJSMethodNameOffset;
     int mMethodIndex;
 
@@ -440,6 +441,7 @@ typedef struct sCLClassStruct sCLClass;
 #define METHOD_PATH(klass, method) (CONS_str((&(klass)->mConst), (method)->mPathOffset))
 #define FIELD_NAME(klass, field) (CONS_str((&(klass)->mConst), (field)->mNameOffset))
 #define METHOD_NAME_AND_PARAMS(klass, method) (CONS_str((&(klass)->mConst), (method)->mMethodNameAndParamsOffset))
+#define METHOD_NAME_AND_PARAMS_JS(klass, method) (CONS_str((&(klass)->mConst), (method)->mJSMethodNameAndParamsOffset))
 
 void class_init();
 void class_final();
@@ -1974,6 +1976,7 @@ BOOL none_class_method_name_existance(sCLClass* klass, char* method_name);
 BOOL class_field_name_existance(sCLClass* klass, char* field_name);
 BOOL field_name_existance(sCLClass* klass, char* field_name);
 void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
+void create_method_name_and_params_for_js(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 BOOL is_method_param_name(char* name);
 BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type);

@@ -641,6 +641,16 @@ static void append_method_name_and_params_to_constant_pool_and_code(sCompileInfo
     append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
 }
 
+static void append_js_method_name_and_params_to_constant_pool_and_code(sCompileInfo* info, sCLClass* klass, sCLMethod* method)
+{
+    int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
+    char method_name_and_params[size_method_name_and_params];
+
+    xstrncpy(method_name_and_params, METHOD_NAME_AND_PARAMS_JS(klass, method), size_method_name_and_params);
+
+    append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+}
+
 void compile_err_msg(sCompileInfo* info, const char* msg, ...)
 {
     char msg2[1024];
@@ -3826,6 +3836,8 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                                 int size_method_name_and_params = METHOD_NAME_MAX + PARAMS_MAX * CLASS_NAME_MAX + 1024;
                                 char method_name_and_params[size_method_name_and_params];
                                 create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+                                char js_method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params_for_js(js_method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
                                 append_opecode_to_code(info->code, OP_MARK_SOURCE_CODE_POSITION2, info->no_output);
                                 append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
@@ -3834,6 +3846,7 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                                 append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                                 append_int_value_to_code(info->code, num_real_params, info->no_output);
                                 append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, js_method_name_and_params, info->no_output);
                                 sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                                 int size = get_var_size(result_type);
                                 append_int_value_to_code(info->code, size, info->no_output);
@@ -3895,10 +3908,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                                 append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
                                 append_int_value_to_code(info->code, info->sline, info->no_output);
 
+                                char js_method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params_for_js(js_method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
                                 append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                                 append_int_value_to_code(info->code, num_real_params, info->no_output);
                                 append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, js_method_name_and_params, info->no_output);
 
                                 sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                                 int size = get_var_size(result_type);
@@ -4485,9 +4501,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                                 append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
                                 append_int_value_to_code(info->code, info->sline, info->no_output);
 
+                                char js_method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params_for_js(js_method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
                                 append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                                 append_int_value_to_code(info->code, num_real_params, info->no_output);
                                 append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, js_method_name_and_params, info->no_output);
                                 sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                                 int size = get_var_size(result_type);
                                 append_int_value_to_code(info->code, size, info->no_output);
@@ -4550,9 +4570,13 @@ static BOOL compile_when_expression(unsigned int node, sCompileInfo* info)
                                 append_int_value_to_code(info->code, info->sline, info->no_output);
 
 
+                                char js_method_name_and_params[size_method_name_and_params];
+                                create_method_name_and_params_for_js(js_method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
+
                                 append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                                 append_int_value_to_code(info->code, num_real_params, info->no_output);
                                 append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+                                append_str_to_constant_pool_and_code(info->constant, info->code, js_method_name_and_params, info->no_output);
 
                                 sNodeType* result_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
                                 int size = get_var_size(result_type);
@@ -5809,10 +5833,13 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_str_to_constant_pool_and_code(info->constant, info->code, info->sname, info->no_output);
             append_int_value_to_code(info->code, info->sline, info->no_output);
 
+            char js_method_name_and_params[size_method_name_and_params];
+            create_method_name_and_params_for_js(js_method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_str_to_constant_pool_and_code(info->constant, info->code, method_name_and_params, info->no_output);
+            append_str_to_constant_pool_and_code(info->constant, info->code, js_method_name_and_params, info->no_output);
 
             sNodeType* result_type = create_node_type_with_class_name("Anonymous", info->pinfo->mJS);
             int size = get_var_size(result_type);
@@ -5872,6 +5899,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
             append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
             append_int_value_to_code(info->code, num_real_params, info->no_output);
             append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+            append_js_method_name_and_params_to_constant_pool_and_code(info, klass, method);
             int size = get_var_size(result_type);
             append_int_value_to_code(info->code, size, info->no_output);
 
@@ -6181,6 +6209,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                     append_int_value_to_code(info->code, num_real_params, info->no_output);
                     append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+                    append_js_method_name_and_params_to_constant_pool_and_code(info, klass, method);
 
                     int size = get_var_size(result_type);
                     append_int_value_to_code(info->code, size, info->no_output);
@@ -6682,6 +6711,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
                     append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                     append_int_value_to_code(info->code, num_real_params, info->no_output);
                     append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+                    append_js_method_name_and_params_to_constant_pool_and_code(info, klass, method);
 
                     int size = get_var_size(generics_types2);
                     append_int_value_to_code(info->code, size, info->no_output);
@@ -6822,6 +6852,7 @@ static BOOL compile_new_operator(unsigned int node, sCompileInfo* info)
                     append_opecode_to_code(info->code, OP_INVOKE_VIRTUAL_METHOD, info->no_output);
                     append_int_value_to_code(info->code, num_real_params, info->no_output);
                     append_method_name_and_params_to_constant_pool_and_code(info, klass, method);
+                    append_js_method_name_and_params_to_constant_pool_and_code(info, klass, method);
 
                     int size = get_var_size(generics_types2);
                     append_int_value_to_code(info->code, size, info->no_output);

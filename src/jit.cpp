@@ -1242,6 +1242,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 int offset = *(int*)pc;
                 pc += sizeof(int);
 
+                int offset0 = *(int*)pc;
+                pc += sizeof(int);
+
                 int size = *(int*)pc;
                 pc += sizeof(int);
 

@@ -73,7 +73,7 @@ BOOL initialize_carray_object(CLObject array_object, int num_elements, CLObject*
 {
     sCLClass* klass = get_class("Array", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // self
@@ -147,7 +147,7 @@ BOOL initialize_equalable_carray_object(CLObject array_object, int num_elements,
 {
     sCLClass* klass = get_class("EqualableArray", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // self
@@ -221,7 +221,7 @@ BOOL initialize_sortable_carray_object(CLObject array_object, int num_elements, 
 {
     sCLClass* klass = get_class("SortableArray", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[])";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = array_object;  // sel, infof

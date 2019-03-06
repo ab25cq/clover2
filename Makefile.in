@@ -72,8 +72,8 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core Socket.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
 
-String.ojsclcl: JS.clcl
-	PWD=`pwd`; ./cclover2 -core JS.clcl
+String.ojsclcl: JS.jsclcl
+	PWD=`pwd`; ./cclover2 -core JS.jsclcl
 	PWD=`pwd`; ./cclover2 -core String.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Function.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Lambda.ojsclcl
@@ -334,7 +334,7 @@ install:
 	$(INSTALL) -m 644 ./Container.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./File.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Fundamental.clcl $(DESTDIR)/share/clover2
-	$(INSTALL) -m 644 ./JS.clcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 ./JS.jsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./MyOwnLibrary.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Range.clcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./Reflection.clcl $(DESTDIR)/share/clover2

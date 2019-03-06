@@ -13,7 +13,7 @@ BOOL initialize_list_object(CLObject list_object, int num_elements, CLObject* it
 {
     sCLClass* klass = get_class("List", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self
@@ -57,7 +57,7 @@ BOOL initialize_sortable_list_object(CLObject list_object, int num_elements, CLO
 {
     sCLClass* klass = get_class("SortableList", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self
@@ -101,7 +101,7 @@ BOOL initialize_equalable_list_object(CLObject list_object, int num_elements, CL
 {
     sCLClass* klass = get_class("EqualableList", FALSE);
 
-    char* method_name_and_params = "initialize__GenericsParametorClass0A_uint";
+    char* method_name_and_params = "initialize(GenericsParametorClass0[],uint)";
     sCLMethod* method = search_for_method_from_virtual_method_table(klass, method_name_and_params);
 
     (*stack_ptr)->mObjectValue = list_object;  // self

@@ -1770,6 +1770,38 @@ void boxing_primitive_value_to_object(CLVALUE object, CLVALUE* result, sCLClass*
 
 void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)
 {
+//    strcpy(method_name_and_params2, method_name_and_params);
+
+    char* p = method_name_and_params;
+    char* p2 = method_name_and_params2;
+
+    char* result = strstr(p, "(");
+
+    memcpy(p2, p, result -p);
+    p2 += result -p;
+    p = result;
+
+    while(1) {
+        char* result = strstr(p, class_name);
+
+        if(result == NULL) {
+            memcpy(p2, p, strlen(p));
+            p2[strlen(p)] = '\0';
+            break;
+        }
+
+        memcpy(p2, p, result - p);
+        p2 += result - p;
+        memcpy(p2, "Self", 4);
+        p2 += 4;
+
+        p = result + strlen(class_name);
+    }
+}
+
+/*
+void Self_convertion_of_method_name_and_params(char* method_name_and_params, char* method_name_and_params2, char* class_name)
+{
     char* p = method_name_and_params;
     char* p2 = method_name_and_params2;
 
@@ -1796,6 +1828,7 @@ void Self_convertion_of_method_name_and_params(char* method_name_and_params, cha
         p = result + strlen(class_name);
     }
 }
+*/
 
 static BOOL string_expression(char* str, int str_len, sBuf* buf, int* string_expression_offsets, CLObject* string_expression_object, int num_string_expression, CLVALUE** stack_ptr, CLVALUE* stack, int var_num, sVMInfo* info)
 {
@@ -5462,6 +5495,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     pc += sizeof(int);
 
                     unsigned int offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int offset0 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int size = *(int*)pc;

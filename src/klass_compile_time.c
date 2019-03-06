@@ -80,7 +80,7 @@ static void create_method_path(char* result, int result_size, sCLMethod* method,
 */
 }
 
-void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
+void create_method_name_and_params_for_js(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
 {
     *result = 0;
 
@@ -114,6 +114,43 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
             xstrncat(result, "_", size_result);
         }
     }
+}
+
+void create_method_name_and_params(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params)
+{
+    *result = 0;
+
+    xstrncpy(result, method_name, size_result);
+    xstrncat(result, "(", size_result);
+
+    int i;
+    for(i=0; i<num_params; i++) {
+        sNodeType* param_type = param_types[i];
+        sCLClass* klass2 = param_type->mClass;
+        BOOL array = param_type->mArray;
+        BOOL nullable = param_type->mNullable;
+
+        if(klass2 == klass) {
+            xstrncat(result, "Self", size_result);
+        }
+        else {
+            xstrncat(result, CLASS_NAME(klass2), size_result);
+        }
+
+        if(array) {
+            xstrncat(result, "[]", size_result);
+        }
+
+        if(nullable) {
+            xstrncat(result, "?", size_result);
+        }
+
+        if(i != num_params-1) {
+            xstrncat(result, ",", size_result);
+        }
+    }
+
+    xstrncat(result, ")", size_result);
 }
 
 void create_method_name_for_js(char* result, int size_result, sCLClass* klass, sCLMethod* method)
@@ -309,6 +346,12 @@ BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* param
     create_method_name_and_params(method_name_and_params, size_method_name_and_params, klass, method_name, param_types, num_params);
 
     klass->mMethods[num_methods].mMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params, FALSE);
+
+    char method_name_and_params_for_js[size_method_name_and_params];
+
+    create_method_name_and_params_for_js(method_name_and_params_for_js, size_method_name_and_params, klass, method_name, param_types, num_params);
+
+    klass->mMethods[num_methods].mJSMethodNameAndParamsOffset = append_str_to_constant_pool(&klass->mConst, method_name_and_params_for_js, FALSE);
 
     char js_method_name[size_method_name_and_params];
     create_method_name_for_js(js_method_name, size_method_name_and_params, klass, &klass->mMethods[num_methods]);
@@ -881,6 +924,7 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         sBuf_append_int(buf, method->mNameOffset);
         sBuf_append_int(buf, method->mPathOffset);
         sBuf_append_int(buf, method->mMethodNameAndParamsOffset);
+        sBuf_append_int(buf, method->mJSMethodNameAndParamsOffset);
         sBuf_append_int(buf, method->mJSMethodNameOffset);
         sBuf_append_int(buf, method->mMethodIndex);
 

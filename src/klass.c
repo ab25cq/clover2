@@ -440,6 +440,12 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
             return FALSE;
         }
 
+        method->mJSMethodNameAndParamsOffset = n;
+
+        if(!read_int_from_file(fd, &n)) {
+            return FALSE;
+        }
+
         method->mJSMethodNameOffset = n;
 
         if(!read_int_from_file(fd, &n)) {

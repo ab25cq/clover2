@@ -21,7 +21,7 @@
 #include <dirent.h>
 #include <libgen.h>
 
-static void clover2_init()
+static void clover2_init(BOOL js)
 {
     class_system_init();
     thread_init();
@@ -32,7 +32,12 @@ static void clover2_init()
     class_init();
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     stack_init();
-    (void)class_init_on_runtime();
+    if(js) {
+        (void)class_init_on_runtime_for_js();
+    }
+    else {
+        (void)class_init_on_runtime();
+    }
 }
 
 static void clover2_final()
@@ -60,11 +65,11 @@ static void compiler_final()
     free_nodes();
 }
 
-static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table)
+static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_table, sNodeType** type_, sVarTable** result_lv_table, BOOL js)
 {
     sCLClass* klass = NULL;
     if(class_name) {
-        klass = get_class_with_load_and_initialize(class_name, FALSE);
+        klass = get_class_with_load_and_initialize(class_name, js);
 
         if(klass == NULL) {
             *type_ = NULL;
@@ -84,7 +89,7 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
     info.parse_phase = 0;
     info.get_type_for_interpreter = TRUE;
     info.klass = klass;
-    info.mJS = FALSE;
+    info.mJS = js;
 
     sCompileInfo cinfo;
     
@@ -134,13 +139,13 @@ static BOOL get_type(char* class_name, char* source, char* fname, sVarTable* lv_
 }
 
 
-static void tyclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name)
+static void tyclover_get_type(char* source_value, char* fname_object_value, char* type_name, int type_name_size, char* class_name, BOOL js)
 {
     sVarTable* lv_table = init_var_table();
     sVarTable* result_lv_table;
     sNodeType* type_ = NULL;
 
-    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table);
+    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table, js);
 
     if(type_ == NULL || type_->mClass == NULL) {
         type_name[0] = '\0';
@@ -151,13 +156,13 @@ static void tyclover_get_type(char* source_value, char* fname_object_value, char
     }
 }
 
-static void tyclover_print_local_variable(char* source_value, char* fname_object_value, char* class_name)
+static void tyclover_print_local_variable(char* source_value, char* fname_object_value, char* class_name, BOOL js)
 {
     sVarTable* lv_table = init_var_table();
     sVarTable* result_lv_table;
     sNodeType* type_ = NULL;
 
-    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table);
+    (void)get_type(class_name, source_value, fname_object_value, lv_table, &type_, &result_lv_table, js);
 
     sVarTable* it = result_lv_table;
 
@@ -216,7 +221,7 @@ static BOOL is_shell_mode(char* source, char* fname, sVarTable* lv_table)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.1.1";
+char* gVersion = "10.2.0";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -227,13 +232,6 @@ static int gInitInputCursorPosition;
 
 int main(int argc, char** argv)
 {
-    init_vtable();
-    init_node_types();
-    init_node_block_types();
-    clover2_init();
-    parser_init();
-    compiler_init(FALSE);
-
     sBuf buf;
     sBuf_init(&buf);
 
@@ -243,6 +241,7 @@ int main(int argc, char** argv)
     BOOL get_command_name = FALSE;
     BOOL get_local_variable = FALSE;
     BOOL get_shell_mode = FALSE;
+    BOOL js = FALSE;
 
     int i;
     for(i=1; i<argc; i++) {
@@ -258,11 +257,21 @@ int main(int argc, char** argv)
         else if(strcmp(argv[i], "--shell") == 0) {
             get_shell_mode = TRUE;
         }
+        else if(strcmp(argv[i], "--js") == 0) {
+            js = TRUE;
+        }
         else {
             class_name = argv[i];
         }
     }
 
+    init_vtable();
+    init_node_types();
+    init_node_block_types();
+    clover2_init(js);
+    parser_init();
+    compiler_init(FALSE);
+    
     if(get_shell_mode) {
         while(!feof(stdin)) {
             char buf2[BUFSIZ];
@@ -301,11 +310,18 @@ int main(int argc, char** argv)
             sBuf_append(&buf, buf2, result);
         }
 
-        tyclover_print_local_variable(buf.mBuf, "tyclover2", class_name);
+        tyclover_print_local_variable(buf.mBuf, "tyclover2", class_name, js);
         MFREE(buf.mBuf);
     }
     else if(get_class_name) {
         sClassTable* p = gHeadClassTable;
+
+        if(js) {
+            p = gJSHeadClassTable;
+        }
+        else {
+            p = gHeadClassTable;
+        }
 
         while(p) {
             sCLClass* klass = p->mItem;
@@ -336,7 +352,7 @@ int main(int argc, char** argv)
         }
 
         char type_name[1024];
-        tyclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name);
+        tyclover_get_type(buf.mBuf, "tyclover2", type_name, 1024, class_name, js);
 
         printf("%s\n", type_name);
 

@@ -1,4 +1,12 @@
 
+clover2 (10.2.0-1) unstable; urgency=medium
+
+    * Fixed the bug of REPL
+
+clover2 (10.1.9-1) unstable; urgency=medium
+
+    * Implement tyclover2 for Java Script.
+
 clover2 (10.1.8-1) unstable; urgency=medium
 
     * Continue to implement the output of Java Script source 

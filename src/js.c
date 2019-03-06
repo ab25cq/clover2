@@ -72,7 +72,7 @@ BOOL js_class_compiler(char* sname)
                     snprintf(line ,1024, "%s.prototype.%s = function (", class_name, METHOD_NAME2(klass, method));
                 }
                 else {
-                    snprintf(line ,1024, "%s.prototype.%s = function (", class_name, CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
+                    snprintf(line ,1024, "%s.prototype.%s = function (", class_name, CONS_str(&klass->mConst, method->mJSMethodNameAndParamsOffset));
                 }
 
                 sBuf_append_str(info.js_source, line);
@@ -124,7 +124,7 @@ BOOL js_class_compiler(char* sname)
 
                 if(method->mFlags & METHOD_FLAGS_PURE_NATIVE) 
                 {
-                    snprintf(line ,1024, "%s.prototype.%s = function (", class_name, CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
+                    snprintf(line ,1024, "%s.prototype.%s = function (", class_name, CONS_str(&klass->mConst, method->mJSMethodNameAndParamsOffset));
 
                     sBuf_append_str(info.js_source, line);
 
@@ -195,7 +195,7 @@ BOOL js_class_compiler(char* sname)
                     snprintf(line ,1024, "%s(", METHOD_NAME2(klass, method));
                 }
                 else {
-                    snprintf(line ,1024, "%s(", CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
+                    snprintf(line ,1024, "%s(", CONS_str(&klass->mConst, method->mJSMethodNameAndParamsOffset));
                 }
 
                 sBuf_append_str(info.js_source, line);
@@ -253,7 +253,7 @@ BOOL js_class_compiler(char* sname)
                         sBuf_append_str(info.js_source, "static ");
                     }
 
-                    snprintf(line ,1024, "%s(", CONS_str(&klass->mConst, method->mMethodNameAndParamsOffset));
+                    snprintf(line ,1024, "%s(", CONS_str(&klass->mConst, method->mJSMethodNameAndParamsOffset));
 
                     sBuf_append_str(info.js_source, line);
 
@@ -1230,7 +1230,7 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
 
                     BOOL result_type_is_bool = strcmp(result_class_name, "bool") == 0;
 
-                    if(!invoke_js_method(klass, method.mFlags & METHOD_FLAGS_NATIVE, method.mNativeCodes, method.mFlags & METHOD_FLAGS_CLASS_METHOD, result_type_is_bool, CONS_str(&klass->mConst, method.mMethodNameAndParamsOffset), method.mNumParams, method.mFlags & METHOD_FLAGS_PURE_NATIVE, METHOD_NAME2(klass, &method), info))
+                    if(!invoke_js_method(klass, method.mFlags & METHOD_FLAGS_NATIVE, method.mNativeCodes, method.mFlags & METHOD_FLAGS_CLASS_METHOD, result_type_is_bool, CONS_str(&klass->mConst, method.mJSMethodNameAndParamsOffset), method.mNumParams, method.mFlags & METHOD_FLAGS_PURE_NATIVE, METHOD_NAME2(klass, &method), info))
                     {
                         return FALSE;
                     }
@@ -1244,6 +1244,9 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                     pc += sizeof(int);
 
                     unsigned int offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    unsigned int offset0 = *(unsigned int*)pc;
                     pc += sizeof(int);
 
                     int size = *(int*)pc;
@@ -1281,7 +1284,7 @@ BOOL js(sByteCode* code, sConst* constant, int var_num, int param_num, sCLClass*
                         klass = NULL;
                     }
 
-                    char* method_name_and_params = CONS_str(constant, offset);
+                    char* method_name_and_params = CONS_str(constant, offset0);
                     char* method_name = CONS_str(constant, offset3);
 
                     if(!invoke_js_method(klass, native_method, NULL, class_method, result_type_is_bool, method_name_and_params, num_real_params - (!class_method?1:0), pure_native_method, method_name, info)) 

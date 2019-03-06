@@ -1,4 +1,12 @@
 
+version 10.2.0
+
+    Fixed the bug of REPL
+
+version 10.1.9
+
+    Implement tyclover2 for Java Script.
+
 version 10.1.8
 
     Continue to implement the output of Java Script source 

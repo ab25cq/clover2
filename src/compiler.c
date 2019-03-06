@@ -147,7 +147,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.1.1";
+char* gVersion = "10.2.0";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
@@ -207,7 +207,7 @@ int main(int argc, char** argv)
     clover2_init();
     compiler_init(no_load_fudamental_classes);
 
-    if(ext_sname && strcmp(ext_sname, ".clcl") == 0) {
+    if(ext_sname && (strcmp(ext_sname, ".clcl") == 0 || strcmp(ext_sname, ".jsclcl") == 0)) {
         if(!class_compiler(sname)) {
             fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
             clover2_final();
