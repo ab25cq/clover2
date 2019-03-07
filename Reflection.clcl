@@ -131,16 +131,19 @@ class Class
     numClassFields:int;
     numMethods:int;
 
+    JS:bool;
+
     def initialize() {}
 
-    def initialize(class_name:String) {
+    def initialize(class_name:String, js:bool=false) {
         className = class_name;
-        flags = Clover.getClassFlags(class_name);
-        genericsParamTypes = Clover.getClassGenericsParamTypes(class_name);
-        genericsParamNames = Clover.getClassGenericsParamNames(class_name);
-        numFields = Clover.getNumFields(class_name);
-        numClassFields = Clover.getNumClassFields(class_name);
-        numMethods = Clover.getNumMethods(class_name);
+        flags = Clover.getClassFlags(class_name, js);
+        genericsParamTypes = Clover.getClassGenericsParamTypes(class_name,js);
+        genericsParamNames = Clover.getClassGenericsParamNames(class_name,js);
+        numFields = Clover.getNumFields(class_name,js);
+        numClassFields = Clover.getNumClassFields(class_name,js);
+        numMethods = Clover.getNumMethods(class_name,js);
+        JS = js;
     }
 
     def clone():Class {
@@ -178,22 +181,22 @@ class Class
     }
 
     def appendField(name:String, type:String) {
-        Clover.appendField(className, name, type);
+        Clover.appendField(className, name, type, JS);
     }
     def appendMethod(code:String) {
-        Clover.appendMethod(className, code);
+        Clover.appendMethod(className, code, JS);
     }
     def appendMethod(method_index:int, code:String) {
-        Clover.appendMethod(className, method_index, code);
+        Clover.appendMethod(className, method_index, code, JS);
     }
     def declareMethod(code:String):int {
         return Clover.declareMethod(className, code);
     }
     def appendClassField(name:String, type:String) {
-        Clover.appendClassField(className, name, type);
+        Clover.appendClassField(className, name, type, JS);
     }
     def getField(index:int): Field {
-        return Clover.getField(className, index);
+        return Clover.getField(className, index, JS);
     }
     def getField(name:String): Field? {
         for(i:=0; i<numFields; i++) {
@@ -207,7 +210,7 @@ class Class
         return null;
     }
     def getClassField(index:int): Field {
-        return Clover.getClassField(className, index);
+        return Clover.getClassField(className, index, JS);
     }
     def getClassField(name:String): Field? {
         for(i:=0; i<numClassFields; i++) {
@@ -221,7 +224,7 @@ class Class
         return null;
     }
     def getMethod(index:int): Method {
-        return Clover.getMethod(className, index);
+        return Clover.getMethod(className, index, JS);
     }
     def getMethod(name:String): Method? {
         for(i:=numMethods-1; i>=0; i--) { # reverse search for multiple definition
@@ -262,7 +265,7 @@ class Class
         return result;
     }
     def createObject(): Anonymous {
-        return Clover.createObject(className);
+        return Clover.createObject(className, JS);
     }
     def createArray(size:int): Anonymous {
         return Clover.createArray(className, size);
@@ -275,27 +278,27 @@ class Class
 
 inherit Clover
 {
-    def appendField(class_name:String, name:String, type:String):static native throws Exception;
-    def appendMethod(class_name:String, code:String): static native throws Exception;
-    def appendMethod(class_name:String, method_index:int, code:String): static native throws Exception;
-    def appendClassField(class_name:String, name:String, type:String):static native throws Exception;
+    def appendField(class_name:String, name:String, type:String, js:bool=false):static native throws Exception;
+    def appendMethod(class_name:String, code:String, js:bool=false): static native throws Exception;
+    def appendMethod(class_name:String, method_index:int, code:String, js:bool=false): static native throws Exception;
+    def appendClassField(class_name:String, name:String, type:String, js:bool=false):static native throws Exception;
     def appendClass(code:String):static native throws Exception;
     def declareMethod(class_name:String, code:String): static native int throws Exception;
 
-    def getField(class_name:String, index:int):static native Field throws Exception;
-    def getClassField(class_name:String, index:int):static native Field throws Exception;
-    def getMethod(class_name:String, index:int):static native Method throws Exception;
-    def getClassFlags(class_name:String): static native long throws Exception;
-    def getClassGenericsParamTypes(class_name:String): static native String[] throws Exception;
-    def getClassGenericsParamNames(class_name:String): static native String[] throws Exception;
-    def getNumFields(class_name:String): static native int throws Exception;
-    def getNumClassFields(class_name:String): static native int throws Exception;
-    def getNumMethods(class_name:String): static native int throws Exception;
-    def isLoadedClass(class_name:String): static native bool throws Exception;
-    def isDefinedClass(class_name:String): static native bool throws Exception;
-    def createObject(class_name:String): static native Anonymous;
+    def getField(class_name:String, index:int, js:bool=false):static native Field throws Exception;
+    def getClassField(class_name:String, index:int,js:bool=false):static native Field throws Exception;
+    def getMethod(class_name:String, index:int, js:bool=false):static native Method throws Exception;
+    def getClassFlags(class_name:String, js:bool=false): static native long throws Exception;
+    def getClassGenericsParamTypes(class_name:String, js:bool=false): static native String[] throws Exception;
+    def getClassGenericsParamNames(class_name:String, js:bool=false): static native String[] throws Exception;
+    def getNumFields(class_name:String, js:bool=false): static native int throws Exception;
+    def getNumClassFields(class_name:String, js:bool=false): static native int throws Exception;
+    def getNumMethods(class_name:String, js:bool=false): static native int throws Exception;
+    def isLoadedClass(class_name:String, js:bool=false): static native bool throws Exception;
+    def isDefinedClass(class_name:String, js:bool=false): static native bool throws Exception;
+    def createObject(class_name:String, js:bool=false): static native Anonymous;
 
-    def isTypedefedClass(class_name:String, class_name2:String): static native bool;
+    def isTypedefedClass(class_name:String, class_name2:String, js:bool=false): static native bool;
 
     def isPrimitiveClass(name:String):static bool {
         return name.equals("int") || isTypedefedClass(name, "int") || name.equals("uint") || isTypedefedClass(name, "uint") || name.equals("byte") || isTypedefedClass(name, "byte") || name.equals("ubyte") || isTypedefedClass(name, "ubyte") || name.equals("short") || isTypedefedClass(name, "short") || name.equals("ushort") || isTypedefedClass(name, "ushort") || name.equals("long") || isTypedefedClass(name, "long") || name.equals("ulong") || isTypedefedClass(name, "ulong") || name.equals("float") || isTypedefedClass(name, "float") || name.equals("double") || isTypedefedClass(name, "double") || name.equals("pointer") || isTypedefedClass(name, "pointer") || name.equals("char") || isTypedefedClass(name, "char") ||  name.equals("bool") || isTypedefedClass(name, "bool") || name.match(/lambda$|lambda\(\)|lambda\(.*/) || isTypedefedClass(name, "lambda") || name.equals("regex")|| isTypedefedClass(name, "regex") ;

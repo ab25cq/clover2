@@ -93,6 +93,7 @@ String.ojsclcl: JS.jsclcl
 	PWD=`pwd`; ./cclover2 -core Tuple9.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Exception.ojsclcl
 	PWD=`pwd`; ./cclover2 -core System.ojsclcl
+	PWD=`pwd`; ./cclover2 -core Global.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Clover.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Array.ojsclcl
 	PWD=`pwd`; ./cclover2 -core Int8Array.ojsclcl
@@ -561,6 +562,7 @@ install:
 	$(INSTALL) -m 644 ./MWrapperClassBase.clm $(DESTDIR)/share/clover2
 
 	$(INSTALL) -m 644 System.ojsclcl $(DESTDIR)/share/clover2
+	$(INSTALL) -m 644 Global.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Clover.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 Object.ojsclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 String.ojsclcl $(DESTDIR)/share/clover2

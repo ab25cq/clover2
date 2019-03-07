@@ -1671,8 +1671,10 @@ sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js)
             //fprintf(stderr, "Clover2 can't load %s\n", class_name);
             return NULL;
         }
-        if(!initialize_class(result, FALSE)) {
-            return NULL;
+        if(!js) {
+            if(!initialize_class(result, FALSE)) {
+                return NULL;
+            }
         }
     }
 

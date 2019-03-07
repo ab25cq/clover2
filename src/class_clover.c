@@ -95,6 +95,7 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
     CLVALUE* index = lvar + 1;
+    CLVALUE* js = lvar + 2;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -106,7 +107,9 @@ BOOL Clover_getField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -175,6 +178,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
     CLVALUE* index = lvar + 1;
+    CLVALUE* js = lvar + 2;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -186,7 +190,9 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -255,6 +261,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
     CLVALUE* index = lvar + 1;
+    CLVALUE* js = lvar + 2;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -266,7 +273,9 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     int index_value = index->mIntValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -419,6 +428,7 @@ BOOL Clover_getMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -427,8 +437,9 @@ BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -448,6 +459,7 @@ BOOL Clover_getClassFlags(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -456,8 +468,9 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -501,6 +514,7 @@ BOOL Clover_getClassGenericsParamTypes(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -510,7 +524,9 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -554,6 +570,7 @@ BOOL Clover_getClassGenericsParamNames(CLVALUE** stack_ptr, CLVALUE* lvar, sVMIn
 BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -562,8 +579,9 @@ BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -583,6 +601,7 @@ BOOL Clover_getNumFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -591,8 +610,9 @@ BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -612,6 +632,7 @@ BOOL Clover_getNumClassFields(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -620,8 +641,9 @@ BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -641,6 +663,7 @@ BOOL Clover_getNumMethods(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -650,7 +673,9 @@ BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class(class_name_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class(class_name_value, js_value);
 
     /// go ///
     (*stack_ptr)->mIntValue = klass2 != NULL;
@@ -664,6 +689,7 @@ BOOL Clover_isLoadedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -673,10 +699,12 @@ BOOL Clover_isDefinedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
+    BOOL js_value = js->mBoolValue;
+
     /// go ///
     char class_file_name[PATH_MAX];
 
-    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX, 0, FALSE);
+    (*stack_ptr)->mIntValue = search_for_class_file(class_name_value, class_file_name, PATH_MAX, 0, js_value);
     (*stack_ptr)++;
 
     MFREE(class_name_value);
@@ -734,6 +762,7 @@ BOOL Clover_getAllClassName(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
     if(class_name->mObjectValue == 0) {
@@ -742,9 +771,10 @@ BOOL Clover_createObject(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
     /// go ///
-    sCLClass* klass = get_class_with_load_and_initialize(class_name_value, FALSE);
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value, js_value);
 
     if(klass == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "class not found");
@@ -803,6 +833,7 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
     CLVALUE* class_name2 = lvar+1;
+    CLVALUE* js = lvar+2;
 
     if(class_name->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -816,10 +847,11 @@ BOOL Clover_isTypedefedClass(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover2 to C ///
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
     char* class_name_value2 = ALLOC string_object_to_char_array(class_name2->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
     /// go ///
-    sCLClass* klass1 = get_class(class_name_value, FALSE);
-    sCLClass* klass2 = get_class(class_name_value2, FALSE);
+    sCLClass* klass1 = get_class(class_name_value, js_value);
+    sCLClass* klass2 = get_class(class_name_value2, js_value);
 
     BOOL result = klass1 == klass2;
 

@@ -1,4 +1,8 @@
 
+clover2 (10.2.1-1) unstable; urgency=medium
+
+    * Java Script Reflection.
+
 clover2 (10.2.0-1) unstable; urgency=medium
 
     * Fixed the bug of REPL

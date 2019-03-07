@@ -37,6 +37,10 @@ class System:js
     }
 }
 
+class Global:js
+{
+}
+
 class Clover:js
 {
     def test(str:String, exp:bool):static native {
@@ -1054,6 +1058,10 @@ class String:native js
     def trim():pure_native String;
     def trimEnd():pure_native String;
     def trimStart():pure_native String;
+
+    def println() {
+        System.println(self);
+    }
 }
 
 class Set<T:ISortable>:native js

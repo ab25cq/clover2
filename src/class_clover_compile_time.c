@@ -5,6 +5,7 @@ BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* klass = lvar;
     CLVALUE* name = lvar + 1;
     CLVALUE* class_name = lvar + 2;
+    CLVALUE* js = lvar + 3;
 
     if(klass->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -26,7 +27,9 @@ BOOL Clover_appendField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -57,6 +60,7 @@ BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* klass = lvar;
     CLVALUE* name = lvar + 1;
     CLVALUE* class_name = lvar + 2;
+    CLVALUE* js = lvar + 3;
 
     if(klass->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -78,7 +82,9 @@ BOOL Clover_appendClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* name_value = ALLOC string_object_to_char_array(name->mObjectValue);
     char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -267,6 +273,7 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* klass = lvar;
     CLVALUE* code = lvar + 1;
+    CLVALUE* js = lvar + 2;
 
     if(klass->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -281,8 +288,9 @@ BOOL Clover_appendMethod(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// Clover to c value ///
     char* klass_value = ALLOC string_object_to_char_array(klass->mObjectValue);
     char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
+    BOOL js_value = js->mBoolValue;
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
@@ -430,6 +438,7 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     CLVALUE* klass = lvar;
     CLVALUE* method_index = lvar + 1;
     CLVALUE* code = lvar + 2;
+    CLVALUE* js = lvar + 3;
 
     if(klass->mObjectValue == 0) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
@@ -446,7 +455,9 @@ BOOL Clover_appendMethod2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int method_index_value = method_index->mIntValue;
     char* code_value = ALLOC string_object_to_char_array(code->mObjectValue);
 
-    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, FALSE);
+    BOOL js_value = js->mBoolValue;
+
+    sCLClass* klass2 = get_class_with_load_and_initialize(klass_value, js_value);
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");
