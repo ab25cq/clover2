@@ -53,6 +53,53 @@ BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+static unsigned long long gc_memory_object_size(sCLClass* klass, int memory_size)
+{
+    unsigned long long size;
+
+    size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+    size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
+    size += memory_size;
+
+    unsigned int size2 = size;
+
+    alignment((unsigned int*)&size2);
+
+    size = size2;
+
+    return size;
+}
+
+BOOL System_GC_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* size = lvar;
+
+    unsigned long long size_value = lvar->mULongValue;
+
+    unsigned int size2 = size_value;
+    alignment((unsigned int*)&size2);
+    alignment(&size2);
+    size_value = size2;
+
+    sCLClass* klass = get_class("GCMemory", FALSE);
+
+    size_t obj_size = gc_memory_object_size(klass, size_value);
+
+    CLObject obj = alloc_heap_mem(obj_size, klass, -1, info);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    object_data->mFields[0].mPointerValue = (char*)&object_data->mFields[3];
+    object_data->mFields[1].mULongValue = size_value;
+
+    (*stack_ptr)->mObjectValue = obj;
+    (*stack_ptr)++;
+
+    pop_global_stack(info);
+
+    return TRUE;
+}
+
 BOOL System_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* size = lvar;
@@ -7205,6 +7252,7 @@ BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     char* str_value = string_object_to_char_array(str->mObjectValue);
 
     int result = printw("%s", str_value);
+    //int result = printw("%ls", wstr);
 
     if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "printw(3) is error. str is (%s)", str_value);
@@ -7213,6 +7261,7 @@ BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     MFREE(str_value);
+    //MFREE(wstr);
 
     return TRUE;
 }
@@ -7270,6 +7319,57 @@ BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clear(3) is error.");
         return FALSE;
     }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_erase(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = erase();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "erase(3) is error.");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_idcok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* flag = lvar;
+
+    BOOL flag_value = flag->mBoolValue;
+
+    /// go ///
+    idcok(stdscr, flag_value);
+
+    return TRUE;
+}
+
+BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* flag = lvar;
+
+    BOOL flag_value = flag->mBoolValue;
+
+    /// go ///
+    int result = idlok(stdscr, flag_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "idlok(3) is error.");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
 
     return TRUE;
 }
@@ -8407,3 +8507,4 @@ BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+

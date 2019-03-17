@@ -571,14 +571,12 @@ void show_inst(unsigned inst)
 
 BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_num, CLVALUE** stack_ptr, sVMInfo* info)
 {
-//printf("invoke_method %s.%s\n", CLASS_NAME(klass), METHOD_NAME2(klass, method));
     sCLClass* running_class = info->running_class;
     sCLMethod* running_method = info->running_method;
 
     CLObject result_object = 0;
 
     int num_global_strck_ptr = info->mGlobalStackPtr - info->mGlobalStack;
-    //int num_tmp_global_stack_ptr = info->mTmpGlobalStackPtr - info->mTmpGlobalStack;
 
     info->running_class = klass;
     info->running_method = method;
@@ -620,11 +618,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         lvar = *stack_ptr - method->mNumParams;
         num_params = method->mNumParams;
 
-        int k;
-        for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
-        }
-
         if(method->mCFunctionPointer == NULL) {
             entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "C Function method not found");
             info->running_class = running_class;
@@ -634,8 +627,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
@@ -723,8 +715,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
@@ -781,8 +772,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
 
-                info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-                //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+                free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
                 if(sname2 && info->num_stack_trace > 0) {
                     info->num_stack_trace--;
@@ -790,12 +780,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 return FALSE;
             }
         }
-
-/*
-        for(k=0; k<num_params; k++) {
-            dec_refference_count(lvar[k].mObjectValue, TRUE);
-        }
-*/
 
         if(result_class == int_class || result_class == bool_class) {
             av_call(alist);
@@ -916,8 +900,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
 
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
@@ -933,8 +916,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         info->running_class_name = running_class_name;
         info->running_method_name = running_method_name;
 
-        info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-        //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+        free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
         if(sname2 && info->num_stack_trace > 0) {
             info->num_stack_trace--;
@@ -946,11 +928,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     {
         lvar = *stack_ptr - method->mNumParams;
         num_params = method->mNumParams;
-
-        int k;
-        for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
-        }
 
         if(method->mNativeMethod == NULL) {
             char* path = CONS_str(&klass->mConst, method->mPathOffset);
@@ -966,8 +943,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
                 MFREE(info->running_method_name);
                 info->running_class_name = running_class_name;
                 info->running_method_name = running_method_name;
-                info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-                //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+                free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
                 if(sname2 && info->num_stack_trace > 0) {
                     info->num_stack_trace--;
@@ -993,20 +969,13 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             MFREE(info->running_method_name);
             info->running_class_name = running_class_name;
             info->running_method_name = running_method_name;
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
             }
             return FALSE;
         }
-
-/*
-        for(k=0; k<num_params; k++) {
-            dec_refference_count(lvar[k].mObjectValue, TRUE);
-        }
-*/
 
         if(is_void_type(method->mResultType, klass)) {
             *stack_ptr = lvar;
@@ -1030,11 +999,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
         lvar = *stack_ptr - real_param_num;
         num_params = real_param_num;
-
-        int k;
-        for(k=0; k<num_params; k++) {
-            inc_refference_count(lvar[k].mObjectValue, 0, FALSE);
-        }
 
         sByteCode code;
         sByteCode_clone(&code, &method->mByteCodes);
@@ -1061,8 +1025,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
             info->running_class = running_class;
             info->running_method = running_method;
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
@@ -1082,8 +1045,7 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
             info->running_method_name = running_method_name;
             info->running_class = running_class;
             info->running_method = running_method;
-            info->mGlobalStackPtr = info->mGlobalStack + num_global_strck_ptr;
-            //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
+            free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
 
             if(sname2 && info->num_stack_trace > 0) {
                 info->num_stack_trace--;
@@ -1097,12 +1059,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
         (*stack_ptr)++;
 
         result_object = (new_stack+new_var_num)->mObjectValue;
-
-/*
-        for(k=0; k<new_var_num; k++) {
-            dec_refference_count(lvar[k].mObjectValue, TRUE);
-        }
-*/
 
         sConst_free(&constant);
         sByteCode_free(&code);
@@ -1122,7 +1078,6 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
     info->running_method_name = running_method_name;
 
     free_global_stack_objects(info, result_object, num_global_strck_ptr, lvar, num_params);
-    //info->mTmpGlobalStackPtr = info->mTmpGlobalStack + num_tmp_global_stack_ptr;
 
     return TRUE;
 }
@@ -1369,6 +1324,7 @@ BOOL load_fundamental_classes_on_runtime()
     load_class("System", 0, FALSE);
     load_class("Global", 0, FALSE);
     load_class("String", 0, FALSE);
+    load_class("GCMemory", 0, FALSE);
     load_class("Buffer", 0, FALSE);
     load_class("Exception", 0, FALSE);
     load_class("Object", 0, FALSE);
@@ -1506,15 +1462,20 @@ static BOOL finalize_class(sCLClass* klass)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
+        info.in_finalize_method = TRUE;
+
         create_global_stack_and_append_it_to_stack_list(&info);
         
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
+            info.in_finalize_method = FALSE;
             MFREE(stack);
             free_global_stack(&info);
             return FALSE;
         }
 
         free_global_stack(&info);
+
+        info.in_finalize_method = FALSE;
 
         MFREE(stack);
     }
@@ -1596,6 +1557,7 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         create_global_stack_and_append_it_to_stack_list(&info);
 
         info.no_mutex_in_vm = TRUE;
+        info.in_finalize_method = TRUE;
 
         stack_ptr->mLongValue = 0;    // zero clear for jit
         stack_ptr->mObjectValue = self;
@@ -1604,11 +1566,13 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         if(!invoke_method(klass, &finalize_method, stack, 0, &stack_ptr, &info)) {
             free_global_stack(&info);
             MFREE(stack);
+            info.in_finalize_method = FALSE;
             return FALSE;
-        }
+       }
+       info.in_finalize_method = FALSE;
 
-        free_global_stack(&info);
-        MFREE(stack);
+       free_global_stack(&info);
+       MFREE(stack);
     }
 
     return TRUE;
@@ -6954,8 +6918,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     *stack_ptr = value;
                     stack_ptr++;
-
-                    
                 }
                 break;
 
@@ -13411,8 +13373,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CHAR_TO_STRING_CAST:
                 {
-                    
-
                     wchar_t value = (stack_ptr-1)->mCharValue;
 
                     char buf[32];

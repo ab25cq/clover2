@@ -208,10 +208,11 @@ class ViClone version 18
                     first_line := win.texts.items(y2);
                     last_line := win.texts.items(y);
 
-                    clipBoard = SortableList<String>();
-                    clipBoard.push(first_line.subString(x2, -1).clone());
-                    clipBoard.push(win.texts.subList(y2+1,y));
-                    clipBoard.push(last_line.subString(0, x).clone());
+                    clip_board := SortableList<String>();
+                    clip_board.push(first_line.subString(x2, -1).clone());
+                    clip_board.push(win.texts.subList(y2+1,y));
+                    clip_board.push(last_line.subString(0, x).clone());
+                    addClipBoard(clip_board, false);
 
                     first_line.delete(x2, -1);
                     win.texts.deleteWithRange(y2+1, y);
@@ -239,19 +240,25 @@ class ViClone version 18
                     first_line := win.texts.items(y);
                     last_line := win.texts.items(y2);
 
-                    clipBoard = SortableList<String>();
-                    clipBoard.push(first_line.subString(x, -1).clone());
-                    clipBoard.push(win.texts.subList(y+1,y2));
-                    clipBoard.push(last_line.subString(0, x2).clone());
+                    clip_board := SortableList<String>();
+                    clip_board.push(first_line.subString(x, -1).clone());
+                    clip_board.push(win.texts.subList(y+1,y2));
+                    clip_board.push(last_line.subString(0, x2).clone());
+                    addClipBoard(clip_board, false);
+                    
                     win.moveCursor(y, x);
                 }
                 elif(y == y2) {
                     if(x < x2) {
-                        clipBoard = slist { win.texts.items(y).subString(x, x2) };
+                        clip_board := slist { win.texts.items(y).subString(x, x2) };
+                        addClipBoard(clip_board, false);
+                        
                         win.moveCursor(y, x);
                     }
                     else {
-                        clipBoard = slist { win.texts.items(y).subString(x2, x) };
+                        clip_board := slist { win.texts.items(y).subString(x2, x) };
+                        addClipBoard(clip_board, false);
+                        
                         win.moveCursor(y, x2);
                     }
                 }
@@ -259,15 +266,15 @@ class ViClone version 18
                     first_line := win.texts.items(y2);
                     last_line := win.texts.items(y);
 
-                    clipBoard = SortableList<String>();
-                    clipBoard.push(first_line.subString(x2, -1).clone());
-                    clipBoard.push(win.texts.subList(y2+1,y));
-                    clipBoard.push(last_line.subString(0, x).clone());
+                    clip_board := SortableList<String>();
+                    clip_board.push(first_line.subString(x2, -1).clone());
+                    clip_board.push(win.texts.subList(y2+1,y));
+                    clip_board.push(last_line.subString(0, x).clone());
+                    addClipBoard(clip_board, false);
 
                     win.moveCursor(y2, x2);
                 }
 
-                pasteMode = PASTEMODE_CURSOR;
                 finishRangeMode();
             }
             else {

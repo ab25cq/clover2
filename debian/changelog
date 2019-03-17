@@ -1,4 +1,12 @@
 
+clover2 (10.2.3-1) unstable; urgency=medium
+
+    * Fixed finalize method bug. Now you can use the method using GC in the finalize method.
+
+clover2 (10.2.2-1) unstable; urgency=medium
+
+    * Added erase(3), idlok(3), idcok(3) method.
+
 clover2 (10.2.1-1) unstable; urgency=medium
 
     * Java Script Reflection.

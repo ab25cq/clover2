@@ -2,7 +2,29 @@ afalskdfaldjfaldkafa asdlfkadlfafjldaldkfa adslfaslafl aa strcmpalsdasdfalsdfsld
 alnum
 str
 1
+ksalfalsdkflsadlfdslfadslkadslaskdflsdlalsdfdlsakfjlkaljdladsfあああああああああllllllあlllllll
 
+ああああああああああああああああああああああああああああああああlああああああああああああああasdfaslkfslaalsdflfldskfsllsadl
+iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiあiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiああああiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiああああああああああああああああああああああああああああああああああああああああああああああああああああああああああああｊiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiあああああああああああああああああああああああああああああああああああああああああああああああああああiあああああああああああああああalsdkfsalfdaslkfdfasあああああああああああああああああああああiialksdflkdaslfdsalfldfladslfldsfaldsfdslfladsasあああああ
+asdlfaslkfadsflsadkfldsflaskdfladsflfadslfkdasflasdfksdiiiiiiiiiiiiiiiiiiiiiiiiiiiifadslfladsfaslfldsafa
+aaaaaaaaa
+あいうえお
+かきくけこ
+asdkflsalfasldfladsflkasdfasdfaldfldksflsadflaksdflasdsadfasdkfalsdjlsadlafas
+
+aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaああああ
+aaaaiii
+
+asldfjlsakflasdfjladsfjlasdkasldfalsdflasjdflkdsfasdlfjlasdkaflasdfasdfsaaaasdf
+alsdkfladskflsdflaksldflsdflasdflsldkflasdlskdflsdflsldlsdlaalsdkflsadaaaaあ
+
+"AAA".toCommand().less()
+"AAA".
+aa
+a
+
+st
+a
 2
 a
 aaaaaaaaaa
@@ -75,21 +97,41 @@ alnum
 123
 456
 789
-asdfafa
+asdfafaalskdfasklfdslfsalfladsldkslfadslkfaldfldsfdlflaskdfldkflasadlfladskfallskdflasdkfladsfslkfdslfladsfdsfdaslakdsflakdsfldslfdlsdfadsfladksfldasfladsjafaldksfadlsflasffjflasdfjdskflasdjfldsajfaslflaskfalsaldsfaklsflasfaldsfksaafldsdfalsfadskfaldsfadslfaldfaldfjakaskfaldsfaslkfadlsfaldsfaldsfldslladslfdalsflasfalsfsaa
 asdfafa
 asdfaf
 asdfsfa
 asdfasfda
 
 if(true) {
-    println("AAA");
 }
 else {
     println("BBB");
 }
-
+asldkfaslkfdskflaskfksflasfdskfaldsflasfadslfldsf
+asdlfkdsafajfkl
+asldkfadlsflasfdlsfdaslfkjfdksfkafasldkflsfldlfdasldsflkslfdlsfldkslfladsldadsasdsalkfalskfaaasdlflassalfs
+asdfsfa
+adsfdasf
+asdfad
+asddfa
+asdfaf
+asdafa
+asdfsa
+asdfas
+asdfsa
+asdfads
+asdfadjfaslfkdsfladsjflskfldsfladslfasladsflsalflaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+asdladslfdlasfldasfslflasjfldsafjdskfladsljlaskfladsfldkjfladlflfjalsdfa
 if(a == 1) {
    vvv := 123;
    jjj := 123;
    zzz := 123;
 }
+if(x == 2) {
+    aaa = 1;
+}
+
+asldkfasdlfslflakslfsa
+asdlfkslafldas
+asdlfkaslfdlskflsdlfadlsfjadslkfdlksfasldflsafkadslfadlsfldalfdaslfalfalsfdlaalsdfladfdallfdadslkfalfla

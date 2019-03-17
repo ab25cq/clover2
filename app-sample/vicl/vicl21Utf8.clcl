@@ -1,0 +1,910 @@
+class ViCloneWindow version 13
+{
+    def moveCursor(y:int, x:int):dynamic int {
+        (y2,x2) := realPosToViewPos(y, x);
+        
+        if(y2 >= 0 && y2 < visibleTexts.length())
+        {
+            (cursorY, cursorX) = realPosToViewPos(y, x);
+
+            fixCursorAndScrollTop(scrollTopY);
+            makeVisibleTexts();
+        }
+        else {
+            scroll_size := (MaxY-1)/2;
+            scrollTopY = y - scroll_size;
+
+            fixCursorAndScrollTop(scrollTopY);
+            makeVisibleTexts();
+
+            (cursorY, cursorX) = realPosToViewPos(y, x);
+
+            if(cursorY == -1 && cursorX == -1) {
+                scrollTopY = y;
+
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+
+                (cursorY, cursorX) = realPosToViewPos(y, x);
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+            }
+            else {
+                fixCursorAndScrollTop(scrollTopY);
+                makeVisibleTexts();
+            }
+        }
+    }
+    def realPosToViewPos(y:int, x:int): dynamic Tuple2<Integer, Integer> {
+        for(i:=visibleTextsPos.length()-1; i>=0; i--) {
+            (y2, head, line_num) := visibleTextsPos.items(i);
+            line := visibleTexts.items(i);
+
+            width := line.length();
+
+            if(y2 == y) {
+                if(x >= head && width == 0) {
+                    return (i, 0);
+                }
+                elif(x >= head && x == 0 && width == 0) {
+                    return (i, x-head);
+                }
+                elif(x >= head && x < head + width) 
+                {
+                    return (i, x-head);
+                }
+            }
+        }
+
+        return (-1,-1)
+    }
+    def fixCursorAndScrollTop(scrolltop_y_before:int):dynamic {
+        if(visibleTexts.length() < MaxY -1 && cursorY >= visibleTexts.length()) 
+        {
+            cursorY = visibleTexts.length()-1;
+        }
+
+        if(cursorY >= MaxY-1) {
+            (tmp, tmp2, top_line_size) := visibleTextsPos.items(0);
+
+            if(top_line_size >= MaxY-1)
+            {
+                scrollTopY++;
+                cursorY = 0;
+                cursorX = 0;
+            }
+            else {
+                scroll_size := cursorY - MaxY +2;
+
+                scrollTopY += scroll_size;
+                cursorY -= scroll_size + top_line_size -1;
+            }
+        }
+        if(cursorY < 0) {
+            scroll_size := -cursorY;
+
+            cursorY = 0;
+            scrollTopY -= scroll_size;
+        }
+        
+        if(scrollTopY >= texts.length()) {
+            cursorY = 0;
+            scrollTopY = texts.length()-1;
+        }
+
+        if(scrollTopY < 0) {
+            scrollTopY = 0;
+        }
+
+        if(scrolltop_y_before != scrollTopY) {
+            makeVisibleTexts();
+        }
+
+        line := visibleTexts.items(cursorY);
+
+        if(line == null) {
+            cursorX = 0;
+        }
+        elif(line.length() == 0) {
+            if(cursorX > 0) {
+                cursorX = 0;
+                cursorY++;
+            }
+        }
+        elif(cursorX >= line.length()) {
+            cursorX = 0;
+            cursorY++;
+        }
+
+        if(cursorX < 0) {
+            cursorY--;
+            if(cursorY >= 0) {
+                line := visibleTexts.items(cursorY);
+                cursorX = line.length() -1;
+            }
+        }
+
+        if(cursorY < 0) {
+            cursorY = 0;
+            cursorX = 0;
+        }
+        
+        if(cursorY >= visibleTexts.length()) {
+            cursorY = visibleTexts.length() - 1;
+        }
+    }
+
+    def makeVisibleTexts():dynamic {
+        visibleTexts = SortableList<String>();
+        visibleTextsPos = EqualableList<Tuple3<Integer, Integer, Integer>>();
+        
+        view_y := 0;
+        for(y:=scrollTopY; y < texts.length() && view_y < MaxY-2; y++) {
+            line := texts.items(y);
+            if(line == null) {
+                break;
+            }
+
+            term_len := ViClone.getTermLen(line);
+
+            if(term_len > MaxX-1) {
+                view_x := 0;
+                
+                x := 0;
+                head := 0;
+                line_height := 1;
+                while(x < line.length() && view_y < MaxY-1) {
+                    c := line.chars(x);
+                    
+                    if(c > 127) {
+                        view_x += 2;
+                        x++;
+                    }
+                    else {
+                        view_x ++;
+                        x++;
+                    }
+                    
+                    if(view_x >= MaxX-1) {
+                        visibleTexts.push(line.subString(head, x));
+                        visibleTextsPos.push((y, head, line_height));
+                        
+                        head = x;
+                        line_height++;
+                        view_x = 0;
+                        view_y++;
+                    }
+                }
+
+                if(view_y < MaxY-1) {
+                    if(x == line.length() && view_x == MaxX-1) {
+                        visibleTexts.push(line.subString(head, x));
+                        visibleTextsPos.push((y, head, line_height));
+                        
+                        head = x;
+                        line_height++;
+                        view_y++;
+
+                        visibleTexts.push("");
+                        visibleTextsPos.push((y, head, line_height));
+                    }
+                    else {
+                        visibleTexts.push(line.subString(head, x));
+                        visibleTextsPos.push((y, head, line_height));
+                    }
+                }
+            }
+            else {
+                term_len := ViClone.getTermLen(line);
+
+                if(term_len == MaxX-1) {
+                    visibleTexts.push(line);
+                    visibleTextsPos.push((y, 0, 1));
+                    
+                    visibleTexts.push("");
+                    visibleTextsPos.push((y, 0, 2));
+                    view_y+=2;
+                }
+                else {
+                    visibleTexts.push(line);
+                    visibleTextsPos.push((y, 0, 1));
+                    view_y++;
+                }
+            }
+        }
+    }
+}
+
+class ViClone version 21
+{
+    def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        real_pos_x := win.getRealPosX();
+        real_pos_y := win.getRealPosY(); 
+
+        line := win.texts.items(real_pos_y);
+
+        x := real_pos_x + offset;
+        y := real_pos_y;
+
+        c := line?.chars(x):'\0';
+
+        if(line == null || line.equals("")) {
+            x = 0;
+            y++;
+        }
+        else {
+            if(c > 127) {
+                while(c > 127) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isalpha() || c == '_') {
+                while((c.isalpha() || c == '_') && c <= 127) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isdigit()) {
+                while(c.isdigit()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isspace()) {
+                while(c.isspace()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c != '\0') {
+                while(!c.isalpha() && !c.isdigit() && !c.isspace()) {
+                    x++;
+
+                    if(x >= line.length()) {
+                        x = 0;
+                        y++;
+                        if(y >= win.texts.length()) {
+                            y--;
+                            
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                            break;
+                        }
+                        else {
+                            line = win.texts.items(y);
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+        }
+
+        return (y, x);
+    }
+    
+    def enterNewLine(no_tails_getting:bool):dynamic {
+        y := win.getRealPosY();
+        x := win.getRealPosX();
+
+        line := win.texts.items(y);
+
+        spaces_num := line.scan(/^\s+/)?.items(0).length():0;
+
+        tails := "";
+        if(!no_tails_getting) {
+            tails = line.subString(x..-1);
+            line.delete(x..-1);
+        }
+
+        win.cursorX = spaces_num;
+        win.cursorY++;
+        
+        if(win.cursorY >= win.MaxY-1) {
+            (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
+
+            if(top_line_size >= win.MaxY-1) {
+                win.scrollTopY++;
+                win.cursorY = 0;
+                win.cursorX = 0;
+            }
+            else {
+                scroll_size := win.cursorY - win.MaxY +2;
+
+                win.scrollTopY += scroll_size;
+                win.cursorY -= scroll_size + top_line_size -1;
+            }
+        }
+        
+        spaces := " ".multiply(spaces_num);
+        spaces.append(tails);
+        win.texts.insert(y+1, spaces);
+
+        win.makeVisibleTexts();
+        
+        win.cursorX = spaces_num;
+    }
+
+    def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+        real_pos_x := win.getRealPosX();
+        real_pos_y := win.getRealPosY(); 
+    
+        line := win.texts.items(real_pos_y);
+
+        x := real_pos_x + offset;
+        y := real_pos_y;
+
+        c := line?.chars(x):'\0';
+        
+        if(line == null || line.equals("")) {
+            y--;
+            if(y >= 0) {
+                line = win.texts.items(y);
+                
+                if(line.length() == 0) {
+                    x = 0;
+                }
+                else {
+                    x = line.length()-1;
+                }
+            }
+            else {
+                y = 0;
+            }
+        }
+        else {
+            c := line.chars(x)?:'\0';
+
+            if(c > 127) {
+                while(c > 127) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isalpha() || c == '_') {
+                while((c.isalpha() || c == '_') && c <= 127) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isdigit()) {
+                while(c.isdigit()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c.isspace()) {
+                while(c.isspace()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            elif(c != '\0') {
+                while(!c.isalpha() && !c.isdigit() && !c.isspace()) {
+                    x--;
+
+                    if(x < 0) {
+                        y--;
+
+                        if(y >= 0) {
+                            line = win.texts.items(y);
+                            if(line.length() == 0) {
+                                x = 0;
+                            }
+                            else {
+                                x = line.length()-1;
+                            }
+                        }
+                        else {
+                            x = 0;
+                            y = 0;
+                            break;
+                        }
+                    }
+
+                    c = line?.chars(x):'\0';
+                }
+            }
+            x++; 
+        }
+
+        return (y, x);
+    }
+
+    def main():dynamic static {
+        vicl = ViClone();
+
+        sockfd := socket(AF_UNIX, SOCK_STREAM,  0);
+
+        saddr := sockaddr_un();
+
+        saddr.sun_family = AF_UNIX;
+        saddr.sun_path = getenv("HOME").append("/.clover2/vicl/socket");
+
+        rm("-rf", saddr.sun_path);
+
+        bind(sockfd, saddr);
+        listen(sockfd, 1);
+
+        mask := fd_set();
+        read_ok := fd_set();
+
+        FD_ZERO(mask);
+        FD_SET(0, mask);
+        FD_SET(sockfd, mask);
+
+        loop_num := 0;
+
+        while(!vicl.endOfAplication) {
+            #vicl.clearWithoutBlink();
+            #refresh();
+            idcok(false);
+            idlok(false);
+            #erase();
+            clear();
+            vicl.clearStatusLine();
+            vicl.dirView();
+            vicl.view();
+            vicl.statusView();
+            refresh();
+
+            read_ok = mask.clone();
+
+            result := -1;
+            try {
+                result = select(sockfd+1, read_ok, null, null, null);
+            } catch(e:Exception) {
+                if(!e.message.match(/Interrupted system call/) )
+                {
+                    e.message.println();
+                    exit(2);
+                }
+            }
+
+            if(FD_ISSET(0, read_ok)) {
+                key := getch();
+
+                if(key == 127) {
+                    key = 'H'-'A'+1
+                }
+
+                key2 := 0;
+
+                if(vicl.mode == ViClone.EDITMODE) {
+                    if(!vicl.macroMode) {
+                        when(key) {
+                            case ('@'.to_int, 'q'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1) 
+                            {
+                                key2 = getch();
+                            }
+                        }
+                    }
+                    else {
+                        when(key) {
+                            case ('@'.to_int, 'd'.to_int, 'c'.to_int, 'Z'.to_int, 'g'.to_int, 'z'.to_int, '['.to_int, ']'.to_int, '`'.to_int, 'm'.to_int, 't'.to_int, ('W'-'A').to_int+1) 
+                            {
+                                key2 = getch();
+                            }
+                        }
+                    }
+                }
+
+                vicl.runKeyEvents(key, key2);
+            }
+            elif(FD_ISSET(sockfd, read_ok)) {
+                caddr := sockaddr_un();
+                csockfd := accept(sockfd, caddr);
+
+                buf := Buffer(128);
+                read(csockfd, buf, 128);
+                
+                message := buf.toString();
+                
+                if(message.match(/^OPEN_FILE .+ \d+$/)) {
+                    array := message.scan(/^OPEN_FILE (.+) (\d+)/)
+                    
+                    file_name := array.items(1);
+                    try {
+                        file_name = realpath(file_name);
+                    }
+                    line_num := array.items(2).to_int();
+
+                    vicl.openFile(file_name, line_num);
+                }
+                elif(message.match(/^INSERT_FILE .+$/)) {
+                    array := message.scan(/^INSERT_FILE (.+)$/)
+                    
+                    file_name := array.items(1).chomp();
+
+                    text := file_name.toPath().read().toString();
+                    
+                    vicl.win.addUndoText();
+                    vicl.win.insertText(text);
+                }
+            }
+
+            if(loop_num % 1024 == 0) {
+                Clover.compaction();
+            }
+            
+            loop_num++;
+        }
+
+        close(sockfd);
+    }
+    def getTermLen(str:String):static int {
+        result := 0;
+
+        for(i:=0; i<str.length(); i++) {
+            c := str.chars(i);
+
+            if(c > 127) {
+                result += 2;
+            }
+            else {
+                result ++;
+            }
+        }
+
+        return result;
+    }
+
+    def insertMode(key:int):dynamic {
+        when(key) {
+            case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
+                finishInsertMode();
+            }
+
+            ### Backspace ###
+            case (('H'-'A').to_int+1, KEY_BACKSPACE) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null && win.cursorX >= 0) {
+                    line.delete(x-1);
+                    win.cursorX--;
+
+                    if(win.cursorX < 0) {
+                        win.cursorY --;
+
+                        if(win.cursorY < 0) {
+                            win.cursorY = 0;
+                            win.cursorX = 0;
+                        }
+                        else {
+                            line := win.visibleTexts.items(win.cursorY);
+                            win.cursorX = line.length();
+
+                            if(win.cursorX < 0) {
+                                win.cursorX = 0;
+                            }
+                        }
+                    }
+                } 
+                
+                win.makeVisibleTexts();
+            }
+
+            case ('\n'.to_int) {
+                enterNewLine(false);
+                
+                win.makeVisibleTexts();
+            }
+
+            case (('D'-'A').to_int+1) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    4.times {
+                        if(win.cursorX >= 0) {
+                            line.delete(x -1);
+                            win.cursorX--;
+                        }
+                    }
+                } 
+                
+                win.makeVisibleTexts();
+            } 
+
+            ### delete Back word ###
+            case (('W'-'A').to_int+1) {
+                deleteBackwardWord();
+            }
+            
+            case (('X'-'A').to_int+1) {
+                if(win.fileName.match(/.+\.cl$|.+\.clcl$|.+\.jsclcl$|.+\.jscl$/)) {
+                    clover2Completion();
+                }
+                elif(win.fileName.match(/.+\.c$/)) {
+                    CCompletion();
+                }
+                else {
+                    completion();
+                }
+            }
+
+            case (('I'-'A').to_int+1) {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    if(line.subString(0, x).match(/^\s*$/)) {
+                        4.times { 
+                            line.insert(x, " ");
+                            win.cursorX++;
+                        } 
+                    }
+                    else {
+                        completion();
+                    }
+                }
+                
+                win.makeVisibleTexts();
+            }
+            else {
+                y := win.getRealPosY();
+                x := win.getRealPosX();
+
+                line := win.texts.items(y);
+                
+                if(line != null) {
+                    c := key.to_char;
+
+                    if(c > 127) {
+                        size := ((c.to_int & 0x80) >> 7) + ((c.to_int & 0x40) >> 6) + ((c.to_int & 0x20) >> 5) + ((c.to_int & 0x10) >> 4);
+
+                        buf := Buffer();
+                        buf.append(c.to_byte);
+
+                        for(i:=0; i<size-1; i++) {
+                            key2 := getch();
+                            buf.append(key2.to_byte);
+                        }
+
+                        line.insert(x, buf.toString());
+
+                        win.makeVisibleTexts();
+
+                        win.cursorX++;
+
+                        line2 := win.visibleTexts.items(win.cursorY);
+
+                        term_len := getTermLen(line2)
+
+                        cursor_term_len := getTermLen(line2.subString(0, win.cursorX));
+
+                        if(cursor_term_len == term_len && term_len >= win.MaxX-1) {
+                            win.cursorY++;
+                            win.cursorX = 0;
+
+                            if(win.cursorY >= win.MaxY -1) {
+                                win.scrollTopY++;
+                                win.cursorY--;
+                                win.makeVisibleTexts();
+
+                                win.fixCursorAndScrollTop(win.scrollTopY);
+                            }
+                        }
+                    }
+                    elif(c.isalnum() || c == ' ' || c.isgraph()) {
+                        line2 := win.visibleTexts.items(win.cursorY-1);
+
+                        term_len := getTermLen(line2)
+
+                        line3 := win.visibleTexts.items(win.cursorY);
+
+                        term_len2 := getTermLen(line3)
+
+                        if(term_len == win.MaxX-1 && term_len2 == 0) {
+                            line.append(c.toString());
+                        }
+                        else {
+                            line.insert(x, c.toString());
+                        }
+
+                        win.makeVisibleTexts();
+
+                        if(key == '}' || key == ')')
+                        {
+                            blinkParen();
+                        }
+
+                        win.cursorX++;
+
+                        line2 = win.visibleTexts.items(win.cursorY);
+
+                        term_len = getTermLen(line2)
+
+                        cursor_term_len := getTermLen(line2.subString(0, win.cursorX));
+
+                        if(cursor_term_len == term_len && term_len >= win.MaxX-1) {
+                            win.cursorY++;
+                            win.cursorX = 0;
+                            
+                            if(win.cursorY >= win.MaxY -1) {
+                                win.scrollTopY++;
+                                win.cursorY--;
+                                win.makeVisibleTexts();
+
+                                win.fixCursorAndScrollTop(win.scrollTopY);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

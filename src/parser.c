@@ -684,7 +684,7 @@ static BOOL get_number(BOOL minus, unsigned int* node, sParserInfo* info)
         }
         *p2 = 0;
         skip_spaces_and_lf(info);
-
+        
         if(*info->p == '.' && isdigit(*(info->p+1))) {
             info->p++;
             *p2++ = '.';
@@ -870,7 +870,7 @@ static BOOL get_hex_number(unsigned int* node, sParserInfo* info)
     if(*info->p == 'y') {
         info->p++;
         skip_spaces_and_lf(info);
-
+        
         *node = sNodeTree_create_byte_value((char)value, 0, 0, 0, info);
     }
     else if(*info->p == 'Y') {

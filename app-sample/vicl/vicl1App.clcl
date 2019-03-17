@@ -24,6 +24,8 @@ class ViClone version 1
             }
         }
 
+        setlocale(LC_ALL, "");
+
         runningCurses = true;
         initscr();
         setEscapeDelay(0);
@@ -60,7 +62,7 @@ class ViClone version 1
         }
     }
 
-    def finalize() {
+    def finalize():dynamic {
         endwin();
         runningCurses = false;
     }

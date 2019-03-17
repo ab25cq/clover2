@@ -71,7 +71,7 @@ class ViClone version 13
             lastInsertedString.push(list.items(0).subString(lastInsertedTextPos.value2, -1));
             lastInsertedString.push(list.items(1).subString(0, x+1));
         }
-        else {
+        elif(list.length() > 2) {
             lastInsertedString.push(list.items(0).subString(lastInsertedTextPos.value2, -1));
             lastInsertedString.push(list.subList(1,-2));
             lastInsertedString.push(list.items(-1).subString(0, x+1));

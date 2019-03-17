@@ -451,19 +451,21 @@ void mark_and_store_class_field(sCLClass* klass, int field_index, CLVALUE cl_val
 
 void gc(sVMInfo* info)
 {
-    gLambdaClass = get_class("lambda", FALSE);
+    if(!info->in_finalize_method) {
+        gLambdaClass = get_class("lambda", FALSE);
 
-    memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
+        memset(gCLHeap.mMarkFlags, 0, sizeof(unsigned char)*gCLHeap.mSizeHandles);
 
-    /// mark class fields ///
-    mark_all_class_fields(gCLHeap.mMarkFlags);
+        /// mark class fields ///
+        mark_all_class_fields(gCLHeap.mMarkFlags);
 
-    /// mark sig handlers ////
-    mark_sighandlers(gCLHeap.mMarkFlags);
+        /// mark sig handlers ////
+        mark_sighandlers(gCLHeap.mMarkFlags);
 
-    mark(gCLHeap.mMarkFlags);
+        mark(gCLHeap.mMarkFlags);
 
-    free_objects(gCLHeap.mMarkFlags);
+        free_objects(gCLHeap.mMarkFlags);
+    }
 }
 
 #define GC_TIMING 1024

@@ -301,6 +301,8 @@ struct sVMInfoStruct {
     BOOL js_compiling_class_source;
 
     sBuf* require_source;
+
+    BOOL in_finalize_method;
 };
 
 typedef struct sVMInfoStruct sVMInfo;
@@ -2389,11 +2391,15 @@ BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_GC_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_erase(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_idcok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

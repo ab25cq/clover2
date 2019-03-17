@@ -529,7 +529,10 @@ inherit System
     def refresh(): native static throws Exception;
     def box(win_ptr:pointer@WINDOW, vetical_char:char, horizonal_char:char): native static throws Exception;
     def isendwin(): native static bool;
-    def clear(): native static throws Exception;
+    def clear(): native static int throws Exception;
+    def idlok(flag:bool): native static int throws Exception;
+    def idcok(flag:bool): native static;
+    def erase(): native static int throws Exception;
     def attron(attribute:int): static native throws Exception;
     def attroff(attribute:int): static native throws Exception;
     def attrset(attribute:int): static native throws Exception;

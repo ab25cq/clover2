@@ -5,12 +5,16 @@ class ViClone version 14
 
     def initialize():dynamic {
         inherit();
-        completionCommandNames = tyclover2("--command").toString().split(/\n/)
+
+        if(win.fileName.match(/.+\.cl$|.+\.clcl$/)) 
+        {
+            completionCommandNames = tyclover2("--command").toString().split(/\n/)
+        }
 
         keyEvents['['.to_int] = lambda(self:ViClone, key:int, key2:int) {
             when(key2) {
                 case ('['.to_int) {
-                    if(win.fileName.match(/.+\.cl|.+\.clcl/)) {
+                    if(win.fileName.match(/.+\.clcl$|.+\.jsclcl$/)) {
                         (y, x) := getMethodDefinitionTop();
     
                         if(y != -1 && x != -1) {
@@ -31,7 +35,7 @@ class ViClone version 14
         keyEvents[']'.to_int] = lambda(self:ViClone, key:int, key2:int) {
             when(key2) {
                 case (']'.to_int) {
-                    if(win.fileName.match(/.+\.cl|.+\.clcl/)) {
+                    if(win.fileName.match(/.+\.clcl$|.+\.jsclcl$/)) {
                         (y, x) := getNextmethodDefinitionTop();
     
                         if(y != -1 && x != -1) {
@@ -130,7 +134,7 @@ class ViClone version 14
     
     def getSource():String {
         source := "";
-        if(win.fileName.match(/.+\.clcl/)) {
+        if(win.fileName.match(/.+\.clcl$|.+\.jsclcl$/)) {
             (y, x) := getMethodDefinitionTop();
             
             ### get argument variable ###
@@ -340,7 +344,12 @@ class ViClone version 14
     }
     
     def classNameCompletion():SortableList<String> {
-        return tyclover2("--class").toString().split(/\n/)
+        if(win.fileName.match(/.+\.jscl$|.+\.jsclcl$/)) {
+            return tyclover2("--class", "--js").toString().split(/\n/)
+        }
+        else {
+            return tyclover2("--class").toString().split(/\n/)
+        }
     }
     
     def commandNameCompletion():SortableList<String> {
@@ -361,12 +370,22 @@ class ViClone version 14
         words.append(class_names2);
 */
       
-        command_names := commandNameCompletion();
-        words.append(command_names);
+        if(!win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+            command_names := commandNameCompletion();
+            words.append(command_names);
+        }
 
         words.append(slist { "if", "when", "while", "for", "break", "true", "false", "null", "wildcard", "throw", "try", "return", "new", "closure", "lambda", "var", "val", "def", "inherit", "unset", "list", "elist", "slist", "tuple", "hash", "array", "earray", "sarray" });
         
-        klass := Class("Global");
+        klass:Class? = null;
+
+        if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+            klass = Class("Global", true);
+        }
+        else {
+            klass = Class("Global", false);
+        }
+
         methods := klass.getMethods();
 
         global_methods := SortableList<String>();
@@ -375,15 +394,35 @@ class ViClone version 14
             global_methods.push(method.methodNameAndParams);
         }
         words.append(global_methods);
+
+        if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+            klass = Class("System", true);
+        }
+        else {
+            klass = Class("System", false);
+        }
+        methods = klass.getMethods();
+
+        system_methods := SortableList<String>();
+        for(i=0; i<methods.length(); i++) {
+            method := methods.items(i);
+            system_methods.push(method.methodNameAndParams);
+        }
+        words.append(system_methods);
         
-        if(win.fileName.match(/.+\.clcl$/)) {
+        if(win.fileName.match(/.+\.clcl$|.+\.jsclcl$/)) {
             inner_class_name := getInnerClassDefinitionName();
 
             class_name := Clover.primitiveClassToBoxingClass(inner_class_name);
         
             klass:Class? = null;
             try {
-                klass = Class(class_name);
+                if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+                    klass = Class(class_name, true);
+                }
+                else {
+                    klass = Class(class_name);
+                }
             } catch(e:Exception) {
                 messageBox("class not found \{class_name}");
                 return;
@@ -445,7 +484,17 @@ class ViClone version 14
         line := win.texts.items(win.getRealPosY());
 
         type_name := "";
-        if(win.fileName.match(/.+\.clcl/)) {
+        if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+            class_name := getInnerClassDefinitionName();
+
+            if(class_name.equals("")) {
+                type_name = source.toCommand().tyclover2("--js").toString().chomp();
+            }
+            else {
+                type_name = source.toCommand().tyclover2(class_name, "--js").toString().chomp();
+            }
+        }
+        elif(win.fileName.match(/.+\.clcl$/)) {
             class_name := getInnerClassDefinitionName();
 
             if(class_name.equals("")) {
@@ -480,7 +529,12 @@ class ViClone version 14
 
         klass:Class? = null;
         try {
-            klass = Class(class_name);
+            if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+                klass = Class(class_name, true);
+            }
+            else {
+                klass = Class(class_name);
+            }
         } catch(e:Exception) {
             messageBox("class not found \{class_name}");
             return;
@@ -776,7 +830,7 @@ class ViClone version 14
         elif(path_name_completion) {
             fileCompletion();
         }
-        elif(is_shell_mode) {
+        elif(win.fileName.match(/.+\.clcl$|.+\.cl$/) && is_shell_mode) {
             shellModeCompletion();
         }
         else {
@@ -785,12 +839,12 @@ class ViClone version 14
     }
     
     def getWords():SortableList<String> {
-        return win.texts.join("\n").toCommand().bash("-c", "sed -re 's/(\\s|\\W)+/\\n/g' | egrep -v '\\W+' | egrep -v '^$' | sort | uniq").toString().split('\n');
+        return win.texts.join("\n").toCommand().bash("-c", "sed -re 's/  */\\n/g' | sed -re 's/[!-@\\[-\\`{-~]/\\n/g' | egrep -v '^$' | sort | uniq").toString().split('\n');
     }
     
     def completion():dynamic {
         words := getWords();
-        
+
         (inputing_text,i) := gettingInputingWord();
         completion_core(inputing_text, i, words)
     }  

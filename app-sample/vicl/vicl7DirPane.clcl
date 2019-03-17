@@ -1,7 +1,7 @@
 class ViCloneWindow version 5
 {
     def rehashCCompletion():dynamic {}
-
+    
     def initialize(fname:String, dir_path:String, win_pos:int, arg_line_num:int, vicl:ViClone):dynamic {
         inherit(fname, dir_path, win_pos, arg_line_num, vicl);
 

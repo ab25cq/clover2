@@ -60,7 +60,14 @@ class ViClone version 10
     def initialize():dynamic {
         inherit();
 
-        clipBoard = SortableList<String>();
+        path := getenv("HOME").add("/.clover2/vicl/clipbord")
+        
+        if(access(path, R_OK) == 0) {
+            clipBoard = path.toPath().read().toString().split('\n');
+        }
+        else {
+            clipBoard = SortableList<String>();
+        }
 
         pasteMode = PASTEMODE_LINE;
 
@@ -109,11 +116,31 @@ class ViClone version 10
             win.visualMode = true;
         }
     }
+    
+    def finalize(): dynamic {
+        inherit();
+        path := getenv("HOME").add("/.clover2/vicl/clipbord")
+        clipBoard.join("\n").write(path);
+    }
 
     def clearClipBoard(): dynamic {
         clipBoard.clear();
     }
     def addClipBoard(line:String, line_mode:bool):dynamic {
+        clearClipBoard();
+        
+        clipBoard.push(line);
+        
+        if(line_mode) {
+            pasteMode = PASTEMODE_LINE;
+        }
+        else {
+            pasteMode = PASTEMODE_CURSOR;
+        }
+    }
+    def addClipBoard(line:SortableList<String>, line_mode:bool):dynamic {
+        clearClipBoard();
+        
         clipBoard.push(line);
         
         if(line_mode) {
@@ -201,12 +228,11 @@ class ViClone version 10
                 line := win.getRealPosY();
 
                 if(win.visualModeStart < line) {
-                    clipBoard = win.texts.subList(win.visualModeStart, line+1);
+                    addClipBoard(win.texts.subList(win.visualModeStart, line+1), true);
                 }
                 else {
-                    clipBoard = win.texts.subList(line, win.visualModeStart+1);
+                    addClipBoard(win.texts.subList(line, win.visualModeStart+1), true);
                 }
-                pasteMode = PASTEMODE_LINE;
 
                 finishVisualMode(); 
             }
@@ -217,7 +243,7 @@ class ViClone version 10
                 real_pos_y := win.getRealPosY();
 
                 if(win.visualModeStart < real_pos_y) {
-                    clipBoard = win.texts.subList(win.visualModeStart, real_pos_y+1);
+                    addClipBoard(win.texts.subList(win.visualModeStart, real_pos_y+1), true);
                     win.texts.deleteWithRange(win.visualModeStart, real_pos_y+1);
                     
                     if(win.texts.length() == 0) {
@@ -225,14 +251,12 @@ class ViClone version 10
                     }
                 }
                 else {
-                    clipBoard = win.texts.subList(real_pos_y, win.visualModeStart+1);
+                    addClipBoard(win.texts.subList(real_pos_y, win.visualModeStart+1), true);
                     win.texts.deleteWithRange(real_pos_y, win.visualModeStart+1);
                     if(win.texts.length() == 0) {
                         win.texts.push("");
                     }
                 }
-
-                pasteMode = PASTEMODE_LINE;
 
                 win.makeVisibleTexts(); 
                 win.moveCursor(win.visualModeStart, 0);

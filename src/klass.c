@@ -1396,4 +1396,3 @@ BOOL is_valid_class(sCLClass* klass)
 
     return FALSE;
 }
-

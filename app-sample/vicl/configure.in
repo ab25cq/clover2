@@ -1,8 +1,6 @@
 AC_INIT(viclone.cl)
 
-AC_PROG_CC
 AC_PROG_INSTALL
-AC_C_BIGENDIAN
 
 if test $prefix = NONE
 then

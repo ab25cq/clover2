@@ -1,7 +1,8 @@
 
 class ViClone version 5
 {
-    def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+    def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer>
+    {
         real_pos_x := win.getRealPosX();
         real_pos_y := win.getRealPosY(); 
 
@@ -127,7 +128,8 @@ class ViClone version 5
         return (y, x);
     }
 
-    def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
+    def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer>
+    {
         real_pos_x := win.getRealPosX();
         real_pos_y := win.getRealPosY(); 
     

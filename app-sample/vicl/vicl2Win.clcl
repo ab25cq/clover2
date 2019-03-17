@@ -42,7 +42,7 @@ class ViCloneWindow version 1
         MaxY = (getmaxy() -1)/ len;
     }
 
-    def makeVisibleTexts() {
+    def makeVisibleTexts():dynamic {
         visibleTexts = SortableList<String>();
         visibleTextsPos = EqualableList<Tuple3<Integer, Integer, Integer>>();
         
@@ -71,7 +71,7 @@ class ViCloneWindow version 1
         }
     }
 
-    def fixCursorAndScrollTop(scrolltop_y_before:int) {
+    def fixCursorAndScrollTop(scrolltop_y_before:int):dynamic {
         if(visibleTexts.length() < MaxY -1 && cursorY >= visibleTexts.length()) 
         {
             cursorY = visibleTexts.length()-1;
@@ -118,10 +118,6 @@ class ViCloneWindow version 1
         if(line == null || line.length() == 0) {
             cursorX = 0;
         }
-
-        if(cursorX < 0) {
-            cursorX = 0;
-        }
         
         if(cursorY >= visibleTexts.length()) {
             cursorY = visibleTexts.length() - 1;
@@ -139,7 +135,7 @@ class ViCloneWindow version 1
     }
 
     def view():dynamic {
-        for(y:=0; y<visibleTexts.length(); y++) {
+        for(y:=0; y<visibleTexts.length() && y < MaxY -1; y++) {
             line := visibleTexts.items(y);
 
             if(line == null) {
@@ -311,7 +307,7 @@ class ViClone version 2
         spaceString = " ".multiply(maxx);
     }
 
-    def clearWithoutBlink() {
+    def clearWithoutBlink():dynamic {
         var maxy = getmaxy();
 
         for(i:=0; i<maxy-1; i++) {

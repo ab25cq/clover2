@@ -12,7 +12,7 @@ class ViCloneWindow version 2
         modifiedText = false;
     }
 
-    def fixCursorAndScrollTopOnInsertMode(scrolltop_y_before:int) {
+    def fixCursorAndScrollTopOnInsertMode(scrolltop_y_before:int):dynamic {
         y := getRealPosY();
         x := getRealPosX();
 
@@ -44,7 +44,7 @@ class ViCloneWindow version 2
         return y2;
     }
 
-    def viewPosToRealPos(y:int, x:int): Tuple3<Integer, Integer, Integer>
+    def viewPosToRealPos(y:int, x:int): dynamic Tuple3<Integer, Integer, Integer>
     {
         if(y >= 0 && y < visibleTextsPos.length()) {
             (y2, x2, line_size) := visibleTextsPos.items(y);
@@ -55,7 +55,7 @@ class ViCloneWindow version 2
         }
     }
 
-    def realPosToViewPos(y:int, x:int): Tuple2<Integer, Integer> {
+    def realPosToViewPos(y:int, x:int): dynamic Tuple2<Integer, Integer> {
         for(i:=0; i<visibleTextsPos.length(); i++)
         {
             (y2, x2, line_num) := visibleTextsPos.items(i);
@@ -71,7 +71,7 @@ class ViCloneWindow version 2
         return (-1,-1)
     }
     
-    def moveCursor(y:int, x:int):int {
+    def moveCursor(y:int, x:int):dynamic int {
         (y2,x2) := realPosToViewPos(y, x);
         
         if(y2 >= 0 && y2 < visibleTexts.length())
@@ -220,7 +220,7 @@ class ViClone version 3
         }
     }
 
-    def enterNewLine(no_tails_getting:bool) {
+    def enterNewLine(no_tails_getting:bool):dynamic {
         y := win.getRealPosY();
         x := win.getRealPosX();
 
@@ -263,7 +263,7 @@ class ViClone version 3
         win.cursorX = spaces_num;
     }
 
-    def insertMode(key:int) {
+    def insertMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishInsertMode();
@@ -314,10 +314,10 @@ class ViClone version 3
             }
             
             case (('X'-'A').to_int+1) {
-                if(win.fileName.match(/.+\.cl/) || win.fileName.match(/.+\.clcl/)) {
+                if(win.fileName.match(/.+\.cl$|.+\.clcl$|.+\.jsclcl$|.+\.jscl$/)) {
                     clover2Completion();
                 }
-                elif(win.fileName.match(/.+\.c/)) {
+                elif(win.fileName.match(/.+\.c$/)) {
                     CCompletion();
                 }
                 else {
@@ -383,7 +383,7 @@ class ViClone version 3
 
     def statusView():dynamic {
         maxy := getmaxy();
-
+        
         attron(A_REVERSE);
         try {
             mvprintw(maxy-1, 0, "%s %d %d %s", { (win.fileName?.nothing():""), win.getRealPosY() + 1, win.getRealPosX(), if(win.modifiedText) { "changed" } else { "no changed" } });
@@ -391,9 +391,7 @@ class ViClone version 3
         attroff(A_REVERSE);
     }
 
-    def view():dynamic {
-        inherit(); 
-
+    def statusView():dynamic {
         if(mode == INSERTMODE) {
             maxy := getmaxy();
 
@@ -407,6 +405,9 @@ class ViClone version 3
                 mvprintw(maxy-1, 0, "INSERT %s %d %d", { win.fileName, win.getRealPosY(), win.getRealPosX()});
             }
             attroff(A_REVERSE);
+        }
+        else {
+            inherit(); 
         }
     }
 }

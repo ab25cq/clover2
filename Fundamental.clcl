@@ -39,6 +39,7 @@ class System
     def realloc(ptr:pointer, size: size_t): native static pointer@alloc;
     def strdup(str:pointer): native static pointer@alloc;
     def free(ptr:pointer): native static;
+    def GC_malloc(size:size_t):native static GCMemory;
 
     def strlen(ptr:pointer): native static int;
     def strlen(array:byte[]): native static int;
@@ -59,6 +60,12 @@ class System
     def println(str:String): native static;
     def printToError(str:String): native static;
     def printlnToError(str:String): native static;
+}
+
+class GCMemory
+{
+    memory:pointer;
+    size:size_t;
 }
 
 class Global

@@ -1,5 +1,13 @@
 English page is here [>> English page](changelog-en)
 
+version 10.2.3
+
+    Fixed finalize method bug. Now you can use the method using GC in the finalize method.
+
+version 10.2.2
+
+    Added erase(3), idlok(3), idcok(3) method.
+
 version 10.2.1
 
     Java Script Reflection.

@@ -1,0 +1,13 @@
+class GCMemoryTest
+{
+    def main():static {
+        obj := GC_malloc(1024);
+
+        p := obj.memory;
+        memcpy(p, b"ABC", 3);
+
+        Clover.test("GC memory test", p->byte == 'A' && (p+1)->byte == 'B' && (p+2)->byte == 'C');
+        
+    }
+}
+

@@ -50,3 +50,5 @@ println("Omit Block Param Test");
 OmitBlockParamTest.main();
 println("MixinLayersTest");
 MixinLayersTest.main();
+println("GCMemoryTest");
+GCMemoryTest.main();
