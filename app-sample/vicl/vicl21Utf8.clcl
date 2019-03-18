@@ -1,40 +1,5 @@
 class ViCloneWindow version 13
 {
-    def moveCursor(y:int, x:int):dynamic int {
-        (y2,x2) := realPosToViewPos(y, x);
-        
-        if(y2 >= 0 && y2 < visibleTexts.length())
-        {
-            (cursorY, cursorX) = realPosToViewPos(y, x);
-
-            fixCursorAndScrollTop(scrollTopY);
-            makeVisibleTexts();
-        }
-        else {
-            scroll_size := (MaxY-1)/2;
-            scrollTopY = y - scroll_size;
-
-            fixCursorAndScrollTop(scrollTopY);
-            makeVisibleTexts();
-
-            (cursorY, cursorX) = realPosToViewPos(y, x);
-
-            if(cursorY == -1 && cursorX == -1) {
-                scrollTopY = y;
-
-                fixCursorAndScrollTop(scrollTopY);
-                makeVisibleTexts();
-
-                (cursorY, cursorX) = realPosToViewPos(y, x);
-                fixCursorAndScrollTop(scrollTopY);
-                makeVisibleTexts();
-            }
-            else {
-                fixCursorAndScrollTop(scrollTopY);
-                makeVisibleTexts();
-            }
-        }
-    }
     def realPosToViewPos(y:int, x:int): dynamic Tuple2<Integer, Integer> {
         for(i:=visibleTextsPos.length()-1; i>=0; i--) {
             (y2, head, line_num) := visibleTextsPos.items(i);
@@ -139,7 +104,7 @@ class ViCloneWindow version 13
         visibleTextsPos = EqualableList<Tuple3<Integer, Integer, Integer>>();
         
         view_y := 0;
-        for(y:=scrollTopY; y < texts.length() && view_y < MaxY-2; y++) {
+        for(y:=scrollTopY; y < texts.length() && view_y < MaxY-1; y++) {
             line := texts.items(y);
             if(line == null) {
                 break;
@@ -176,22 +141,21 @@ class ViCloneWindow version 13
                     }
                 }
 
-                if(view_y < MaxY-1) {
-                    if(x == line.length() && view_x == MaxX-1) {
-                        visibleTexts.push(line.subString(head, x));
-                        visibleTextsPos.push((y, head, line_height));
-                        
-                        head = x;
-                        line_height++;
-                        view_y++;
+                if(x == line.length() && view_x == MaxX-1) {
+                    visibleTexts.push(line.subString(head, x));
+                    visibleTextsPos.push((y, head, line_height));
+                    
+                    head = x;
+                    line_height++;
+                    view_y++;
 
-                        visibleTexts.push("");
-                        visibleTextsPos.push((y, head, line_height));
-                    }
-                    else {
-                        visibleTexts.push(line.subString(head, x));
-                        visibleTextsPos.push((y, head, line_height));
-                    }
+                    visibleTexts.push("");
+                    visibleTextsPos.push((y, head, line_height));
+                }
+                else {
+                    visibleTexts.push(line.subString(head, x));
+                    visibleTextsPos.push((y, head, line_height));
+                    view_y++
                 }
             }
             else {
@@ -217,6 +181,22 @@ class ViCloneWindow version 13
 
 class ViClone version 21
 {
+    def getTermLen(str:String):static int {
+        result := 0;
+
+        for(i:=0; i<str.length(); i++) {
+            c := str.chars(i);
+
+            if(c > 127) {
+                result += 2;
+            }
+            else {
+                result ++;
+            }
+        }
+
+        return result;
+    }
     def forwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
         real_pos_x := win.getRealPosX();
         real_pos_y := win.getRealPosY(); 
@@ -367,48 +347,6 @@ class ViClone version 21
         }
 
         return (y, x);
-    }
-    
-    def enterNewLine(no_tails_getting:bool):dynamic {
-        y := win.getRealPosY();
-        x := win.getRealPosX();
-
-        line := win.texts.items(y);
-
-        spaces_num := line.scan(/^\s+/)?.items(0).length():0;
-
-        tails := "";
-        if(!no_tails_getting) {
-            tails = line.subString(x..-1);
-            line.delete(x..-1);
-        }
-
-        win.cursorX = spaces_num;
-        win.cursorY++;
-        
-        if(win.cursorY >= win.MaxY-1) {
-            (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
-
-            if(top_line_size >= win.MaxY-1) {
-                win.scrollTopY++;
-                win.cursorY = 0;
-                win.cursorX = 0;
-            }
-            else {
-                scroll_size := win.cursorY - win.MaxY +2;
-
-                win.scrollTopY += scroll_size;
-                win.cursorY -= scroll_size + top_line_size -1;
-            }
-        }
-        
-        spaces := " ".multiply(spaces_num);
-        spaces.append(tails);
-        win.texts.insert(y+1, spaces);
-
-        win.makeVisibleTexts();
-        
-        win.cursorX = spaces_num;
     }
 
     def backwardWord(offset:int=0):dynamic Tuple2<Integer, Integer> {
@@ -697,22 +635,6 @@ class ViClone version 21
         }
 
         close(sockfd);
-    }
-    def getTermLen(str:String):static int {
-        result := 0;
-
-        for(i:=0; i<str.length(); i++) {
-            c := str.chars(i);
-
-            if(c > 127) {
-                result += 2;
-            }
-            else {
-                result ++;
-            }
-        }
-
-        return result;
     }
 
     def insertMode(key:int):dynamic {
