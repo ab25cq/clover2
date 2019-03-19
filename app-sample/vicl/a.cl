@@ -7,7 +7,9 @@ ksalfalsdkflsadlfdslfadslkadslaskdflsdlalsdfdlsakfjlkaljdladsf
 
 iiiiiiiiiiiiiiiiiiiiiiiiああああああああああああああああああああああああああ
 aaaaaaa
-ああ
+ああいうえお
+愛している
+vim愛している
 あああああlああああ
 ああああああああああああああasあああdfaslkfslaalsdflfldskfsllsadl
 iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii

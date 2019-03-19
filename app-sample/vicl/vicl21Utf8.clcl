@@ -177,6 +177,62 @@ class ViCloneWindow version 13
             }
         }
     }
+    def view():dynamic {
+        for(y:=0; y<visibleTexts.length() && y < MaxY -1; y++) {
+            line := visibleTexts.items(y);
+
+            if(line == null) {
+                break;
+            }
+
+            ### cursor line ####
+            if(cursorY == y && ViClone.vicl.win == self) {
+                if(line.length() == 0) {
+                    attron(A_REVERSE);
+                    mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, " ");
+                    attroff(A_REVERSE);
+                }
+                else {
+                    cursor_x_term_len := ViClone.getTermLen(line.subString(0, cursorX));
+                    if(cursorX >= line.length()) {
+                        mvprintw(y + winPos
+                            , 0 + ViClone.vicl.dirPaneLength, line);
+
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, cursor_x_term_len + ViClone.vicl.dirPaneLength, " ");
+                        attroff(A_REVERSE);
+                    }
+                    else {
+                        mvprintw(y + winPos, 0+ViClone.vicl.dirPaneLength
+                            , line.subString(0, cursorX));
+
+                        c := line.chars(cursorX);
+
+                        attron(A_REVERSE);
+                        mvprintw(y + winPos, cursor_x_term_len+ViClone.vicl.dirPaneLength
+                            , "%s", array { c.toString() });
+                       attroff(A_REVERSE);
+
+                       c_term_len := ViClone.getTermLen(c.toString());
+
+                       mvprintw(y + winPos, cursor_x_term_len+c_term_len+ViClone.vicl.dirPaneLength
+                           , line.subString(cursorX+1, -1));
+                   }
+               }
+            }
+            ### visible line ###
+            else {
+                mvprintw(y + winPos, 0 + ViClone.vicl.dirPaneLength, line);
+            }
+        }
+
+        try {
+            attron(A_REVERSE);
+            str := sprintf("%s/%s%s", array { dirPath, fileName, " ".multiply(getmaxx()-1-ViClone.vicl.dirPaneLength-dirPath.length()-fileName.length()-1) });
+            mvprintw(MaxY -1 + winPos, 0 + ViClone.vicl.dirPaneLength, "%s", array { str.subString(0, getmaxx()-1-ViClone.vicl.dirPaneLength) });
+            attroff(A_REVERSE);
+        }
+    }
 }
 
 class ViClone version 21
@@ -542,10 +598,10 @@ class ViClone version 21
         while(!vicl.endOfAplication) {
             #vicl.clearWithoutBlink();
             #refresh();
-            idcok(false);
-            idlok(false);
-            #erase();
-            clear();
+            #idcok(false);
+            #idlok(false);
+            erase();
+            #clear();
             vicl.clearStatusLine();
             vicl.dirView();
             vicl.view();
