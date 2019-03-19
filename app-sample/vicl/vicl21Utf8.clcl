@@ -637,6 +637,49 @@ class ViClone version 21
         close(sockfd);
     }
 
+    def enterNewLine(no_tails_getting:bool):dynamic {
+        y := win.getRealPosY();
+        x := win.getRealPosX();
+
+        line := win.texts.items(y);
+
+        spaces_num := line.scan(/^\s+/)?.items(0).length():0;
+
+        tails := "";
+        if(!no_tails_getting) {
+            tails = line.subString(x..-1);
+            line.delete(x..-1);
+        }
+
+        win.cursorX = spaces_num;
+        win.cursorY++;
+
+        if(win.cursorY >= win.MaxY-1) {
+            (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
+
+            if(top_line_size >= win.MaxY-1) {
+                win.scrollTopY++;
+                win.cursorY = 0;
+                win.cursorX = 0;
+            }
+            else {
+                scroll_size := win.cursorY - win.MaxY +2;
+
+                win.scrollTopY += scroll_size;
+                win.cursorY -= scroll_size + top_line_size -1;
+            }
+        }
+        
+        spaces := " ".multiply(spaces_num);
+        spaces.append(tails);
+        win.texts.insert(y+1, spaces);
+
+        win.makeVisibleTexts();
+        #win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+
+        win.cursorX = spaces_num;
+    }
+
     def insertMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {

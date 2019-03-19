@@ -151,7 +151,7 @@ class ViClone version 10
         }
     }
 
-    def pasteBeforeCursorLineMode() {
+    def pasteBeforeCursorLineMode():dynamic {
         win.addUndoText();
 
         line := win.getRealPosY();
@@ -160,7 +160,7 @@ class ViClone version 10
         win.makeVisibleTexts();
         win.fixCursorAndScrollTop(win.scrollTopY);
     }
-    def pasteAfterCursorLineMode() {
+    def pasteAfterCursorLineMode():dynamic {
         win.addUndoText();
 
         line := win.getRealPosY();
@@ -170,7 +170,7 @@ class ViClone version 10
         win.fixCursorAndScrollTop(win.scrollTopY);
     }
 
-    def pasteBeforeCursor() {
+    def pasteBeforeCursor():dynamic {
         win.addUndoText();
 
         y := win.getRealPosY();
@@ -194,7 +194,7 @@ class ViClone version 10
         win.fixCursorAndScrollTop(win.scrollTopY);
     }
     
-    def pasteAfterCursor() {
+    def pasteAfterCursor():dynamic {
         win.addUndoText();
 
         y := win.getRealPosY();
@@ -218,7 +218,7 @@ class ViClone version 10
         win.fixCursorAndScrollTop(win.scrollTopY);
     }
 
-    def visualMode(key:int) {
+    def visualMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishVisualMode(); 

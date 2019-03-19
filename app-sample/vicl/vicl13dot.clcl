@@ -78,7 +78,7 @@ class ViClone version 13
         }
     }
     
-    def insertOnceMore() {
+    def insertOnceMore():dynamic {
         x := win.getRealPosX();
         y := win.getRealPosY();
 

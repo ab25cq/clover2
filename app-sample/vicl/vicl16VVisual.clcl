@@ -115,7 +115,7 @@ class ViClone version 16
         win.vvisualMode = false;
     }
 
-    def vvisualMode(key:int) {
+    def vvisualMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishVisualMode(); 
@@ -198,7 +198,7 @@ class ViClone version 16
         }
     }
     
-    def vinsertMode(key:int) {
+    def vinsertMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishVisualMode(); 

@@ -148,7 +148,7 @@ class ViCloneWindow version 5
         }
     }
 
-    def insertText(text:String) {
+    def insertText(text:String):dynamic {
         insert_texts := text.split(/\n/);
         
         if(insert_texts.length() == 1) {

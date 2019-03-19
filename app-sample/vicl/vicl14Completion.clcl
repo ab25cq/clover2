@@ -557,7 +557,7 @@ class ViClone version 14
         completion_core(inputing_text, i, words)
     }
 
-    def fileCompletion() {
+    def fileCompletion():dynamic {
         line := win.texts.items(win.getRealPosY());
 
         p := line.toBuffer();
@@ -776,7 +776,7 @@ class ViClone version 14
         return (inputing_text, i);
     }
 
-    def completion_core(inputing_text:String, i:int, words:SortableList<String>):bool {
+    def completion_core(inputing_text:String, i:int, words:SortableList<String>):dynamic bool {
         line := win.texts.items(win.getRealPosY());
         
         candidates := words.select { it.indexOf(inputing_text) == 0 && !it.equals(inputing_text) }.sort().uniq();

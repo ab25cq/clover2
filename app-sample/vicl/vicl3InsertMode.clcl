@@ -205,7 +205,8 @@ class ViClone version 3
             x := win.getRealPosX();
             y := win.getRealPosY();
 
-            line := win.texts.items(y);
+            line := win.texts.items(y).clone();
+            win.texts.replace(y, line);
 
             if(line.identifyWith(null).negative() && x < line.length()-1) {
                 win.addUndoText();

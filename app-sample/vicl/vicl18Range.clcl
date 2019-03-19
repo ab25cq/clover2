@@ -158,7 +158,7 @@ class ViClone version 18
         win.rangeMode = false;
     }
 
-    def rangeMode(key:int) {
+    def rangeMode(key:int):dynamic {
         when(key) {
             case (('['-'A').to_int+1, ('C'-'A').to_int+1) {
                 finishRangeMode(); 

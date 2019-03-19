@@ -308,7 +308,7 @@ class ViClone version 2
     }
 
     def clearWithoutBlink():dynamic {
-        var maxy = getmaxy();
+        maxy := getmaxy();
 
         for(i:=0; i<maxy-1; i++) {
             mvprintw(i, 0, spaceString);
