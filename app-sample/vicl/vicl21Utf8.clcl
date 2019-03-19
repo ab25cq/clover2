@@ -203,20 +203,17 @@ class ViCloneWindow version 13
                         attroff(A_REVERSE);
                     }
                     else {
-                        mvprintw(y + winPos, 0+ViClone.vicl.dirPaneLength
-                            , line.subString(0, cursorX));
+                        mvprintw(y + winPos
+                            , ViClone.vicl.dirPaneLength
+                            , "%s", array { line.subString(0, cursorX) } );
 
                         c := line.chars(cursorX);
 
                         attron(A_REVERSE);
-                        mvprintw(y + winPos, cursor_x_term_len+ViClone.vicl.dirPaneLength
-                            , "%s", array { c.toString() });
-                       attroff(A_REVERSE);
+                        printw("%s", array { c.toString() });
+                        attroff(A_REVERSE);
 
-                       c_term_len := ViClone.getTermLen(c.toString());
-
-                       mvprintw(y + winPos, cursor_x_term_len+c_term_len+ViClone.vicl.dirPaneLength
-                           , line.subString(cursorX+1, -1));
+                        printw("%s", array { line.subString(cursorX+1, -1) });
                    }
                }
             }
@@ -595,18 +592,37 @@ class ViClone version 21
 
         loop_num := 0;
 
+        clear_env := getenv("CLEAR_VIEW");
+        clear_flag := false;
+        if(clear_env != null) {
+            clear_flag = clear_env.equals("1");
+        }
+
         while(!vicl.endOfAplication) {
-            #vicl.clearWithoutBlink();
-            #refresh();
-            #idcok(false);
-            #idlok(false);
-            erase();
-            #clear();
-            vicl.clearStatusLine();
-            vicl.dirView();
-            vicl.view();
-            vicl.statusView();
-            refresh();
+            if(clear_flag) {
+                erase();
+                vicl.clearStatusLine();
+                vicl.dirView();
+                vicl.view();
+                vicl.statusView();
+
+                idcok(false);
+                idlok(false);
+                clear();
+                vicl.clearStatusLine();
+                vicl.dirView();
+                vicl.view();
+                vicl.statusView();
+                refresh();
+            }
+            else {
+                erase();
+                vicl.clearStatusLine();
+                vicl.dirView();
+                vicl.view();
+                vicl.statusView();
+                refresh();
+            }
 
             read_ok = mask.clone();
 

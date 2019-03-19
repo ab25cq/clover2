@@ -2875,9 +2875,9 @@ fi
 
 
 
-##########################################################
+###########################################
 # Libs
-##########################################################
+###########################################
 CC=gcc
 
 INSTALL="/usr/bin/install -c"
@@ -2885,6 +2885,33 @@ DESTDIR=$myprefix
 
 
 
+
+###########################################
+# termux
+###########################################
+if test -e /data/data/com.termux/files
+then
+    echo "termux on Android...termux"
+
+cat <<'EOF' > vicl
+#!/bin/bash
+
+export CLEAR_VIEW=1
+export LD_LIBRARY_PATH=$HOME/.clover2/vicl/:$LD_LIBRARY_PATH
+clover2 ~/.clover2/vicl/viclone.ocl $@
+EOF
+
+else
+    echo "termux on Android...no termux"
+
+cat <<'EOF' > vicl
+#!/bin/bash
+
+export LD_LIBRARY_PATH=$HOME/.clover2/vicl/:$LD_LIBRARY_PATH
+clover2 ~/.clover2/vicl/viclone.ocl $@
+EOF
+
+fi
 
 ac_config_files="$ac_config_files Makefile"
 
