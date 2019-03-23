@@ -2441,6 +2441,7 @@ int main(int argc, char** argv)
             xstrncat(prompt, host_name, 1024);
         }
 
+/*
         char* pwd = getenv("PWD");
 
         if(pwd) {
@@ -2461,6 +2462,7 @@ int main(int argc, char** argv)
                 xstrncat(prompt, pwd, 1024);
             }
         }
+*/
 
         xstrncat(prompt, "> ", 1024);
 

@@ -29,6 +29,6 @@ class ViClone version 20
     def finishInsertMode():dynamic {
         inherit();
 
-        win.texts.join("\n").write(win.tmpFilePath);
+#        win.texts.join("\n").write(win.tmpFilePath);
     }
 }

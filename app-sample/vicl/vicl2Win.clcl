@@ -32,7 +32,7 @@ class ViCloneWindow version 1
     }
 
     def makeMaxxy(vicl:ViClone) {
-        MaxX = getmaxx() - vicl.dirPaneLength;
+        MaxX = getmaxx() - vicl.dirPaneLength -5;
 
         len := 1;
         if(vicl.windows.length() > 1) {

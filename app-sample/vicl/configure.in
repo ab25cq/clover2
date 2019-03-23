@@ -15,7 +15,7 @@ fi
 DEBUGGING=0
 
 AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
-AC_ARG_WITH(optimize,           [  --with-optimize           with optimize(-O in CFLAGS) ], [ ENABLE_OPTIMIZE=1 ], [ ENABLE_OPTIMIZE=0 ])
+AC_ARG_WITH(optimize,           [  --jit                     with JIT ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0 ])
 
 ##############################################################
 # check operating systems
@@ -112,6 +112,15 @@ then
     #CFLAGS="$CFLAGS -O3"
 fi
 
+if test $ENABLE_JIT = 1
+then
+    JIT=1
+else
+    JIT=0
+fi
+
+AC_SUBST(JIT)
+
 if test $DEBUGGING = 1
 then
     CFLAGS="$CFLAGS -g -DMDEBUG -Werror"
@@ -133,14 +142,14 @@ AC_SUBST(CFLAGS)
 ###########################################
 # termux
 ###########################################
-if test -e /data/data/com.termux/files
+if pwd | grep /data/data/com.termux/files > /dev/null
 then
     echo "termux on Android...termux"
 
 cat <<'EOF' > vicl
 #!/bin/bash
 
-export CLEAR_VIEW=1
+export TERMUX=1
 export LD_LIBRARY_PATH=$HOME/.clover2/vicl/:$LD_LIBRARY_PATH
 clover2 ~/.clover2/vicl/viclone.ocl $@
 EOF

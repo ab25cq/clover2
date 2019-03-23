@@ -1,14 +1,30 @@
 afalskdfaldjfaldkafa asdlfkadlfafjldaldkfa adslfaslafl aa strcmpalsdasdfalsdfsldfjsdfasfsadlfjlsdjfsdkfladfjadsfjsldfasfafdladflkdslflsdjflsdkjflsajfdaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 
+これは良いんだと思んだけど
+これはGoogle
+これはGoogle日本語入力でええ気がする
+これはGoogle日本語入力でええ気がする
+結構快適かもな
+思っている
+これは良
+これはいいと
+結構良いねGoogle日本語入力より良いかも
+快適な日本語入力
+快適な日本語入力だな。単語単位じゃないと駄目か。うーむ。
+SKKっぽくした方が良いかも。どうしよう。文節が区別できないな。
+とりあえず、アップロードしようかな。文節が区別できないな。
+うーむ。
+
 alnum
 str
 1
 ksalfalsdkflsadlfdslfadslkadslaskdflsdlalsdfdlsakfjlkaljdladsf
 あああああああああllllllあlllllll
+愛
 
 iiiiiiiiiiiiiiiiiiiiiiiiああああああああああああああああああああああああああ
 aaaaaaa
 ああいうえお
-愛している
+愛
 vim愛している
 あああああlああああ
 ああああああああああああああasあああdfaslkfslaalsdflfldskfsllsadl
@@ -24,7 +40,7 @@ aaaaaaaaa
 うえお
 かきくけこ
 asdkflsalfasldfladsflkasdfasdfaldfldksflsadflaksdflasdsadfasdkfalsdjlsadlafas
-
+愛
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaああああ
 aaaaiii
 
@@ -68,20 +84,25 @@ if(a == 1) {
 else {
     b = 123;
 }
-
 def main() {
     println("HELLO WORLD");
     println("HELLO WORLD");
     println("HELLO WORLD");
     println("AAA");
 }
-
 lll
 bbb
 ccc
 lll
 
+あい
 
+
+
+
+あいうえおいいいいかかかか
+あいうえお
+かきくけこかきくけこ
 aaaa
 bbbb
 aaaa
