@@ -2,6 +2,7 @@
 #include <locale.h>
 #define _GNU_SOURCE
 #include <stdio.h>
+#include <pwd.h>
 
 #ifdef HAVE_READLINE_H
 #include <readline/readline.h>
@@ -2429,10 +2430,9 @@ int main(int argc, char** argv)
 
         prompt[0] = '\0';
 
-        char* user_name = getenv("USER");
-
-        if(user_name) {
-            xstrncat(prompt, user_name, 1024);
+        struct passwd* pw = getpwuid(getuid());
+        if(pw) {
+            xstrncat(prompt, pw->pw_name, 1024);
         }
 
         char host_name[128];
