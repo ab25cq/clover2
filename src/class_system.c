@@ -6965,6 +6965,8 @@ void signal_user_handler(int signum)
 
         CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*CLOVER_STACK_SIZE);
 
+        info.stack = stack;
+
         int var_num = 0;
         int num_params = 1;
         CLVALUE* p = stack + 1 + var_num;

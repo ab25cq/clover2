@@ -101,7 +101,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE* stack_ptr = stack + var_num;
             CLVALUE* lvar = stack;
 
-            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
+            sCLStack* stack_id = append_stack_to_stack_list(info->stack, &stack_ptr, FALSE);
 
             info->current_stack = stack;        // for invoking_block in native method
             info->current_var_num = var_num;
@@ -161,7 +161,7 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             CLVALUE* stack_ptr = stack + var_num;
             CLVALUE* lvar = stack;
 
-            sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
+            sCLStack* stack_id = append_stack_to_stack_list(info->stack, &stack_ptr, FALSE);
 
             info->current_stack = stack;        // for invoking_block in native method
             info->current_var_num = var_num;

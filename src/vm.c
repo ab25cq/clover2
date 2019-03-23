@@ -1084,27 +1084,21 @@ BOOL invoke_method(sCLClass* klass, sCLMethod* method, CLVALUE* stack, int var_n
 
 BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_params, CLVALUE** stack_ptr, sVMInfo* info)
 {
-//printf("invoke_block num_params %d var_num %d\n", num_params, var_num);
     sBlockObject* object_data = CLBLOCK(block_object);
 
     sByteCode code = object_data->mCodes;               // struct copy
     sConst constant = object_data->mConstant;           // struct copy
-    CLVALUE* new_stack = *stack_ptr;
-    int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
     BOOL lambda = object_data->mLambda;
 
-    /// initialize local var except params ///
-    memset(new_stack + num_params, 0, sizeof(CLVALUE)* (new_var_num - num_params));
-
-    sCLClass* klass = NULL;
-
-    char* running_class_name = info->running_class_name;
-    char* running_method_name = info->running_method_name;
-
-    info->running_class_name = MSTRDUP("none");
-    info->running_method_name = MSTRDUP("block_object");
-
     if(lambda) {
+        CLVALUE* new_stack = *stack_ptr;
+        int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
+
+        /// initialize local var except params ///
+        memset(new_stack + num_params, 0, sizeof(CLVALUE)* (new_var_num - num_params));
+
+        sCLClass* klass = NULL;
+
         memcpy(new_stack, (*stack_ptr)-num_params, sizeof(CLVALUE)*num_params);
 
 #ifdef ENABLE_JIT
@@ -1120,10 +1114,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
@@ -1138,26 +1128,29 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
 #else
         if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
-            MFREE(info->running_class_name);
-            MFREE(info->running_method_name);
-            info->running_method_name = running_method_name;
-            info->running_class_name = running_class_name;
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
             return FALSE;
         }
 #endif
+
+        **stack_ptr = *(new_stack + new_var_num);
+        (*stack_ptr)++;
     }
     else {
+        CLVALUE* new_stack = *stack_ptr;
+        int new_var_num = object_data->mBlockVarNum + object_data->mParentVarNum;
+
+        /// initialize local var except params ///
+        memset(new_stack + num_params, 0, sizeof(CLVALUE)* (new_var_num - num_params));
+
+        sCLClass* klass = NULL;
+
         /// copy variables ///
         if(object_data->mParentVarNum > 0) {
             memcpy(new_stack, object_data->mParentStack, sizeof(CLVALUE)*object_data->mParentVarNum);
@@ -1177,10 +1170,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
@@ -1195,10 +1184,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
                 **stack_ptr = *(new_stack + new_var_num);
                 (*stack_ptr)++;
-                MFREE(info->running_class_name);
-                MFREE(info->running_method_name);
-                info->running_method_name = running_method_name;
-                info->running_class_name = running_class_name;
                 return FALSE;
             }
         }
@@ -1212,10 +1197,6 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 
             **stack_ptr = *(new_stack + new_var_num);
             (*stack_ptr)++;
-            MFREE(info->running_class_name);
-            MFREE(info->running_method_name);
-            info->running_method_name = running_method_name;
-            info->running_class_name = running_class_name;
             return FALSE;
         }
 #endif
@@ -1225,17 +1206,10 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
         if(object_data->mParentVarNum > 0) {
             memcpy(object_data->mParentStack, new_stack, sizeof(CLVALUE)*object_data->mParentVarNum);
         }
+
+        **stack_ptr = *(new_stack + new_var_num);
+        (*stack_ptr)++;
     }
-
-
-    **stack_ptr = *(new_stack + new_var_num);
-//printf("invoke block result %d new_var_num %d\n", (**stack_ptr).mIntValue, new_var_num);
-    (*stack_ptr)++;
-
-    MFREE(info->running_class_name);
-    MFREE(info->running_method_name);
-    info->running_method_name = running_method_name;
-    info->running_class_name = running_class_name;
 
     
     return TRUE;
@@ -1253,6 +1227,8 @@ static BOOL initialize_class(sCLClass* klass, BOOL compile_time)
 
             sVMInfo info;
             memset(&info, 0, sizeof(sVMInfo));
+
+            info.stack = stack;
 
             info.prohibit_delete_global_stack = TRUE;
 
@@ -1462,6 +1438,8 @@ static BOOL finalize_class(sCLClass* klass)
         sVMInfo info;
         memset(&info, 0, sizeof(sVMInfo));
 
+        info.stack = stack;
+
         info.in_finalize_method = TRUE;
 
         create_global_stack_and_append_it_to_stack_list(&info);
@@ -1529,6 +1507,8 @@ void callOnException(CLObject message, BOOL in_try, sVMInfo* info)
                 sVMInfo info;
                 memset(&info, 0, sizeof(sVMInfo));
 
+                info.stack = stack;
+
                 create_global_stack_and_append_it_to_stack_list(&info);
                 
                 (void)invoke_method(clover_class, method, stack, 0, &stack_ptr, &info);
@@ -1553,6 +1533,8 @@ BOOL call_finalize_method_on_free_object(sCLClass* klass, CLObject self)
         sVMInfo info;
 
         memset(&info, 0, sizeof(sVMInfo));
+
+        info.stack = stack;
 
         create_global_stack_and_append_it_to_stack_list(&info);
 
@@ -1590,6 +1572,8 @@ BOOL call_alloc_size_method(sCLClass* klass, unsigned long long* result)
         sVMInfo info;
 
         memset(&info, 0, sizeof(sVMInfo));
+
+        info.stack = stack;
 
         create_global_stack_and_append_it_to_stack_list(&info);
 
@@ -1832,14 +1816,13 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 #else
     register char* pc = code->mCodes;
 #endif
-    //reset_andand_oror(info);
     
     int l = 0;
 
     CLVALUE* stack_ptr = stack + var_num;
     CLVALUE* lvar = stack;
 
-    sCLStack* stack_id = append_stack_to_stack_list(stack, &stack_ptr, FALSE);
+    sCLStack* stack_id = append_stack_to_stack_list(info->stack, &stack_ptr, FALSE);
 
     int try_offset_before = 0;
     char** try_pc_before = NULL;

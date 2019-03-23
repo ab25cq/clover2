@@ -303,6 +303,8 @@ struct sVMInfoStruct {
     sBuf* require_source;
 
     BOOL in_finalize_method;
+
+    CLVALUE* stack;
 };
 
 typedef struct sVMInfoStruct sVMInfo;

@@ -127,14 +127,14 @@ sCLStack* append_stack_to_stack_list(CLVALUE* stack_mem, CLVALUE** stack_ptr, BO
     stack->mNextStack = gHeadStack;
     gHeadStack = stack;
 
-    sCLStack* it = gHeadStack;
+    sCLStack* it2 = gHeadStack;
     int max = 0;
 
-    while(it) {
-        if(max < it->mStackID) {
-            max = it->mStackID;
+    while(it2) {
+        if(max < it2->mStackID) {
+            max = it2->mStackID;
         }
-        it = it->mNextStack;
+        it2 = it2->mNextStack;
     }
 
     stack->mStackID = max + 1;

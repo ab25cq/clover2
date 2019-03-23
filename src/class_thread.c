@@ -101,6 +101,8 @@ void* thread_func(void* param)
     sVMInfo new_info;
     memset(&new_info, 0, sizeof(sVMInfo));
 
+    new_info.stack = new_stack;
+
     new_info = *info; // struct copy
 
     create_global_stack_and_append_it_to_stack_list(&new_info);

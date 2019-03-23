@@ -4,5 +4,6 @@ class ClassA
 
     def initialize() {
         a = 5;
+        b = 5;
     }
 }

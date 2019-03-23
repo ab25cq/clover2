@@ -1950,6 +1950,8 @@ BOOL call_compile_time_script_method_on_declare()
     sVMInfo info;
     memset(&info, 0, sizeof(sVMInfo));
 
+    info.stack = stack;
+
     create_global_stack_and_append_it_to_stack_list(&info);
 
     int var_num = 0;
@@ -2041,6 +2043,8 @@ static BOOL eval_str(char* source, char* fname, sVarTable* lv_table, CLVALUE* st
 
     sVMInfo vinfo;
     memset(&vinfo, 0, sizeof(sVMInfo));
+
+    vinfo.stack = stack;
 
     create_global_stack_and_append_it_to_stack_list(&vinfo);
 
@@ -2230,6 +2234,8 @@ BOOL compile_class_source(char* fname, char* source)
 
         vinfo.running_class_name = MSTRDUP("none");
         vinfo.running_method_name = MSTRDUP("compile_class_source");
+
+        vinfo.stack = stack;
 
         vm_mutex_on();
 

@@ -75,6 +75,8 @@ BOOL eval_file(char* fname, int stack_size)
     sVMInfo info;
     memset(&info, 0, sizeof(info));
 
+    info.stack = stack;
+
     create_global_stack_and_append_it_to_stack_list(&info);
 
     info.running_class_name = MSTRDUP("none");
