@@ -1,4 +1,8 @@
 
+clover2 (10.2.4-1) unstable; urgency=medium
+
+    * Optimize List Container Library.
+
 clover2 (10.2.3-1) unstable; urgency=medium
 
     * Fixed finalize method bug. Now you can use the method using GC in the finalize method.

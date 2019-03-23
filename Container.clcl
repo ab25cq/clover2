@@ -438,16 +438,31 @@ module MList
             index += self.number;
         }
 
-        it := self.head;
-        count := 0;
+        if(index >= number/2) {
+            it := self.tail;
+            count := self.number-1;
 
-        while(it != null) {
-            if(count == index) {
-                return it.item
+            while(it != null) {
+                if(count == index) {
+                    return it.item
+                }
+                count--;
+
+                it = it.prev;
             }
-            count++;
+        }
+        else {
+            it := self.head;
+            count := 0;
 
-            it = it.next;
+            while(it != null) {
+                if(count == index) {
+                    return it.item
+                }
+                count++;
+
+                it = it.next;
+            }
         }
 
         return null;
@@ -553,7 +568,7 @@ module MList
             return null;
         }
         else {
-            new_head :ListItem<T>? = self.head.next;
+            new_head := self.head.next;
             item := self.head.item;
 
             if(new_head == null) {
@@ -597,6 +612,27 @@ module MList
 
             self.number++;
         }
+        elif(index >= self.number/2) {
+            it := self.tail;
+
+            i := self.number-1;
+
+            while(it != null) {
+                if(i == index-1) {
+                    new_item := ListItem<T>(item, it, it.next);
+                    if(it.next != null) {
+                        it.next.prev = new_item;
+                    }
+                    it.next = new_item;
+
+                    self.number++;
+                    break;
+                }
+
+                it = it.prev;
+                i--;
+            }
+        }
         else {
             it := self.head;
 
@@ -622,11 +658,14 @@ module MList
         return self;
     }
 
-    def insert(index:int, list_:SELF<T>):SELF<T> {
+    def insert(index:int, list:SELF<T>):SELF<T> {
         i := index;
-        list_.each {
-            self.insert(i, it);
+        it := list.head;
+        while(it != null) {
+            self.insert(i, it.item);
             i++;
+
+            it = it.next;
         }
         return self;
     }
@@ -680,37 +719,72 @@ module MList
     }
 
     def deleteAt(index:int):SELF<T> {
-        it := self.head;
-        it2 := self.head;
+        if(index < 0) {
+            index += self.number;
+        }
 
-        count := 0;
+        if(self.number == 0) {
+        }
+        elif(self.number == 1) {
+            if(index == 0) {
+                self.head = null;
+                self.tail = null;
+                self.number = 0;
+            }
+        }
+        elif(self.number == 2) {
+            if(index == 0) {
+                self.head = self.head.next;
+                self.head.prev = null;
+                self.head.next = null;
+                self.tail = self.head;
+                self.number = 1;
+            }
+            elif(index == 1) {
+                self.tail = self.head;
+                self.head.prev = null;
+                self.head.next = null;
+                self.number = 1;
+            }
+        }
+        elif(index >= self.number / 2) {
+            it := self.tail;
+            it2 := self.tail;
 
-        while(it != null) {
-            if(count == index) {
-                # one item is contained in list
-                if(it == self.head && it == self.tail) {
-                    self.head = null;
-                    self.tail = null;
-                    self.number = 0;
+            count := self.number-1;
+
+            while(it != null) {
+                if(count == index) {
+                    if(it == self.tail) {
+                        self.tail = self.tail.prev;
+                        self.tail.next = null;
+                        self.number--;
+                    }
+                    else {
+                        it2.prev = it.prev;
+                        it.prev.next = it2;
+                        self.number--;
+                    }
+                    break;
                 }
-                # two item is contained in list
-                elif(it2 == self.head && it == self.tail) {
-                    self.head = it2;
-                    self.tail = it2;
-                    it2.prev = null;
-                    it2.next = null;
-                    self.number = 1;
-                }
-                # other
-                else {
+
+                count--;
+                
+                it2 = it;
+                it = it.prev;
+            }
+        }
+        else {
+            it := self.head;
+            it2 := self.head;
+
+            count := 0;
+
+            while(it != null) {
+                if(count == index) {
                     if(it == self.head) {
                         self.head = self.head.next;
                         self.head.prev = null;
-                        self.number--;
-                    }
-                    elif(it == self.tail) {
-                        self.tail = self.tail.prev;
-                        self.tail.next = null;
                         self.number--;
                     }
                     else {
@@ -718,14 +792,14 @@ module MList
                         it.next.prev = it2;
                         self.number--;
                     }
+                    break;
                 }
-                break;
-            }
 
-            count++;
-            
-            it2 = it;
-            it = it.next;
+                count++;
+                
+                it2 = it;
+                it = it.next;
+            }
         }
 
         return self;
@@ -776,18 +850,33 @@ module MList
             index = self.number-1;
         }
 
-        it := self.head;
+        if(index >= self.number/2) {
+            it := self.tail;
+            count := self.number-1;
 
-        count := 0;
+            while(it != null) {
+                if(count == index) {
+                    it.item = item;
+                    break;
+                }
+                count--;
 
-        while(it != null) {
-            if(count == index) {
-                it.item = item;
-                break;
+                it = it.prev;
             }
-            count++;
+        }
+        else {
+            it := self.head;
+            count := 0;
 
-            it = it.next;
+            while(it != null) {
+                if(count == index) {
+                    it.item = item;
+                    break;
+                }
+                count++;
+
+                it = it.next;
+            }
         }
 
         return self;
@@ -835,7 +924,7 @@ module MList
     def multiply(n:int):SELF<T> {
         result := SELF<T>();
 
-        for(i:int = 0; i<n; i++) {
+        for(i:= 0; i<n; i++) {
             result.append(self);
         }
 

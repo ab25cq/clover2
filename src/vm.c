@@ -14583,15 +14583,12 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_USHORT_TO_CLONG_CAST:
                 {
-                    
-
                     unsigned short value = (stack_ptr-1)->mUShortValue;
 
                     CLObject obj = create_long((clint64)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
-
                     
                 }
                 break;
@@ -15454,8 +15451,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_BYTE_TO_CCHAR_CAST:
                 {
-                    
-
                     char value = (stack_ptr-1)->mByteValue;
 
                     CLObject obj = create_char((wchar_t)value, info);
@@ -16781,15 +16776,13 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                             return FALSE;
                         }
                     }
-
+                    
                     stack_ptr--; // pop_object
 
                     stack_ptr-=num_elements;
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = list_object;
                     stack_ptr++;
-
-                    
                 }
                 break;
 
@@ -17114,7 +17107,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         }
 //show_stack(stack, stack_ptr);
     }
-
 
     if(!info->no_mutex_in_vm) {
         vm_mutex_on();  // for invoke_method after running vm must be turn mutex on

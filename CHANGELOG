@@ -1,4 +1,8 @@
 
+version 10.2.4
+
+    Optimize List Container Library.
+
 version 10.2.3
 
     Fixed finalize method bug. Now you can use the method using GC in the finalize method.

@@ -5,7 +5,10 @@ IRBuilder<> Builder(TheContext);
 Module* TheModule;
 std::unique_ptr<FunctionPassManager> TheFPM;
 std::map<std::string, BasicBlock*> TheLabels;
-FunctionAnalysisManager TheFAM;
+FunctionAnalysisManager TheFAM(false);
+LoopAnalysisManager loopAnalysisManager(false);
+CGSCCAnalysisManager cGSCCAnalysisManager(false);
+ModuleAnalysisManager moduleAnalysisManager(false);
 
 GlobalVariable* gSigIntValue;
 
@@ -3892,18 +3895,6 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
 
-    llvm::PassBuilder passBuilder;
-
-    passBuilder.registerFunctionAnalyses(TheFAM);
-
-#ifndef MDEBUG
-#if LLVM_VERSION_MAJOR >= 7
-    passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, llvm::PassBuilder::ThinLTOPhase::None, false);
-#else
-    passBuilder.buildFunctionSimplificationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
-#endif
-#endif
-
     create_internal_functions();
     TheLabels.clear();
 
@@ -3953,6 +3944,22 @@ static BOOL compile_jit_methods(sCLClass* klass)
             num_compiled_method++;
         }
     }
+
+    llvm::PassBuilder passBuilder;
+
+    passBuilder.registerModuleAnalyses(moduleAnalysisManager);
+    passBuilder.registerCGSCCAnalyses(cGSCCAnalysisManager);
+    passBuilder.registerFunctionAnalyses(TheFAM);
+    passBuilder.registerLoopAnalyses(loopAnalysisManager);
+
+/*
+    llvm::ModulePassManager modulePassManager = passBuilder.buildPerModuleDefaultPipeline(llvm::PassBuilder::OptimizationLevel::O3);
+    modulePassManager.run(*TheModule, moduleAnalysisManager);
+*/
+#ifndef MDEBUG
+    passBuilder.buildModuleOptimizationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
+#endif
+
 
     if(num_compiled_method > 0) {
 #if LLVM_VERSION_MAJOR >= 7

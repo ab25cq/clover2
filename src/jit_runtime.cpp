@@ -353,7 +353,7 @@ BOOL call_invoke_virtual_method(int offset, CLVALUE* stack, int var_num, CLVALUE
         klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(2)");
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(2)");
             return FALSE;
         }
     }
@@ -1240,7 +1240,7 @@ BOOL run_create_block_object(CLVALUE** stack_ptr, CLVALUE* stack, sConst* consta
         klass = get_class_with_load_and_initialize(class_name, FALSE);
 
         if(klass == NULL) {
-            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, "Exception", "class not found(99) %s", class_name);
+            entry_exception_object_with_class_name(stack_ptr, stack, var_num, info, (char*)"Exception", (char*)"class not found(99) %s", class_name);
             result->mObjectValue = 0;
             return FALSE;
         }
@@ -1560,7 +1560,7 @@ void print_str_value(char* str)
 
 void print_value(CLVALUE value)
 {
-    printf("value %p %ld ", value.mPointerValue, value.mLongValue);
+    printf("value %p %lld ", value.mPointerValue, value.mLongValue);
     show_inst(value.mIntValue);
 }
 
