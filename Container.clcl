@@ -379,8 +379,8 @@ module MList
         self.tail = null;
         self.number = 0;
 
-        for(i:int = 0; i<num_elements; i++) {
-            self.add(items[i]);
+        for(i := 0; i<num_elements; i++) {
+            self.push(items[i]);
         }
     }
 
@@ -392,9 +392,9 @@ module MList
 
     def clone():SELF<T> {
         result:SELF<T> = SELF<T>();
-        it :ListItem<T>? = self.head;
-        while(!it.identifyWith(null)) {
-            result.add(it.item);
+        it := self.head;
+        while(it != null) {
+            result.push(it.item);
             it = it.next;
         }
         return result;
@@ -405,11 +405,11 @@ module MList
     }
 
     def toString(): String {
-        if(self.head.identifyWith(null)) {
+        if(self.head == null) {
             return "Null list";
         }
         else {
-            result:String = "";
+            result := "";
             result.append(self.number.toString);
             result.append(" length list of ");
             result.append(self.head.item.className());
@@ -438,11 +438,10 @@ module MList
             index += self.number;
         }
 
-        it:ListItem<T>? = self.head;
+        it := self.head;
+        count := 0;
 
-        count:int = 0;
-
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count == index) {
                 return it.item
             }
@@ -463,12 +462,12 @@ module MList
     }
 
     def push(item:T):SELF<T> {
-        if(self.head.identifyWith(null)) {
+        if(self.head == null) {
             self.head = ListItem<T>(item, null, null);
             self.tail = self.head;
         }
         else {
-            new_item:ListItem<T> = ListItem<T>(item, self.tail, null);
+            new_item := ListItem<T>(item, self.tail, null);
 
             self.tail.next = new_item;
             self.tail = new_item;
@@ -480,22 +479,26 @@ module MList
     }
 
     def push(list:SELF<T>):SELF<T> {
-        list.each { |item:T| 
-            self.add(item);
+        it := list.head();
+
+        while(it != null) {
+            self.push(it.item);
+
+            it = it.next;
         }
 
         return self;
     }
 
     def pop():T? {
-        if(self.head.identifyWith(null)) {
+        if(self.head == null) {
             return null;
         }
         else {
-            new_tail :ListItem<T>? = self.tail.prev;
-            item :T = self.tail.item;
+            new_tail := self.tail.prev;
+            item := self.tail.item;
 
-            if(new_tail.identifyWith(null)) {
+            if(new_tail == null) {
                 self.head = null;
                 self.tail = null;
                 self.number = 0;
@@ -514,20 +517,23 @@ module MList
     }
 
     def append(list:SELF<T>):SELF<T> {
-        list.each { |item:T| 
-            self.add(item);
+        it := list.head;
+        while(it != null) {
+            self.push(it.item);
+
+            it = it.next;
         }
 
         return self;
     }
 
     def add(item:T):SELF<T> {  # don't use this, instead of this, use push. This definition is my mistake
-        if(self.head.identifyWith(null)) {
+        if(self.head == null) {
             self.head = ListItem<T>(item, null, null);
             self.tail = self.head;
         }
         else {
-            new_item:ListItem<T> = ListItem<T>(item, self.tail, null);
+            new_item := ListItem<T>(item, self.tail, null);
 
             self.tail.next = new_item;
             self.tail = new_item;
@@ -539,22 +545,18 @@ module MList
     }
 
     def add(right:SELF<T>):SELF<T> {
-        result := self.clone();
-        right.each {
-            result.add(it);
-        }
-        return result;
+        return push(right);
     }
 
     def shift():T? {
-        if(self.head.identifyWith(null)) {
+        if(self.head == null) {
             return null;
         }
         else {
             new_head :ListItem<T>? = self.head.next;
-            item :T = self.head.item;
+            item := self.head.item;
 
-            if(new_head.identifyWith(null)) {
+            if(new_head == null) {
                 self.head = null;
                 self.tail = null;
                 self.number = 0;
@@ -584,7 +586,7 @@ module MList
         }
 
         if(self.number == 0 || index == self.number) {
-            self.add(item);
+            self.push(item);
             return self;
         }
 
@@ -596,14 +598,14 @@ module MList
             self.number++;
         }
         else {
-            it:ListItem<T>? = self.head;
+            it := self.head;
 
-            i:int= 0;
+            i := 0;
 
-            while(!it.identifyWith(null)) {
+            while(it != null) {
                 if(i == index-1) {
-                    new_item:ListItem<T> = ListItem<T>(item, it, it.next);
-                    if(!it.next.identifyWith(null)) {
+                    new_item := ListItem<T>(item, it, it.next);
+                    if(it.next != null) {
                         it.next.prev = new_item;
                     }
                     it.next = new_item;
@@ -630,19 +632,19 @@ module MList
     }
 
     def deleteByID(item:T):SELF<T> {
-        it:ListItem<T>? = self.head;
-        it2:ListItem<T>? = self.head;
+        it := self.head;
+        it2 := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(it.item.ID() == item.ID()) {
                 # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                if(it == self.head && it == self.tail) {
                     self.head = null;
                     self.tail = null;
                     self.number = 0;
                 }
                 # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                elif(it2 == self.head && it == self.tail) {
                     self.head = it2;
                     self.tail = it2;
                     it2.prev = null;
@@ -651,12 +653,12 @@ module MList
                 }
                 # other
                 else {
-                    if(it.identifyWith(self.head)) {
+                    if(it == self.head) {
                         self.head = self.head.next;
                         self.head.prev = null;
                         self.number--;
                     }
-                    elif(it.identifyWith(self.tail)) {
+                    elif(it == self.tail) {
                         self.tail = self.tail.prev;
                         self.tail.next = null;
                         self.number--;
@@ -678,21 +680,21 @@ module MList
     }
 
     def deleteAt(index:int):SELF<T> {
-        it:ListItem<T>? = self.head;
-        it2:ListItem<T>? = self.head;
+        it := self.head;
+        it2 := self.head;
 
-        count:int = 0;
+        count := 0;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count == index) {
                 # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                if(it == self.head && it == self.tail) {
                     self.head = null;
                     self.tail = null;
                     self.number = 0;
                 }
                 # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                elif(it2 == self.head && it == self.tail) {
                     self.head = it2;
                     self.tail = it2;
                     it2.prev = null;
@@ -701,12 +703,12 @@ module MList
                 }
                 # other
                 else {
-                    if(it.identifyWith(self.head)) {
+                    if(it == self.head) {
                         self.head = self.head.next;
                         self.head.prev = null;
                         self.number--;
                     }
-                    elif(it.identifyWith(self.tail)) {
+                    elif(it == self.tail) {
                         self.tail = self.tail.prev;
                         self.tail.next = null;
                         self.number--;
@@ -730,9 +732,9 @@ module MList
     }
 
     def each(block_:lambda(T)):SELF<T> {
-        it:ListItem<T>? = self.head;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             try {
                 block_(it.item);
             } catch(e:Exception) {
@@ -747,9 +749,9 @@ module MList
     }
 
     def eachReverse(block_:lambda(T)):SELF<T> {
-        it:ListItem<T>? = self.tail;
+        it := self.tail;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             try {
                 block_(it.item);
             } catch(e:Exception) {
@@ -774,11 +776,11 @@ module MList
             index = self.number-1;
         }
 
-        it:ListItem<T>? = self.head;
+        it := self.head;
 
-        count:int = 0;
+        count := 0;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count == index) {
                 it.item = item;
                 break;
@@ -812,14 +814,14 @@ module MList
             return SELF<T>();
         }
 
-        new_list: SELF<T> = SELF<T>();
+        new_list := SELF<T>();
 
-        it :ListItem<T>? = self.head;
-        count:int = 0;
+        it := self.head;
+        count := 0;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count < start || count >= end) {
-                new_list.add(it.item);
+                new_list.push(it.item);
             }
             count++;
             it = it.next;
@@ -831,7 +833,7 @@ module MList
     }
 
     def multiply(n:int):SELF<T> {
-        result:SELF<T> = SELF<T>();
+        result := SELF<T>();
 
         for(i:int = 0; i<n; i++) {
             result.append(self);
@@ -847,14 +849,14 @@ module MList
     }
 
     def select(block_:lambda(T):bool):SELF<T> {
-        new_list: SELF<T> = SELF<T>();
+        new_list := SELF<T>();
 
-        it :ListItem<T>? = self.head;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             try {
                 if(block_(it.item)) {
-                    new_list.add(it.item);
+                    new_list.push(it.item);
                 }
             } catch(e:Exception) {
                 if(e.message.equals("break")) {
@@ -893,12 +895,12 @@ module MList
 
         new_list: SELF<T> = SELF<T>();
 
-        it :ListItem<T>? = self.head;
-        count:int = 0;
+        it := self.head;
+        count := 0;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count >= start && count < end) {
-                new_list.add(it.item);
+                new_list.push(it.item);
             }
             count++;
             it = it.next;
@@ -931,17 +933,17 @@ module MList
             return SELF<T>();
         }
 
-        new_list: SELF<T> = SELF<T>();
+        new_list := SELF<T>();
 
-        it :ListItem<T>? = self.head;
-        count:int = 0;
+        it := self.head;
+        count:= 0;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(count < start || count >= end) {
-                new_list.add(it.item);
+                new_list.push(it.item);
             }
             else {
-                new_list.add(item);
+                new_list.push(item);
             }
             count++;
             it = it.next;
@@ -964,12 +966,12 @@ module MList
     }
 
     def reverse():SELF<T> {
-        result:SELF<T> = SELF<T>();
+        result := SELF<T>();
 
-        it :ListItem<T>? = self.tail;
+        it := self.tail;
 
-        while(!it.identifyWith(null)) {
-            result.add(it.item);
+        while(it != null) {
+            result.push(it.item);
             it = it.prev;
         }
 
@@ -983,14 +985,14 @@ module MList
     }
 
     def shuffle():SELF<T> {
-        result:SELF<T> = self.clone();
+        result := self.clone();
 
-        for(i:int =0; i<50; i++) {
-            n :int = System.rand() % self.number;
-            m :int = System.rand() % self.number;
+        for(i:=0; i<50; i++) {
+            n := System.rand() % self.number;
+            m := System.rand() % self.number;
 
-            item :T = result.items(n);
-            item2 :T = result.items(m);
+            item := result.items(n);
+            item2 := result.items(m);
 
             result.replace(m, item);
             result.replace(n, item2);
@@ -1005,9 +1007,9 @@ module MList
     }
 
     def find(item:T): bool {
-        it :ListItem<T>? = self.head;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(it.item == item) {
                 return true;
             }
@@ -1028,7 +1030,7 @@ module MEqualableList
             if(self.number != right.number) {
                 return false;
             }
-            for(i:int =0; i<self.number; i++) {
+            for(i:=0; i<self.number; i++) {
                 if(!self.items(i).equals(right.items(i))) {
                     return false;
                 }
@@ -1043,19 +1045,19 @@ module MEqualableList
     }
 
     def delete(item:T):SELF<T> {
-        it:ListItem<T>? = self.head;
-        it2:ListItem<T>? = self.head;
+        it:= self.head;
+        it2:= self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(it.item.equals(item)) {
                 # one item is contained in list
-                if(it.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                if(it == self.head && it == self.tail) {
                     self.head = null;
                     self.tail = null;
                     self.number = 0;
                 }
                 # two item is contained in list
-                elif(it2.identifyWith(self.head) && it.identifyWith(self.tail)) {
+                elif(it2 == self.head && it == self.tail) {
                     self.head = it2;
                     self.tail = it2;
                     it2.prev = null;
@@ -1064,12 +1066,12 @@ module MEqualableList
                 }
                 # other
                 else {
-                    if(it.identifyWith(self.head)) {
+                    if(it == self.head) {
                         self.head = self.head.next;
                         self.head.prev = null;
                         self.number--;
                     }
-                    elif(it.identifyWith(self.tail)) {
+                    elif(it == self.tail) {
                         self.tail = self.tail.prev;
                         self.tail.next = null;
                         self.number--;
@@ -1093,8 +1095,8 @@ module MEqualableList
     def indexOf(item:T):int {
         result:int = 0;
 
-        it:ListItem<T>? = self.head;
-        while(!it.identifyWith(null)) {
+        it := self.head;
+        while(it != null) {
             if(it.item.equals(item)) {
                 return result;
             }
@@ -1111,11 +1113,11 @@ module MEqualableList
             return "elist {}";
         }
 
-        result:String = "elist {";
+        result := "elist {";
 
-        it:ListItem<T>? = self.head;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             result.append(it.item.toString());
             result.append(",");
 
@@ -1127,14 +1129,14 @@ module MEqualableList
         return result;
     }
     def join(separator:String):String {
-        result:String = String("");
-        it :ListItem<T>? = self.head;
+        result := String("");
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             result.append(it.item.toString());
             it = it.next;
 
-            if(!it.identifyWith(null)) {
+            if(it != null) {
                 result.append(separator);
             }
         }
@@ -1147,11 +1149,11 @@ module MEqualableList
     }
 
     def count(item:T):int {
-        result:int = 0;
+        result := 0;
 
-        it :ListItem<T>? = self.head;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(it.item.equals(item)) {
                 result++;
             }
@@ -1163,10 +1165,10 @@ module MEqualableList
     }
 
     def indexOf(item:T):int {
-        result:int = 0;
-        it :ListItem<T>? = self.head;
+        result := 0;
+        it := self.head;
 
-        while(!it.identifyWith(null)) {
+        while(it != null) {
             if(it.item.equals(item)) {
                 return result;
             }
@@ -1180,21 +1182,21 @@ module MEqualableList
     def uniq():SELF<T> {
         result := SELF<T>();
 
-        it :ListItem<T>? = self.head;
+        it := self.head;
 
         if(self.head == null) {
             return result;
         }
 
-        item_before :T = self.head.item;
+        item_before := self.head.item;
 
         while(it != null) {
             if(it == self.head) {
-                result.add(it.item);
+                result.push(it.item);
             }
             else {
                 if(it.item != null && item_before != null && !it.item.equals(item_before)) {
-                    result.add(it.item);
+                    result.push(it.item);
                 }
             }
             item_before = it.item;
@@ -1267,7 +1269,7 @@ class EqualableList<T:IEqualable>
         while(!it.identifyWith(null)) {
             item :T = it.item;
 
-            result.add(item);
+            result.push(item);
 
             it = it.next;
         }
@@ -1290,7 +1292,7 @@ class SortableList<T:ISortable>
 
         while(!it.identifyWith(null)) {
             item := it.item.clone();
-            result.add(item);
+            result.push(item);
             it = it.next;
         }
 
@@ -1368,12 +1370,12 @@ class SortableList<T:ISortable>
 
         while(true) {
             if(fun(it.item, it2.item) <= 0) {
-                list.add(it.item);
+                list.push(it.item);
 
                 it = it.next;
             }
             else {
-                list.add(it2.item);
+                list.push(it2.item);
 
                 it2 = it2.next;
             }
@@ -1381,7 +1383,7 @@ class SortableList<T:ISortable>
             if(it.identifyWith(null)) {
                 if(!it2.identifyWith(null)) {
                     while(!it2.identifyWith(null)) {
-                        list.add(it2.item);
+                        list.push(it2.item);
 
                         it2 = it2.next;
                     }
@@ -1391,7 +1393,7 @@ class SortableList<T:ISortable>
             elif(it2.identifyWith(null)) {
                 if(!it.identifyWith(null)) {
                     while(!it.identifyWith(null)) {
-                        list.add(it.item);
+                        list.push(it.item);
 
                         it = it.next;
                     }
@@ -1417,8 +1419,8 @@ class SortableList<T:ISortable>
         it:ListItem<T> = self.head;
 
         while(true) {
-            list1.add(it.item);
-            list2.add(it.next.item);
+            list1.push(it.item);
+            list2.push(it.next.item);
 
             if(it.next.next.identifyWith(null)) {
                 break;
@@ -1427,7 +1429,7 @@ class SortableList<T:ISortable>
             it = it.next.next;
 
             if(it.next.identifyWith(null)) {
-                list1.add(it.item);
+                list1.push(it.item);
                 break;
             }
         }
@@ -1521,7 +1523,7 @@ class SortableList<T:ISortable>
         while(!it.identifyWith(null)) {
             item :T = it.item;
 
-            result.add(item);
+            result.push(item);
 
             it = it.next;
         }
@@ -1537,7 +1539,7 @@ class SortableList<T:ISortable>
         while(!it.identifyWith(null)) {
             item :T = it.item;
 
-            result.add(item);
+            result.push(item);
 
             it = it.next;
         }
@@ -1793,7 +1795,7 @@ class Hash <T:IHashKey, T2:IEqualable>
         for(i:uint =0; i<self.tableSize; i++) {
             if(self.table[i] != null) {
                 try {
-                    result.add(trans(self.table[i].key, self.table[i].item));
+                    result.push(trans(self.table[i].key, self.table[i].item));
                 } catch(e:Exception) {
                     if(e.message.equals("break")) {
                         break;
