@@ -150,10 +150,6 @@ BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClas
             create_method_path_for_jit(klass, method, method_path2, METHOD_NAME_MAX + 128);
 
             method->mJITDynamicSym = dlsym(klass->mDynamicLibrary, method_path2);
-
-            if(method->mJITDynamicSym == NULL) {
-                fprintf(stderr, "%s\n", dlerror());
-            }
         }
 
         if(method->mJITDynamicSym) 
