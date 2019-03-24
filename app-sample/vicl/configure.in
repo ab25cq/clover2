@@ -14,8 +14,7 @@ fi
 ##############################################################
 DEBUGGING=0
 
-AC_ARG_WITH(debug,              [  --with-debug              include debug info ], [ DEBUGGING=1; ], [])
-AC_ARG_WITH(optimize,           [  --jit                     with JIT ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0 ])
+AC_ARG_WITH(jit,           [  --jit                     with JIT ], [ ENABLE_JIT=1 ], [ ENABLE_JIT=0 ])
 
 ##############################################################
 # check operating systems
@@ -104,12 +103,6 @@ fi
 if test -d /usr/lib/i386-linux-gnu/
 then
     CFLAGS="$CFLAGS -L /usr/lib/i386-linux-gnu/"
-fi
-
-if test $ENABLE_OPTIMIZE = 1
-then
-    CFLAGS="$CFLAGS"         # no optimization for thread.
-    #CFLAGS="$CFLAGS -O3"
 fi
 
 if test $ENABLE_JIT = 1

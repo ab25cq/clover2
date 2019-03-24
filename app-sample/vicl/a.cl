@@ -3,7 +3,6 @@ afalskdfaldjfaldkafa asdlfkadlfafjldaldkfa adslfaslafl aa strcmpalsdasdfalsdfsld
 これはGoogle
 これはGoogle日本語入力でええ気がする
 これはGoogle日本語入力でええ気がする
-結構快適かもな
 思っている
 これは良
 これはいいと

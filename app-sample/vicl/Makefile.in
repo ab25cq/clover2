@@ -37,11 +37,11 @@ vicl: ViClone.oclcl viclone.ocl viclone_open_file.ocl viclone_insert_file.ocl Cl
 
 Clover.oclcl: Fundamental.clcl
 	cclover2 Fundamental.clcl
-	if which bclover2 && $(JIT) = 1; then bclover2 Clover.oclcl; fi
+	if which bclover2 && test $(JIT) = 1; then bclover2 Clover.oclcl; fi
 
 ViClone.oclcl: ViClone@21.oclcl
-	if which bclover2 && $(JIT) = 1; then bclover2 ViClone.oclcl; fi
-	if which bclover2 && $(JIT) = 1; then bclover2 ViCloneWindow.oclcl; fi
+	if which bclover2 && test $(JIT) = 1; then bclover2 ViClone.oclcl; fi
+	if which bclover2 && test $(JIT) = 1; then bclover2 ViCloneWindow.oclcl; fi
 
 ViClone@21.oclcl: vicl21Utf8.clcl ViClone@20.oclcl
 	cclover2 vicl21Utf8.clcl

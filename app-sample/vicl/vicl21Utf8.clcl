@@ -221,10 +221,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y + winPos, 0, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y + winPos, 0, "%04d ", array { y + scrollTopY });
+                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -259,10 +259,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0 + winPos, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0 + winPos, "%04d ", array { y + scrollTopY });
+                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -334,10 +334,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0 + winPos, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0 + winPos, "%04d ", array { y + scrollTopY });
+                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -461,10 +461,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0 + winPos, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0 + winPos, "%04d ", array { y + scrollTopY });
+                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 ### cursor line ####
@@ -2557,6 +2557,7 @@ class ViClone version 21
             }
 
             if(loop_num % 1024 == 0) {
+                Clover.gc();
                 Clover.compaction();
             }
             
