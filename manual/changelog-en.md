@@ -1,4 +1,7 @@
 
+version 10.2.5
+
+    GC is no longer called unless the user calls Clover.gc ().  Mainly because of performance.  Call Clover.compaction () once every 1000 times in the main loop.  If it is not called, memory usage continues to increase.  be careful. 
 version 10.2.4
 
     Optimize List Container Library.

@@ -480,6 +480,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
     static int gc_timing = 0;
 
+/*
     if(gCLHeap.mFreeMemHandles == -1) {
         if(gc_timing % GC_TIMING == 0) {
             gc(info);
@@ -487,6 +488,7 @@ CLObject alloc_heap_mem(unsigned int size, sCLClass* klass, int array_num, sVMIn
 
         gc_timing++;
     }
+*/
 
     /// get a free handle from linked list ///
     handle = gCLHeap.mFreeMemHandles;

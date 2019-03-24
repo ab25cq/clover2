@@ -16829,8 +16829,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = tuple_object;
                     stack_ptr++;
-
-                    
                 }
                 break;
 
@@ -16926,8 +16924,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     stack_ptr->mLongValue = 0;              // zero clear for jit
                     stack_ptr->mObjectValue = hash_object;
                     stack_ptr++;
-
-                    
                 }
                 break;
 

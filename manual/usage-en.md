@@ -269,7 +269,21 @@ Include in both the circular reference source. Compiling either source goes thro
 # Memory management
 
 About GC, GC of Clover 2 uses both reference count and mark and sweep. With various improvements, It is considerably faster than version 5.9.9. However, since compaction is not performed, it is necessary for the user to call it yourself. It is not necessary for ordinary scripts, but for applications that are always running, such as editors, you have to call Clover.compaction () on the main loop only once in several times. If you do not do this, memory consumption will increase steadily. Also, when compaction is performed, the address of the object changes, so the address obtained by headOfMememory () becomes invalid. Please be aware of that. Conversely, if you do not call Clover.compaction, the start address of the object. It does not change. 
+As of version 10.2.5, it is mark and sweep only.  GC is not called automatically, but the user must call Clover.gc().  If you do not call Clover.gc(), memory usage will continue to increase.  Clover.compaction() also needs to be called by the user.  At this time, the start address of the object changes.  I think that both should be called about once in 1000 in the main loop.  Make the following in the main loop. null
 
+```
+gc_count: = 0;
+while (true) {
+    # Main loop null
+    if (gc_count% 1024 == 0) {
+        Clover.gc ();
+        Clover.compaction ();
+    }
+    gc_count ++;
+}
+```
+
+The reason why users have to call Clover.gc () is performance.  If you call gc when creating an object, the performance drops immediately.  That's why.  I don't think Clover.gc () needs to be called in particular in a script that is used up.
 ----
 
 [<< Previous Home](Home-en) [>> next main function](feature-en)
