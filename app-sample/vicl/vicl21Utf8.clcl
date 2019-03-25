@@ -2557,7 +2557,6 @@ class ViClone version 21
             }
 
             if(loop_num % 1024 == 0) {
-                Clover.gc();
                 Clover.compaction();
             }
             

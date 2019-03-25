@@ -1,0 +1,1 @@
+gcc -E -xc a.c | egrep '^[a-zA-Z_]* [a-zA-Z_]*\(' | sed -re 's/[a-zA-Z_]+\s+([a-zA-Z_]+)(\([a-zA-Z_ .*,\t]+\)).*/\1\2/'

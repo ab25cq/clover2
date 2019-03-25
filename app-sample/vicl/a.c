@@ -4,7 +4,5 @@
 
 int main() 
 {
-    printf("%d %d\n", '\n', 'J'-'A'+1);
-    
     exit(0);
 }
