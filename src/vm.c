@@ -9511,8 +9511,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CUSHORT_TO_UBYTE_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {
@@ -9535,15 +9533,11 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mUByteValue = value;
-
-                    
                 }
                 break;
 
             case OP_INTEGER_TO_UBYTE_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {

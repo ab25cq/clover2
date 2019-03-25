@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <libgen.h>
+#include <stdio.h>
 
 BOOL gInterpreter = FALSE;
 

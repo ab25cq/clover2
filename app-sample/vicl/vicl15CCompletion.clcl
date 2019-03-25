@@ -9,7 +9,7 @@ class ViCloneWindow version 9
 
     def getCFuncTags():SortableList<String> {
         funcs1 := texts.join("\n").toCommand().bash("-c", "gcc -I. -I \{dirname(dirPath.add("/").add(fileName))} -E -xc - | grep extern | sed -re 's/^extern [a-zA-Z0-9_]+ \\*?([a-zA-Z0-9_]+ \\(.+)/\\1/'").toString().split('\n');
-        funcs2 := texts.join("\n").toCommand().bash("-c", "gcc -I. -I \{dirname(dirPath.add("/").add(fileName))} -E -xc - | egrep '^[a-zA-Z_]* [a-zA-Z_]*\\(' | sed -re 's/[a-zA-Z_]+\\s+([a-zA-Z_]+)(\\([a-zA-Z_ .*,\\t]+\\)).*/\\1\\2/'").toString().split('\n');
+        funcs2 := texts.join("\n").toCommand().bash("-c", "gcc -I. -I \{dirname(dirPath.add("/").add(fileName))} -E -xc - | egrep '^[a-zA-Z_]+ +[a-z ,*A-Z_0-9]+\\(' | sed -re 's/[a-zA-Z_]+\\s+([a-zA-Z_]+)(\\([a-zA-Z_ .*,\\t]+\\)).*/\\1\\2/'").toString().split('\n');
 
         return funcs1.add(funcs2);
     }
@@ -18,8 +18,8 @@ class ViCloneWindow version 9
         if(fileName.match(/.+\.c/)) {
             ccompletionCandidates = SortableList<String>();
             
-            ccompletionCandidates.append(getCFuncTags())
-            ccompletionCandidates.append(getCMacros());
+            #ccompletionCandidates.append(getCFuncTags())
+            #ccompletionCandidates.append(getCMacros());
         }
     }
 }
@@ -28,7 +28,7 @@ class ViClone version 15
 {
     def initialize():dynamic {
         inherit();
-
+        
         win.rehashCCompletion();
     }
 
