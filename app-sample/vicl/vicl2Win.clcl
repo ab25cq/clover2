@@ -211,6 +211,13 @@ class ViClone version 2
             dir_path = dirname(argFileName);
             file_name = basename(argFileName);
         }
+        elif (argFileName.indexOf("/") != -1) {
+            dir_path = getcwd();
+            relative_path := argFileName.subString(0, argFileName.rindexOf("/"));
+            dir_path.append("/");
+            dir_path.append(relative_path);
+            file_name = basename(argFileName);
+        }
         else {
             dir_path = getcwd();
             file_name = basename(argFileName);
