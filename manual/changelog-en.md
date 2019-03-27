@@ -1,4 +1,8 @@
 
+version 10.2.7
+
+    Appended Class.getNoneClassMethod, Class.getClassMethod, Class.getClassFields.
+    
 version 10.2.6
 
     Appended Clover.load.

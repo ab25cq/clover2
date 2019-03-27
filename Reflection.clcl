@@ -264,6 +264,37 @@ class Class
         }
         return result;
     }
+    def getClassFields():List<Field> {
+        result := List<Field>();
+        for(i:=0; i<numClassFields; i++) {
+            result.add(getClassField(i));
+        }
+        return result;
+    }
+    def getClassMethods():List<Method> {
+        result := List<Method>();
+        for(i:=0; i<numMethods; i++) {
+            it := getMethod(i);
+            
+            if(it.flags & METHOD_FLAGS_CLASS_METHOD) {
+                result.add(it);
+            }
+        }
+        
+        return result;
+    }
+    def getNoneClassMethods():List<Method> {
+        result := List<Method>();
+        for(i:=0; i<numMethods; i++) {
+            it := getMethod(i);
+            
+            if(!(it.flags & METHOD_FLAGS_CLASS_METHOD)) {
+                result.add(it);
+            }
+        }
+        
+        return result;
+    }
     def createObject(): Anonymous {
         return Clover.createObject(className, JS);
     }

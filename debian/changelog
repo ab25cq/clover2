@@ -1,4 +1,8 @@
 
+clover2 (10.2.7-1) unstable; urgency=medium
+
+    * Appended Class.getNoneClassMethod, Class.getClassMethod, Class.getClassFields.
+    
 clover2 (10.2.6-1) unstable; urgency=medium
 
     * Appended Clover.load.

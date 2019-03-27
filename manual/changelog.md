@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.2.7
+
+    Class.getNoneClassMethod, Class.getClassMethod, Class.getClassFieldsを追加。
+
 version 10.2.6
 
     Clover.loadを追加。    
