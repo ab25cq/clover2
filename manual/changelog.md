@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.2.6
+
+    Clover.loadを追加。    
+
 version 10.2.5
 
     GCはユーザーがClover.gc()を呼ばないと呼び出されないようになりました。主にパフォーマンスが理由です。メインループでClover.compaction()とともに1000回に一回程度呼び出してください。呼び出されない場合使用メモリが増えつづけます。注意してください。

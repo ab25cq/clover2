@@ -1,7 +1,11 @@
 
+clover2 (10.2.6-1) unstable; urgency=medium
+
+    * Appended Clover.load.
+
 clover2 (10.2.5-1) unstable; urgency=medium
 
-    GC is no longer called unless the user calls Clover.gc ().  Mainly because of performance.  Call Clover.compaction () once every 1000 times in the main loop.  If it is not called, memory usage continues to increase.  be careful. 
+    * GC is no longer called unless the user calls Clover.gc ().  Mainly because of performance.  Call Clover.compaction () once every 1000 times in the main loop.  If it is not called, memory usage continues to increase.  be careful. 
 
 clover2 (10.2.4-1) unstable; urgency=medium
 

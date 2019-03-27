@@ -547,7 +547,7 @@ class Clover
     def gc():static native;
     def compaction():static native;
 
-#    def load(file_name:String): native throws Exception;
+    def load(class_name:String, js:bool=false): native throws Exception;
 }
 
 module MWrapperClassBase 

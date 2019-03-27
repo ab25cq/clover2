@@ -412,4 +412,3 @@ void native_method_final()
         }
     }
 }
-

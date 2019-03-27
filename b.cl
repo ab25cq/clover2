@@ -1,2 +1,1 @@
-
-a
+Clover.load("b.cl");

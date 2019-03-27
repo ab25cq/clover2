@@ -2,26 +2,30 @@
 
 BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    CLVALUE* file_name = lvar;
+    CLVALUE* class_name = lvar;
 
-    if(file_name->mObjectValue) {
+    if(class_name->mObjectValue) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
         return FALSE;
     }
+    
+    CLVALUE* js = lvar + 1;
 
     /// Clover to c value ///
-    char* file_name_value = ALLOC string_object_to_char_array(file_name->mObjectValue);
-
+    char* class_name_value = ALLOC string_object_to_char_array(class_name->mObjectValue);
+    BOOL js_value = js->mBoolValue;
+    
     /// go ///
-    BOOL result = eval_file(file_name_value, CLOVER_STACK_SIZE);
-
+    sCLClass* klass = get_class_with_load_and_initialize(class_name_value, js_value);
+    BOOL result = klass != NULL;
+    
     if(!result) {
-        MFREE(file_name_value);
+        MFREE(class_name_value);
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Clover.load is faield");
         return FALSE;
     }
 
-    MFREE(file_name_value);
+    MFREE(class_name_value);
 
     return TRUE;
 }
@@ -877,4 +881,3 @@ BOOL Clover_compaction(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
-
