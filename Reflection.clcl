@@ -276,7 +276,7 @@ class Class
         for(i:=0; i<numMethods; i++) {
             it := getMethod(i);
             
-            if(it.flags & METHOD_FLAGS_CLASS_METHOD) {
+            if((it.flags & Clover.METHOD_FLAGS_CLASS_METHOD).to_bool) {
                 result.add(it);
             }
         }
@@ -288,7 +288,7 @@ class Class
         for(i:=0; i<numMethods; i++) {
             it := getMethod(i);
             
-            if(!(it.flags & METHOD_FLAGS_CLASS_METHOD)) {
+            if(!((it.flags & Clover.METHOD_FLAGS_CLASS_METHOD).to_bool)) {
                 result.add(it);
             }
         }
