@@ -1,12 +1,4 @@
 
-self:ClassCloverTest? = null;
-aaa:Integer? = null;
-bbbb:String? = null;
+klass := Class("Clover");
 
-ccc := "ABC";
-
-test1 := "ABC";
-lelolelo := "ABC";
-
-
-method4()
+klass.getClassFields().toString().println();

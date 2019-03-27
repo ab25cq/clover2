@@ -4,8 +4,8 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* class_name = lvar;
 
-    if(class_name->mObjectValue) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception");
+    if(class_name->mObjectValue == 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Null pointer exception(X)");
         return FALSE;
     }
     
@@ -17,9 +17,8 @@ BOOL Clover_load(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     
     /// go ///
     sCLClass* klass = get_class_with_load_and_initialize(class_name_value, js_value);
-    BOOL result = klass != NULL;
     
-    if(!result) {
+    if(klass == NULL) {
         MFREE(class_name_value);
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Clover.load is faield");
         return FALSE;
@@ -204,7 +203,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
-    if(index_value < 0 || index_value >= klass2->mNumFields) {
+    if(index_value < 0 || index_value >= klass2->mNumClassFields) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Invalid field index");
         MFREE(class_name_value);
         return FALSE;

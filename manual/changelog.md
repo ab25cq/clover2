@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.2.8
+
+    Bug fix.
+
 version 10.2.7
 
     Class.getNoneClassMethod, Class.getClassMethod, Class.getClassFieldsを追加。

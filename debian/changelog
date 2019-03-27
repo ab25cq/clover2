@@ -1,4 +1,8 @@
 
+clover2 (10.2.8-1) unstable; urgency=medium
+
+    * Bug fix.
+
 clover2 (10.2.7-1) unstable; urgency=medium
 
     * Appended Class.getNoneClassMethod, Class.getClassMethod, Class.getClassFields.

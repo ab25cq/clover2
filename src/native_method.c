@@ -101,7 +101,7 @@ typedef struct sNativeMethodStruct sNativeMethod;
 
 // manually sort is needed
 static sNativeMethod gNativeMethods[] = {
-    { "Clover.load(String)", "Clover_load", Clover_load },
+    { "Clover.load(String,bool)", "Clover_load", Clover_load },
     { "System.exit(int)", "System_exit", System_exit },
     { "System.assert(bool)", "System_assert", System_assert },
     { "System.malloc(ulong)", "System_malloc", System_malloc },

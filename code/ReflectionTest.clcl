@@ -54,6 +54,16 @@ class ReflectionTest
         b := ReflectionD();
 
         Clover.test("reflection test2", b.field.equals("ABC"));
+
+        c := Class("Clover");
+
+        class_fields := c.getClassFields();
+
+        Clover.test("reflection test3", class_fields.length() > 0);
+
+        class_methods := c.getClassMethods();
+
+        Clover.test("reflection test4", class_methods.length() > 0);
     }
 }
 
