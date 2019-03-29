@@ -1,5 +1,3 @@
-multiple array
+iterator リストの順列アクセスが非効率 for inはいれない
 
-hex 1S, 2US
-
-JIT BOOL CAST
+cursesの本格的なサポート。

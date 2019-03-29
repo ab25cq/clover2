@@ -1,4 +1,8 @@
 
+version 10.3.0
+
+    Added List.iterator.
+
 version 10.2.9
 
     Bug fix of JIT. a:long = 0x02; Clover.test("BOOL test",  (a & 0x02).to_bool); The code is failed before version 10.2.9

@@ -432,7 +432,7 @@ module MList
 
         return result;
     }
-
+    
     def items(index:int):T? {
         if(index < 0) {
             index += self.number;
@@ -492,6 +492,30 @@ module MList
 
         return self;
     }
+    
+    def iterator(index:int):ListItem<T>? {
+        if(index < 0) {
+            index += self.number;
+        }
+        
+        if(index < 0 || index >= self.number) {
+            return null;
+        }
+        
+        it := self.head;
+        
+        n := 0;
+        
+        while(it != null) {
+            if(index == n) {
+                return it;
+            }
+            n++;
+        }
+        
+        return null;
+    }
+        
 
     def push(list:SELF<T>):SELF<T> {
         it := list.head();

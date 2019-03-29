@@ -13983,16 +13983,12 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 
             case OP_UINT_TO_CBYTE_CAST:
                 {
-                    
-
                     unsigned int value = (stack_ptr-1)->mUIntValue;
 
                     CLObject obj = create_byte((char)value, info);
 
                     (stack_ptr-1)->mLongValue = 0;       // zero clear for jit
                     (stack_ptr-1)->mObjectValue = obj;
-
-                    
                 }
                 break;
                 
