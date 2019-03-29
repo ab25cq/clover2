@@ -1636,142 +1636,143 @@ void cast_right_type_to_bool(sNodeType** right_type, sCompileInfo* info)
 {
     if(type_identify_with_class_name(*right_type, "byte"))
     {
-        append_opecode_to_code(info->code, OP_BYTE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_BYTE_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "ubyte")) 
     {
-        append_opecode_to_code(info->code, OP_UBYTE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_UBYTE_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "short"))
     {
-        append_opecode_to_code(info->code, OP_SHORT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_SHORT_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "ushort")) 
     {
-        append_opecode_to_code(info->code, OP_USHORT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_USHORT_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "int"))
     {
+        append_opecode_to_code(info->code, OP_INT_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "uint")) 
     {
-        append_opecode_to_code(info->code, OP_UINT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_UINT_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "long"))
     {
-        append_opecode_to_code(info->code, OP_LONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_LONG_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "ulong")) 
     {
-        append_opecode_to_code(info->code, OP_ULONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_ULONG_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "float"))
     {
-        append_opecode_to_code(info->code, OP_FLOAT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_FLOAT_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "double"))
     {
-        append_opecode_to_code(info->code, OP_DOUBLE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_DOUBLE_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "pointer"))
     {
-        append_opecode_to_code(info->code, OP_POINTER_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_POINTER_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "char"))
     {
-        append_opecode_to_code(info->code, OP_CHAR_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CHAR_TO_BOOL_CAST, info->no_output);
 
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Byte"))
     {
-        append_opecode_to_code(info->code, OP_CBYTE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CBYTE_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "UByte"))
     {
-        append_opecode_to_code(info->code, OP_CUBYTE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CUBYTE_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Short"))
     {
-        append_opecode_to_code(info->code, OP_CSHORT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CSHORT_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "UShort"))
     {
-        append_opecode_to_code(info->code, OP_CUSHORT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CUSHORT_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Integer"))
     {
-        append_opecode_to_code(info->code, OP_INTEGER_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_INTEGER_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "UInteger"))
     {
-        append_opecode_to_code(info->code, OP_UINTEGER_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_UINTEGER_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Long"))
     {
-        append_opecode_to_code(info->code, OP_CLONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CLONG_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "ULong"))
     {
-        append_opecode_to_code(info->code, OP_CULONG_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CULONG_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Float"))
     {
-        append_opecode_to_code(info->code, OP_CFLOAT_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CFLOAT_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Double"))
     {
-        append_opecode_to_code(info->code, OP_CDOUBLE_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CDOUBLE_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Pointer"))
     {
-        append_opecode_to_code(info->code, OP_CPOINTER_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CPOINTER_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Char"))
     {
-        append_opecode_to_code(info->code, OP_CCHAR_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CCHAR_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Bool"))
     {
-        append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        append_opecode_to_code(info->code, OP_CBOOL_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
     else if(type_identify_with_class_name(*right_type, "Anonymous"))
     {
-        //append_opecode_to_code(info->code, OP_CBOOL_TO_INT_CAST, info->no_output);
+        //append_opecode_to_code(info->code, OP_CBOOL_TO_BOOL_CAST, info->no_output);
         *right_type = create_node_type_with_class_name("bool", info->pinfo->mJS);
     }
 }

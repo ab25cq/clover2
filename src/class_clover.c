@@ -196,6 +196,7 @@ BOOL Clover_getClassField(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     BOOL js_value = js->mBoolValue;
 
     sCLClass* klass2 = get_class_with_load_and_initialize(class_name_value, js_value);
+    
 
     if(klass2 == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "Class not found");

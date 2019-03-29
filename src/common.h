@@ -1924,6 +1924,32 @@ extern int gBufferToPointerCastCount;
 #define OP_INVOKE_JS_FUNCTION 9016
 #define OP_REQUIRE 9017
 
+#define OP_BYTE_TO_BOOL_CAST 9018
+#define OP_UBYTE_TO_BOOL_CAST 9019
+#define OP_SHORT_TO_BOOL_CAST 9020
+#define OP_USHORT_TO_BOOL_CAST 9021
+#define OP_INT_TO_BOOL_CAST 9022
+#define OP_UINT_TO_BOOL_CAST 9023
+#define OP_LONG_TO_BOOL_CAST 9024
+#define OP_ULONG_TO_BOOL_CAST 9025
+#define OP_FLOAT_TO_BOOL_CAST 9026
+#define OP_DOUBLE_TO_BOOL_CAST 9027
+#define OP_POINTER_TO_BOOL_CAST 9028
+#define OP_CHAR_TO_BOOL_CAST 9029
+#define OP_CBYTE_TO_BOOL_CAST 9030
+#define OP_CUBYTE_TO_BOOL_CAST 9031
+#define OP_CSHORT_TO_BOOL_CAST 9032
+#define OP_CUSHORT_TO_BOOL_CAST 9033
+#define OP_INTEGER_TO_BOOL_CAST 9034
+#define OP_UINTEGER_TO_BOOL_CAST 9035
+#define OP_CLONG_TO_BOOL_CAST 9036
+#define OP_CULONG_TO_BOOL_CAST 9037
+#define OP_CFLOAT_TO_BOOL_CAST 9038
+#define OP_CDOUBLE_TO_BOOL_CAST 9039
+#define OP_CPOINTER_TO_BOOL_CAST 9040
+#define OP_CCHAR_TO_BOOL_CAST 9041
+#define OP_CBOOL_TO_BOOL_CAST 9042
+
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js);
 void class_final_on_runtime();

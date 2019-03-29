@@ -5068,6 +5068,603 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             }
             break;
 
+        case OP_BYTE_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_UBYTE_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_SHORT_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_USHORT_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_INT_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_UINT_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_LONG_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_ULONG_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateAnd(lvalue->value, rvalue, "ANDAND");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_FLOAT_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_DOUBLE_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_POINTER_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CHAR_TO_BOOL_CAST: {
+            LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue->value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CBYTE_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cbyte_to_byte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt8;
+
+            Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CUBYTE_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cubyte_to_ubyte_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindUInt8;
+
+            Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CSHORT_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cshort_to_short_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt16;
+
+            Value* rvalue = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CUSHORT_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cushort_to_ushort_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindUInt16;
+
+            Value* rvalue = ConstantInt::get(Type::getInt16Ty(TheContext), (uint16_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_INTEGER_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt32;
+
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_UINTEGER_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindUInt32;
+
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CLONG_TO_BOOL_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_clong_to_long_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt64;
+
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+
+            }
+            break;
+
+        case OP_CULONG_TO_BOOL_CAST : {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_culong_to_ulong_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt64;
+
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+
+            }
+            break;
+
+        case OP_CFLOAT_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cfloat_to_float_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindFloat;
+
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CDOUBLE_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cdouble_to_double_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindDouble;
+
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CPOINTER_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_cpointer_to_pointer_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindPointer8;
+
+            Value* rvalue = ConstantInt::get(Type::getInt64Ty(TheContext), (uint64_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CCHAR_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_uinteger_to_uint_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt32;
+
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
+        case OP_CBOOL_TO_BOOL_CAST: {
+            LVALUE* value = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_integer_to_int_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE value2;
+            value2 = trunc_value(value, 32);
+
+            Value* param1 = value2.value;
+            params2.push_back(param1);
+
+            LVALUE lvalue;
+            lvalue.value = Builder.CreateCall(fun, params2);
+            lvalue.kind = kLVKindInt32;
+
+            Value* rvalue = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)0);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateICmpNE(lvalue.value, rvalue, "noteqtmp");
+            llvm_value.kind = kLVKindInt1;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
         default:
             fprintf(stderr, "invalid inst code(%d)\n", inst);
             exit(1);

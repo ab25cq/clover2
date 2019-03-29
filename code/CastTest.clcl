@@ -8,5 +8,9 @@ class CastTest {
         Clover.test("cast test5", -1.to_ubyte.to_byte == -1);
 
         Clover.test("cast test6", -1.to_byte == 255.to_byte);
+
+        a:long = 0x02;
+
+        Clover.test("cast test7", (a & 0x02).to_bool);
     }
 }

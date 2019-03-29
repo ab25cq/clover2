@@ -1,9 +1,13 @@
 class ClassA
 {
-    var a:int;
+    def method():static {
+        a:long = 0x02;
 
-    def initialize() {
-        a = 5;
-        b = 5;
+        if((a & 0x02).to_bool) {
+            println("TRUE");
+        }
+        else {
+            println("FALSE");
+        }
     }
 }

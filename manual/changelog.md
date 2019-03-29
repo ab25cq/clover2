@@ -1,5 +1,10 @@
 English page is here [>> English page](changelog-en)
 
+version 10.2.9
+
+    Bug fix of JIT. a:long = 0x02; Clover.test("BOOL test",  (a & 0x02).to_bool); The code is failed before version 10.2.9
+
+
 version 10.2.8
 
     Bug fix.

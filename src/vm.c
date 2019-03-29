@@ -63,6 +63,134 @@ void dec_andand_oror_array(sVMInfo* info)
 void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_BYTE_TO_BOOL_CAST:
+            puts("OP_BYTE_TO_BOOL_CAST");
+            break;
+
+        case OP_UBYTE_TO_BOOL_CAST:
+            puts("OP_UBYTE_TO_BOOL_CAST");
+            break;
+
+        case OP_SHORT_TO_BOOL_CAST:
+            puts("OP_SHORT_TO_BOOL_CAST");
+            break;
+
+        case OP_USHORT_TO_BOOL_CAST:
+            puts("OP_USHORT_TO_BOOL_CAST");
+            break;
+
+        case OP_INT_TO_BOOL_CAST:
+            puts("OP_INT_TO_BOOL_CAST");
+            break;
+
+        case OP_UINT_TO_BOOL_CAST:
+            puts("OP_UINT_TO_BOOL_CAST");
+            break;
+
+        case OP_LONG_TO_BOOL_CAST:
+            puts("OP_LONG_TO_BOOL_CAST");
+            break;
+
+        case OP_ULONG_TO_BOOL_CAST:
+            puts("OP_ULONG_TO_BOOL_CAST");
+            break;
+
+        case OP_FLOAT_TO_BOOL_CAST:
+            puts("OP_FLOAT_TO_BOOL_CAST");
+            break;
+
+        case OP_DOUBLE_TO_BOOL_CAST:
+            puts("OP_DOUBLE_TO_BOOL_CAST");
+            break;
+
+        case OP_POINTER_TO_BOOL_CAST:
+            puts("OP_POINTER_TO_BOOL_CAST");
+            break;
+
+        case OP_CHAR_TO_BOOL_CAST:
+            puts("OP_CHAR_TO_BOOL_CAST");
+            break;
+
+        case OP_CBYTE_TO_BOOL_CAST:
+            puts("OP_CBYTE_TO_BOOL_CAST");
+            break;
+
+        case OP_CUBYTE_TO_BOOL_CAST:
+            puts("OP_CUBYTE_TO_BOOL_CAST");
+            break;
+
+        case OP_CSHORT_TO_BOOL_CAST:
+            puts("OP_CSHORT_TO_BOOL_CAST");
+            break;
+
+        case OP_CUSHORT_TO_BOOL_CAST:
+            puts("OP_CUSHORT_TO_BOOL_CAST");
+            break;
+
+        case OP_INTEGER_TO_BOOL_CAST:
+            puts("OP_INTEGER_TO_BOOL_CAST");
+            break;
+
+        case OP_UINTEGER_TO_BOOL_CAST:
+            puts("OP_UINTEGER_TO_BOOL_CAST");
+            break;
+
+        case OP_CLONG_TO_BOOL_CAST:
+            puts("OP_CLONG_TO_BOOL_CAST");
+            break;
+
+        case OP_CULONG_TO_BOOL_CAST:
+            puts("OP_CULONG_TO_BOOL_CAST");
+            break;
+
+        case OP_CFLOAT_TO_BOOL_CAST:
+            puts("OP_CFLOAT_TO_BOOL_CAST");
+            break;
+
+        case OP_CDOUBLE_TO_BOOL_CAST:
+            puts("OP_CDOUBLE_TO_BOOL_CAST");
+            break;
+
+        case OP_CPOINTER_TO_BOOL_CAST:
+            puts("OP_CPOINTER_TO_BOOL_CAST");
+            break;
+
+        case OP_CCHAR_TO_BOOL_CAST:
+            puts("OP_CCHAR_TO_BOOL_CAST");
+            break;
+
+        case OP_CBOOL_TO_BOOL_CAST:
+            puts("OP_CBOOL_TO_BOOL_CAST");
+            break;
+
+        case OP_UINT_TO_INT_CAST:
+            puts("OP_UINT_TO_INT_CAST");
+            break;
+
+        case OP_INT_TO_LONG_CAST:
+            puts("OP_INT_TO_LONG_CAST");
+            break;
+
+        case OP_LAND:
+            puts("OP_LAND");
+            break;
+
+        case OP_LONG_TO_INT_CAST:
+            puts("OP_LONG_TO_INT_CAST");
+            break;
+
+        case OP_ILE:
+            puts("OP_ILE");
+            break;
+
+        case OP_OBJ_IDENTIFY:
+            puts("OP_OBJ_IDENTIFY");
+            break;
+        
+        case OP_ULONG_TO_UINT_CAST:
+            puts("OP_ULONG_TO_UINT_CAST");
+            break;
+
         case OP_CREATE_TUPLE:
             puts("OP_CREATE_TUPLE");
             break;
@@ -1855,6 +1983,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
         pc+=sizeof(int);
 
 //show_inst(inst);
+
         switch(inst) {
             case OP_NOP:
                 break;
@@ -8222,6 +8351,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_BYTE_TO_INT_CAST:
+            case OP_BYTE_TO_BOOL_CAST:
                 {
                     
 
@@ -8235,6 +8365,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_UBYTE_TO_INT_CAST:
+            case OP_UBYTE_TO_BOOL_CAST:
                 {
                     
 
@@ -8248,6 +8379,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_SHORT_TO_INT_CAST:
+            case OP_SHORT_TO_BOOL_CAST:
                 {
                     
 
@@ -8261,6 +8393,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_USHORT_TO_INT_CAST:
+            case OP_USHORT_TO_BOOL_CAST:
                 {
                     
 
@@ -8274,6 +8407,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_UINT_TO_INT_CAST:
+            case OP_UINT_TO_BOOL_CAST:
                 {
                     
 
@@ -8287,6 +8421,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_LONG_TO_INT_CAST:
+            case OP_LONG_TO_BOOL_CAST:
                 {
                     int value = (int)(stack_ptr-1)->mLongValue;
 
@@ -8298,6 +8433,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_ULONG_TO_INT_CAST:
+            case OP_ULONG_TO_BOOL_CAST:
                 {
                     int value = (int)(stack_ptr-1)->mULongValue;
 
@@ -8309,6 +8445,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_FLOAT_TO_INT_CAST:
+            case OP_FLOAT_TO_BOOL_CAST:
                 {
                     
 
@@ -8322,6 +8459,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_DOUBLE_TO_INT_CAST:
+            case OP_DOUBLE_TO_BOOL_CAST:
                 {
                     
 
@@ -8335,6 +8473,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_POINTER_TO_INT_CAST:
+            case OP_POINTER_TO_BOOL_CAST:
                 {
                     
 
@@ -8348,6 +8487,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CHAR_TO_INT_CAST:
+            case OP_CHAR_TO_BOOL_CAST:
                 {
                     
 
@@ -8362,6 +8502,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
 
             case OP_CBYTE_TO_INT_CAST:
+            case OP_CBYTE_TO_BOOL_CAST:
                 {
                     
 
@@ -8393,6 +8534,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CUBYTE_TO_INT_CAST:
+            case OP_CUBYTE_TO_BOOL_CAST:
                 {
                     
 
@@ -8424,6 +8566,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CSHORT_TO_INT_CAST:
+            case OP_CSHORT_TO_BOOL_CAST:
                 {
                     
 
@@ -8455,6 +8598,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CUSHORT_TO_INT_CAST:
+            case OP_CUSHORT_TO_BOOL_CAST:
                 {
                     
 
@@ -8486,6 +8630,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_INTEGER_TO_INT_CAST:
+            case OP_INTEGER_TO_BOOL_CAST:
                 {
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8513,6 +8658,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_UINTEGER_TO_INT_CAST:
+            case OP_UINTEGER_TO_BOOL_CAST:
                 {
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8542,6 +8688,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CLONG_TO_INT_CAST:
+            case OP_CLONG_TO_BOOL_CAST:
                 {
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8571,6 +8718,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CULONG_TO_INT_CAST:
+            case OP_CULONG_TO_BOOL_CAST:
                 {
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
@@ -8598,6 +8746,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CFLOAT_TO_INT_CAST:
+            case OP_CFLOAT_TO_BOOL_CAST:
                 {
                     
 
@@ -8629,6 +8778,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CDOUBLE_TO_INT_CAST:
+            case OP_CDOUBLE_TO_BOOL_CAST:
                 {
                     
 
@@ -8660,6 +8810,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CPOINTER_TO_INT_CAST:
+            case OP_CPOINTER_TO_BOOL_CAST:
                 {
                     
 
@@ -8691,6 +8842,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CCHAR_TO_INT_CAST:
+            case OP_CCHAR_TO_BOOL_CAST:
                 {
                     
 
@@ -8722,6 +8874,7 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_CBOOL_TO_INT_CAST:
+            case OP_CBOOL_TO_BOOL_CAST:
                 {
                     
 
@@ -10410,6 +10563,9 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     
                 }
+                break;
+
+            case OP_INT_TO_BOOL_CAST:
                 break;
 
             case OP_INT_TO_UINT_CAST:

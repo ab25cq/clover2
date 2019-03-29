@@ -1,4 +1,8 @@
 
+clover2 (10.2.9-1) unstable; urgency=medium
+
+    * Bug fix of JIT. a:long = 0x02; Clover.test("BOOL test",  (a & 0x02).to_bool); The code is failed before version 10.2.9
+
 clover2 (10.2.8-1) unstable; urgency=medium
 
     * Bug fix.

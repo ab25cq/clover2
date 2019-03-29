@@ -1,1 +1,1 @@
-prinln("HELLO");
+ClassA.method();

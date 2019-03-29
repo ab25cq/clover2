@@ -272,12 +272,15 @@ class Class
         return result;
     }
     def getClassMethods():List<Method> {
+System.println("getClassMethods");
         result := List<Method>();
         for(i:=0; i<numMethods; i++) {
             it := getMethod(i);
             
+System.println("it.flags \{it.flags} \{(it.flags & Clover.METHOD_FLAGS_CLASS_METHOD).to_bool}");
             if((it.flags & Clover.METHOD_FLAGS_CLASS_METHOD).to_bool) {
-                result.add(it);
+System.println("AAA");
+                result.push(it);
             }
         }
         

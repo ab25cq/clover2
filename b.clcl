@@ -1,15 +1,11 @@
-class AAAAAA
+class ClassX
 {
-    var a:int;
-
     def initialize() {
     }
 
-    def method2() {
-        throw Exception("AAA")
+    def method():static {
     }
-
-    def method() {
-        method2();
+    
+    def method2() {
     }
 }
