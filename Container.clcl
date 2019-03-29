@@ -511,6 +511,7 @@ module MList
                 return it;
             }
             n++;
+
             it = it.next;
         }
         
