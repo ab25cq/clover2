@@ -1,1 +1,0 @@
-["AAA", "BBB" , "CCC"].forEach { it.concat

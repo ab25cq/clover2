@@ -14,9 +14,10 @@ class ViClone version 13
         lastInsertedTextPos = (0, 0);
         
         lastInsertedString = SortableList<String>();
-
+        
         ### Insert Mode ###
-        keyEvents['.'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+        keyEvents['.'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
             when(lastKey) {
                 case ('i'.to_int) {
                     insertOnceMore();
@@ -31,7 +32,9 @@ class ViClone version 13
                     insertOnceMore();
                 }
                 case ('c'.to_int) {
-                    if(lastKey2 == 'w'.to_int || lastKey2 == 'e'.to_int) {
+                    if(lastKey2 == 'w'.to_int 
+                        || lastKey2 == 'e'.to_int) 
+                    {                     
                         win.addUndoText();
 
                         (y, x) := forwardWord(0); 

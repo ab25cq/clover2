@@ -1,12 +1,12 @@
 class ViCloneWindow version 13
 {
     def realPosToViewPos(y:int, x:int): dynamic Tuple2<Integer, Integer> {
-        for(i:=visibleTextsPos.length()-1; i>=0; i--) {
+        for(i:=0; i<visibleTextsPos.length(); i++) {
             (y2, head, line_num) := visibleTextsPos.items(i);
             line := visibleTexts.items(i);
 
             width := line.length();
-
+            
             if(y2 == y) {
                 if(x >= head && width == 0) {
                     return (i, 0);
@@ -14,8 +14,7 @@ class ViCloneWindow version 13
                 elif(x >= head && x == 0 && width == 0) {
                     return (i, x-head);
                 }
-                elif(x >= head && x <= head + width) 
-                {
+                elif(x >= head && x <= head + width)  {
                     return (i, x-head);
                 }
             }
@@ -28,7 +27,7 @@ class ViCloneWindow version 13
         {
             cursorY = visibleTexts.length()-1;
         }
-
+        
         if(cursorY >= MaxY-1) {
             (tmp, tmp2, top_line_size) := visibleTextsPos.items(0);
 
@@ -221,10 +220,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -259,10 +258,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -334,10 +333,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 y2 := viewYToRealY(y);
@@ -461,10 +460,10 @@ class ViCloneWindow version 13
                 }
 
                 if(pos.value3 > 1) {
-                    mvprintw(y, 0, "~~~~ ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "~~~~ ", array { y + scrollTopY });
                 }
                 else {
-                    mvprintw(y, 0, "%04d ", array { y + scrollTopY });
+                    mvprintw(y + winPos, 0, "%04d ", array { y + scrollTopY });
                 }
 
                 ### cursor line ####

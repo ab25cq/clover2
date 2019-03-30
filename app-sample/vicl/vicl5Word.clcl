@@ -313,7 +313,8 @@ class ViClone version 5
             
             win.moveCursor(y, x);
         }
-        keyEvents['c'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+        keyEvents['c'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
             win.addUndoText();
  
             when(key2) {

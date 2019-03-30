@@ -5,7 +5,7 @@ class ViClone version 14
 
     def initialize():dynamic {
         inherit();
-
+        
         if(win.fileName.match(/.+\.cl$|.+\.clcl$/)) 
         {
             completionCommandNames = tyclover2("--command").toString().split(/\n/)
@@ -23,7 +23,8 @@ class ViClone version 14
                     }
                     else {
                         (y, x) := getFunctionDefinitionTop();
-    
+                        
+                        
                         if(y != -1 && x != -1) {
                             win.moveCursor(y, x);
                         }
@@ -55,47 +56,69 @@ class ViClone version 14
     }
 
     def getMethodDefinitionTop(): Tuple2<Integer, Integer> {
-        for(i:=win.getRealPosY()-1; i>=0; i--) {
-            line := win.texts.items(i);
+        i := win.getRealPosY()-1;
+        it := win.texts.iterator(i);
+        while(it != null) {
+            line := it.item;
 
             if(line.match(/def\s+.+\(/)) {
-                for(y := i; y<win.texts.length(); y++) {
-                    line := win.texts.items(y);
+                y := i;
+                it := win.texts.iterator(y);
+                while(it != null) {
+                    line := it.item;
 
                     x := line.indexOf("{");
 
                     if(x != -1) {
                         return (y, x);
                     }
+
+                    it = it.next;
+                    y++;
                 }
             }
+
+            i--;
+            it = it.prev;
         }
 
         return (-1, -1)
     }
     def getNextmethodDefinitionTop(): Tuple2<Integer, Integer> {
-        for(i:=win.getRealPosY()+1; i<win.texts.length(); i++) {
-            line := win.texts.items(i);
+        i := win.getRealPosY() + 1;
+        it := win.texts.iterator(i);
+        while(it != null) {
+            line := it.item;
 
             if(line.match(/def\s+.+\(/)) {
-                for(y := i; y<win.texts.length(); y++) {
-                    line := win.texts.items(y);
+                y := i;
+                it := win.texts.iterator(y);
+                while(it != null) {
+                    line := it.item;
 
                     x := line.indexOf("{");
 
                     if(x != -1) {
                         return (y, x);
                     }
+
+                    y++;
+                    it = it.next;
                 }
             }
+
+            i++;
+            it = it.next;
         }
 
         return (-1, -1)
     }
 
     def getInnerClassDefinitionName(): String {
-        for(i:=win.getRealPosY()-1; i>=0; i--) {
-            line := win.texts.items(i);
+        i := win.getRealPosY()-1;
+        it := win.texts.iterator(i);
+        while(it != null) {
+            line := it.item;
 
             if(line.match(/^class\s+[a-zA-Z0-9_]+/)) {
                 return line.scan(/^class\s+([a-zA-Z0-9_]+)/).items(1);
@@ -103,30 +126,44 @@ class ViClone version 14
             if(line.match(/^inherit\s+[a-zA-Z0-9_]+/)) {
                 return line.scan(/^inherit\s+([a-zA-Z0-9_]+)/).items(1);
             }
+
+            i--;
+            it = it.prev;
         }
 
         return "";
     }
     
     def getFunctionDefinitionTop():Tuple2<Integer, Integer> {
-        for(i:=win.getRealPosY()-1; i>=0; i--) {
-            line := win.texts.items(i);
+        i := win.getRealPosY()-1;
+        it := win.texts.iterator(i);
+
+        while(it != null) {
+            line := it.item;
 
             if(line.indexOf("{") == 0) {
                 return (i, 0);
             }
+
+            i--;
+            it = it.prev;
         }
 
         return (-1, -1);
     }
     
     def getNextFunctionDefinitionTop():Tuple2<Integer, Integer> {
-        for(i:=win.getRealPosY()+1; i<win.texts.length(); i++) {
-            line := win.texts.items(i);
+        i := win.getRealPosY()+1;
+        it := win.texts.iterator(i);
+        while(it != null) {
+            line := it.item;
 
             if(line.indexOf("}") == 0) {
                 return (i, 0);
             }
+
+            i++;
+            it = it.next;
         }
 
         return (-1, -1);
@@ -141,8 +178,10 @@ class ViClone version 14
             class_name := getInnerClassDefinitionName();
             source.append("self:\{class_name}? = null;\n");
             
-            for(i:=y; i>=0; i--) {
-                line2 := win.texts.items(i);
+            i := y;
+            it := win.texts.iterator(i);
+            while(it != null) {
+                line2 := it.item;
                 
                 if(line2.match(/def\s+(.+)\(.*\)/)) {
                     line_arguments := line2.scan(/def\s+.+\((.*)\)/).items(1);
@@ -181,16 +220,24 @@ class ViClone version 14
                     }
                     break;
                 }
+
+                i--;
+                it = it.prev;
             }
             
             line2 := win.texts.items(y);
             source.append(line2.subString(x+1, -1));
             source.append("\n");
             
-            for(i=y+1; i<win.getRealPosY(); i++) {
-                line2 = win.texts.items(i);
+            i = y + 1;
+            it = win.texts.iterator(i);
+            while(i < win.getRealPosY()) {
+                line2 = it.item;
+
                 source.append(line2);
                 source.append("\n");
+                i++;
+                it = it.next;
             }
             
             line2 = win.texts.items(i);
@@ -198,10 +245,15 @@ class ViClone version 14
             source.append("\n");
         }
         else {
-            for(i:=0; i<win.getRealPosY(); i++) {
-                line2 := win.texts.items(i);
+            i := 0;
+            it := win.texts.iterator(i);
+            while(i < win.getRealPosY()) {
+                line2 := it.item;
                 source.append(line2);
                 source.append("\n");
+
+                it = it.next;
+                i++;
             }
             line2 := win.texts.items(i);
             source.append(line2.subString(0, win.getRealPosX()));
@@ -271,8 +323,10 @@ class ViClone version 14
 
     def innerFieldsCompletion(source:SortableList<String>, inner_fields:SortableList<String>, inner_class_name:String)  {
         inner_class_flag := false;
-        for(i:=0; i<source.length(); i++) {
-            line := source.items(i);
+        i := 0;
+        it := source.iterator(i);
+        while(it != null) {
+            line := it.item;
             
             if(line.match(/class\s+[a-zA-Z0-9_]+/)) {
                 class_name := line.scan(/class\s+([a-zA-Z0-9_]+)/).items(1);
@@ -294,6 +348,7 @@ class ViClone version 14
                     }
 
                     i = n + 1;
+                    it = source.iterator(i);
                 }
                 elif(line.match(/[a-zA-Z0-9_]+:[a-zA-Z0-9_]+/)) {
                     field_name := line.scan(/([a-zA-Z0-9_]+):[a-zA-Z0-9_]+/).items(1);
@@ -306,13 +361,18 @@ class ViClone version 14
                     inner_fields.push(field_name);
                 }
             }
+
+            i++;
+            it = it.next;
         }
     }
 
     def innerMethodCompletion(source:SortableList<String>, inner_methods:SortableList<String>, inner_class_name:String): SortableList<String>  {
         inner_class_flag := false;
-        for(i:=0; i<source.length(); i++) {
-            line := source.items(i);
+        i := 0;
+        it := source.iterator(i);
+        while(it != null) {
+            line := it.item;
 
             if(line.match(/class\s+[a-zA-Z0-9_]+/)) {
                 class_name := line.scan(/class\s+([a-zA-Z0-9_]+)/).items(1);
@@ -338,8 +398,12 @@ class ViClone version 14
                     }
 
                     i = n + 1;
+                    it = source.iterator(i);
                 }
             }
+
+            i++;
+            it = it.next;
         }
     }
     
@@ -378,7 +442,7 @@ class ViClone version 14
         words.append(slist { "if", "when", "while", "for", "break", "true", "false", "null", "wildcard", "throw", "try", "return", "new", "closure", "lambda", "var", "val", "def", "inherit", "unset", "list", "elist", "slist", "tuple", "hash", "array", "earray", "sarray" });
         
         klass:Class? = null;
-
+        
         if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
             klass = Class("Global", true);
         }
@@ -389,9 +453,11 @@ class ViClone version 14
         methods := klass.getMethods();
 
         global_methods := SortableList<String>();
-        for(i:=0; i<methods.length(); i++) {
-            method := methods.items(i);
+        it := methods.head();
+        while(it != null) {
+            method := it.item;
             global_methods.push(method.methodNameAndParams);
+            it = it.next;
         }
         words.append(global_methods);
 
@@ -404,9 +470,11 @@ class ViClone version 14
         methods = klass.getMethods();
 
         system_methods := SortableList<String>();
-        for(i=0; i<methods.length(); i++) {
-            method := methods.items(i);
+        it = methods.head();
+        while(it != null) {
+            method := it.item;
             system_methods.push(method.methodNameAndParams);
+            it = it.next;
         }
         words.append(system_methods);
         
@@ -430,30 +498,37 @@ class ViClone version 14
 
             inner_methods := SortableList<String>();
             methods := klass.getMethods();
-            for(i:=0; i<methods.length(); i++) {
-                method := methods.items(i);
+            it := methods.head();
+            while(it != null) {
+                method := it.item;
                 inner_methods.push(method.methodNameAndParams);
+
+                it = it.next;
             }
             words.append(inner_methods);
 
             inner_fields := SortableList<String>();
             fields := klass.getFields();
-            for(i=0; i<fields.length(); i++) {
-                field := fields.items(i);
+            it2 := fields.head();
+            while(it2 != null) {
+                field := it2.item;
                 inner_fields.push(field.name);
+
+                it2 = it2.next();
             }
             words.append(inner_fields);
         }
         
-        words.append(win.texts.join("\n").scan(/\w+/));
+        #words.append(win.texts.join("\n").scan(/\w+/));
         
         (inputing_text,j) := gettingInputingWord();
         completion_core(inputing_text, j, words)
     }
 
-    def get_class_names(source:SortableList<String>, result:SortableList<String>) {
-        for(i:=0; i<source.length(); i++) {
-            line := source.items(i);
+    def get_class_names(source:SortableList<String>, result:SortableList<String>)  {
+        it := source.head();
+        while(it != null) {
+            line := it.item;
 
             if(line.match(/^class [a-zA-Z0-9_]+/)) {
                 class_name := line.scan(/^class ([a-zA-Z0-9_]+)/).items(1);
@@ -469,6 +544,8 @@ class ViClone version 14
                     get_class_names(source2, result);
                 }
             }
+
+            it = it.next;
         }
     }
 
@@ -507,54 +584,100 @@ class ViClone version 14
         else {
             type_name = source.toCommand().tyclover2().toString().chomp();
         }
-
-        if(type_name.match(/\s*(.+)\s*/)) {
-            type_name = type_name.scan(/\s*(.+)\s*/).items(0);
-        }
         
-        class_name := Clover.primitiveClassToBoxingClass(type_name);
+        object_name := line.scan(/([a-zA-Z_0-9]+)\.[a-zA-Z_0-9]*/).items(1);
         
-        if(class_name.match(/.+<.+>/)) {
-            class_name = class_name.scan(/(.+)<.+>/).items(1);
-        }
-        
-        if(class_name.match(/.+\?/)) {
-            class_name = class_name.scan(/(.+)\?/).items(1);
-        }
-
-        if(class_name.equals("")) {
-            messageBox("require type for Method name completion. Maybe not compiled this source file");
-            return; 
-        }
-
-        klass:Class? = null;
+        is_class_name := false;
         try {
+            Clover.load(object_name);
+            is_class_name = true;
+        }
+        
+        if(is_class_name) {
+            class_name := object_name;
+            klass:Class? = null;
             if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
                 klass = Class(class_name, true);
             }
             else {
                 klass = Class(class_name);
             }
-        } catch(e:Exception) {
-            messageBox("class not found \{class_name}");
-            return;
-        }
-        
-        words := SortableList<String>();
-        methods := klass.getMethods();
+            
+            words := SortableList<String>();
+            
+            fields := klass.getClassFields();
+            it := fields.head();
+            while(it != null) {
+                item := it.item;
+                words.push(item.name);
 
-        if(class_name.equals("Command")) {
-            command_names := commandNameCompletion();
-
-            words.append(command_names);
+                it = it.next;
+            }
+            
+            methods := klass.getClassMethods();
+            it2 := methods.head();
+            while(it2 != null) {
+                item := it2.item;
+                words.push(item.methodNameAndParams);
+                it2 = it2.next;
+            }
+            
+            (inputing_text,i) := gettingInputingWord();
+            completion_core(inputing_text, i, words)
         }
+        else {
+            if(type_name.match(/\s*(.+)\s*/)) {
+                type_name = type_name.scan(/\s*(.+)\s*/).items(0);
+            }
+            
+            class_name := Clover.primitiveClassToBoxingClass(type_name);
+            
+            if(class_name.match(/.+<.+>/)) {
+                class_name = class_name.scan(/(.+)<.+>/).items(1);
+            }
+            
+            if(class_name.match(/.+\?/)) {
+                class_name = class_name.scan(/(.+)\?/).items(1);
+            }
+    
+            if(class_name.equals("")) {
+                messageBox("require type for Method name completion. Maybe not compiled this source file");
+                return; 
+            }
+    
+            klass:Class? = null;
+            try {
+                if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {
+                    klass = Class(class_name, true);
+                }
+                else {
+                    klass = Class(class_name);
+                }
+            } catch(e:Exception) {
+                messageBox("class not found \{class_name}");
+                return;
+            }
+            
+            words := SortableList<String>();
+            methods := klass.getMethods();
+    
+            if(class_name.equals("Command")) {
+                command_names := commandNameCompletion();
+    
+                words.append(command_names);
+            }
+    
+            it := methods.head();
+            while(it != null) {
+                item := it.item;
+                words.push(item.methodNameAndParams);
 
-        methods.each {
-            words.push(it.methodNameAndParams);
+                it = it.next;
+            }
+            
+            (inputing_text,i) := gettingInputingWord();
+            completion_core(inputing_text, i, words)
         }
-        
-        (inputing_text,i) := gettingInputingWord();
-        completion_core(inputing_text, i, words)
     }
 
     def fileCompletion():dynamic {
@@ -568,7 +691,6 @@ class ViClone version 14
 
         while(p >= p.head()) {
             if(p->byte == ' ' || p->byte == '\t') {
-                p++;
                 break;
             }
             elif(p->byte == '"') {
@@ -656,7 +778,7 @@ class ViClone version 14
         while(p->byte == ' ' || p->byte == '\t') {
             p++;
         }
-
+        
         while(p->byte != '\0') {
             if(p->byte == '\\') {
                 p++;
@@ -809,10 +931,17 @@ class ViClone version 14
 
                 line.delete(i, win.getRealPosX());
                 line.insert(i, selected_string);
-                win.cursorX += selected_string.length() - (win.getRealPosX() - i)
+                win.cursorX += selected_string.length() - (win.getRealPosX() - i);
             }
         }
-
+    
+        win.makeVisibleTexts();
+        
+        if(win.cursorX >= win.MaxX-1) {
+            win.cursorX -= win.MaxX-1;
+            win.cursorY++;
+        }
+        
         return true;
     } 
     

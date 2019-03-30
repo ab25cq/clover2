@@ -201,7 +201,8 @@ class ViClone version 3
             clear();
             view();
         }
-        keyEvents['C'.to_int] = lambda(self:ViClone, key:int, key2:int) {
+        keyEvents['C'.to_int] = lambda(self:ViClone, key:int, key2:int) 
+        {
             x := win.getRealPosX();
             y := win.getRealPosY();
 
@@ -212,9 +213,9 @@ class ViClone version 3
                 win.addUndoText();
 
                 line.delete(x, -1);
-
+                
                 win.makeVisibleTexts();
-                win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+                #win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
             }
 
             enterInsertMode();

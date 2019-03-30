@@ -77,12 +77,19 @@ class ViClone version 9
                 x += win.getRealPosX() + 1;
             }
             else { 
-                for(y = win.getRealPosY()+1; y < win.texts.length(); y++) { 
-                    it := win.texts.items(y);
-                    x = it.indexOf(statusLineInSearchMode);
+                y = win.getRealPosY()+1; 
+                it := win.texts.iterator(y);
+
+                while(it != null) {
+                    item := it.item;
+
+                    x = item.indexOf(statusLineInSearchMode);
                     if(x != -1) {
                         break; 
                     } 
+
+                    y++;
+                    it = it.next;
                 }
             } 
             
@@ -100,14 +107,19 @@ class ViClone version 9
             x := win.texts.items(y).subString(0, win.getRealPosX()).rindexOf(statusLineInSearchMode);
                  
             if(x == -1) { 
-                for(y=win.getRealPosY()-1; y >= 0; y--) {
-                    it := win.texts.items(y);
+                y = win.getRealPosY()-1;
+                it := win.texts.iterator(y);
+                while(it != null) {
+                    item := it.item;
 
-                    x = it.rindexOf(statusLineInSearchMode);
+                    x = item.rindexOf(statusLineInSearchMode);
     
                     if(x != -1) {
                         break;
                     }
+
+                    y--;
+                    it = it.prev;
                 }
             } 
 

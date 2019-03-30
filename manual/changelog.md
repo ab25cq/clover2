@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.3.1
+
+    new Editor sample.
+
 version 10.3.0
 
     Added List.iterator.

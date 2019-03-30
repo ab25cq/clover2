@@ -1,4 +1,8 @@
 
+clover2 (10.3.1-1) unstable; urgency=medium
+
+    * new Editor sample.
+
 clover2 (10.3.0-1) unstable; urgency=medium
 
     * Added List.iterator.
