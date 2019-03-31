@@ -879,7 +879,8 @@ class ViClone version 14
             start_i = line.length()-1;
         }
         inputing_text := "";
-        for(i:=start_i; i >= 0; i--) {
+        i := 0;
+        for(i=start_i; i >= 0; i--) {
             if(line.chars(i).isalnum() || line.chars(i) == '_') 
             {
                 inputing_text.insert(0, line.chars(i)); 

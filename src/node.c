@@ -6051,7 +6051,7 @@ static BOOL call_normal_method(unsigned int node, sCompileInfo* info, sNodeType*
                     BOOL lambda = FALSE;
 
                     sNodeBlock* node_block = NULL;
-                    if(!parse_block(ALLOC &node_block, &info2, new_table, TRUE, FALSE)) {
+                    if(!parse_block(ALLOC &node_block, &info2, new_table, TRUE, FALSE, 0, NULL)) {
                         return FALSE;
                     }
 

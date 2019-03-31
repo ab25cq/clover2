@@ -194,3 +194,5 @@ println("MixinLayersTest");
 MixinLayersTest.main();
 println("GCMemoryTest");
 GCMemoryTest.main();
+println("ForBlock");
+ForBlock.main();

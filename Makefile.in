@@ -783,6 +783,7 @@ test:
 	PWD=`pwd` ./cclover2 code/KotlinTest.clcl
 	PWD=`pwd` ./cclover2 code/MethodGenericsTest.clcl
 	PWD=`pwd` ./cclover2 code/MethodBlock.clcl
+	PWD=`pwd` ./cclover2 code/ForBlock.clcl
 	PWD=`pwd` ./cclover2 code/ReturnTest.clcl
 	PWD=`pwd` ./cclover2 code/ResultTypeTest.clcl
 	PWD=`pwd` ./cclover2 code/IsTest.clcl
@@ -870,4 +871,3 @@ js-test:
 	PWD=`pwd` ./cclover2 code/js.jscl
 	PWD=`pwd` ./cclover2 code/js.ojscl
 	PWD=`pwd` $(NODEJS) code/js.js
-

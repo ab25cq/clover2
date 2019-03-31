@@ -286,7 +286,8 @@ class ViClone version 5
                 win.moveCursor(y, x);
             } 
             elif(y < real_pos_y) {
-                for(i:=real_pos_y; i>y; i--) {
+                i := 0;
+                for(i=real_pos_y; i>y; i--) {
                     line = win.texts.items(i);
                     line.setValue("");
                 }

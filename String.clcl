@@ -219,7 +219,8 @@ inherit String
         len := str.length();
 
         if(self.len+len + 1 < self.size) {
-            for(i :=self.len -1; i>=index; i--) {
+            i:=0;
+            for(i=self.len -1; i>=index; i--) {
                 self.buffer[i+len] = self.buffer[i];
             }
             for(i = 0; i<len; i++) {
@@ -233,7 +234,8 @@ inherit String
             new_size:int = (self.len + len + 1) * 2 + 1;
             new_buffer:char[] = char[new_size];
 
-            for(i := 0; i<index; i++) {
+            i := 0;
+            for(i=0; i<index; i++) {
                 new_buffer[i] = self.buffer[i];
             }
             for(i=index; i<self.len; i++) {
@@ -269,7 +271,8 @@ inherit String
         }
 
         if(index >= 0 && index < self.len) {
-            for(i := index; i<self.len-1; i++) {
+            i := 0;
+            for(i=index; i<self.len-1; i++) {
                 self.buffer[i] = self.buffer[i+1];
             }
             self.buffer[i] = '\0';
@@ -303,7 +306,8 @@ inherit String
         }
 
         if(index < index2 && index < self.len && index2 <= self.len) {
-            for(i:= index; i<self.len-(index2-index); i++) {
+            i := 0;
+            for(i=index; i<self.len-(index2-index); i++) {
                 self.buffer[i] = self.buffer[i+index2-index];
             }
             self.buffer[i] = '\0';
@@ -338,7 +342,8 @@ inherit String
 
         result: String = String(end-start+1);
 
-        for(i:int = 0; i<end-start; i++) {
+        i := 0;
+        for(i=0; i<end-start; i++) {
             result.buffer[i] = self.chars(i+start);
         }
         result.buffer[i] = '\0';
@@ -419,7 +424,8 @@ inherit String
         len:int = str.length();
 
         for(i:=0; i<self.len; i++) {
-            for(j:=0; j<str.len; j++) {
+            j:=0;
+            for(j=0; j<str.len; j++) {
                 if(self.buffer[i+j] != str.buffer[j]) 
                 {
                     break;
@@ -444,7 +450,8 @@ inherit String
         len := str.length();
 
         for(i:=self.len-len; i>=0; i--) {
-            for(j:=0; j<len; j++) {
+            j:=0;
+            for(j=0; j<len; j++) {
                 if(self.buffer[i+j] != str.buffer[j]) 
                 {
                     break;
@@ -583,7 +590,8 @@ inherit String
     def reverse(): String {
         result:String = String(self.size);
 
-        for(i:int = 0; i<self.len; i++) {
+        i := 0;
+        for(i=0; i<self.len; i++) {
             result.buffer[i] = self.buffer[self.len-i-1];
         }
         result.buffer[i] = '\0';

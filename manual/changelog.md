@@ -1,5 +1,14 @@
 English page is here [>> English page](changelog-en)
 
+version 10.3.2
+
+    normal block local variable bug.
+
+    The case of `for(i:=0; i<5; i++) {}`, the i variable is inner block scope.
+
+    for it in {1,2,3} { it.toString().println(); } can be ruunned.
+
+
 version 10.3.1
 
     new Editor sample.

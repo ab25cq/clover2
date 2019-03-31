@@ -1,6 +1,6 @@
 #include "common.h"
 
-static sNodeBlock* sNodeBlock_alloc(BOOL clone)
+sNodeBlock* sNodeBlock_alloc(BOOL clone)
 {
     sNodeBlock* block = MCALLOC(1, sizeof(sNodeBlock));
 
@@ -53,7 +53,7 @@ sNodeBlock* sNodeBlock_clone(sNodeBlock* block)
     return result;
 }
 
-static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
+void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
 {
     if(node_block->mSizeNodes <= node_block->mNumNodes) {
         int new_size = node_block->mSizeNodes * 2;
@@ -65,7 +65,7 @@ static void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
     node_block->mNumNodes++;
 }
 
-BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression)
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression, unsigned int pre_block_node, char* for_in_item_name)
 {
     //expect_next_character_with_one_forward("{", info);
 
@@ -79,9 +79,18 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
         info->lv_table = init_block_vtable(old_vtable);
     }
 
+    if(for_in_item_name) {
+        check_already_added_variable(info->lv_table, for_in_item_name, info);
+        add_variable_to_table(info->lv_table, for_in_item_name, NULL, FALSE);
+    }
+
+    if(pre_block_node != 0) {
+        append_node_to_node_block(*node_block, pre_block_node);
+    }
+
     (*node_block)->mSName = info->sname;
     (*node_block)->mSLine = info->sline;
-
+    
     char* source_head = info->p;
 
     while(1) {
@@ -174,6 +183,14 @@ BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* ne
     info->lv_table = old_vtable;
 
     return TRUE;
+}
+
+void make_block_for_for_expresssion(ALLOC sNodeBlock** node_block, sParserInfo* info, unsigned int for_expression)
+{
+    *node_block = sNodeBlock_alloc(FALSE);
+
+    sVarTable* old_vtable = info->lv_table;
+    info->lv_table = init_block_vtable(old_vtable);
 }
 
 BOOL create_null_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object)
@@ -403,5 +420,3 @@ BOOL compile_block_with_result(sNodeBlock* block, sCompileInfo* info)
 
     return TRUE;
 }
-
-

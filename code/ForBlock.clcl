@@ -1,0 +1,17 @@
+class ForBlock {
+    def main():static {
+        for(i:=0; i<5; i++) {
+            println("AAA");
+        }
+        for(i:=0; i<5; i++) {
+            println("BBB");
+        }
+
+        for it in {1,2,3} {
+            it.toString().println();
+        }
+        for it in {1,2,3} {
+            it.toString().println();
+        }
+    }
+}

@@ -693,9 +693,13 @@ struct sNodeBlockStruct
 
 typedef struct sNodeBlockStruct sNodeBlock;
 
+sNodeBlock* sNodeBlock_alloc(BOOL clone);
+void append_node_to_node_block(sNodeBlock* node_block, unsigned int node);
 void sNodeBlock_free(sNodeBlock* block);
 sNodeBlock* sNodeBlock_clone(sNodeBlock* block);
-BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression);
+BOOL parse_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression, unsigned int pre_block_node, char* for_in_item_name);
+void make_block_for_for_expresssion(ALLOC sNodeBlock** node_block, sParserInfo* info, unsigned int for_expression);
+BOOL parse_block_for_in(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object, BOOL string_expression, unsigned int item_node, char* item_name);
 BOOL create_null_block(ALLOC sNodeBlock** node_block, sParserInfo* info, sVarTable* new_table, BOOL block_object);
 BOOL parse_question_operator_block(unsigned int object_node, int num_method_chains, ALLOC sNodeBlock** node_block, sParserInfo* info);
 
@@ -2608,4 +2612,3 @@ BOOL js_compiler(char* sname);
 BOOL js_class_compiler(char* class_name);
 
 #endif
-

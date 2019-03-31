@@ -375,7 +375,7 @@ BOOL parse_simple_lambda_params(unsigned int* node, sParserInfo* info, BOOL lamb
 
     sNodeBlock* node_block = NULL;
 
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -1126,7 +1126,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* if_node_block = NULL;
-    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE, FALSE)) {
+    if(!parse_block(ALLOC &if_node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -1160,7 +1160,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
         if(strcmp(buf, "else") == 0) {
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &else_node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
             break;
@@ -1195,7 +1195,7 @@ static BOOL if_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward(")", info);
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &elif_node_blocks[elif_num], info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
 
@@ -1250,7 +1250,7 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* while_node_block = NULL;
-    if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE, FALSE)) {
+    if(!parse_block(ALLOC &while_node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -1261,6 +1261,13 @@ static BOOL while_expression(unsigned int* node, sParserInfo* info)
 
 static BOOL for_expression(unsigned int* node, sParserInfo* info)
 {
+    sNodeBlock* node_block = sNodeBlock_alloc(FALSE);
+
+    sVarTable* old_vtable = info->lv_table;
+    info->lv_table = init_block_vtable(old_vtable);
+    
+    char* source_head = info->p;
+    
     expect_next_character_with_one_forward("(", info);
 
     /// expression1 ///
@@ -1326,11 +1333,117 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* for_node_block = NULL;
-    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE, FALSE)) {
+    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
     *node = sNodeTree_for_expression(expression_node, expression_node2, expression_node3, MANAGED for_node_block, info);
+
+    append_node_to_node_block(node_block, *node);
+
+    node_block->mSName = info->sname;
+    node_block->mSLine = info->sline;
+
+    char* source_end = info->p;
+
+    sBuf_append(&node_block->mSource, source_head, source_end - source_head);
+    sBuf_append_char(&node_block->mSource, '\0');
+
+    set_max_block_var_num(info->lv_table, old_vtable);
+    node_block->mLVTable = info->lv_table;
+    info->lv_table = old_vtable;
+
+    *node = sNodeTree_create_normal_block(MANAGED node_block, info);
+
+    return TRUE;
+}
+
+static BOOL for_in_expression(unsigned int* node, sParserInfo* info)
+{
+    sNodeBlock* node_block = sNodeBlock_alloc(FALSE);
+
+    sVarTable* old_vtable = info->lv_table;
+    info->lv_table = init_block_vtable(old_vtable);
+    
+    char* source_head = info->p;
+
+    char item_name[VAR_NAME_MAX];
+    if(!parse_word(item_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    char it_name[VAR_NAME_MAX];
+
+    xstrncpy(it_name, item_name, VAR_NAME_MAX);
+    xstrncat(it_name, "__it", VAR_NAME_MAX);
+
+    check_already_added_variable(info->lv_table, it_name, info);
+    add_variable_to_table(info->lv_table, it_name, NULL, FALSE);
+
+    char buf[VAR_NAME_MAX];
+    if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+        return FALSE;
+    }
+
+    if(strcmp(buf, "in") != 0) {
+        parser_err_msg(info, "require in for \"for in\" expression.");
+        info->err_num++;
+        return TRUE;
+    }
+
+    unsigned int list_expression_node = 0;
+    if(!expression(&list_expression_node, info)) {
+        return FALSE;
+    }
+
+    /// expression1 ///
+    unsigned int head_expression_node = sNodeTree_create_fields("head", list_expression_node, info);
+
+    unsigned int expression_node = sNodeTree_create_store_variable(it_name, NULL, head_expression_node, info->klass, info);
+
+    /// expression2 ///
+    unsigned int left_node = sNodeTree_create_load_variable(it_name, info);
+    unsigned int right_node = sNodeTree_null_expression(info);
+
+    unsigned int expression_node2 = sNodeTree_create_operand(kOpComparisonNotEqual, left_node, right_node, 0, info);
+
+    /// expression3 ///
+    unsigned int it_node = sNodeTree_create_load_variable(it_name, info);
+    unsigned int next_expression_node = sNodeTree_create_fields("next", it_node, info);
+
+    unsigned int expression_node3 = sNodeTree_create_store_variable(it_name, NULL, next_expression_node, info->klass, info);
+
+    expect_next_character_with_one_forward("{", info);
+
+    unsigned int it_node2 = sNodeTree_create_load_variable(it_name, info);
+
+    unsigned int item_node = sNodeTree_create_fields("item", it_node2, info);
+
+    unsigned int item_assignment_node = sNodeTree_create_store_variable(item_name, NULL, item_node, info->klass, info);
+
+    sNodeBlock* for_node_block = NULL;
+    if(!parse_block(ALLOC &for_node_block, info, NULL, FALSE, FALSE, item_assignment_node, item_name)) 
+    {
+        return FALSE;
+    }
+
+    *node = sNodeTree_for_expression(expression_node, expression_node2, expression_node3, MANAGED for_node_block, info);
+
+    append_node_to_node_block(node_block, *node);
+
+    node_block->mSName = info->sname;
+    node_block->mSLine = info->sline;
+
+    char* source_end = info->p;
+
+    sBuf_append(&node_block->mSource, source_head, source_end - source_head);
+    sBuf_append_char(&node_block->mSource, '\0');
+
+    set_max_block_var_num(info->lv_table, old_vtable);
+    node_block->mLVTable = info->lv_table;
+    info->lv_table = old_vtable;
+
+    *node = sNodeTree_create_normal_block(MANAGED node_block, info);
 
     return TRUE;
 }
@@ -1403,7 +1516,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1429,7 +1542,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1453,7 +1566,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
                 return TRUE;
             }
 
-            if(!parse_block(ALLOC &else_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &else_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
         }
@@ -1507,7 +1620,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1577,7 +1690,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
             expect_next_character_with_one_forward("{", info);
 
             sNodeBlock* when_block = NULL;
-            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &when_block, info, NULL, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
             when_blocks[num_when_block] = when_block;
@@ -1809,7 +1922,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
 
     /// try ///
     sNodeBlock* try_node_block = NULL;
-    if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE, FALSE)) {
+    if(!parse_block(ALLOC &try_node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -1840,7 +1953,7 @@ static BOOL try_expression(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE, FALSE)) {
+            if(!parse_block(ALLOC &catch_node_block, info, new_table, FALSE, FALSE, 0, NULL)) {
                 return FALSE;
             }
         }
@@ -2883,7 +2996,7 @@ BOOL parse_block_object(unsigned int* node, sParserInfo* info, BOOL lambda)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -2998,7 +3111,7 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
     expect_next_character_with_one_forward("{", info);
 
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE)) {
+    if(!parse_block(ALLOC &node_block, info, new_table, TRUE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
@@ -3010,12 +3123,12 @@ static BOOL parse_function(unsigned int* node, sParserInfo* info, BOOL lambda)
 static BOOL parse_normal_block(unsigned int* node, sParserInfo* info)
 {
     sNodeBlock* node_block = NULL;
-    if(!parse_block(ALLOC &node_block, info, NULL, FALSE, FALSE)) {
+    if(!parse_block(ALLOC &node_block, info, NULL, FALSE, FALSE, 0, NULL)) {
         return FALSE;
     }
 
     *node = sNodeTree_create_normal_block(MANAGED node_block, info);
-
+    
     return TRUE;
 }
 
@@ -3632,7 +3745,7 @@ BOOL parse_unset(unsigned int* node, sParserInfo* info)
 static BOOL parse_string_expression(sNodeBlock** string_expressions, int* string_expression_offsets, int* num_string_expression, sBuf* value, sParserInfo* info)
 {
     sNodeBlock* block = NULL;
-    if(!parse_block(ALLOC &block, info, NULL, FALSE, TRUE)) {
+    if(!parse_block(ALLOC &block, info, NULL, FALSE, TRUE, 0, NULL)) {
         return FALSE;
     }
 
@@ -4392,6 +4505,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         if(!info->mJS) {
             char* p_before = info->p;
             int sline_before = info->sline;
+            sVarTable* old_table = info->lv_table;
+            info->lv_table = clone_var_table(info->lv_table);
 
             unsigned int tmp = 0;
             (void)expression(&tmp, info);
@@ -4402,6 +4517,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             info->p = p_before;
             info->sline = sline_before;
+            info->lv_table = old_table;
         }
 
         if(list_value) {
@@ -4468,10 +4584,23 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         else if(strcmp(buf, "for") == 0) {
             skip_spaces_and_lf(info);
 
-            if(!for_expression(node, info)) {
-                return FALSE;
+            if(info->mJS) {
+                if(!for_expression(node, info)) {
+                    return FALSE;
+                }
             }
-
+            else {
+                if(isalpha(*info->p)) {
+                    if(!for_in_expression(node, info)) {
+                        return FALSE;
+                    }
+                }
+                else {
+                    if(!for_expression(node, info)) {
+                        return FALSE;
+                    }
+                }
+            }
         }
         else if(strcmp(buf, "break") == 0) {
             skip_spaces_and_lf(info);

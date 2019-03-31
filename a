@@ -1,0 +1,4 @@
+for(it:=list.head; it != null; it = it.next)
+{
+    item := it.item;
+}
