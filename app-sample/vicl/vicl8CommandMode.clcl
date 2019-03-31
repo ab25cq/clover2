@@ -144,21 +144,42 @@ class ViClone version 8
         elif(word.chars(-1) == '/') {
             dir = word.subString(0, -2)
         }
-
+        
         completion_success := false;
         if(dir.equals(".")) {
-            words := p".".entries().map { it.subString(2, -1); }
+            words := p".".entries().map { 
+                if(dir.add("/").add(it).toPath().to_stat().S_ISDIR()) { 
+                    it.subString(2, -1).add("/"); 
+                } else { 
+                    it.subString(2,-1); 
+                }
+            }   
 
             completion_success = command_completion_core(word, words)
         }
         elif(dir.equals("/")) {
-            words := dir.toPath().entries().map { it.subString(dir.length(), -1) }
+            words := dir.toPath().entries().map { 
+                if(dir.add("/").add(it).toPath().to_stat().S_ISDIR()) { 
+                    it.subString(dir.length(), -1).add("/") 
+                } 
+                else { 
+                    it.subString(dir.length(), -1); 
+                } 
+            }
+             
 
             completion_success = command_completion_core(word.subString(dir.length(), -1), words);
         }
         else {
-            words := dir.toPath().entries().map { it.subString(dir.length()+1, -1) }
-
+            words := dir.toPath().entries().map { 
+                if(it.toPath().to_stat().S_ISDIR()) { 
+                    it.subString(dir.length()+1, -1).add("/")
+                }
+                else {
+                    it.subString(dir.length()+1, -1)
+                }
+            }   
+            
             completion_success = command_completion_core(word.subString(dir.length()+1, -1), words);
         }
     }

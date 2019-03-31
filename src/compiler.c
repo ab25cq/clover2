@@ -147,7 +147,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.3.1";
+char* gVersion = "10.3.2";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
