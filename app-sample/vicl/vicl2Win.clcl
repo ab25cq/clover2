@@ -125,13 +125,22 @@ class ViCloneWindow version 1
     }
 
     def getRealPosY():int {
-        (y, x, line_size) := visibleTextsPos.items(cursorY);
-        return y;
+        try {
+            (y, x, line_size) := visibleTextsPos.items(cursorY);
+            return y;
+        } catch(e:Exception) {
+            return 0;
+        }
     }
 
     def getRealPosX():int {
-        (y, x, line_size) := visibleTextsPos.items(cursorY);
-        return x + cursorX;
+        try {
+            (y, x, line_size) := visibleTextsPos.items(cursorY);
+                
+            return x + cursorX;
+        } catch(e:Exception) {
+            return 0;
+        }
     }
 
     def view():dynamic {

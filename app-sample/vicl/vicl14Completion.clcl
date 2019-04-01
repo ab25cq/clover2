@@ -644,7 +644,7 @@ class ViClone version 14
                 messageBox("require type for Method name completion. Maybe not compiled this source file");
                 return; 
             }
-    
+            
             klass:Class? = null;
             try {
                 if(win.fileName.match(/.+\.jsclcl$|.+\.jscl$/)) {

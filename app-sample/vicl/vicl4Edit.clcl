@@ -181,9 +181,9 @@ class ViClone version 4
                         win.cursorY = 0;
                         win.scrollTopY = 0;
                     }
-
+                    
                     win.makeVisibleTexts();                     
-                    #win.fixCursorAndScrollTop(win.scrollTopY);
+                    win.fixCursorAndScrollTop(win.scrollTopY);
                     win.modifiedText = true;
                 }
                 case ('t'.to_int) {

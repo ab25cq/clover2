@@ -474,13 +474,7 @@ class ViCloneWindow version 13
                         attroff(A_REVERSE);
                     }
                     else {
-                        cursor_x_term_len := 0;
-                        if(termux) {
-                            cursor_x_term_len = cursorX;
-                        }
-                        else {
-                            cursor_x_term_len = ViClone.getTermLen(line.subString(0, cursorX));
-                        }
+                        cursor_x_term_len := ViClone.getTermLen(line.subString(0, cursorX));
                         if(cursorX >= line.length()) {
                             mvprintw(y + winPos
                                 , 5 + 0 + ViClone.vicl.dirPaneLength, line);
@@ -2603,7 +2597,7 @@ class ViClone version 21
         win.texts.insert(y+1, spaces);
 
         win.makeVisibleTexts();
-        #win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
+        win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
 
         win.cursorX = spaces_num;
     }
@@ -2620,9 +2614,9 @@ class ViClone version 21
             line.insert(x, buf);
 
             win.makeVisibleTexts();
-
+            
             win.cursorX+=buf.length();
-
+            
             line2 := win.visibleTexts.items(win.cursorY);
 
             term_len := getTermLen(line2)
@@ -2641,6 +2635,7 @@ class ViClone version 21
                     win.fixCursorAndScrollTop(win.scrollTopY);
                 }
             }
+            
             fepString = "";
         }
     }
@@ -2721,6 +2716,7 @@ class ViClone version 21
                         4.times {
                             if(win.cursorX >= 0) {
                                 line.delete(x -1);
+                                x--;
                                 win.cursorX--;
                             }
                         }

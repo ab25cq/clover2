@@ -1,10 +1,15 @@
 search mode utf-8
 search mode in visual mode
 
-繰返し
+.の繰返し
 
-[[,]]でイテレーターを使う。completionでイテレーターを使う
+行頭
+でc-w
 
+漢字カーソル
+位置
+oがおかしい
+/で検索した後のddがおかしい
 --- end ---
 word completion at the end of visible line occurs bug
 v
