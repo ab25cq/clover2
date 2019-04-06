@@ -98,7 +98,7 @@ class ViClone version 4
                 line.delete(x, -1);
 
                 win.makeVisibleTexts();
-                win.fixCursorAndScrollTop(win.scrollTopY);
+                win.fixCursorAndScrollTop(win.scrollTopY, false);
                 win.modifiedText = true;
             }
         }
@@ -183,7 +183,7 @@ class ViClone version 4
                     }
                     
                     win.makeVisibleTexts();                     
-                    win.fixCursorAndScrollTop(win.scrollTopY);
+                    win.fixCursorAndScrollTop(win.scrollTopY, false);
                     win.modifiedText = true;
                 }
                 case ('t'.to_int) {

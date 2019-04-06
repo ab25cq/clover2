@@ -286,13 +286,9 @@ class ViClone version 5
                 win.moveCursor(y, x);
             } 
             elif(y < real_pos_y) {
-                i := 0;
-                for(i=real_pos_y; i>y; i--) {
-                    line = win.texts.items(i);
-                    line.setValue("");
-                }
+                win.texts.deleteWithRange(y+1, real_pos_y + 1); 
                 
-                line = win.texts.items(i);
+                line = win.texts.items(y);
                 
                 line.delete(x, -1);
                 win.makeVisibleTexts();
@@ -333,7 +329,7 @@ class ViClone version 5
                         line.delete(real_pos_x, -1);
     
                         win.makeVisibleTexts();                     
-                        win.fixCursorAndScrollTop(win.scrollTopY);
+                        win.fixCursorAndScrollTop(win.scrollTopY, false);
             
                         win.cursorX++;
                     } 
@@ -341,7 +337,7 @@ class ViClone version 5
                         line.delete(real_pos_x, x); 
     
                         win.makeVisibleTexts();                     
-                        win.fixCursorAndScrollTop(win.scrollTopY);
+                        win.fixCursorAndScrollTop(win.scrollTopY, false);
                     } 
                 }
                 case ('t'.to_int) {

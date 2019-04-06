@@ -259,7 +259,14 @@ class ViClone version 10
                 }
 
                 win.makeVisibleTexts(); 
-                win.moveCursor(win.visualModeStart, 0);
+                if(win.visualModeStart < win.visibleTextsPos.length())
+                {
+                    win.moveCursor(win.visualModeStart, 0);
+                }
+                else {
+                    win.moveCursor(win.visualModeStart-1, 0);
+                }
+                
                 finishVisualMode(); 
             }
             case ('>'.to_int) {

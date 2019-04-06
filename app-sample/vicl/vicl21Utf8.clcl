@@ -22,7 +22,7 @@ class ViCloneWindow version 13
 
         return (-1,-1)
     }
-    def fixCursorAndScrollTop(scrolltop_y_before:int):dynamic {
+    def fixCursorAndScrollTop(scrolltop_y_before:int, newline:bool=true):dynamic {
         if(visibleTexts.length() < MaxY -1 && cursorY >= visibleTexts.length()) 
         {
             cursorY = visibleTexts.length()-1;
@@ -70,21 +70,31 @@ class ViCloneWindow version 13
             cursorX = 0;
         }
         elif(line.length() == 0) {
-            if(cursorX > 0) {
+            if(newline) {
+                if(cursorX > 0) {
+                    cursorX = 0;
+                    cursorY++;
+                }
+            }
+            else {
                 cursorX = 0;
-                cursorY++;
             }
         }
-        elif(cursorX >= line.length()) {
+        elif(newline && cursorX >= line.length()) {
             cursorX = 0;
             cursorY++;
         }
 
         if(cursorX < 0) {
-            cursorY--;
-            if(cursorY >= 0) {
-                line := visibleTexts.items(cursorY);
-                cursorX = line.length() -1;
+            if(newline) {
+                cursorY--;
+                if(cursorY >= 0) {
+                    line := visibleTexts.items(cursorY);
+                    cursorX = line.length() -1;
+                }
+            }
+            else {
+                cursorX = 0;
             }
         }
 
@@ -100,7 +110,7 @@ class ViCloneWindow version 13
 
     def moveCursor(y:int, x:int):dynamic int {
         (y2,x2) := realPosToViewPos(y, x);
-
+        
         if(y2 >= 0 && y2 < visibleTexts.length())
         {
             (cursorY, cursorX) = realPosToViewPos(y, x);
@@ -2296,7 +2306,7 @@ class ViClone version 21
                                 x = 0;
                             }
                             else {
-                                x = line.length()-1;
+                                x = line.length();
                             }
                             break;
                         }
@@ -2322,7 +2332,7 @@ class ViClone version 21
                                 x = 0;
                             }
                             else {
-                                x = line.length()-1;
+                                x = line.length();
                             }
                             break;
                         }
@@ -2347,7 +2357,7 @@ class ViClone version 21
                                 x = 0;
                             }
                             else {
-                                x = line.length()-1;
+                                x = line.length();
                             }
                             break;
                         }
@@ -2373,7 +2383,7 @@ class ViClone version 21
                                 x = 0;
                             }
                             else {
-                                x = line.length()-1;
+                                x = line.length();
                             }
                             break;
                         }
@@ -2400,7 +2410,7 @@ class ViClone version 21
                                 x = 0;
                             }
                             else {
-                                x = line.length()-1;
+                                x = line.length();
                             }
                             break;
                         }
@@ -2566,15 +2576,23 @@ class ViClone version 21
         line := win.texts.items(y);
 
         spaces_num := line.scan(/^\s+/)?.items(0).length():0;
-
+        
         tails := "";
         if(!no_tails_getting) {
             tails = line.subString(x..-1);
             line.delete(x..-1);
         }
+        
+        spaces := " ".multiply(spaces_num);
+        spaces.append(tails);
+        win.texts.insert(y+1, spaces);
 
-        win.cursorX = spaces_num;
-        win.cursorY++;
+        win.makeVisibleTexts();
+        
+        (y2, x2) := win.realPosToViewPos(y+1, spaces_num);
+        
+        win.cursorX = x2;
+        win.cursorY = y2;
 
         if(win.cursorY >= win.MaxY-1) {
             (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
@@ -2592,14 +2610,7 @@ class ViClone version 21
             }
         }
         
-        spaces := " ".multiply(spaces_num);
-        spaces.append(tails);
-        win.texts.insert(y+1, spaces);
-
-        win.makeVisibleTexts();
-        win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
-
-        win.cursorX = spaces_num;
+        win.fixCursorAndScrollTop(win.scrollTopY, false);
     }
 
     def appendFEPString() {

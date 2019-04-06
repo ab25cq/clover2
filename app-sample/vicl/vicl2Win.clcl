@@ -71,7 +71,7 @@ class ViCloneWindow version 1
         }
     }
 
-    def fixCursorAndScrollTop(scrolltop_y_before:int):dynamic {
+    def fixCursorAndScrollTop(scrolltop_y_before:int, newline:bool =true):dynamic {
         if(visibleTexts.length() < MaxY -1 && cursorY >= visibleTexts.length()) 
         {
             cursorY = visibleTexts.length()-1;

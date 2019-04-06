@@ -3,37 +3,10 @@ search mode in visual mode
 
 .の繰返し
 
-行頭
-でc-w
+/入力時にC-w
 
-漢字カーソル
-位置
-oがおかしい
-/で検索した後のddがおかしい
+ヴィジュアルモード中に/で検索
+
+ビィジュアルモード複数行のときおかしい
+複数行ある行ばかりだとzzがおかしい
 --- end ---
-word completion at the end of visible line occurs bug
-v
-Path expression completion
-[[
-#
-*
-
-moving directory
-
-ma `a
-``
-
-local variable completion
-
-inner method completion
-
-shell mode completion
-
-file name completion
-
-Toplevel Command name completion
-Command Name completion with cache
-brace checking blink
-t
-dt
-.

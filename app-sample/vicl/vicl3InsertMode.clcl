@@ -258,11 +258,9 @@ class ViClone version 3
         spaces := " ".multiply(spaces_num);
         spaces.append(tails);
         win.texts.insert(y+1, spaces);
-
+        
         win.makeVisibleTexts();
         win.fixCursorAndScrollTopOnInsertMode(win.scrollTopY);
-
-        win.cursorX = spaces_num;
     }
 
     def insertMode(key:int):dynamic {
