@@ -415,8 +415,12 @@ inherit System
     
     def wborder(win:pointer@WINDOW, ls:char, rs:char, ts:char, bs:char, tl:char, tr:char, bl:char, br:char): native throws Exception;
     def border(ls:char, rs:char, ts:char, bs:char, tl:char, tr:char, bl:char, br:char): native throws Exception;
+    def idlok(win:pointer@WINDOW, flag:bool): native static int throws Exception;
+    def idcok(win:pointer@WINDOW, flag:bool): native static;
+    def clearok(win:pointer@WINDOW, flag:bool): native;
+    def immedok(win:pointer@WINDOW, flag:bool): native;
+    def leaveok(win:pointer@WINDOW, flag:bool): native;
 /*
-    def immedok
     def attr_get
     def attr_off
     def attr_on
@@ -425,7 +429,6 @@ inherit System
     def bkgdset(c:char);
     def can_change_color():bool;
     def chgat
-    def clearok(win:pointer@WINDOW, flag:bool)
     def clrtobot
     def clrtoeol
     def color_content
@@ -457,8 +460,6 @@ inherit System
     def has_ic
     def has_il
     def hline
-    def idcok
-    def idlok
     def inch
     def inchnstr
     def inchstr
@@ -478,7 +479,6 @@ inherit System
     def keyname
     def keypad
     def killchar
-    def leaveok
     def longname
     def meta
     def move
@@ -535,7 +535,6 @@ inherit System
     def nodelay
     def noecho
     def nonl
-    def noraw
     def notimeout
     def overlay
     def overwrite
@@ -929,8 +928,6 @@ inherit System
     def box(win_ptr:pointer@WINDOW, vetical_char:char, horizonal_char:char): native static throws Exception;
     def isendwin(): native static bool;
     def clear(): native static int throws Exception;
-    def idlok(flag:bool): native static int throws Exception;
-    def idcok(flag:bool): native static;
     def erase(): native static int throws Exception;
     def attron(attribute:int): static native throws Exception;
     def attroff(attribute:int): static native throws Exception;

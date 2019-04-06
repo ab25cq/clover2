@@ -2413,6 +2413,7 @@ void class_system_init();
 BOOL System_signal2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL fd_set_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
+BOOL System_leaveok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_FD_SET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_beep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2425,6 +2426,7 @@ BOOL System_select(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_clearok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_init_pair(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

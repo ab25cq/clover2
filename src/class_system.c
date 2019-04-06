@@ -7398,24 +7398,28 @@ BOOL System_erase(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
 BOOL System_idcok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
-    CLVALUE* flag = lvar;
+    CLVALUE* win = lvar;
+    CLVALUE* flag = lvar + 1;
 
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
     BOOL flag_value = flag->mBoolValue;
 
     /// go ///
-    idcok(stdscr, flag_value);
+    idcok(win_value, flag_value);
 
     return TRUE;
 }
 
 BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
+    CLVALUE* win = lvar;
     CLVALUE* flag = lvar;
 
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
     BOOL flag_value = flag->mBoolValue;
 
     /// go ///
-    int result = idlok(stdscr, flag_value);
+    int result = idlok(win_value, flag_value);
 
     if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "idlok(3) is error.");
@@ -7424,6 +7428,44 @@ BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_clearok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* flag = lvar;
+
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    BOOL flag_value = flag->mBoolValue;
+
+    /// go ///
+    int result = clearok(win_value, flag_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clearok(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_leaveok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* flag = lvar;
+
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    BOOL flag_value = flag->mBoolValue;
+
+    /// go ///
+    int result = leaveok(win_value, flag_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "leaveok(3) is error.");
+        return FALSE;
+    }
 
     return TRUE;
 }

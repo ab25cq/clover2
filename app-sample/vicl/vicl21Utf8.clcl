@@ -2458,31 +2458,12 @@ class ViClone version 21
         }
 
         while(!vicl.endOfAplication) {
-            if(clear_flag) {
-                erase();
-                vicl.clearStatusLine();
-                vicl.dirView();
-                vicl.view();
-                vicl.statusView();
-
-                idcok(false);
-                idlok(false);
-                clear();
-                vicl.clearStatusLine();
-                vicl.dirView();
-                vicl.view();
-                vicl.statusView();
-                refresh();
-            }
-            else {
-                #vicl.clearWithoutBlink();
-                erase();
-                vicl.clearStatusLine();
-                vicl.dirView();
-                vicl.view();
-                vicl.statusView();
-                refresh();
-            }
+            erase();
+            vicl.clearStatusLine();
+            vicl.dirView();
+            vicl.view();
+            vicl.statusView();
+            refresh();
 
             read_ok = mask.clone();
 

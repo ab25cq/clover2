@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.3.4
+
+    Continue to start curses library support.
+
 version 10.3.3
 
     Continue to start curses library support.

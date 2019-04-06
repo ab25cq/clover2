@@ -1,4 +1,8 @@
 
+clover2 (10.3.4-1) unstable; urgency=medium
+
+    * Continue to start curses library support.
+    
 clover2 (10.3.3-1) unstable; urgency=medium
 
     * Continue to start curses library support.
