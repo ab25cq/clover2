@@ -2221,6 +2221,7 @@ CLObject create_char(wchar_t value, sVMInfo* info);
 CLObject create_bool(BOOL value, sVMInfo* info);
 
 /// class_system.c ///
+BOOL System_start_color(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_exit(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_assert(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2414,6 +2415,9 @@ BOOL fd_set_allocSize(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 BOOL System_FD_ISSET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_FD_SET(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_beep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_def_prog_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_def_shell_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_FD_CLR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_FD_ZERO(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
@@ -2423,9 +2427,14 @@ BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_init_pair(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_COLOR_PAIR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_GC_malloc(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_wborder(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_border(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
@@ -2435,6 +2444,8 @@ BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_addch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
+BOOL System_addstr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 BOOL System_echo(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.3.3
+
+    Continue to start curses library support.
+
 version 10.3.2
 
     normal block local variable bug.

@@ -1,4 +1,8 @@
 
+clover2 (10.3.3-1) unstable; urgency=medium
+
+    * Continue to start curses library support.
+
 clover2 (10.3.2-1) unstable; urgency=medium
 
     * normal block local variable bug. The case of `for(i:=0; i<5; i++) {}`,

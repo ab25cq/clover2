@@ -5518,276 +5518,330 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef A_UNDERLINE
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+238].mValue.mIntValue = A_UNDERLINE;
 #endif
+#ifdef A_ATTRIBUTES
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+239].mValue.mIntValue = A_ATTRIBUTES;
+#endif
+#ifdef A_ALTCHARSET
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+240].mValue.mIntValue = A_ALTCHARSET;
+#endif
+#ifdef A_HORIZONTAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+241].mValue.mIntValue = A_HORIZONTAL;
+#endif
+#ifdef A_LEFT
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+242].mValue.mIntValue = A_LEFT;
+#endif
+#ifdef A_LOW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+243].mValue.mIntValue = A_LOW;
+#endif
+#ifdef A_TOP
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+244].mValue.mIntValue = A_TOP;
+#endif
+#ifdef A_VERTICAL
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+245].mValue.mIntValue = A_VERTICAL;
+#endif
+#ifdef A_ITALIC
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+246].mValue.mIntValue = A_ITALIC;
+#endif
+#ifdef COLOR_BLACK
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+247].mValue.mIntValue = COLOR_BLACK;
+#endif
+#ifdef COLOR_RED
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+248].mValue.mIntValue = COLOR_RED;
+#endif
+#ifdef COLOR_GREEN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+249].mValue.mIntValue = COLOR_GREEN;
+#endif
+#ifdef COLOR_YELLOW
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+250].mValue.mIntValue = COLOR_YELLOW;
+#endif
+#ifdef COLOR_BLUE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+251].mValue.mIntValue = COLOR_BLUE;
+#endif
+#ifdef COLOR_MAGENTA
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+252].mValue.mIntValue = COLOR_MAGENTA;
+#endif
+#ifdef COLOR_CYAN
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+253].mValue.mIntValue = COLOR_CYAN;
+#endif
+#ifdef COLOR_WHITE
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+254].mValue.mIntValue = COLOR_WHITE;
+#endif
+
+
+
+
+
+
 #ifdef KEY_DOWN
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+239].mValue.mIntValue = KEY_DOWN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+255].mValue.mIntValue = KEY_DOWN;
 #endif
 #ifdef KEY_UP
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+240].mValue.mIntValue = KEY_UP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+256].mValue.mIntValue = KEY_UP;
 #endif
 #ifdef KEY_LEFT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+241].mValue.mIntValue = KEY_LEFT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+257].mValue.mIntValue = KEY_LEFT;
 #endif
 #ifdef KEY_RIGHT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+242].mValue.mIntValue = KEY_RIGHT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+258].mValue.mIntValue = KEY_RIGHT;
 #endif
 #ifdef KEY_HOME
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+243].mValue.mIntValue = KEY_HOME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+259].mValue.mIntValue = KEY_HOME;
 #endif
 #ifdef KEY_BACKSPACE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+244].mValue.mIntValue = KEY_BACKSPACE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+260].mValue.mIntValue = KEY_BACKSPACE;
 #endif
 #ifdef KEY_DL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+245].mValue.mIntValue = KEY_DL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+261].mValue.mIntValue = KEY_DL;
 #endif
 #ifdef KEY_IL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+246].mValue.mIntValue = KEY_IL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+262].mValue.mIntValue = KEY_IL;
 #endif
 #ifdef KEY_DC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+247].mValue.mIntValue = KEY_DC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+263].mValue.mIntValue = KEY_DC;
 #endif
 #ifdef KEY_IC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+248].mValue.mIntValue = KEY_IC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+264].mValue.mIntValue = KEY_IC;
 #endif
 #ifdef KEY_EIC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+249].mValue.mIntValue = KEY_EIC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+265].mValue.mIntValue = KEY_EIC;
 #endif
 #ifdef KEY_CLEAR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+250].mValue.mIntValue = KEY_CLEAR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+266].mValue.mIntValue = KEY_CLEAR;
 #endif
 #ifdef KEY_EOS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+251].mValue.mIntValue = KEY_EOS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+267].mValue.mIntValue = KEY_EOS;
 #endif
 #ifdef KEY_EOL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+252].mValue.mIntValue = KEY_EOL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+268].mValue.mIntValue = KEY_EOL;
 #endif
 #ifdef KEY_SF
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+253].mValue.mIntValue = KEY_SF;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+269].mValue.mIntValue = KEY_SF;
 #endif
 #ifdef KEY_SR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+254].mValue.mIntValue = KEY_SR;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+270].mValue.mIntValue = KEY_SR;
 #endif
 #ifdef KEY_NPAGE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+255].mValue.mIntValue = KEY_NPAGE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+271].mValue.mIntValue = KEY_NPAGE;
 #endif
 #ifdef KEY_PPAGE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+256].mValue.mIntValue = KEY_PPAGE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+272].mValue.mIntValue = KEY_PPAGE;
 #endif
 #ifdef KEY_STAB
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+257].mValue.mIntValue = KEY_STAB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+273].mValue.mIntValue = KEY_STAB;
 #endif
 #ifdef KEY_CTAB
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+258].mValue.mIntValue = KEY_CTAB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+274].mValue.mIntValue = KEY_CTAB;
 #endif
 #ifdef KEY_CATAB
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+259].mValue.mIntValue = KEY_CATAB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+275].mValue.mIntValue = KEY_CATAB;
 #endif
 #ifdef KEY_ENTER
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+260].mValue.mIntValue = KEY_ENTER;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+276].mValue.mIntValue = KEY_ENTER;
 #endif
 #ifdef KEY_PRINT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+261].mValue.mIntValue = KEY_PRINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+277].mValue.mIntValue = KEY_PRINT;
 #endif
 #ifdef KEY_LL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+262].mValue.mIntValue = KEY_LL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+278].mValue.mIntValue = KEY_LL;
 #endif
 #ifdef KEY_A1
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+263].mValue.mIntValue = KEY_A1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+279].mValue.mIntValue = KEY_A1;
 #endif
 #ifdef KEY_A3
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+264].mValue.mIntValue = KEY_A3;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+280].mValue.mIntValue = KEY_A3;
 #endif
 #ifdef KEY_B2
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+265].mValue.mIntValue = KEY_B2;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+281].mValue.mIntValue = KEY_B2;
 #endif
 #ifdef KEY_C1
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+266].mValue.mIntValue = KEY_C1;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+282].mValue.mIntValue = KEY_C1;
 #endif
 #ifdef KEY_C3
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+267].mValue.mIntValue = KEY_C3;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+283].mValue.mIntValue = KEY_C3;
 #endif
 #ifdef KEY_BTAB
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+268].mValue.mIntValue = KEY_BTAB;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+284].mValue.mIntValue = KEY_BTAB;
 #endif
 #ifdef KEY_BEG
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+269].mValue.mIntValue = KEY_BEG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+285].mValue.mIntValue = KEY_BEG;
 #endif
 #ifdef KEY_CANCEL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+270].mValue.mIntValue = KEY_CANCEL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+286].mValue.mIntValue = KEY_CANCEL;
 #endif
 #ifdef KEY_CLOSE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+271].mValue.mIntValue = KEY_CLOSE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+287].mValue.mIntValue = KEY_CLOSE;
 #endif
 #ifdef KEY_COMMAND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+272].mValue.mIntValue = KEY_COMMAND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+288].mValue.mIntValue = KEY_COMMAND;
 #endif
 #ifdef KEY_COPY
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+273].mValue.mIntValue = KEY_COPY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+289].mValue.mIntValue = KEY_COPY;
 #endif
 #ifdef KEY_CREATE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+274].mValue.mIntValue = KEY_CREATE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+290].mValue.mIntValue = KEY_CREATE;
 #endif
 #ifdef KEY_END
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+275].mValue.mIntValue = KEY_END;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+291].mValue.mIntValue = KEY_END;
 #endif
 #ifdef KEY_EXIT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+276].mValue.mIntValue = KEY_EXIT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+292].mValue.mIntValue = KEY_EXIT;
 #endif
 #ifdef KEY_FIND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+277].mValue.mIntValue = KEY_FIND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+293].mValue.mIntValue = KEY_FIND;
 #endif
 #ifdef KEY_HELP
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+278].mValue.mIntValue = KEY_HELP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+294].mValue.mIntValue = KEY_HELP;
 #endif
 #ifdef KEY_MARK
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+279].mValue.mIntValue = KEY_MARK;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+295].mValue.mIntValue = KEY_MARK;
 #endif
 #ifdef KEY_MESSAGE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+280].mValue.mIntValue = KEY_MESSAGE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+296].mValue.mIntValue = KEY_MESSAGE;
 #endif
 #ifdef KEY_MOVE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+281].mValue.mIntValue = KEY_MOVE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+297].mValue.mIntValue = KEY_MOVE;
 #endif
 #ifdef KEY_NEXT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+282].mValue.mIntValue = KEY_NEXT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+298].mValue.mIntValue = KEY_NEXT;
 #endif
 #ifdef KEY_OPEN
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+283].mValue.mIntValue = KEY_OPEN;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+299].mValue.mIntValue = KEY_OPEN;
 #endif
 #ifdef KEY_OPTIONS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+284].mValue.mIntValue = KEY_OPTIONS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+300].mValue.mIntValue = KEY_OPTIONS;
 #endif
 #ifdef KEY_PREVIOUS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+285].mValue.mIntValue = KEY_PREVIOUS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+301].mValue.mIntValue = KEY_PREVIOUS;
 #endif
 #ifdef KEY_REDO
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+286].mValue.mIntValue = KEY_REDO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+302].mValue.mIntValue = KEY_REDO;
 #endif
 #ifdef KEY_REFERENCE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+287].mValue.mIntValue = KEY_REFERENCE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+303].mValue.mIntValue = KEY_REFERENCE;
 #endif
 #ifdef KEY_REFRESH
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+288].mValue.mIntValue = KEY_REFRESH;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+304].mValue.mIntValue = KEY_REFRESH;
 #endif
 #ifdef KEY_REPLACE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+289].mValue.mIntValue = KEY_REPLACE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+305].mValue.mIntValue = KEY_REPLACE;
 #endif
 #ifdef KEY_RESTART
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+290].mValue.mIntValue = KEY_RESTART;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+306].mValue.mIntValue = KEY_RESTART;
 #endif
 #ifdef KEY_RESUME
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+291].mValue.mIntValue = KEY_RESUME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+307].mValue.mIntValue = KEY_RESUME;
 #endif
 #ifdef KEY_SAVE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+292].mValue.mIntValue = KEY_SAVE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+308].mValue.mIntValue = KEY_SAVE;
 #endif
 #ifdef KEY_SBEG
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+293].mValue.mIntValue = KEY_SBEG;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+309].mValue.mIntValue = KEY_SBEG;
 #endif
 #ifdef KEY_SCANCEL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+294].mValue.mIntValue = KEY_SCANCEL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+310].mValue.mIntValue = KEY_SCANCEL;
 #endif
 #ifdef KEY_SCOMMAND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+295].mValue.mIntValue = KEY_SCOMMAND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+311].mValue.mIntValue = KEY_SCOMMAND;
 #endif
 #ifdef KEY_SCOPY
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+296].mValue.mIntValue = KEY_SCOPY;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+312].mValue.mIntValue = KEY_SCOPY;
 #endif
 #ifdef KEY_SCREATE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+297].mValue.mIntValue = KEY_SCREATE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+313].mValue.mIntValue = KEY_SCREATE;
 #endif
 #ifdef KEY_SDC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+298].mValue.mIntValue = KEY_SDC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+314].mValue.mIntValue = KEY_SDC;
 #endif
 #ifdef KEY_SDL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+299].mValue.mIntValue = KEY_SDL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+315].mValue.mIntValue = KEY_SDL;
 #endif
 #ifdef KEY_SELECT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+300].mValue.mIntValue = KEY_SELECT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+316].mValue.mIntValue = KEY_SELECT;
 #endif
 #ifdef KEY_SEND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+301].mValue.mIntValue = KEY_SEND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+317].mValue.mIntValue = KEY_SEND;
 #endif
 #ifdef KEY_SEOL
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+302].mValue.mIntValue = KEY_SEOL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+318].mValue.mIntValue = KEY_SEOL;
 #endif
 #ifdef KEY_SEXIT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+303].mValue.mIntValue = KEY_SEXIT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+319].mValue.mIntValue = KEY_SEXIT;
 #endif
 #ifdef KEY_SFIND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+304].mValue.mIntValue = KEY_SFIND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+320].mValue.mIntValue = KEY_SFIND;
 #endif
 #ifdef KEY_SHELP
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+305].mValue.mIntValue = KEY_SHELP;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+321].mValue.mIntValue = KEY_SHELP;
 #endif
 #ifdef KEY_SHOME
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+306].mValue.mIntValue = KEY_SHOME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+322].mValue.mIntValue = KEY_SHOME;
 #endif
 #ifdef KEY_SIC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+307].mValue.mIntValue = KEY_SIC;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+323].mValue.mIntValue = KEY_SIC;
 #endif
 #ifdef KEY_SLEFT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+308].mValue.mIntValue = KEY_SLEFT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+324].mValue.mIntValue = KEY_SLEFT;
 #endif
 #ifdef KEY_SMESSAGE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+309].mValue.mIntValue = KEY_SMESSAGE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+325].mValue.mIntValue = KEY_SMESSAGE;
 #endif
 #ifdef KEY_SMOVE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+310].mValue.mIntValue = KEY_SMOVE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+326].mValue.mIntValue = KEY_SMOVE;
 #endif
 #ifdef KEY_SNEXT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+311].mValue.mIntValue = KEY_SNEXT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mIntValue = KEY_SNEXT;
 #endif
 #ifdef KEY_SOPTIONS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+312].mValue.mIntValue = KEY_SOPTIONS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mIntValue = KEY_SOPTIONS;
 #endif
 #ifdef KEY_SPREVIOUS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+313].mValue.mIntValue = KEY_SPREVIOUS;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+329].mValue.mIntValue = KEY_SPREVIOUS;
 #endif
 #ifdef KEY_SPRINT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+314].mValue.mIntValue = KEY_SPRINT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+330].mValue.mIntValue = KEY_SPRINT;
 #endif
 #ifdef KEY_SREDO
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+315].mValue.mIntValue = KEY_SREDO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+331].mValue.mIntValue = KEY_SREDO;
 #endif
 #ifdef KEY_SREPLACE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+316].mValue.mIntValue = KEY_SREPLACE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+332].mValue.mIntValue = KEY_SREPLACE;
 #endif
 #ifdef KEY_SRIGHT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+317].mValue.mIntValue = KEY_SRIGHT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+333].mValue.mIntValue = KEY_SRIGHT;
 #endif
 #ifdef KEY_SRSUME
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+318].mValue.mIntValue = KEY_SRSUME;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+334].mValue.mIntValue = KEY_SRSUME;
 #endif
 #ifdef KEY_SSAVE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+319].mValue.mIntValue = KEY_SSAVE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+335].mValue.mIntValue = KEY_SSAVE;
 #endif
 #ifdef KEY_SSUSPEND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+320].mValue.mIntValue = KEY_SSUSPEND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+336].mValue.mIntValue = KEY_SSUSPEND;
 #endif
 #ifdef KEY_SUNDO
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+321].mValue.mIntValue = KEY_SUNDO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+337].mValue.mIntValue = KEY_SUNDO;
 #endif
 #ifdef KEY_SUSPEND
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+322].mValue.mIntValue = KEY_SUSPEND;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+338].mValue.mIntValue = KEY_SUSPEND;
 #endif
 #ifdef KEY_UNDO
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+323].mValue.mIntValue = KEY_UNDO;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+339].mValue.mIntValue = KEY_UNDO;
 #endif
 #ifdef KEY_MOUSE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+324].mValue.mIntValue = KEY_MOUSE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+340].mValue.mIntValue = KEY_MOUSE;
 #endif
 #ifdef KEY_RESIZE
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+325].mValue.mIntValue = KEY_RESIZE;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+341].mValue.mIntValue = KEY_RESIZE;
 #endif
 #ifdef KEY_EVENT
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+326].mValue.mIntValue = KEY_EVENT;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+342].mValue.mIntValue = KEY_EVENT;
 #endif
 #ifdef KEY_MAX
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+327].mValue.mIntValue = KEY_MAX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+343].mValue.mIntValue = KEY_MAX;
 #endif
-    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+344].mValue.mPointerValue = (char*)stdscr;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+329)
+#define LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS (LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+345)
 
     return TRUE;
 }
@@ -7188,8 +7242,6 @@ BOOL System_ioctl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-#ifdef HAVE_NCURSESW_H
-
 BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     WINDOW* result = initscr();
@@ -7201,7 +7253,7 @@ BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     sCLClass* system = get_class("System", FALSE);
 
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+328].mValue.mPointerValue = (char*)stdscr;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+344].mValue.mPointerValue = (char*)stdscr;
 
     (*stack_ptr)->mPointerValue = (char*)result;
     (*stack_ptr)++;
@@ -7375,6 +7427,217 @@ BOOL System_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+
+BOOL System_addch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+
+    /// Clover to C ///
+    wchar_t c_value = c->mCharValue;
+    
+    /// go ///
+    int result = addch(c_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "addch(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_addstr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* str = lvar;
+
+    /// Clover to C ///
+    char* str_value = ALLOC string_object_to_char_array(str->mObjectValue);
+    
+    /// go ///
+    int result = addstr(str_value);
+
+    if(result == ERR) {
+        MFREE(str_value);
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "addstr(3) is error.");
+        
+        return FALSE;
+    }
+    
+    MFREE(str_value);
+
+    return TRUE;
+}
+
+BOOL System_start_color(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = start_color();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "addstr(3) is error.");
+        
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_init_pair(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* n = lvar;
+    CLVALUE* fg = lvar + 1;
+    CLVALUE* bg = lvar + 2;
+    
+    /// Clover to C ///
+    short n_value = n->mShortValue;
+    short fg_value = fg->mShortValue;
+    short bg_value = bg->mShortValue;
+    
+    /// go ///
+    int result = init_pair(n_value, fg_value, bg_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "init_pair(3) is error.");
+        
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_COLOR_PAIR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* n = lvar;
+    
+    /// Clover to C ///
+    short n_value = n->mIntValue;
+    
+    /// go ///
+    int result = COLOR_PAIR(n_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+    
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_border(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ls = lvar;
+    CLVALUE* rs = lvar + 1;
+    CLVALUE* ts = lvar + 2;
+    CLVALUE* bs = lvar + 3;
+    CLVALUE* tl = lvar + 4;
+    CLVALUE* tr = lvar + 5;
+    CLVALUE* bl = lvar + 6;
+    CLVALUE* br = lvar + 7;
+    
+    /// Clover to C ///
+    int ls_value = ls->mIntValue;
+    int rs_value = rs->mIntValue;
+    int ts_value = ts->mIntValue;
+    int bs_value = bs->mIntValue;
+    int tl_value = tl->mIntValue;
+    int tr_value = tr->mIntValue;
+    int bl_value = bl->mIntValue;
+    int br_value = br->mIntValue;
+    
+    /// go ///
+    int result = border(ls_value, rs_value, ts_value, bs_value, tl_value, tr_value, bl_value, br_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_wborder(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* ls = lvar + 1;
+    CLVALUE* rs = lvar + 2;
+    CLVALUE* ts = lvar + 3;
+    CLVALUE* bs = lvar + 4;
+    CLVALUE* tl = lvar + 5;
+    CLVALUE* tr = lvar + 6;
+    CLVALUE* bl = lvar + 7;
+    CLVALUE* br = lvar + 8;
+    
+    /// Clover to C ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int ls_value = ls->mIntValue;
+    int rs_value = rs->mIntValue;
+    int ts_value = ts->mIntValue;
+    int bs_value = bs->mIntValue;
+    int tl_value = tl->mIntValue;
+    int tr_value = tr->mIntValue;
+    int bl_value = bl->mIntValue;
+    int br_value = br->mIntValue;
+    
+    /// go ///
+    int result = wborder(win_value, ls_value, rs_value, ts_value, bs_value, tl_value, tr_value, bl_value, br_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_beep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = beep();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_def_prog_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = def_prog_mode();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_def_shell_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = def_shell_mode();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
 
 BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -7781,202 +8044,6 @@ BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
-
-#else
-
-BOOL System_initscr(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_endwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_move(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_printw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_refresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_box(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_isendwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_clear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_attron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_attroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_attrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_echo(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_noecho(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_cbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_nocbreak(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_raw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_noraw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_getch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_newwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_delwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_mvwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_wrefresh(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_wclear(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_touchwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_wmove(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_wprintw(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_getmaxx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_getmaxy(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_setEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-BOOL System_getEscapeDelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "This method is not implemented. Requiring cursesw library ");
-    return FALSE;
-}
-
-#endif
 
 BOOL System_isalpha(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -8509,4 +8576,3 @@ BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
-
