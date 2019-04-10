@@ -404,6 +404,9 @@ inherit System
     COLOR_CYAN:static int;
     COLOR_WHITE:static int;
     
+    typedef attr_t uint;
+    typedef chtype uint;
+    
     def addch(c:char): native throws Exception;
     def addstr(str:String):native throws Exception;
     def start_color():native throws Exception;
@@ -420,370 +423,98 @@ inherit System
     def clearok(win:pointer@WINDOW, flag:bool): native;
     def immedok(win:pointer@WINDOW, flag:bool): native;
     def leaveok(win:pointer@WINDOW, flag:bool): native;
-/*
-    def attr_get
-    def attr_off
-    def attr_on
-    def atter_set
-    def bkgd(c:char);
-    def bkgdset(c:char);
-    def can_change_color():bool;
-    def chgat
-    def clrtobot
-    def clrtoeol
-    def color_content
-    def color_set
+    def is_cleared(win:pointer@WINDOW):native bool;
+    def is_idcok(win:pointer@WINDOW): native bool;
+    def is_islok(win:pointer@WINDOW): native bool;
+    def is_immedok(win:pointer@WINDOW): native bool;
+    def is_keypad(win:pointer@WINDOW): native bool;
+    def is_leaveok(win:pointer@WINDOW): native bool;
+    def is_nodelay(win:pointer@WINDOW): native bool;
+    def is_notimeout(win:pointer@WINDOW): native bool;
+    def is_pad(win:pointer@WINDOW): native bool;
+    def is_scrolok(win:pointer@WINDOW): native bool;
+    def is_subwin(win:pointer@WINDOW): native bool;
+    def is_syncok(win:pointer@WINDOW): native bool;
+    def wgetparent(win:pointer@WINDOW): native pointer@WINDOW;
+    def wgetdelay(win:pointer@WINDOW): native int;
+    def wgetscrreg(win:pointer@WINDOW, top:pointer@int, bottom:pointer@int): native;
     
-    def delay_output(
-    def delch()
-    def delscreen()
-    def delwin(win:pointer@WINDOW)
-    def deleteln
-    def derwin(
-    def doupdate
-    def dupwin
-    def echo
-    def echochar
-    def erase
-    def endwin
-    def erasechar
-    def filter
-    def flash
-    def flushinp
-    def getbkgd(win:pointer)
-    def getch
-    def getnstr
-    def getstr
-    def getwin
-    def halfdelay
-    def has_colors
-    def has_ic
-    def has_il
-    def hline
-    def inch
-    def inchnstr
-    def inchstr
-    def initscr
-    def init_color
-    def innstr
-    def insch
-    def insdelln
-    def insertln
-    def insnstr
-    def insstr
-    def instr
-    def intrflush
-    def isendwin
-    def is_linetouched
-    def is_wintouched
-    def keyname
-    def keypad
-    def killchar
-    def longname
-    def meta
-    def move
-    def mvaddch
-    def mvaddchnstr
-    def mvaddchstr
-    def mvaddnstr
-    def mvaddstr
-    def mvchgat
-    def mvcur
-    def mvdelch
-    def mvderwin
-    def mvgetch
-    def mvgetnstr
-    def mvhline
-    def mvinch
-    def mvinchnstr
-    def mvinchstr
-    def mvinnstr
-    def mvinsch
-    def mvinsnstr
-    def mvinsstr
-    def mvinstr
-    def mvprintw
-    def mvscanw
-    def mvvline
-    def mvwaddch
-    def mvwaddchnstr
-    def mvwaddchstr
-    def mvwaddnstr
-    def mvwaddstr
-    def mvwchgat
-    def mvwdelch
-    def mvwgetch
-    def mvwgetnstr
-    def mvwgetstr
-    def mvwhline
-    def mvwin
-    def mvwinchnstr
-    def mvinchstr
-    def mvwinnstr
-    def mvwinsch
-    def mvwinsnstr
-    def mvwinsstr
-    def mvwinstr
-    def mvwprintw
-    def mvwscanw
-    def mvwvline
-    def newpad
-    def newterm
-    def newwin
-    def nl
-    def nocbreak
-    def nodelay
-    def noecho
-    def nonl
-    def notimeout
-    def overlay
-    def overwrite
-    def pair_content
-    def PAIR_NUMBER
-    def pechochar
-    def pnoutrefresh
-    def prefresh
-    def pwrintw
-    def putwin
-    def qiflush
-    def raw
-    de redrawwin
-    def resetty
-    def reset_prog_mode;
-    def reset_shell_mode
-    def ripoffline
-    def savetty
-    def scanw
-    def scr_dump
-    def scr_init
-    def scrl
-    def scroll
-    def scrollok
-    def scr_restore
-    def scr_set
-    def setscrreg
-    def set_term
-    def slk_attoff
-    def slk_attron
-    def slk_attr_on;
-    def slk_attrset;
-    def slk_attr;
-    def slk_attr_set
-    def slk_clear
-    def slk_color
-    def slk_init
-    def slk_label
-    def standout
-    def standend
-    def subpad
-    def subwin
-    def syncok
-    def termattrs
-    def termname
-    def timtout
-    def touchline
-    def touchwin
-    def typeahead
-    def ungetch
-    def untouchwin
-    def use_env
-    def use_tioctl
-    def vidattr
-    def vidputs
-    def vline
-    def vwprintw
-    def vw_printw
-    def vwscanw
-    def vw_scanw
-    def waddch
-    def waddchnstr
-    def waddchstr
-    def waddnstr
-    def waddstr
-    def wattron
-    def wattroff
-    def wattr_get
-    def wattr_on
-    def wattr_off
-    def wattr_set
-    def wbkgd
-    def wbkgdset
-    def wchgat
-    def wclear
-    def wclrtobot
-    def wclrtoeol
-    def wcolor_set
-    def wcursyncup
-    def wdelch
-    def wdeleteln
-    def wechochar
-    def werase
-    def wgetch
-    def wgetnstr
-    def wgetstr
-    def whline
-    def winch
-    def winchstr
-    def winnstr
-    def winsch
-    def winsdelln
-    def winsertln
-    def winsnstr
-    def winsstr
-    def winstr
-    def wnoutrefresh
-    def wredrawln
-    def wscanw
-    def wscrl
-    def wsetscrreg
-    def wstandout
-    def wstandend
-    def wsyncdown
-    def wsyncup
-    def wtimeout
-    def wtouchln
-    def wvline
-    def is_linetouched
-    def getattrs
-    def getcurx
-    def getcury
-    def getbegx
-    def getbegy
-    def getmaxxx
-    def getmxy
-    def getparx
-    def getpary
-    def keybound
-    def is_term_resized
-    def cursees_version
-    def alloc_pair
-    def assume_default_colors
-    def define_key
-    def get_escdelay
-    def keyok
-    def reset_color_pairs
-    def resize_term
-    def resieterm
-    def set_escdelya
-    def set_tabsize
-    def use_default_colors
-    def use_extended_name
-    def uset_lagacy_coding
-    def use_screen
-    def uset_window
-    def wresize
-    def nofilter
-    def wgetparent
-    def is_cleared
-    def is_idcok
-    def is_islok
-    def is_immedok
-    def is_keypad
-    def is_leaveok
-    def is_nodelay
-    def is_pad
-    def is_scrollok
-    def is_subwin
-    def is_syncok
-    def wgetdelay
-    def wetscrreg
-    def getyx
-    def getbegyx
-    def getmaxyx
-    def getparyx
-    def getsyx
-    def setsyx
-    def wgetstr
-    def getnstr
-    def setterm
-    def fixterm
-    def resetterm
-    def saveterm
-    def crmode
-    def nocrmode
-    def gettmode
-    def getattrs
-    def getcurx
-    def getcury
-    def getbegx
-    def getbegy
-    def getmaxx
-    def getmaxy
-    def getparx
-    def getpary
-    def wattrset
-    def scroll
-    def touchwin
-    def touchline
-    def untouchwin
-    def border
-    def hline
-    def vline
-    def winstr
-    def winchstr
-    def winsstr
-    def redrawwin
-    def waddstr
-    def waddchstr
-    def PAIR_NUMBER
-    def addch
-    def addstr
-    dfe attr_get
-    def attr_off
-    def attr_on
-    def attr_set
-    def attroff
-    def attron
-    def attrset
-    def bkgd
-    def bkgdset
-    def chgat
-    def clear
-    def clrtobot
-    def clrtoeol
-    def color_set
-    def delch
-    def deleteln
-    def echochar
-    def erase
-    def getch
-    def getstr(
-    def inch
-    def inchstr
-    def insch
-    def insdelln
-    def insertln
-    def insnstr
-    def insstr
-    def instr
-    def move
-    def scl
-    def setscrreg
-    def standend
-    def standout
-    def timeout
-    def wdeleteln
-    def winsertln
-    def is_cleared
-    def is_idcok
-    def is_idlok
-    def is_immedok
-    def curscr
-    def newscr
-    def stdscr
-    def ttytype
-    def COLORS
-    def COLOR_PAIRS
-    def COLS
-    def ESCDELAY
-    def LINES
-    def TABSIZE
-*/
+    def clrtobot(): native;
+    def wclrtobot(win:pointer@WINDOW): native;
+    def clrtoeol(): native;
+    def wclrtoeol(win:pointer@WINDOW): native;
+    def werase(win:pointer@WINDOW): native;
     
+    def resetty(): native;
+    def savetty(): native;
+    def reset_prog_mode(): native;
+    def reset_shell_mode():native;
+    def getsyx(y:int, x:int):native;
+    def setsyx(y:int, x:int):native;
+    def curs_set(visibility:bool):native int;
+    def napms(ms:int): native;
+    
+    def flash(): native;
+    
+    def can_change_color():native bool;
+    def has_colors(): native bool;
+    def init_color(pair:short, r:short, g:short, b:short): native;
+    def color_content(color:short, r:pointer@short, g:pointer@short, b:pointer@short):native;
+    def pair_content(pair:short, f:pointer@short, b:pointer@short): native;
+    def reset_color_pairs(): native;
+    def COLOR_PAIRS(n:int):native int;
+    def PAIR_NUMBER(attr:int):native int;
+    
+    def attr_get(attrs:pointer@attr_t, pair:pointer@short, opts:pointer): native;
+    def wattr_get(win:pointer@WINDOW, attrs:pointer@attr_t, pair:pointer@short, opts:pointer): native;
+    def attr_set(attrs:attr_t, pair:short, opts:pointer):native;
+    def wattr_set(win:pointer@WINDOW, attrs:attr_t, pair:short, opts:pointer):native;
+    def attr_off(attrs:attr_t, opts:pointer):native;
+    def wattr_off(win:pointer@WINDOW, attrs:attr_t, opts:pointer):native;
+    def attr_on(attrs:attr_t, opts:pointer):native;
+    def wattr_on(win:pointer@WINDOW, attrs:attr_t, opts:pointer):native;
+    def wattroff(win:pointer@WINDOW, attrs:int):native;
+    def wattron(win:pointer@WINDOW, attrs:int):native;
+    def attrset(attrs:int):native;
+    def wattrset(win:pointer@WINDOW,attrs:int):native;
 
+    def chgat(n:int, attr:attr_t, pair:short, opts:pointer):native;
+    def wchgat(win:pointer@WINDOW, n:int, attr:attr_t, pair:short, opts:pointer):native;
+    def mvchgat(y:int, x:int, n:int, attr:attr_t, pair:short, opts:pointer):native;
+    def mvwchgat(win:pointer@WINDOW, y:int, x:int, n:int, attr:attr_t, pair:short, opts:pointer):native;
     
+    def color_set(pair:short, opts:pointer):native;
+    def wcolor_set(win:pointer@WINDOW, pair:short, opts:pointer):native;
     
-
+    def standend(): native;
+    def wstandend(win:pointer@WINDOW):native;
+    def standout(): native;
+    def wstandout(win:pointer@WINDOW):native;
+    
+    def bkgdset(ch:chtype):native;
+    def wbkgdset(win:pointer@WINDOW, ch:chtype):native;
+    def bkgd(c:chtype):native;
+    def wbkgd(win:pointer@WINDOW, ch:chtype):native;
+    def getbkgd(win:pointer@WINDOW): native chtype;
+    
+    def wgetch(win:pointer@WINDOW): native;
+    def mvgetch(y:int, x:int):native;
+    def mvwgetch(win:pointer@WINDOW, y:int, x:int): native;
+    def ungetch(ch:int):native;
+    def has_key(ch:int):native bool;
+    
+    def delay_output(ms:int):native;
+    def keyname(c:int):native String;
+    def key_name(w:char):native String;
+    def unctrl(c:chtype):native String;
+    def filter():native;
+    def nofilter():native;
+    
+    def delch():native;
+    def wdelch(win:pointer@WINDOW):native;
+    def mvdelch(y:int, x:int):native;
+    def mvwdelch(win:pointer@WINDOW, y:int, x:int):native;
+    def meta(win:pointer@WINDOW, bf:bool): native;
     KEY_DOWN: static int;
     KEY_UP: static int;
     KEY_LEFT: static int;

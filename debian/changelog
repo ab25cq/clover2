@@ -1,4 +1,8 @@
 
+clover2 (10.3.5-1) unstable; urgency=medium
+
+    * Finish curses library implement. I could't have suported all routines yet. It's too many....
+
 clover2 (10.3.4-1) unstable; urgency=medium
 
     * Continue to start curses library support.

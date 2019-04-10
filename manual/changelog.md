@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.3.5
+
+    Finish curses library implement. I could't have suported all routines yet. It's too many....
+
 version 10.3.4
 
     Continue to start curses library support.

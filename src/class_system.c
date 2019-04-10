@@ -7470,6 +7470,480 @@ BOOL System_leaveok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+BOOL System_is_cleared(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_cleared(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_idcok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_idcok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_idlok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_idlok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_immedok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_immedok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_keypad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_keypad(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_leaveok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_leaveok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_nodelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_nodelay(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_notimeout(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_notimeout(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_pad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_pad(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_scrollok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_scrollok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_subwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_subwin(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_is_syncok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = is_syncok(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wgetparent(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = wgetparent(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wgetdelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    bool result = wgetdelay(win_value);
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wgetscrreg(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* top = lvar + 1;
+    CLVALUE* bottom = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int* top_value = (int*)top->mPointerValue;
+    int* bottom_value = (int*)bottom->mPointerValue;
+
+    /// go ///
+    int result = wgetscrreg(win_value, top_value, bottom_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wgetscrreg(3) is error.");
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_clrtobot(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = clrtobot();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "clrtobot(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wclrtobot(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    int result = wclrtobot(win_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wclrtobot(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_werase(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    int result = werase(win_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "werase(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_clrtoeol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = clrtoeol();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "cltroeol(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_resetty(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = resetty();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "resetty(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_flash(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = flash();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "flash(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_savetty(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = savetty();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "savetty(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_reset_prog_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = reset_prog_mode();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "reset_prog_mode(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_reset_shell_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = reset_shell_mode();
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "reset_shell_mode(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+BOOL System_wclrtoeol(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+
+    /// go ///
+    int result = wclrtoeol(win_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wclrtoeol(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_getsyx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar + 1;
+    
+    /// clover to clang ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+
+    /// go ///
+    getsyx(y_value, x_value);
+
+    return TRUE;
+}
+
+BOOL System_setsyx(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar + 1;
+    
+    /// clover to clang ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+
+    /// go ///
+    setsyx(y_value, x_value);
+
+    return TRUE;
+}
+
+BOOL System_curs_set(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* visibility = lvar;
+    
+    /// clover to clang ///
+    int visibility_value = visibility->mBoolValue;
+
+    /// go ///
+    int result = curs_set(visibility_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setsyx(3) is error.");
+        return FALSE;
+    }
+    
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_napms(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ms = lvar;
+    
+    /// clover to clang ///
+    int ms_value = ms->mIntValue;
+
+    /// go ///
+    int result = napms(ms_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "setsyx(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+
+
+
+
+
+
+
+
+
 BOOL System_addch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* c = lvar;
@@ -7547,28 +8021,6 @@ BOOL System_init_pair(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
-BOOL System_COLOR_PAIR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    CLVALUE* n = lvar;
-    
-    /// Clover to C ///
-    short n_value = n->mIntValue;
-    
-    /// go ///
-    int result = COLOR_PAIR(n_value);
-
-    if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
-        
-        return FALSE;
-    }
-    
-    (*stack_ptr)->mIntValue = result;
-    (*stack_ptr)++;
-
-    return TRUE;
-}
-
 BOOL System_border(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* ls = lvar;
@@ -7594,7 +8046,7 @@ BOOL System_border(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = border(ls_value, rs_value, ts_value, bs_value, tl_value, tr_value, bl_value, br_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "border(3) is error.");
         
         return FALSE;
     }
@@ -7629,7 +8081,7 @@ BOOL System_wborder(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = wborder(win_value, ls_value, rs_value, ts_value, bs_value, tl_value, tr_value, bl_value, br_value);
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wborder(3) is error.");
         
         return FALSE;
     }
@@ -7643,7 +8095,7 @@ BOOL System_beep(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = beep();
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "beep(3) is error.");
         
         return FALSE;
     }
@@ -7657,7 +8109,7 @@ BOOL System_def_prog_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = def_prog_mode();
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "def_prog_mode(3) is error.");
         
         return FALSE;
     }
@@ -7671,7 +8123,7 @@ BOOL System_def_shell_mode(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int result = def_shell_mode();
 
     if(result == ERR) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "COLOR_PAIR(3) is error.");
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "def_shell_mode(3) is error.");
         
         return FALSE;
     }
@@ -8616,5 +9068,923 @@ BOOL System_recvfrom2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
         return FALSE;
     }
 
+    return TRUE;
+}
+
+BOOL System_can_change_color(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = can_change_color();
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_has_colors(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = has_colors();
+
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_init_color(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pair = lvar;
+    CLVALUE* r = lvar + 1;
+    CLVALUE* g = lvar + 2;
+    CLVALUE* b = lvar + 3;
+    
+    /// clover to clang ///
+    short pair_value = pair->mShortValue;
+    short r_value = r->mShortValue;
+    short g_value = g->mShortValue;
+    short b_value = b->mShortValue;
+    
+    int result = init_color(pair_value, r_value, g_value, b_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "init_color(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_color_content(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* color = lvar;
+    CLVALUE* r = lvar + 1;
+    CLVALUE* g = lvar + 2;
+    CLVALUE* b = lvar + 3;
+    
+    /// clover to clang ///
+    short color_value = color->mShortValue;
+    short* r_value = (short*)r->mPointerValue;
+    short* g_value = (short*)g->mPointerValue;
+    short* b_value = (short*)b->mPointerValue;
+    
+    int result = color_content(color_value, r_value, g_value, b_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "color_content(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_pair_content(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pair = lvar;
+    CLVALUE* f = lvar + 1;
+    CLVALUE* b = lvar + 2;
+    
+    /// clover to clang ///
+    short pair_value = pair->mShortValue;
+    short* f_value = (short*)f->mPointerValue;
+    short* b_value = (short*)b->mPointerValue;
+    
+    int result = pair_content(pair_value, f_value, b_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "pair_content(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_reset_color_pairs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    reset_color_pairs();
+    
+    return TRUE;
+}
+
+
+BOOL System_COLOR_PAIR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* n = lvar;
+    
+    /// clover to clang ///
+    int n_value = n->mIntValue;
+    
+    int result = COLOR_PAIR(n_value);
+    
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_PAIR_NUMBER(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attr = lvar;
+    
+    /// clover to clang ///
+    int attr_value = attr->mIntValue;
+    
+    int result = PAIR_NUMBER(attr_value);
+    
+    (*stack_ptr)->mIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_attr_get(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attrs = lvar;
+    CLVALUE* pair = lvar + 1;
+    CLVALUE* opts = lvar + 2;
+    
+    /// clover to clang ///
+    attr_t* attrs_value = (attr_t*)attrs->mPointerValue;
+    short* pair_value = (short*)pair->mPointerValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    
+    int result = attr_get(attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attr_get(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattr_get(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    CLVALUE* pair = lvar + 2;
+    CLVALUE* opts = lvar + 3;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    attr_t* attrs_value = (attr_t*)attrs->mPointerValue;
+    short* pair_value = (short*)pair->mPointerValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    
+    int result = wattr_get(win_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattr_get(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_attr_set(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attrs = lvar;
+    CLVALUE* pair = lvar + 1;
+    CLVALUE* opts = lvar + 2;
+    
+    /// clover to clang ///
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    
+    int result = attr_set(attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attr_set(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattr_set(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    CLVALUE* pair = lvar + 2;
+    CLVALUE* opts = lvar + 3;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = wattr_set(win_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattr_set(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+BOOL System_attr_off(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attrs = lvar;
+    CLVALUE* opts = lvar + 1;
+    
+    /// clover to clang ///
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = attr_off(attrs_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attr_off(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattr_off(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    CLVALUE* opts = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = wattr_off(win_value, attrs_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attr_off(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_attr_on(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* attrs = lvar;
+    CLVALUE* opts = lvar + 1;
+    
+    /// clover to clang ///
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    void* opts_value = (void*)opts->mPointerValue;
+
+    /// go ///
+    int result = attr_on(attrs_value, opts_value);
+
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "attr_on(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattr_on(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    CLVALUE* opts = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    attr_t attrs_value = (attr_t)attrs->mUIntValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = wattr_on(win_value, attrs_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattr_on(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattroff(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int attrs_value = attrs->mIntValue;
+    
+    int result = wattroff(win_value, attrs_value);
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattroff(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattron(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int attrs_value = attrs->mIntValue;
+    
+    int result = wattron(win_value, attrs_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattron(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wattrset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* attrs = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int attrs_value = attrs->mIntValue;
+    
+    int result = wattrset(win_value, attrs_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wattrset(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_chgat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* n = lvar;
+    CLVALUE* attr = lvar + 1;
+    CLVALUE* pair = lvar + 2;
+    CLVALUE* opts = lvar + 3;
+    
+    /// clover to clang ///
+    int n_value = n->mIntValue;
+    attr_t attrs_value = (attr_t)attr->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+
+    /// go ///
+    int result = chgat(n_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "chgat(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wchgat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* n = lvar + 1;
+    CLVALUE* attr = lvar + 2;
+    CLVALUE* pair = lvar + 3;
+    CLVALUE* opts = lvar + 4;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int n_value = n->mIntValue;
+    attr_t attrs_value = (attr_t)attr->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+
+    /// go ///
+    int result = wchgat(win_value, n_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wchgat(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_mvchgat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar + 1;
+    CLVALUE* n = lvar + 2;
+    CLVALUE* attr = lvar + 3;
+    CLVALUE* pair = lvar + 4;
+    CLVALUE* opts = lvar + 5;
+    
+    /// clover to clang ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    int n_value = n->mIntValue;
+    attr_t attrs_value = (attr_t)attr->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+
+    /// go ///
+    int result = mvchgat(y_value, x_value, n_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvchgat(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_mvwchgat(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* y = lvar + 1;
+    CLVALUE* x = lvar + 2;
+    CLVALUE* n = lvar + 3;
+    CLVALUE* attr = lvar + 4;
+    CLVALUE* pair = lvar + 5;
+    CLVALUE* opts = lvar + 6;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    int n_value = n->mIntValue;
+    attr_t attrs_value = (attr_t)attr->mUIntValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+
+    /// go ///
+    int result = mvwchgat(win_value, y_value, x_value, n_value, attrs_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvwchgat(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_color_set(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* pair = lvar;
+    CLVALUE* opts = lvar + 1;
+    
+    /// clover to clang ///
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = color_set(pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "color_set(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wcolor_set(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* pair = lvar + 1;
+    CLVALUE* opts = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    short pair_value = pair->mShortValue;
+    void* opts_value = (void*)opts->mPointerValue;
+    int result = wcolor_set(win_value, pair_value, opts_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wcolor_set(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_standend(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = standend();
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "standend(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wstandend(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    
+    int result = wstandend(win_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wstandend(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_standout(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    int result = standout();
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "standout(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_wstandout(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    
+    int result = wstandout(win_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wstadout(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_bkgdset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ch = lvar;
+    
+    /// clover to clang ///
+    chtype ch_value = ch->mUIntValue;
+    
+    /// go ///
+    bkgdset(ch_value);
+
+    return TRUE;
+}
+
+BOOL System_wbkgdset(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* ch = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    chtype ch_value = ch->mUIntValue;
+    
+    /// go ///
+    wbkgdset(win_value, ch_value);
+
+    return TRUE;
+}
+
+BOOL System_bkgd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ch = lvar;
+    
+    /// clover to clang ///
+    chtype ch_value = ch->mUIntValue;
+    
+    /// go ///
+    int result = bkgd(ch_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "bkgd(3) is error.");
+        return FALSE;
+    }
+
+
+    return TRUE;
+}
+
+BOOL System_wbkgd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* ch = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    chtype ch_value = ch->mUIntValue;
+    
+    /// go ///
+    int result = wbkgd(win_value, ch_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wbkgd(3) is error.");
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+BOOL System_getbkgd(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    
+    /// go ///
+    chtype result = getbkgd(win_value);
+    
+    (*stack_ptr)->mUIntValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_wgetch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    
+    /// go ///
+    int result = wgetch(win_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wgetch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_mvgetch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar + 1;
+    
+    /// clover to clang ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    
+    /// go ///
+    int result = mvgetch(y_value, x_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvgetch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_mvwgetch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* y = lvar + 1;
+    CLVALUE* x = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    
+    /// go ///
+    int result = mvwgetch(win_value, y_value, x_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvwgetch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_ungetch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ch = lvar;
+    
+    /// clover to clang ///
+    int ch_value = ch->mIntValue;
+    
+    /// go ///
+    int result = ungetch(ch_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "ungetch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_has_key(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ch = lvar;
+    
+    /// clover to clang ///
+    int ch_value = ch->mIntValue;
+    
+    /// go ///
+    BOOL result = has_key(ch_value);
+    
+    (*stack_ptr)->mBoolValue = result;
+    (*stack_ptr)++;
+    
+    return TRUE;
+}
+
+BOOL System_delay_output(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* ms = lvar;
+    
+    /// clover to clang ///
+    int ms_value = ms->mIntValue;
+    
+    /// go ///
+    int result = delay_output(ms_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "delay_output(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_keyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+    
+    /// clover to clang ///
+    int c_value = c->mIntValue;
+    
+    /// go ///
+    char* result = keyname(c_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "keyname(3) is error.");
+        return FALSE;
+    }
+    
+    (*stack_ptr)->mObjectValue = create_string_object(result, info);
+    (*stack_ptr)++;
+    
+    return TRUE;
+}
+
+BOOL System_key_name(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+    
+    /// clover to clang ///
+    wchar_t c_value = c->mCharValue;
+    
+    /// go ///
+    char* result = key_name(c_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "key_name(3) is error.");
+        return FALSE;
+    }
+    
+    (*stack_ptr)->mObjectValue = create_string_object(result, info);
+    (*stack_ptr)++;
+    
+    return TRUE;
+}
+
+BOOL System_unctrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* c = lvar;
+    
+    /// clover to clang ///
+    chtype c_value = c->mUIntValue;
+    
+    /// go ///
+    char* result = unctrl(c_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "unctrl(3) is error.");
+        return FALSE;
+    }
+    
+    (*stack_ptr)->mObjectValue = create_string_object(result, info);
+    (*stack_ptr)++;
+    
+    return TRUE;
+}
+
+BOOL System_filter(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    filter();
+    
+    return TRUE;
+}
+
+BOOL System_nofilter(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    nofilter();
+    
+    return TRUE;
+}
+
+BOOL System_delch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    /// go ///
+    int result = delch();
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "delch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_wdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    
+    /// go ///
+    int result = wdelch(win_value);
+    
+    if(result == ERR) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "wdelch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_mvdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* y = lvar;
+    CLVALUE* x = lvar + 1;
+    
+    /// clover to clang ///
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    
+    /// go ///
+    int result = mvdelch(y_value, x_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvdelch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_mvwdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* y = lvar + 1;
+    CLVALUE* x = lvar + 2;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    int y_value = y->mIntValue;
+    int x_value = x->mIntValue;
+    
+    /// go ///
+    int result = mvwdelch(win_value, y_value, x_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvwdelch(3) is error.");
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+BOOL System_meta(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* win = lvar;
+    CLVALUE* bf = lvar + 1;
+    
+    /// clover to clang ///
+    WINDOW* win_value = (WINDOW*)win->mPointerValue;
+    BOOL bf_value = bf->mBoolValue;
+    
+    /// go ///
+    int result = meta(win_value, bf_value);
+    
+    if(result == NULL) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "meta(3) is error.");
+        return FALSE;
+    }
+    
     return TRUE;
 }
