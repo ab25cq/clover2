@@ -2228,7 +2228,6 @@ BOOL System_mvwdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_nofilter(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_filter(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_unctrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
-BOOL System_key_name(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_keyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_delay_output(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL System_wstandout(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);

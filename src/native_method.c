@@ -475,7 +475,6 @@ static sNativeMethod gNativeMethods[] = {
     { "System.nofilter()", "System_nofilter", System_nofilter },
     { "System.filter()", "System_filter", System_filter },
     { "System.unctrl(uint)", "System_unctrl", System_unctrl },
-    { "System.key_name(char)", "System_key_name", System_key_name },
     { "System.keyname(int)", "System_keyname", System_keyname },
     { "System.delay_output(int)", "System_delay_output", System_delay_output },
     

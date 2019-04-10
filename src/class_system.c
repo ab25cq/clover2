@@ -9825,31 +9825,10 @@ BOOL System_keyname(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int c_value = c->mIntValue;
     
     /// go ///
-    char* result = keyname(c_value);
+    char* result = (char*)keyname(c_value);
     
     if(result == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "keyname(3) is error.");
-        return FALSE;
-    }
-    
-    (*stack_ptr)->mObjectValue = create_string_object(result, info);
-    (*stack_ptr)++;
-    
-    return TRUE;
-}
-
-BOOL System_key_name(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
-{
-    CLVALUE* c = lvar;
-    
-    /// clover to clang ///
-    wchar_t c_value = c->mCharValue;
-    
-    /// go ///
-    char* result = key_name(c_value);
-    
-    if(result == NULL) {
-        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "key_name(3) is error.");
         return FALSE;
     }
     
@@ -9867,7 +9846,7 @@ BOOL System_unctrl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     chtype c_value = c->mUIntValue;
     
     /// go ///
-    char* result = unctrl(c_value);
+    char* result = (char*)unctrl(c_value);
     
     if(result == NULL) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "unctrl(3) is error.");
@@ -9901,7 +9880,7 @@ BOOL System_delch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = delch();
     
-    if(result == NULL) {
+    if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "delch(3) is error.");
         return FALSE;
     }
@@ -9939,7 +9918,7 @@ BOOL System_mvdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = mvdelch(y_value, x_value);
     
-    if(result == NULL) {
+    if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvdelch(3) is error.");
         return FALSE;
     }
@@ -9961,7 +9940,7 @@ BOOL System_mvwdelch(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = mvwdelch(win_value, y_value, x_value);
     
-    if(result == NULL) {
+    if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "mvwdelch(3) is error.");
         return FALSE;
     }
@@ -9981,7 +9960,7 @@ BOOL System_meta(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     /// go ///
     int result = meta(win_value, bf_value);
     
-    if(result == NULL) {
+    if(result == ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "meta(3) is error.");
         return FALSE;
     }
