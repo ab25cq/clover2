@@ -1,11 +1,12 @@
-VERSION1:="10.3.4"
-VERSION2:="10.3.5"
+VERSION1:="10.3.5"
+VERSION2:="10.3.6"
 
 { "src/interpreter.c",
   "src/compiler.c",
   "src/get_type.c", 
   "debian/control",
   "debian/files",
+  "src/jit_main.cpp",
   "README.md",
   "src/main.c" }
 .each {

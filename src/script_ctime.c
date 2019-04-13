@@ -1,40 +1,5 @@
 #include "common.h"
 
-BOOL read_source(char* fname, sBuf* source)
-{
-    int f = open(fname, O_RDONLY);
-
-    if(f < 0) {
-        fprintf(stderr, "%s doesn't exist(2)\n", fname);
-        return FALSE;
-    }
-
-    while(1) {
-        char buf[BUFSIZ+1];
-        int size = read(f, buf, BUFSIZ);
-
-        if(size == 0) {
-            break;
-        }
-        else if(size < 0) {
-            fprintf(stderr, "unexpected error\n");
-            close(f);
-            return FALSE;
-        }
-
-        buf[size] = 0;
-        sBuf_append_str(source, buf);
-
-        if(size < BUFSIZ) {
-            break;
-        }
-    }
-
-    close(f);
-
-    return TRUE;
-}
-
 BOOL delete_comment(sBuf* source, sBuf* source2)
 {
     char* p = source->mBuf;
@@ -146,15 +111,30 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
     sBuf buf;
     sBuf_init(&buf);
 
-    sBuf_append_str(&buf, "CLOVER SCRIPT FILE");
+    sBuf_append_char(&buf, 10);
+    sBuf_append_char(&buf, 12);
+    sBuf_append_char(&buf, 34);
+    sBuf_append_char(&buf, 55);
+    sBuf_append_char(&buf, 'C');
+    sBuf_append_char(&buf, 'L');
+    sBuf_append_char(&buf, 'O');
+    sBuf_append_char(&buf, 'V');
+    sBuf_append_char(&buf, 'E');
+    sBuf_append_char(&buf, 'R');
 
-    sBuf_append(&buf, &var_num, sizeof(int));
+    sBuf_append_int(&buf, var_num);
 
-    sBuf_append(&buf, &code->mLen, sizeof(int));
-    sBuf_append(&buf, code->mCodes, code->mLen);
+    append_byte_codes_to_buffer(&buf, code);
+    append_const_to_buffer(&buf, constant);
 
-    sBuf_append(&buf, &constant->mLen, sizeof(int));
-    sBuf_append(&buf, constant->mConst, constant->mLen);
+    sBuf_append_int(&buf, gNumBlockObjects);
+
+    int i;
+    for(i=0; i<gNumBlockObjects; i++) {
+        sCLBlockObject* block_object = gBlockObjects + i;
+
+        append_block_to_buffer(&buf, block_object);
+    }
 
     char output_fname[PATH_MAX];
 

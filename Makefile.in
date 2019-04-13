@@ -29,6 +29,7 @@ OBJS=@OBJS@
 COMPILER_OBJS=@COMPILER_OBJS@
 JIT_OBJS=@JIT_OBJS@
 JIT_RUNTIME_OBJS=@JIT_RUNTIME_OBJS@
+JIT_SCRIPT_RUNTIME_OBJS=@JIT_SCRIPT_RUNTIME_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
 INTERPRETER=@INTERPRETER@
 JIT=@JIT@
@@ -71,6 +72,7 @@ SortableArray.oclcl: Fundamental.clcl String.clcl Container.clcl Range.clcl Comm
 	PWD=`pwd`; ./cclover2 -core CGI.clcl
 	PWD=`pwd`; ./cclover2 -core Socket.clcl
 	PWD=`pwd`; ./cclover2 -core MyOwnLibrary.clcl
+	PWD=`pwd`; ./cclover2 -core C.clcl
 
 String.ojsclcl: JS.jsclcl
 	PWD=`pwd`; ./cclover2 -core JS.jsclcl
@@ -107,8 +109,8 @@ String.ojsclcl: JS.jsclcl
 	PWD=`pwd`; ./cclover2 -core Float64Array.ojsclcl
 	PWD=`pwd`; ./cclover2 -core DataView.ojsclcl
 
-libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS)
-	$(CC) -shared -o libclover2.so.1.0.0 $(COMMON_OBJS) $(COMPILER_OBJS) $(OBJS:src/class_clover_runtime.o=) $(CFLAGS) $(LIBS) $(JIT_RUNTIME_OBJS)
+libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS) $(JIT_SCRIPT_RUNTIME_OBJS) src/jit_main2.o
+	$(CC) -shared -o libclover2.so.1.0.0 $(JIT_SCRIPT_RUNTIME_OBJS) $(CFLAGS) $(LIBS)
 	ln -s -f libclover2.so.1.0.0 libclover2.so.1
 	ln -s -f libclover2.so.1.0.0 libclover2.so
 
@@ -551,6 +553,8 @@ install:
 	$(INSTALL) -m 644 ./Null.oclcl $(DESTDIR)/share/clover2
 	if test -e Null.so; then $(INSTALL) -m 755 ./Null.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Null.so $(DESTDIR)/share/clover2; fi
 
+	if test -e C.oclcl; then $(INSTALL) -m 644 ./C.oclcl $(DESTDIR)/share/clover2; fi
+
 	$(INSTALL) -m 644 ./Object.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./IEqualable.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./IHashKey.oclcl $(DESTDIR)/share/clover2
@@ -656,6 +660,7 @@ install:
 	$(INSTALL) -m 755 ./libclover2.so.1.0.0 $(DESTDIR)/lib
 	$(INSTALL) -m 755 ./libclover2.so.1 $(DESTDIR)/lib
 	$(INSTALL) -m 755 ./libclover2.so $(DESTDIR)/lib
+	if test -e src/jit_main2.o; then $(INSTALL) -m 644 src/jit_main2.o $(DESTDIR)/lib/; fi
 
 	mkdir -p $(DESTDIR)/include/clover2
 	$(INSTALL) -m 644 src/common.h $(DESTDIR)/include/clover2/clover2.h
@@ -833,7 +838,7 @@ test:
 
 	if test `uname` != Darwin; then gcc -shared -Wl,-soname=libExtTest.so.1 -o libExtTest.so.1.0.0 -I src/ -I . -I/usr/local/include -fPIC ext/hello.c; ln -fs libExtTest.so.1.0.0 libExtTest.so; PWD=`pwd` ./cclover2 ext.clcl && PWD=`pwd` ./clover2 ext.cl; fi
 
-	if test `uname` != Darwin; then gcc -shared -Wl,-soname=ExtensionTest.so.1 -o ExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs ExtensionTest.so.1.0.0 ExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then ./bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
+#	if test `uname` != Darwin; then gcc -shared -Wl,-soname=ExtensionTest.so.1 -o ExtensionTest.so.1.0.0 -fPIC ExtensionTest.c; ln -fs ExtensionTest.so.1.0.0 ExtensionTest.so; PWD=`pwd` ./cclover2 ExtensionClassTest.clcl; if test $(JIT) = 1; then ./bclover2 ExtensionClassTest.oclcl; fi; PWD=`pwd` ./clover2 ExtensionClassTest.cl; fi
 
 	PWD=`pwd` ./cclover2 code/getopt.cl && ./clover2 code/getopt.cl -a -b -c aaa xxxx gggg
 	PWD=`pwd` ./cclover2 code/getopt_long.cl && ./clover2 code/getopt_long.cl -a --break --clear aaa --delete=ggg xxx yyy zzz

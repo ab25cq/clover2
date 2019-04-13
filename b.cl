@@ -1,5 +1,8 @@
-klass := Class("ClassX");
+println("AAA");
+def fun():int {
+    return 1+1;
+}
 
-methods := klass.getClassMethods();
+fun().toString().println();
 
-println(methods.length().toString())
+

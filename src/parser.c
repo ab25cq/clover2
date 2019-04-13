@@ -2195,6 +2195,20 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         (*result_type)->mNullable = TRUE;
     }
 
+    /// pointer ///
+    if(*info->p == '*') {
+        int pointer_num = 0;
+        
+        while(*info->p == '*') {
+            pointer_num++;
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+        skip_spaces_and_lf(info);
+
+        (*result_type)->mPointerNum = pointer_num;
+    }
+
     /// anotation ///
     if(*info->p == '@') {
         info->p++;
@@ -4384,6 +4398,78 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         skip_spaces_and_lf(info);
 
         *node = sNodeTree_create_path_value(MANAGED value.mBuf, value.mLen, string_expressions, string_expression_offsets, num_string_expression, info);
+    }
+    /// c string ///
+    else if((*info->p == 'C' || *info->p == 'c') && *(info->p+1) == '"') {
+        info->p+=2;
+
+        sBuf value;
+        sBuf_init(&value);
+
+        while(1) {
+            if(*info->p == '"') {
+                info->p++;
+                break;
+            }
+            else if(*info->p == '\\') {
+                info->p++;
+                switch(*info->p) {
+                    case '0':
+                        sBuf_append_char(&value, '\0');
+                        info->p++;
+                        break;
+
+                    case 'n':
+                        sBuf_append_char(&value, '\n');
+                        info->p++;
+                        break;
+
+                    case 't':
+                        sBuf_append_char(&value, '\t');
+                        info->p++;
+                        break;
+
+                    case 'r':
+                        sBuf_append_char(&value, '\r');
+                        info->p++;
+                        break;
+
+                    case 'a':
+                        sBuf_append_char(&value, '\a');
+                        info->p++;
+                        break;
+
+                    case '\\':
+                        sBuf_append_char(&value, '\\');
+                        info->p++;
+                        break;
+
+                    default:
+                        sBuf_append_char(&value, *info->p);
+                        info->p++;
+                        break;
+                }
+            }
+            else if(*info->p == '\0') {
+                if(info->get_type_for_interpreter) {
+                    break;
+                }
+                else {
+                    parser_err_msg(info, "close \" to make c string value");
+                    return FALSE;
+                }
+            }
+            else {
+                if(*info->p == '\n') info->sline++;
+
+                sBuf_append_char(&value, *info->p);
+                info->p++;
+            }
+        }
+
+        skip_spaces_and_lf(info);
+
+        *node = sNodeTree_create_c_string_value(MANAGED value.mBuf, value.mLen, info);
     }
     /// Character ///
     else if(*info->p == '\'') {

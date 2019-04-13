@@ -9755,6 +9755,40 @@ BOOL compile_path_value(unsigned int node, sCompileInfo* info)
     return TRUE;
 }
 
+unsigned int sNodeTree_create_c_string_value(MANAGED char* value, int len, sParserInfo* info)
+{
+    unsigned int node = alloc_node();
+
+    gNodes[node].mNodeType = kNodeTypeCString;
+
+    gNodes[node].mSName = info->sname;
+    gNodes[node].mLine = info->sline;
+
+    gNodes[node].mLeft = 0;
+    gNodes[node].mRight = 0;
+    gNodes[node].mMiddle = 0;
+
+    gNodes[node].mType = NULL;
+
+    gNodes[node].uValue.sString.mString = MANAGED value;
+
+    return node;
+}
+
+BOOL compile_c_string_value(unsigned int node, sCompileInfo* info)
+{
+    char* buf = gNodes[node].uValue.sString.mString;
+
+    append_opecode_to_code(info->code, OP_CREATE_C_STRING, info->no_output);
+    append_str_to_constant_pool_and_code(info->constant, info->code, buf, info->no_output);
+
+    info->stack_num++;
+
+    info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);
+
+    return TRUE;
+}
+
 unsigned int sNodeTree_create_get_address(unsigned int rnode, sParserInfo* info)
 {
     unsigned int node = alloc_node();
@@ -11127,6 +11161,9 @@ BOOL compile_block_object(unsigned int node, sCompileInfo* info)
     if(klass) {
         num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
     }
+    else {
+        num_block_object = add_block_object_to_script(MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
+    }
 
     /// make block object ///
     append_opecode_to_code(info->code, OP_CREATE_BLOCK_OBJECT, info->no_output);
@@ -11334,6 +11371,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         if(klass) {
             num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
         }
+        else {
+            num_block_object = add_block_object_to_script(MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
+        }
 
         /// make block object ///
         append_opecode_to_code(info->code, OP_JS_FUNCTION, info->no_output);
@@ -11365,6 +11405,7 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         }
 
         append_int_value_to_code(info->code, num_block_object, info->no_output);
+        append_int_value_to_code(info->code, klass != NULL, info->no_output);
 
         if(klass) {
             append_class_name_to_constant_pool_and_code(info, klass);
@@ -11526,6 +11567,9 @@ BOOL compile_function(unsigned int node, sCompileInfo* info)
         int num_block_object = -1;
         if(klass) {
             num_block_object = add_block_object_to_class(klass, MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
+        }
+        else {
+            num_block_object = add_block_object_to_script(MANAGED codes, MANAGED constant, var_num, num_params+parent_param_num, lambda);
         }
 
         /// make block object ///
@@ -12602,6 +12646,10 @@ void show_node(unsigned int node)
             puts("path");
             break;
 
+        case kNodeTypeCString:
+            puts("c string");
+            break;
+
         case kNodeTypeGetAddress:
             puts("get address");
             break;
@@ -13020,6 +13068,12 @@ BOOL compile(unsigned int node, sCompileInfo* info)
 
         case kNodeTypePath:
             if(!compile_path_value(node, info)) {
+                return FALSE;
+            }
+            break;
+
+        case kNodeTypeCString:
+            if(!compile_c_string_value(node, info)) {
                 return FALSE;
             }
             break;

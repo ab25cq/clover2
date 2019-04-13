@@ -1,11 +1,7 @@
-class ClassX
+class InvokePuts
 {
-    def initialize() {
-    }
-
     def method():static {
-    }
-    
-    def method2() {
+        a := C.puts(C"HELLO C FFI");
+        a.toString().println();
     }
 }

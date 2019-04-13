@@ -13,6 +13,7 @@ static void clover2_init(BOOL no_load_fudamental_classes)
     class_init();
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     stack_init();
+    script_init();
     //(void)class_init_on_runtime();
     if(!no_load_fudamental_classes) {
         class_init_on_runtime();
@@ -21,6 +22,7 @@ static void clover2_init(BOOL no_load_fudamental_classes)
 
 static void clover2_final()
 {
+    script_final();
     thread_final();
     class_final_on_runtime();
     heap_final();
@@ -47,7 +49,7 @@ static void set_signal()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.3.5";
+char* gVersion = "10.3.6";
 BOOL gCompilingCore = FALSE;
 
 char gScriptDirPath[PATH_MAX];

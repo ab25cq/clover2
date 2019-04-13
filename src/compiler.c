@@ -27,10 +27,12 @@ static void clover2_init()
     native_method_init();
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     stack_init();
+    script_init();
 }
 
 static void clover2_final()
 {
+    script_final();
     thread_final();
     class_final_on_runtime();
     heap_final();
@@ -147,7 +149,7 @@ static BOOL class_compiler(char* fname)
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.3.5";
+char* gVersion = "10.3.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = TRUE;
@@ -253,26 +255,37 @@ int main(int argc, char** argv)
     }
 #ifdef ENABLE_JIT
     else if(jit_compile) {
-        char* p = sname + strlen(sname);
-
-        while(p >= sname) {
-            if(*p == '.') {
-                break;
-            }
-            else {
-                p--;
+        if(ext_sname && strcmp(ext_sname, ".ocl") == 0)
+        {
+            if(!jit_script_compiler(sname)) {
+                fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+                clover2_final();
+                compiler_final();
+                return 1;
             }
         }
+        else {
+            char* p = sname + strlen(sname);
 
-        if(p != sname) {
-            *p = '\0';
-        }
+            while(p >= sname) {
+                if(*p == '.') {
+                    break;
+                }
+                else {
+                    p--;
+                }
+            }
 
-        if(!jit_class_compiler(sname)) {
-            fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
-            clover2_final();
-            compiler_final();
-            return 1;
+            if(p != sname) {
+                *p = '\0';
+            }
+
+            if(!jit_class_compiler(sname)) {
+                fprintf(stderr, "cclover2 can't compile %s\n", argv[i]);
+                clover2_final();
+                compiler_final();
+                return 1;
+            }
         }
     }
 #endif

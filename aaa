@@ -1,0 +1,993 @@
+==26944== Memcheck, a memory error detector
+==26944== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==26944== Using Valgrind-3.14.0 and LibVEX; rerun with -h for copyright info
+==26944== Command: ./b
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1E40: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x4032667: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D266C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D268C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2690: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D269C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401D3EB: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==26944==    by 0x401D38B: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==26944==    by 0x401D38B: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x401DDEB: __dl__ZL11realpath_fdiPNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEE (in /system/bin/linker64)
+==26944==    by 0x401F677: __dl__ZL21open_library_on_pathsP15ZipArchiveCachePKcPlRKNSt3__16vectorINS4_12basic_stringIcNS4_11char_traitsIcEENS4_9allocatorIcEEEENS9_ISB_EEEEPSB_ (in /system/bin/linker64)
+==26944==    by 0x401D38B: __dl__ZL12load_libraryP19android_namespace_tP8LoadTaskP15ZipArchiveCachePNSt3__16vectorIS2_NS5_9allocatorIS2_EEEEib (in /system/bin/linker64)
+==26944==    by 0x4015763: __dl__Z14find_librariesP19android_namespace_tP6soinfoPKPKcmPS2_PNSt3__16vectorIS2_NS8_9allocatorIS2_EEEEmiPK17android_dlextinfobbPNS9_IS0_NSA_IS0_EEEE (in /system/bin/linker64)
+==26944==    by 0x402B7EF: __dl___linker_init (in /system/bin/linker64)
+==26944==    by 0x40320DF: __dl__start (in /system/bin/linker64)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFD894: strlen (in /system/lib64/libc.so)
+==26944==    by 0x7E5900F: setenv (in /system/lib64/libc.so)
+==26944==    by 0x132F2B: jit_init_on_runtime (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFD8B0: strlen (in /system/lib64/libc.so)
+==26944==    by 0x7E5900F: setenv (in /system/lib64/libc.so)
+==26944==    by 0x132F2B: jit_init_on_runtime (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E8F544: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E59157: setenv (in /system/lib64/libc.so)
+==26944==    by 0x132F2B: jit_init_on_runtime (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7E8F558: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E59157: setenv (in /system/lib64/libc.so)
+==26944==    by 0x132F2B: jit_init_on_runtime (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E8F578: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E59157: setenv (in /system/lib64/libc.so)
+==26944==    by 0x132F2B: jit_init_on_runtime (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFD840: strlen (in /system/lib64/libc.so)
+==26944==    by 0x7E48CA3: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E48CAC: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E49B58: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4A038: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4B498: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4B4A4: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E565F4: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E56644: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE2C8: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE2D0: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3C0: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3D4: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3EC: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7DFE3F4: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7DFE3FC: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E56733: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E56794: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7E6A458: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x136D57: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1E94: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x40B976B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1EB0: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x40B976B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40B9798: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40B99D4: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4098290: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x40B9A2F: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4098298: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x40B9A2F: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40982B4: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x40B9A2F: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40982C4: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x40B9A2F: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40B9A48: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2560: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D256C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2584: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2588: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2598: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B9A5B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x40B97BF: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40B9AB0: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE21__grow_by_and_replaceEmmmmmmPKc (in /system/bin/linker64)
+==26944==    by 0x4018177: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40188E0: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40188E8: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4098290: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x401890F: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4098298: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x401890F: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40982B4: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x401890F: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40982C4: __dl__ZN21LinkerMemoryAllocator5allocEm (in /system/bin/linker64)
+==26944==    by 0x40989BB: __dl__Znwm (in /system/bin/linker64)
+==26944==    by 0x401890F: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4018920: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2560: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D256C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2584: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2588: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2598: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x4018933: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x4018934: __dl__ZNSt3__1plIcNS_11char_traitsIcEENS_9allocatorIcEEEENS_12basic_stringIT_T0_T1_EERKS9_PKS6_ (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40B990C: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKcm (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2570: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B995B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKcm (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2574: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x40B995B: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKcm (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40B9978: __dl__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEE6appendEPKcm (in /system/bin/linker64)
+==26944==    by 0x40181D3: __dl__Z9do_dlopenPKciPK17android_dlextinfoPKv (in /system/bin/linker64)
+==26944==    by 0x401408B: __loader_dlopen (in /system/bin/linker64)
+==26944==    by 0x7D40F07: dlopen (in /system/lib64/libdl.so)
+==26944==    by 0x1333FB: llvm_load_dynamic_library(sCLClassStruct*) (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFD840: strlen (in /system/lib64/libc.so)
+==26944==    by 0x7E48CA3: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E48CAC: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E49B58: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4A038: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4B498: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E4B4A4: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E565F4: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E56644: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E56794: __sfvwrite (in /system/lib64/libc.so)
+==26944==    by 0x7E4B4DB: __vfprintf (in /system/lib64/libc.so)
+==26944==    by 0x7E6A453: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7E6A458: snprintf (in /system/lib64/libc.so)
+==26944==    by 0x4B1F4BB: search_for_class_file (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFD840: strlen (in /system/lib64/libc.so)
+==26944==    by 0x7E59797: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E8F544: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E597A3: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7E8F558: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E597A3: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7E8F578: je_malloc (in /system/lib64/libc.so)
+==26944==    by 0x7E597A3: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE2C8: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE2D0: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3C0: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3D4: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x7DFE3EC: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7DFE3F4: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x7DFE3FC: memcpy (in /system/lib64/libc.so)
+==26944==    by 0x7E597BB: strdup (in /system/lib64/libc.so)
+==26944==    by 0x1366DF: xstrdup (in /data/data/com.termux/files/home/repo/clover2/b)
+==26944== 
+==26944== Invalid read of size 8
+==26944==    at 0x4B30400: get_object_pointer (in /data/data/com.termux/files/home/repo/clover2/libclover2.so.1.0.0)
+==26944==  Address 0xbf8 is not stack'd, malloc'd or (recently) free'd
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1E40: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x4032667: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== 
+==26944== More than 100 errors detected.  Subsequent errors
+==26944== will still be recorded, but in less detail than before.
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2674: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D267C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x4032B7F: __dl_async_safe_format_buffer (in /system/bin/linker64)
+==26944==    by 0x4033F5F: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032688: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032740: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x4032798: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x403222C: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2548: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2550: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2640: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D2654: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D266C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D268C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2690: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2694: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D269C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x403225C: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x4032768: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2678: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D265C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2660: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2664: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2694: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D265C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2660: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2664: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2560: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D256C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2570: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2574: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403278B: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2674: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D2678: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Use of uninitialised value of size 8
+==26944==    at 0x40D267C: __dl_memcpy (in /system/bin/linker64)
+==26944==    by 0x403224F: __dl__ZL11out_vformatI18BufferOutputStreamEvRT_PKcSt9__va_list (in /system/bin/linker64)
+==26944==    by 0x403381B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1E94: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x40335C3: __dl_async_safe_write_log (in /system/bin/linker64)
+==26944==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Conditional jump or move depends on uninitialised value(s)
+==26944==    at 0x40D1EB0: __dl_strlen (in /system/bin/linker64)
+==26944==    by 0x40335C3: __dl_async_safe_write_log (in /system/bin/linker64)
+==26944==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944== 
+==26944== Syscall param writev(vector) points to uninitialised byte(s)
+==26944==    at 0x40DBBE0: __dl_writev (in /system/bin/linker64)
+==26944==    by 0x40335DB: __dl_async_safe_write_log (in /system/bin/linker64)
+==26944==    by 0x403382B: __dl_async_safe_format_log (in /system/bin/linker64)
+==26944==    by 0x4034043: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+==26944==  Address 0x4143b40 is on thread 1's stack
+==26944==  in frame #1, created by __dl_async_safe_write_log (???:)
+==26944== 
+==26944== Unsupported clone() flags: 0x1210900
+==26944== 
+==26944== The only supported clone() uses are:
+==26944==  - via a threads library (LinuxThreads or NPTL)
+==26944==  - via the implementation of fork or vfork
+==26944== 
+==26944== Valgrind detected that your program requires
+==26944== the following unimplemented functionality:
+==26944==    Valgrind does not support general clone().
+==26944== This may be because the functionality is hard to implement,
+==26944== or because no reasonable program would behave this way,
+==26944== or because nobody has yet needed it.  In any case, let us know at
+==26944== www.valgrind.org and/or try to work around the problem, if you can.
+==26944== 
+==26944== Valgrind has to exit now.  Sorry.  Bye!
+==26944== 
+
+sched status:
+  running_tid=1
+
+Thread 1: status = VgTs_Runnable syscall 220 (lwpid 26944)
+==26944==    at 0x40E8C14: __dl___bionic_clone (in /system/bin/linker64)
+==26944==    by 0x40D350F: __dl_clone (in /system/bin/linker64)
+==26944==    by 0x40340CB: __dl__ZL24debuggerd_signal_handleriP7siginfoPv (in /system/bin/linker64)
+==26944==    by 0x58098207: ??? (in /data/data/com.termux/files/usr/lib/valgrind/memcheck-arm64-linux)
+

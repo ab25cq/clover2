@@ -439,7 +439,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.init_color(short,short,short,short)", "System_init_color", System_init_color },
     { "System.color_content(short,pointer,pointer,pointer)", "System_color_content", System_color_content },
     { "System.pair_content(short,pointer,pointer)", "System_pair_content", System_pair_content },
-    { "System.reset_color_pairs()", "System_reset_color_pairs", System_reset_color_pairs },
+//    { "System.reset_color_pairs()", "System_reset_color_pairs", System_reset_color_pairs },
     { "System.COLOR_PAIR(int)", "System_COLOR_PAIR", System_COLOR_PAIR },
     { "System.PAIR_NUMBER(int)", "System_PAIR_NUMBER", System_PAIR_NUMBER },
     

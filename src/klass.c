@@ -255,7 +255,7 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
     return FALSE;
 }
 
-static BOOL read_from_file(int fd, void* buf, size_t size)
+BOOL read_from_file(int fd, void* buf, size_t size)
 {
     size_t size2;
 
@@ -273,7 +273,7 @@ static BOOL read_char_from_file(int fd, char* c)
     return read_from_file(fd, c, sizeof(char));
 }
 
-static BOOL read_int_from_file(int fd, int* n)
+BOOL read_int_from_file(int fd, int* n)
 {
     return read_from_file(fd, n, sizeof(int));
 }
@@ -283,7 +283,7 @@ static BOOL read_long_from_file(int fd, clint64* n)
     return read_from_file(fd, n, sizeof(clint64));
 }
 
-static BOOL read_const_from_file(int fd, sConst* constant)
+BOOL read_const_from_file(int fd, sConst* constant)
 {
     int len;
     if(!read_int_from_file(fd, &len)) {
@@ -362,6 +362,11 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
     if(!read_int_from_file(fd, &n)) {
         return FALSE;
     }
+    (*cl_type)->mPointerNum = n;
+
+    if(!read_int_from_file(fd, &n)) {
+        return FALSE;
+    }
 
     if(n) {
         (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
@@ -373,7 +378,7 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
     return TRUE;
 }
 
-static BOOL read_code_from_file(int fd, sByteCode* code)
+BOOL read_code_from_file(int fd, sByteCode* code)
 {
     int n;
 
@@ -605,7 +610,7 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     return TRUE;
 }
 
-static BOOL read_block_from_file(int fd, sCLBlockObject* block_object)
+BOOL read_block_from_file(int fd, sCLBlockObject* block_object)
 {
     if(!read_code_from_file(fd, &block_object->mByteCodes)) {
         return FALSE;

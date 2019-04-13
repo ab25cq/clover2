@@ -1,74 +1,170 @@
 #include "common.h"
 
+sCLBlockObject* gBlockObjects;
+int gNumBlockObjects;
+int gSizeBlockObjects;
+
+void script_init()
+{
+    gBlockObjects = MCALLOC(1, sizeof(sCLBlockObject)*4);
+    gSizeBlockObjects = 4;
+    gNumBlockObjects = 0;
+}
+
+void script_final()
+{
+/*
+    int i;
+    for(i=0; i<gNumBlockObjects; i++) {
+        sCLBlockObject* block_object = gBlockObjects + i;
+
+        sByteCode_free(&block_object->mByteCodes);
+        sConst_free(&block_object->mConst);
+    }
+*/
+    MFREE(gBlockObjects);
+}
+
+int add_block_object_to_script(sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda)
+{
+    if(gNumBlockObjects == gSizeBlockObjects) {
+        int new_size = gSizeBlockObjects * 2;
+        gBlockObjects = MREALLOC(gBlockObjects, sizeof(sCLMethod)*new_size);
+        memset(gBlockObjects + gSizeBlockObjects, 0, sizeof(sCLMethod)*(new_size - gSizeBlockObjects));
+        gSizeBlockObjects = new_size;
+    }
+
+    int num_block_objects = gNumBlockObjects;
+
+    sCLBlockObject* block_object = gBlockObjects + gNumBlockObjects;
+
+    block_object->mByteCodes = codes;
+    block_object->mConst = constant;
+    block_object->mVarNum = var_num;
+    block_object->mNumParams = num_params;
+    block_object->mLambda = lambda;
+
+    gNumBlockObjects++;
+
+    
+    return num_block_objects;
+}
+
+void add_block_object_to_script2(sCLBlockObject* block_object)
+{
+    if(gNumBlockObjects == gSizeBlockObjects) {
+        int new_size = gSizeBlockObjects * 2;
+        gBlockObjects = MREALLOC(gBlockObjects, sizeof(sCLMethod)*new_size);
+        memset(gBlockObjects + gSizeBlockObjects, 0, sizeof(sCLMethod)*(new_size - gSizeBlockObjects));
+        gSizeBlockObjects = new_size;
+    }
+
+    sCLBlockObject* block_object2 = gBlockObjects + gNumBlockObjects;
+
+    *block_object2 = *block_object;
+
+    gNumBlockObjects++;
+}
+
+BOOL read_source(char* fname, sBuf* source)
+{
+    int f = open(fname, O_RDONLY);
+
+    if(f < 0) {
+        fprintf(stderr, "%s doesn't exist(2)\n", fname);
+        return FALSE;
+    }
+
+    while(1) {
+        char buf[BUFSIZ+1];
+        int size = read(f, buf, BUFSIZ);
+
+        if(size == 0) {
+            break;
+        }
+        else if(size < 0) {
+            fprintf(stderr, "unexpected error\n");
+            close(f);
+            return FALSE;
+        }
+
+        buf[size] = 0;
+        sBuf_append_str(source, buf);
+
+        if(size < BUFSIZ) {
+            break;
+        }
+    }
+
+    close(f);
+
+    return TRUE;
+}
+
 BOOL eval_file(char* fname, int stack_size)
 {
-    FILE* f = fopen(fname, "r");
+    int fd = open(fname, O_RDONLY);
 
-    if(f == NULL) {
+    if(fd < 0) {
         fprintf(stderr, "%s doesn't exist(1)\n", fname);
         return FALSE;
     }
 
     /// magic number ///
-    char buf[BUFSIZ];
-    if(fread(buf, 1, 18, f) < 18) {
-        fclose(f);
-        fprintf(stderr, "%s is not clover script file\n", fname);
-        return FALSE;
-    }
-    buf[18] = 0;
-    if(strcmp(buf, "CLOVER SCRIPT FILE") != 0) {
-        fclose(f);
-        fprintf(stderr, "%s is not clover script file\n", fname);
-        return FALSE;
-    }
+    char c;
+    if(!read_from_file(fd, &c, 1) || c != 10) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 12) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 34) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 55) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'C') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'L') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'O') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'V') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'E') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'R') { close(fd); return FALSE; }
 
     int var_num;
-    if(fread(&var_num, sizeof(int), 1, f) < 1) {
-        fclose(f);
+    if(!read_int_from_file(fd, &var_num)) {
+        close(fd);
         fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
 
-    int code_len = 0;
-    if(fread(&code_len, sizeof(int), 1, f) < 1) {
-        fclose(f);
-        fprintf(stderr, "Clover2 can't read byte code size\n");
-        return FALSE;
-    }
-
-    char* code_contents = MMALLOC(code_len);
-    if(fread(code_contents, 1, code_len, f) < code_len) {
-        fclose(f);
-        MFREE(code_contents);
-        fprintf(stderr, "Clover2 can't read byte code\n");
-        return FALSE;
-    }
-
-    int code_len2 = 0;
-    if(fread(&code_len2, sizeof(int), 1, f) < 1) {
-        fclose(f);
-        MFREE(code_contents);
-        fprintf(stderr, "Clover2 can't read constant size\n");
-        return FALSE;
-    }
-
-    char* code_contents2 = MMALLOC(code_len2);
-    if(fread(code_contents2, 1, code_len2, f) < code_len2) {
-        fclose(f);
-        MFREE(code_contents);
-        MFREE(code_contents2);
-        fprintf(stderr, "Clover2 can't read byte code\n");
-        return FALSE;
-    }
-
     sByteCode code;
-    sByteCode_init(&code);
-    append_value_to_code(&code, code_contents, code_len, FALSE);
+    if(!read_code_from_file(fd, &code))
+    {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
 
     sConst constant;
-    sConst_init(&constant);
-    sConst_append(&constant, code_contents2, code_len2, FALSE);
+    if(!read_const_from_file(fd, &constant))
+    {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    int n;
+    if(!read_int_from_file(fd, &n)) {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<n; i++) {
+        sCLBlockObject block_object;
+
+        if(!read_block_from_file(fd, &block_object)) {
+            close(fd);
+            fprintf(stderr, "Clover2 can't read variable number\n");
+            return FALSE;
+        }
+
+        add_block_object_to_script2(&block_object);
+    }
 
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
@@ -88,10 +184,8 @@ BOOL eval_file(char* fname, int stack_size)
         MFREE(info.running_class_name);
         MFREE(info.running_method_name);
         free_global_stack(&info);
-        fclose(f);
+        close(fd);
         MFREE(stack);
-        MFREE(code_contents);
-        MFREE(code_contents2);
         sByteCode_free(&code);
         sConst_free(&constant);
         vm_mutex_off();
@@ -105,9 +199,7 @@ BOOL eval_file(char* fname, int stack_size)
 
     vm_mutex_off(); // see OP_RETURN
 
-    fclose(f);
-    MFREE(code_contents);
-    MFREE(code_contents2);
+    close(fd);
     MFREE(stack);
     sByteCode_free(&code);
     sConst_free(&constant);

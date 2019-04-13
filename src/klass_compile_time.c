@@ -14,6 +14,7 @@ static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, 
 
     (*cl_type)->mArray = node_type->mArray;
     (*cl_type)->mNullable = node_type->mNullable;
+    (*cl_type)->mPointerNum = node_type->mPointerNum;
 
     if(node_type->mBlockType) {
         (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
@@ -867,7 +868,7 @@ BOOL check_implemented_methods_for_interface(sCLClass* left_class, sCLClass* rig
 /////////////////////////////////////////////////////////////
 /// write class to a class file 
 /////////////////////////////////////////////////////////////
-static void append_const_to_buffer(sBuf* buf, sConst* constant)
+void append_const_to_buffer(sBuf* buf, sConst* constant)
 {
     sBuf_append_int(buf, constant->mLen);
     sBuf_append(buf, constant->mConst, sizeof(char)*constant->mLen);
@@ -897,6 +898,7 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
 
     sBuf_append_int(buf, cl_type->mArray);
     sBuf_append_int(buf, cl_type->mNullable);
+    sBuf_append_int(buf, cl_type->mPointerNum);
 
     if(cl_type->mBlockType) {
         sBuf_append_int(buf, 1);
@@ -907,7 +909,7 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
     }
 }
 
-static void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)
+void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)
 {
     sBuf_append_int(buf, code->mLen);
     sBuf_append(buf, code->mCodes, code->mLen);
@@ -981,7 +983,7 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
     }
 }
 
-static void append_block_to_buffer(sBuf* buf, sCLBlockObject* block_object)
+void append_block_to_buffer(sBuf* buf, sCLBlockObject* block_object)
 {
     append_byte_codes_to_buffer(buf, &block_object->mByteCodes);
     append_const_to_buffer(buf, &block_object->mConst);
@@ -1343,3 +1345,4 @@ BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL 
 
     return TRUE;
 }
+

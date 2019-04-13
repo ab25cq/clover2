@@ -2,7 +2,7 @@
 
 extern "C"
 {
-BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
+BOOL compile_to_native_code3(sByteCode* code, sConst* constant, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name)
 {
     switch(inst)
     {
@@ -1320,7 +1320,7 @@ BOOL compile_to_native_code3(sByteCode* code, sConst* constant, sCLClass* klass,
             break;
 
         default:
-            if(!compile_to_native_code4(code, constant, klass, inst, pc, llvm_stack_ptr, llvm_stack, params, current_block, function, var_num, try_catch_label_name))
+            if(!compile_to_native_code4(code, constant, inst, pc, llvm_stack_ptr, llvm_stack, params, current_block, function, var_num, try_catch_label_name))
             {
                 return FALSE;
             }

@@ -2262,11 +2262,13 @@ static void clover2_init()
     class_init();
     heap_init(HEAP_INIT_SIZE, HEAP_HANDLE_INIT_SIZE);
     stack_init();
+    script_init();
     (void)class_init_on_runtime();
 }
 
 static void clover2_final()
 {
+    script_final();
     thread_final();
     class_final_on_runtime();
     heap_final();
@@ -2292,7 +2294,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.3.5";
+char* gVersion = "10.3.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;

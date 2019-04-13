@@ -3,6 +3,18 @@
 extern "C" 
 {
 
+static char* gJITFuncs[METHOD_VAR_NUM_MAX];
+
+void entry_jit_funcs(char* fun, int num)
+{
+    gJITFuncs[num] = fun;
+
+    if(num >= METHOD_VAR_NUM_MAX) {
+        fprintf(stderr, "overflow number of functions\n");
+        exit(2);
+    }
+}
+
 void jit_init_on_runtime()
 {
     char* env = getenv("LD_LIBRARY_PATH");
@@ -10,6 +22,8 @@ void jit_init_on_runtime()
     snprintf(buf, 1024*2*2, "%s/share/clover2:%s:%s", PREFIX, env, getenv("PWD"));
 
     setenv("LD_LIBRARY_PATH", buf, 1);
+
+    memset(gJITFuncs, 0, sizeof(char*)*METHOD_VAR_NUM_MAX);
 }
 
 void jit_final_on_runtime()
@@ -72,6 +86,47 @@ static void llvm_load_dynamic_library(sCLClass* klass)
             fprintf(stderr, "%s\n", dlerror());
         }
     }
+}
+
+BOOL jit_funcs(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info)
+{
+    sBlockObject* object_data = CLBLOCK(block_object);
+
+    if(gJITFuncs[object_data->mBlockID])
+    {
+        fJITMethodType fun = (fJITMethodType)gJITFuncs[object_data->mBlockID];
+
+        CLVALUE* stack_ptr = stack + var_num;
+        CLVALUE* lvar = stack;
+
+        sCLStack* stack_id = append_stack_to_stack_list(info->stack, &stack_ptr, FALSE);
+
+        info->current_stack = stack;        // for invoking_block in native method
+        info->current_var_num = var_num;
+        info->stack_id = stack_id;
+
+        CLVALUE** stack_ptr_address = &stack_ptr;
+
+        CLVALUE** global_stack_ptr_address = &info->mTmpGlobalStackPtr;
+
+        BOOL result = fun(stack_ptr, lvar, info, stack, stack_ptr_address, var_num, constant, code, global_stack_ptr_address, stack + var_num);
+
+        if(!result) {
+            remove_stack_to_stack_list(stack_id);
+            return FALSE;
+        }
+
+        remove_stack_to_stack_list(stack_id);
+    }
+    else {
+        BOOL result = vm(code, constant, stack, var_num, klass, info);
+
+        if(!result) {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
 }
 
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr)
@@ -1703,6 +1758,15 @@ double run_cdouble_to_double_cast(CLObject obj)
     double value = (double)obj_data->mFields[0].mDoubleValue;
 
     return value;
+}
+
+void initialize_code_and_constant(sByteCode* code, sConst* constant, char* code_data, int code_len, char* const_data, int const_len)
+{
+    code->mCodes = code_data;
+    code->mLen = code_len;
+
+    constant->mConst = const_data;
+    constant->mLen = const_len;
 }
 
 }

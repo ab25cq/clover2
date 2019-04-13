@@ -12,6 +12,9 @@ ModuleAnalysisManager moduleAnalysisManager(false);
 
 GlobalVariable* gSigIntValue;
 
+GlobalVariable* gCodeDataValue;
+GlobalVariable* gConstDataValue;
+
 extern "C"
 {
 
@@ -91,7 +94,7 @@ Function* create_llvm_function(const std::string& name)
     return function;
 }
 
-BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block)
+BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block, BOOL jit_main)
 {
     char* try_catch_label_name = NULL;
 
@@ -133,6 +136,80 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
         store_llvm_value_to_lvar_with_offset(llvm_stack, i, &llvm_value);
     }
 */
+
+    if(jit_main) {
+        std::vector<Constant *> code_data_const(code->mLen);
+        int i;
+        for(i=0; i<code->mLen; i++) {
+            code_data_const[i] = ConstantInt::get(Type::getInt8Ty(TheContext), code->mCodes[i]);
+        }
+        Constant* code_init = ConstantArray::get(ArrayType::get(Type::getInt8Ty(TheContext), code->mLen), code_data_const);
+
+        /// gCodeData ///
+        Type* variable_type = ArrayType::get(Type::getInt8Ty(TheContext), code->mLen);
+
+        gCodeDataValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, code_init, "gCodeData");
+        gCodeDataValue->setAlignment(1);
+
+        variable_type = ArrayType::get(Type::getInt8Ty(TheContext), constant->mLen);
+
+        std::vector<Constant *> constant_data_const(constant->mLen);
+        for(i=0; i<constant->mLen; i++) {
+            constant_data_const[i] = ConstantInt::get(Type::getInt8Ty(TheContext), constant->mConst[i]);
+        }
+        Constant* const_init = ConstantArray::get(ArrayType::get(Type::getInt8Ty(TheContext), constant->mLen), constant_data_const);
+
+        gConstDataValue = new GlobalVariable(*TheModule, variable_type, false, GlobalValue::ExternalLinkage, const_init, "gConstData");
+        gConstDataValue->setAlignment(1);
+
+        Function* fun = TheModule->getFunction("initialize_code_and_constant");
+
+        std::vector<Value*> params2;
+
+        std::string code_value_name("code");
+        Value* code_value = params[code_value_name];
+        params2.push_back(code_value);
+
+        std::string constant_value_name("constant");
+        Value* constant_value = params[constant_value_name];
+        params2.push_back(constant_value);
+
+
+        Value* code_data = Builder.CreateCast(Instruction::BitCast, gCodeDataValue, PointerType::get(IntegerType::get(TheContext, 8), 0));
+
+        params2.push_back(code_data);
+
+        Value* code_len = ConstantInt::get(TheContext, llvm::APInt(32, code->mLen, true));
+
+        params2.push_back(code_len);
+
+        Value* const_data = Builder.CreateCast(Instruction::BitCast, gConstDataValue, PointerType::get(IntegerType::get(TheContext, 8), 0));
+        params2.push_back(const_data);
+
+        Value* const_len = ConstantInt::get(TheContext, llvm::APInt(32, constant->mLen, true));
+        params2.push_back(const_len);
+
+        (void)Builder.CreateCall(fun, params2);
+
+        for(i=0; i<gNumBlockObjects; i++) {
+            char func_path[METHOD_NAME_MAX + 128];
+            create_block_path_for_jit2(i, func_path, METHOD_NAME_MAX + 128);
+
+            Function* jit_fun = TheModule->getFunction(func_path);
+
+            Function* fun = TheModule->getFunction("entry_jit_funcs");
+
+            std::vector<Value*> params2;
+
+            Value* param1 = Builder.CreateCast(Instruction::BitCast, jit_fun, PointerType::get(IntegerType::get(TheContext, 8), 0));
+            params2.push_back(param1);
+
+            Value* param2 = ConstantInt::get(TheContext, llvm::APInt(32, i, true));
+            params2.push_back(param2);
+
+            (void)Builder.CreateCall(fun, params2);
+        }
+    }
 
     int num_cond_jump = 0;
     char* cond_jump_labels[MAX_COND_JUMP];
@@ -1174,68 +1251,171 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
 
                 sCLMethod* method = klass->mMethods + method_index;
 
+                if(strcmp(class_name, "C") == 0) {
+                    char* fun_name = METHOD_NAME2(klass, method);
+
+                    int num_params = method->mNumParams;
+                    Function* fun = TheModule->getFunction(fun_name);
+
+                    std::vector<Value*> params2;
+
+                    int i;
+                    for(i=0; i<num_params; i++)
+                    {
+                        sCLParam* cl_param = method->mParams + i;
+
+                        LVALUE* param = get_stack_ptr_value_from_index(llvm_stack_ptr, -num_params+i);
+
+                        sNodeType* node_type = create_node_type_from_cl_type(cl_param->mType, klass);
+
+                        Type* param_type = NULL;
+                        if(type_identify_with_class_name(node_type, "int"))
+                        {
+                            param_type = Type::getInt32Ty(TheContext);
+                        }
+                        else if(type_identify_with_class_name(node_type, "byte"))
+                        {
+                            param_type = Type::getInt8Ty(TheContext);
+                        }
+                        else if(type_identify_with_class_name(node_type, "short"))
+                        {
+                            param_type = Type::getInt16Ty(TheContext);
+                        }
+                        else if(type_identify_with_class_name(node_type, "long"))
+                        {
+                            param_type = Type::getInt64Ty(TheContext);
+                        }
+                        else if(type_identify_with_class_name(node_type, "float"))
+                        {
+                            param_type = Type::getFloatTy(TheContext);
+                        }
+                        else if(type_identify_with_class_name(node_type, "double"))
+                        {
+                            param_type = Type::getDoubleTy(TheContext);
+                        }
+
+                        int j;
+                        for(j=0; j<node_type->mPointerNum; j++)
+                        {
+                            param_type = PointerType::get(param_type, 0);
+                        }
+
+                        param->value = Builder.CreateCast(Instruction::Trunc, param->value, param_type);
+
+                        params2.push_back(param->value);
+                    }
+
+                    Value* result = Builder.CreateCall(fun, params2);
+
+                    /// vm stack_ptr to llvm stack ///
+                    LVALUE llvm_value;
+                    llvm_value.value = result;
+
+                    switch(size) {
+                    case 1:
+                        llvm_value.kind = kLVKindInt1;
+                        break;
+
+                    case 8:
+                        llvm_value.kind = kLVKindInt8;
+                        break;
+
+                    case 16:
+                        llvm_value.kind = kLVKindInt16;
+                        break;
+
+                    case 32:
+                        llvm_value.kind = kLVKindInt32;
+                        break;
+
+                    case 64:
+                        llvm_value.kind = kLVKindInt64;
+                        break;
+
+                    case 128:
+                        llvm_value.kind = kLVKindFloat;
+                        break;
+
+                    case 256:
+                        llvm_value.kind = kLVKindDouble;
+                        break;
+
+                    case 1024:
+                        llvm_value.kind = kLVKindPointer8;
+                        break;
+                    }
+
+                    /// dec llvm stack pointer ///
+                    dec_stack_ptr(&llvm_stack_ptr, num_params);
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+
+                    inc_vm_stack_ptr(params, current_block, -num_params);
+                    push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
+                else {
 //printf("class_name2 %s %s\n", class_name, METHOD_NAME2(klass, method));
 //show_str_value_on_runtime(METHOD_NAME2(klass, method));
 
-                /// load class in runtime ///
-                char* class_name2 = CONS_str(constant, offset);
-                
-                Function* load_class_fun = TheModule->getFunction("get_class_with_load_and_initialize");
+                    /// load class in runtime ///
+                    char* class_name2 = CONS_str(constant, offset);
+                    
+                    Function* load_class_fun = TheModule->getFunction("get_class_with_load_and_initialize");
 
-                std::vector<Value*> params2;
+                    std::vector<Value*> params2;
 
-                Value* param1 = llvm_create_string(class_name2);
-                params2.push_back(param1);
+                    Value* param1 = llvm_create_string(class_name2);
+                    params2.push_back(param1);
 
-                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
-                params2.push_back(param2);
+                    Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
+                    params2.push_back(param2);
 
-                Value* klass_value = Builder.CreateCall(load_class_fun, params2);
+                    Value* klass_value = Builder.CreateCall(load_class_fun, params2);
 
-                if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block, llvm_stack, var_num);
+                    if_value_is_null_ret_zero(klass_value, 64, params, function, &current_block, llvm_stack, var_num);
 
-                int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
+                    int real_param_num = method->mNumParams + (method->mFlags & METHOD_FLAGS_CLASS_METHOD ? 0:1);
 
-                /// go ///
-                Function* fun = TheModule->getFunction("call_invoke_method");
+                    /// go ///
+                    Function* fun = TheModule->getFunction("call_invoke_method");
 
-                params2.clear();
+                    params2.clear();
 
-                param1 = klass_value;
-                params2.push_back(param1);
+                    param1 = klass_value;
+                    params2.push_back(param1);
 
-                param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
-                params2.push_back(param2);
+                    param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, method_index, true));
+                    params2.push_back(param2);
 
-                std::string stack_value_name("stack");
-                Value* param3 = params[stack_value_name];
-                params2.push_back(param3);
+                    std::string stack_value_name("stack");
+                    Value* param3 = params[stack_value_name];
+                    params2.push_back(param3);
 
-                std::string var_num_value_name("var_num");
-                Value* param4 = params[var_num_value_name];
-                params2.push_back(param4);
+                    std::string var_num_value_name("var_num");
+                    Value* param4 = params[var_num_value_name];
+                    params2.push_back(param4);
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param5 = params[stack_ptr_address_name];
-                params2.push_back(param5);
+                    std::string stack_ptr_address_name("stack_ptr_address");
+                    Value* param5 = params[stack_ptr_address_name];
+                    params2.push_back(param5);
 
-                std::string info_value_name("info");
-                Value* param6 = params[info_value_name];
-                params2.push_back(param6);
+                    std::string info_value_name("info");
+                    Value* param6 = params[info_value_name];
+                    params2.push_back(param6);
 
-                Value* result = Builder.CreateCall(fun, params2);
+                    Value* result = Builder.CreateCall(fun, params2);
 
-                finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
-                
-                /// dec llvm stack pointer ///
-                dec_stack_ptr(&llvm_stack_ptr, real_param_num);
+                    finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+                    
+                    /// dec llvm stack pointer ///
+                    dec_stack_ptr(&llvm_stack_ptr, real_param_num);
 
-                /// vm stack_ptr to llvm stack ///
-                LVALUE llvm_value = get_method_call_result(params, current_block);
+                    /// vm stack_ptr to llvm stack ///
+                    LVALUE llvm_value = get_method_call_result(params, current_block);
 
-                trunc_variable(&llvm_value, size);
+                    trunc_variable(&llvm_value, size);
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                }
                 }
                 break;
 
@@ -2981,6 +3161,21 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 }
                 break;
 
+            case OP_CREATE_C_STRING: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* str = CONS_str(constant, offset);
+
+                LVALUE llvm_value;
+                llvm_value.value = llvm_create_string(str);
+                llvm_value.kind = kLVKindPointer8;
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
+                break;
+
             case OP_CREATE_ARRAY: {
                 int num_elements = *(int*)pc;
                 pc += sizeof(int);
@@ -3864,7 +4059,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, sCLClass* klass, 
                 break;
 
             default:
-                if(!compile_to_native_code2(code, constant, klass, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
+                if(!compile_to_native_code2(code, constant, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
                 {
                     return FALSE;
                 }
@@ -3917,7 +4112,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
                 int var_num = method->mVarNum;
                 int real_param_num = method->mNumParams + ((method->mFlags & METHOD_FLAGS_CLASS_METHOD) ? 0:1);
 
-                if(!compile_to_native_code(code, constant, klass, var_num, real_param_num, method_path2, FALSE, FALSE)) {
+                if(!compile_to_native_code(code, constant, var_num, real_param_num, method_path2, FALSE, FALSE, FALSE)) {
                     return FALSE;
                 }
 
@@ -3937,7 +4132,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
             int var_num = block_object->mVarNum;
             int real_param_num = block_object->mNumParams;
 
-            if(!compile_to_native_code(code, constant, klass, var_num, real_param_num, func_path, !block_object->mLambda, TRUE)) 
+            if(!compile_to_native_code(code, constant, var_num, real_param_num, func_path, !block_object->mLambda, TRUE, FALSE)) 
             {
                 return FALSE;
             }
@@ -4015,6 +4210,225 @@ static BOOL compile_jit_methods(sCLClass* klass)
     }
 
     delete TheModule;
+
+    return TRUE;
+}
+
+static BOOL read_script(char* fname, sByteCode* code, sConst* constant, int* var_num, int* param_num)
+{
+    int fd = open(fname, O_RDONLY);
+
+    if(fd < 0) {
+        fprintf(stderr, "%s doesn't exist(1)\n", fname);
+        return FALSE;
+    }
+
+    /// magic number ///
+    char c;
+    if(!read_from_file(fd, &c, 1) || c != 10) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 12) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 34) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 55) { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'C') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'L') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'O') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'V') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'E') { close(fd); return FALSE; }
+    if(!read_from_file(fd, &c, 1) || c != 'R') { close(fd); return FALSE; }
+
+    if(!read_int_from_file(fd, var_num)) {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    *param_num = *var_num;
+
+    if(!read_code_from_file(fd, code))
+    {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    if(!read_const_from_file(fd, constant))
+    {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    int n;
+    if(!read_int_from_file(fd, &n)) {
+        close(fd);
+        fprintf(stderr, "Clover2 can't read variable number\n");
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<n; i++) {
+        sCLBlockObject block_object;
+
+        if(!read_block_from_file(fd, &block_object)) {
+            close(fd);
+            fprintf(stderr, "Clover2 can't read variable number\n");
+            return FALSE;
+        }
+
+        add_block_object_to_script2(&block_object);
+    }
+
+    close(fd);
+
+    return TRUE;
+}
+
+static BOOL compile_jit_script(char* sname)
+{
+    char module_name[PATH_MAX + 128];
+    snprintf(module_name, PATH_MAX, "Module %s", sname);
+    TheModule = new Module(module_name, TheContext);
+
+    TheFPM = llvm::make_unique<FunctionPassManager>(TheModule);
+
+    create_internal_functions();
+    TheLabels.clear();
+
+    char sname2[PATH_MAX];
+    xstrncpy(sname2, sname, PATH_MAX);
+
+    char* p = sname2 + strlen(sname2);
+    while(p >= sname2) {
+        if(*p == '.') {
+            *p = '\0';
+            break;
+        }
+        else {
+            p--;
+        }
+    }
+
+    sByteCode code;
+    sConst constant;
+    int var_num = 0;
+    int param_num = 0;;
+
+    sByteCode_init(&code);
+    sConst_init(&constant);
+
+    if(!read_script(sname, &code, &constant, &var_num, &param_num)) 
+    {
+        sByteCode_free(&code);
+        sConst_free(&constant);
+        return FALSE;
+    }
+
+    int i;
+    for(i=0; i<gNumBlockObjects; i++) {
+        sCLBlockObject* block_object = gBlockObjects + i;
+
+        char func_path[METHOD_NAME_MAX + 128];
+        create_block_path_for_jit2(i, func_path, METHOD_NAME_MAX + 128);
+
+        sByteCode* code = &block_object->mByteCodes;
+        sConst* constant = &block_object->mConst;
+
+        int var_num = block_object->mVarNum;
+        int real_param_num = block_object->mNumParams;
+
+        if(!compile_to_native_code(code, constant, var_num, real_param_num, func_path, !block_object->mLambda, TRUE, FALSE)) 
+        {
+            return FALSE;
+        }
+    }
+
+    if(!compile_to_native_code(&code, &constant, var_num, param_num, "clover2_main", FALSE, FALSE, TRUE)) 
+    {
+        sByteCode_free(&code);
+        sConst_free(&constant);
+        return FALSE;
+    }
+
+    sByteCode_free(&code);
+    sConst_free(&constant);
+
+    llvm::PassBuilder passBuilder;
+
+    passBuilder.registerModuleAnalyses(moduleAnalysisManager);
+    passBuilder.registerCGSCCAnalyses(cGSCCAnalysisManager);
+    passBuilder.registerFunctionAnalyses(TheFAM);
+    passBuilder.registerLoopAnalyses(loopAnalysisManager);
+
+#ifndef MDEBUG
+    passBuilder.buildModuleOptimizationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
+#endif
+
+
+#if LLVM_VERSION_MAJOR >= 7
+    char path[PATH_MAX];
+    snprintf(path, PATH_MAX, "%s.bc", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+
+    verifyModule(*TheModule);
+
+    llvm::WriteBitcodeToFile(*TheModule, output_stream, true);
+    output_stream.flush();
+#elif LLVM_VERSION_MAJOR >= 4
+    char path[PATH_MAX]; snprintf(path, PATH_MAX, "%s.bc", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+
+    verifyModule(*TheModule);
+
+    llvm::WriteBitcodeToFile(TheModule, output_stream, true);
+    output_stream.flush();
+#else
+    char path[PATH_MAX];
+    snprintf(path, PATH_MAX, "%s.bc", sname2);
+
+    (void)unlink(path);
+
+    std::error_code ecode;
+    llvm::raw_fd_ostream output_stream(path, ecode, llvm::sys::fs::F_None);
+
+    std::string err_str;
+    raw_string_ostream err_ostream(err_str);
+
+    verifyModule(*TheModule);
+
+    llvm::WriteBitcodeToFile(TheModule, output_stream, true);
+    output_stream.flush();
+#endif
+
+    delete TheModule;
+
+    return TRUE;
+}
+
+
+BOOL jit_script_compiler(char* sname)
+{
+    jit_init();
+
+    if(!compile_jit_script(sname)) {
+        jit_final();
+        return FALSE;
+    }
+
+    jit_final();
 
     return TRUE;
 }
@@ -4513,6 +4927,66 @@ void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> param
     Builder.CreateAlignedStore(llvm_value2.value, loaded_stack_ptr_address_value, 8);
 
     inc_vm_stack_ptr(params, current_block, 1);
+}
+
+Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
+{
+    Type* result = NULL;
+
+    sNodeType* node_type = create_node_type_from_cl_type(cl_type, klass);
+
+    if(type_identify_with_class_name(node_type, "int") || type_identify_with_class_name(node_type, "char"))
+    {
+        result = IntegerType::get(TheContext, 32);
+    }
+    else if(type_identify_with_class_name(node_type, "byte"))
+    {
+        result = IntegerType::get(TheContext, 8);
+    }
+    else if(type_identify_with_class_name(node_type, "short"))
+    {
+        result = IntegerType::get(TheContext, 16);
+    }
+    else if(type_identify_with_class_name(node_type, "long"))
+    {
+        result = IntegerType::get(TheContext, 64);
+    }
+
+    int i;
+    for(i=0; i<node_type->mPointerNum; i++) {
+        result = PointerType::get(result, 0);
+    }
+
+    return result;
+}
+
+void create_c_ffi_functions()
+{
+    sCLClass* klass = load_class("C", 0, FALSE);
+
+    if(klass) {
+        int i=0;
+        for(i=0; i<klass->mNumMethods; i++) {
+            sCLMethod* method = klass->mMethods + i;
+
+            Type* result_type = create_c_type_from_cl_type(method->mResultType, klass);;
+
+            std::vector<Type *> type_params;
+
+            int j=0;
+            for(j=0; j<method->mNumParams; j++) {
+                sCLParam* param = method->mParams + j;
+
+                Type* param_type = create_c_type_from_cl_type(param->mType, klass);;
+                type_params.push_back(param_type);
+            }
+
+            char* func_name = METHOD_NAME2(klass, method);
+
+            FunctionType* function_type = FunctionType::get(result_type, type_params, false);
+            Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
+        }
+    }
 }
 
 void create_internal_functions()
@@ -6622,6 +7096,46 @@ void create_internal_functions()
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "push_value_to_global_stack", TheModule);
+
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    param3_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param3_type);
+
+    param4_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param4_type);
+
+    param5_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param5_type);
+
+    param6_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param6_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "initialize_code_and_constant", TheModule);
+
+    type_params.clear();
+    
+    result_type = Type::getVoidTy(TheContext);
+
+    param1_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "entry_jit_funcs", TheModule);
+
+    create_c_ffi_functions();
 }
 
 LVALUE* get_stack_ptr_value_from_index(LVALUE* llvm_stack_ptr, int index)

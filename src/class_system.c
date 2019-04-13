@@ -9158,13 +9158,14 @@ BOOL System_pair_content(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+/*
 BOOL System_reset_color_pairs(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     reset_color_pairs();
     
     return TRUE;
 }
-
+*/
 
 BOOL System_COLOR_PAIR(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {

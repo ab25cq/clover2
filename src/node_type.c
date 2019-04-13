@@ -79,6 +79,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
 
     node_type2->mArray = node_type->mArray;
     node_type2->mNullable = node_type->mNullable;
+    node_type2->mPointerNum = node_type->mPointerNum;
 
     if(node_type->mBlockType) {
         node_type2->mBlockType = clone_node_block_type(node_type->mBlockType);
@@ -252,6 +253,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
 
     node_type->mArray = cl_type->mArray;
     node_type->mNullable = cl_type->mNullable;
+    node_type->mPointerNum = cl_type->mPointerNum;
 
     if(cl_type->mBlockType) {
         node_type->mBlockType = alloc_node_block_type();
@@ -344,6 +346,10 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sCLClass* left_class = left3->mClass;
     sCLClass* right_class = right3->mClass;
 
+    if(left3->mPointerNum > 0 && type_identify_with_class_name(right3, "pointer"))
+    {
+        return TRUE;
+    }
     if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
     {
         return TRUE;
@@ -531,6 +537,7 @@ static void solve_self_for_node_type(sNodeType* node_type, ALLOC sNodeType** res
         (*result)->mBlockType = node_type->mBlockType;
         (*result)->mArray = node_type->mArray;
         (*result)->mNullable = node_type->mNullable;
+        (*result)->mPointerNum = node_type->mPointerNum;
     }
     else {
         (*result) = node_type;
@@ -570,6 +577,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
                     *result = ALLOC clone_node_type(generics_type->mGenericsTypes[i]);
                     (*result)->mArray = node_type2->mArray;
                     (*result)->mNullable = node_type2->mNullable;
+                    (*result)->mPointerNum = node_type2->mPointerNum;
                     return TRUE;
                 }
                 else {
@@ -613,6 +621,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
 
         (*result)->mArray = node_type2->mArray;
         (*result)->mNullable = node_type2->mNullable;
+        (*result)->mPointerNum = node_type2->mPointerNum;
     }
     else {
         *result = clone_node_type(node_type2); // no solve

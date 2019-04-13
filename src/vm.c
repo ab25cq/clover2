@@ -63,6 +63,10 @@ void dec_andand_oror_array(sVMInfo* info)
 void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_CREATE_C_STRING:
+            puts("OP_CREATE_C_STRING");
+            break;
+
         case OP_BYTE_TO_BOOL_CAST:
             puts("OP_BYTE_TO_BOOL_CAST");
             break;
@@ -1232,8 +1236,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 #ifdef ENABLE_JIT
         klass = object_data->mClass2;
 
-        if(object_data->mBlockID == -1 || klass == NULL) {
-            if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
+        if(klass == NULL) {
+            if(!jit_funcs(&code, &constant, new_stack, new_var_num, klass, NULL, block_object, info))
+            {
                 /// copy back variables to parent ///
                 object_data = CLBLOCK(block_object);
                 if(object_data->mParentVarNum > 0) {
@@ -1288,8 +1293,9 @@ BOOL invoke_block(CLObject block_object, CLVALUE* stack, int var_num, int num_pa
 #ifdef ENABLE_JIT
         klass = object_data->mClass2;
 
-        if(object_data->mBlockID == -1 || klass == NULL) {
-            if(!vm(&code, &constant, new_stack, new_var_num, klass, info)) {
+        if(klass == NULL) {
+            if(!jit_funcs(&code, &constant, new_stack, new_var_num, klass, NULL, block_object, info))
+            {
                 /// copy back variables to parent ///
                 object_data = CLBLOCK(block_object);
                 if(object_data->mParentVarNum > 0) {
@@ -1484,6 +1490,7 @@ BOOL load_fundamental_classes_on_runtime()
     load_class("Thread", 0, FALSE);
     load_class("Clover", 0, FALSE);
     load_class("Null", 0, FALSE);
+    load_class("C", 0, FALSE);
 
     gRunningInitializer = TRUE;
     call_all_class_initializer();
@@ -16397,8 +16404,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_CREATE_PATH:
                 {
-                    
-
                     unsigned int offset = *(unsigned int*)pc;
                     pc += sizeof(int);
 
@@ -16457,6 +16462,19 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     }
 
                     
+                }
+                break;
+
+            case OP_CREATE_C_STRING:
+                {
+                    unsigned int offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+                    char* str = CONS_str(constant, offset);
+
+                    stack_ptr->mLongValue = 0;              // zero clear for jit
+                    stack_ptr->mPointerValue = str;
+                    stack_ptr++;
                 }
                 break;
 

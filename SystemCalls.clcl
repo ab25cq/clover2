@@ -461,7 +461,7 @@ inherit System
     def init_color(pair:short, r:short, g:short, b:short): native;
     def color_content(color:short, r:pointer@short, g:pointer@short, b:pointer@short):native;
     def pair_content(pair:short, f:pointer@short, b:pointer@short): native;
-    def reset_color_pairs(): native;
+    #def reset_color_pairs(): native;
     def COLOR_PAIRS(n:int):native int;
     def PAIR_NUMBER(attr:int):native int;
     

@@ -1,4 +1,8 @@
 
+version 10.3.6
+
+    Fixed the bug on PC
+
 version 10.3.5
 
     Finish curses library implement. I could't have suported all routines yet. It's too many....

@@ -8,7 +8,7 @@ CLObject create_integer(int value, sVMInfo* info)
     sCLObject* obj_data = CLOBJECT(obj);
 
     obj_data->mFields[0].mIntValue = value;
-    
+
     return obj;
 }
 
