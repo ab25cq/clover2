@@ -28,6 +28,7 @@ DESTDIR=@DESTDIR@
 OBJS=@OBJS@
 COMPILER_OBJS=@COMPILER_OBJS@
 JIT_OBJS=@JIT_OBJS@
+JIT_MAIN_OBJ=@JIT_MAIN_OBJ@
 JIT_RUNTIME_OBJS=@JIT_RUNTIME_OBJS@
 JIT_SCRIPT_RUNTIME_OBJS=@JIT_SCRIPT_RUNTIME_OBJS@
 COMMON_OBJS=@COMMON_OBJS@
@@ -109,7 +110,7 @@ String.ojsclcl: JS.jsclcl
 	PWD=`pwd`; ./cclover2 -core Float64Array.ojsclcl
 	PWD=`pwd`; ./cclover2 -core DataView.ojsclcl
 
-libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS) $(JIT_SCRIPT_RUNTIME_OBJS) src/jit_main2.o
+libclover2.so.1.0.0: $(COMMON_OBJ) $(COMPILER_OBJS) $(OBJS) $(JIT_RUNTIME_OBJS) $(JIT_SCRIPT_RUNTIME_OBJS) $(JIT_MAIN_OBJ)
 	$(CC) -shared -o libclover2.so.1.0.0 $(JIT_SCRIPT_RUNTIME_OBJS) $(CFLAGS) $(LIBS)
 	ln -s -f libclover2.so.1.0.0 libclover2.so.1
 	ln -s -f libclover2.so.1.0.0 libclover2.so
