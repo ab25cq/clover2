@@ -1,11 +1,14 @@
-search mode utf-8
-search mode in visual mode
+画面の最後の列でoや入力がおかしい
+画面の最後の列でAがおかしい
 
 .の繰返し
 
 /入力時にC-w
 
 ヴィジュアルモード中に/で検索
+
+search mode utf-8
+search mode in visual mode
 
 ビィジュアルモード複数行のときおかしい
 複数行ある行ばかりだとzzがおかしい

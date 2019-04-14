@@ -2570,10 +2570,15 @@ class ViClone version 21
 
         win.makeVisibleTexts();
         
-        (y2, x2) := win.realPosToViewPos(y+1, spaces_num);
-        
-        win.cursorX = x2;
-        win.cursorY = y2;
+        if(win.cursorY+1 >= win.MaxY-1) {
+            win.cursorY++;
+        }
+        else {
+            (y2, x2) := win.realPosToViewPos(y+1, spaces_num);
+            
+            win.cursorX = x2;
+            win.cursorY = y2;
+        }
 
         if(win.cursorY >= win.MaxY-1) {
             (tmp, tmp2, top_line_size) := win.visibleTextsPos.items(0);
