@@ -256,6 +256,11 @@ BOOL compile_script(char* fname, char* source, BOOL js)
 
     int var_num = get_var_num(info.lv_table);
 
+    if(var_num >= METHOD_VAR_NUM_MAX) {
+        fprintf(stderr, "overflow the variable nuumber\n");
+        exit(2);
+    }
+
     if(!write_code_and_constant_to_file(&code, &constant, var_num, fname,js)) {
         sByteCode_free(&code);
         sConst_free(&constant);

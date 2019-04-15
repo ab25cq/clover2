@@ -173,5 +173,10 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
     add_code_to_method(method, cinfo2.code, var_num);
     cinfo->err_num += cinfo2.err_num;
 
+    if(var_num >= METHOD_VAR_NUM_MAX) {
+        fprintf(stderr, "overflow method variable nuumber\n");
+        exit(2);
+    }
+
     return TRUE;
 }
