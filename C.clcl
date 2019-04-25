@@ -1,4 +1,4 @@
-extern
+class C version 1
 {
     def puts(str:byte*):int;
 }

@@ -1747,7 +1747,8 @@ static BOOL new_expression(unsigned int* node, sParserInfo* info)
     sNodeType* node_type = NULL;
     unsigned int array_num = 0;
 
-    if(!parse_type_for_new(&node_type, &array_num, info)) {
+    if(!parse_type_for_new(&node_type, &array_num, info)) 
+    {
         return FALSE;
     }
 
@@ -2175,11 +2176,26 @@ BOOL parse_type(sNodeType** result_type, sParserInfo* info)
         }
     }
 
-    if(*info->p == '[' && *(info->p+1) == ']') {
-        info->p+=2;
+    if(*info->p == '[') {
+        info->p++;
         skip_spaces_and_lf(info);
 
+        int array_num = 0;
+        if(isdigit(*info->p)) {
+            while(isdigit(*info->p)) {
+                array_num = array_num * 10 + *info->p - '0';
+                info->p++;
+                skip_spaces_and_lf(info);
+            }
+        }
+
+        if(*info->p == ']') {
+            info->p++;
+            skip_spaces_and_lf(info);
+        }
+
         (*result_type)->mArray = TRUE;
+        (*result_type)->mArrayNum = array_num;
     }
 
 
@@ -5155,6 +5171,8 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                     return FALSE;
                 }
 
+                skip_spaces_and_lf(info);
+
                 /// class field or class method ///
                 if(*info->p == '.') {
                     info->p++;
@@ -5229,18 +5247,13 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         }
                     }
                 }
-                else if(*info->p == '(' || *info->p == '[') {
+                else {
                     info->p = p_before;
                     info->sline = sline_before;
 
                     if(!new_expression(node, info)) {
                         return FALSE;
                     }
-                }
-                else {
-                    info->sline = sline_before;
-                    parser_err_msg(info, "require . or ( or [ after class name");
-                    info->err_num++;
                 }
             }
             /// the local variable ///

@@ -2,4 +2,6 @@ C-FFIでstruct
 
 C-FFIでint以外のデータ型に対応
 
-変数のMAXの値でoverflowのエラーをだす。
+スタックの値オーバーフローしてたらコンパイル時にエラーをだす。
+
+C FFI Nullのときresultは取れない

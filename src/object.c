@@ -45,7 +45,13 @@ static unsigned long long object_size(sCLClass* klass)
 {
     unsigned long long size;
 
-    if(klass->mAllocSizeMethodIndex != -1) {
+    if(klass->mAllocSize > 0 && (klass->mFlags & CLASS_FLAGS_STRUCT))
+    {
+        size = klass->mAllocSize;
+
+        size += sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+    }
+    else if(klass->mAllocSizeMethodIndex != -1) {
         size = 0;
         (void)call_alloc_size_method(klass, &size);
 
@@ -65,9 +71,37 @@ static unsigned long long object_size(sCLClass* klass)
     return size;
 }
 
+static unsigned long long object_size2(int alloc_size)
+{
+    unsigned long long size;
+
+    size = alloc_size;
+
+    size += sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
+
+    return size;
+}
+
 CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 {
     unsigned int size = (unsigned int)object_size(klass);
+
+    alignment(&size);
+
+    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+
+    sCLObject* object_data = CLOBJECT(obj);
+
+    object_data->mType = MSTRDUP(type);
+
+//printf("create_object %d %s\n", obj, CLASS_NAME(klass));
+
+    return obj;
+}
+
+CLObject create_object2(sCLClass* klass, char* type, int alloc_size, sVMInfo* info)
+{
+    unsigned int size = (unsigned int)object_size2(alloc_size);
 
     alignment(&size);
 

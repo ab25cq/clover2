@@ -2901,9 +2901,22 @@ void cast_right_type_to_Array(sNodeType** right_type, sCompileInfo* info)
     }
 }
 
+void cast_array_to_clang_array(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
+{
+    sCLClass* klass = left_type->mClass;
+
+    append_opecode_to_code(info->code, OP_ARRAY_TO_CLANG_ARRAY_CAST, info->no_output);
+
+    *right_type = clone_node_type(left_type);
+}
+
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
 {
-    if(left_type->mArray) {
+    if(left_type->mArrayNum > 0 && (*right_type)->mArray && left_type->mClass == (*right_type)->mClass)
+    {
+        cast_array_to_clang_array(left_type, right_type, info);
+    }
+    else if(left_type->mArray) {
     }
     else if((*right_type)->mArray) {
         if(type_identify_with_class_name(left_type, "Array")) {

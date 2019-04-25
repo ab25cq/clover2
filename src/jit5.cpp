@@ -5068,6 +5068,35 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             }
             break;
 
+        case OP_ARRAY_TO_CLANG_ARRAY_CAST: {
+            LVALUE* array = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            Function* fun = TheModule->getFunction("run_array_to_clang_array_cast");
+
+            std::vector<Value*> params2;
+
+            LVALUE array2 = trunc_value(array, 32);
+            Value* param1 = array2.value;
+            params2.push_back(param1);
+
+            std::string info_value_name("info");
+            Value* param2 = params[info_value_name];
+            params2.push_back(param2);
+
+            Value* result = Builder.CreateCall(fun, params2);
+
+            LVALUE llvm_value;
+            llvm_value.value = result;
+            llvm_value.kind = kLVKindPointer8;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
         case OP_BYTE_TO_BOOL_CAST: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
             Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);

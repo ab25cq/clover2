@@ -125,6 +125,7 @@ extern std::unique_ptr<FunctionPassManager> TheFPM;
 extern std::map<std::string, BasicBlock*> TheLabels;
 extern FunctionAnalysisManager TheFAM;
 
+Type* create_c_type_from_class(sCLClass* klass);
 BOOL compile_to_native_code2(sByteCode* code, sConst* constant, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
 BOOL compile_to_native_code3(sByteCode* code, sConst* constant,  int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);
 BOOL compile_to_native_code4(sByteCode* code, sConst* constant, int inst, char** pc, LVALUE** llvm_stack_ptr, LVALUE* llvm_stack, std::map<std::string, Value*>& params, BasicBlock** current_block, Function** function, int var_num, char** try_catch_label_name);

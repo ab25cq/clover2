@@ -94,6 +94,187 @@ Function* create_llvm_function(const std::string& name)
     return function;
 }
 
+Type* convert_struct_type_to_i64_array(sCLType* cl_type, sCLClass* klass)
+{
+    int offset = cl_type->mClassNameOffset;
+    char* class_name = CONS_str(&klass->mConst, offset);
+    sCLClass* klass2 = get_class_with_load(class_name, FALSE);
+
+    int alloc_size = klass2->mAllocSize;
+
+    int i64_num = alloc_size * 8 / 64;
+
+    Type* result;
+    if(i64_num == 1) {
+        result = IntegerType::get(TheContext, 64);
+    }
+    else {
+        result = ArrayType::get(Type::getInt64Ty(TheContext), i64_num);
+    }
+
+    return result;
+}
+
+Type* convert_array_type_to_pointer(sCLType* cl_type, sCLClass* klass)
+{
+    int offset = cl_type->mClassNameOffset;
+    char* class_name = CONS_str(&klass->mConst, offset);
+    sCLClass* klass2 = get_class_with_load(class_name, FALSE);
+
+    Type* type = create_c_type_from_class(klass2);
+
+    Type* result = PointerType::get(type, 0);
+
+    return result;
+}
+
+
+static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type);
+
+Type* create_c_type_from_class(sCLClass* klass)
+{
+    Type* result = NULL;
+
+    sNodeType* node_type = create_node_type_with_class_pointer(klass);
+
+    if(type_identify_with_class_name(node_type, "int") || type_identify_with_class_name(node_type, "uint") || type_identify_with_class_name(node_type, "char") || type_identify_with_class_name(node_type, "bool"))
+    {
+        result = IntegerType::get(TheContext, 32);
+    }
+    else if(type_identify_with_class_name(node_type, "byte") || type_identify_with_class_name(node_type, "ubyte"))
+    {
+        result = IntegerType::get(TheContext, 8);
+    }
+    else if(type_identify_with_class_name(node_type, "short") || type_identify_with_class_name(node_type, "ushort"))
+    {
+        result = IntegerType::get(TheContext, 16);
+    }
+    else if(type_identify_with_class_name(node_type, "long") || type_identify_with_class_name(node_type, "ulong"))
+    {
+        result = IntegerType::get(TheContext, 64);
+    }
+    else if(type_identify_with_class_name(node_type, "float"))
+    {
+        result = Type::getFloatTy(TheContext);
+    }
+    else if(type_identify_with_class_name(node_type, "double"))
+    {
+        result = Type::getDoubleTy(TheContext);
+    }
+    else if(node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)
+    {
+        sCLClass* klass = node_type->mClass;
+
+        StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));
+        std::vector<Type*> fields;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sCLField* field = klass->mFields + i;
+
+            sCLType* cl_type = field->mResultType;
+
+            BOOL flg_struct_type = FALSE;
+            BOOL flg_array_type = FALSE;
+            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type);
+            fields.push_back(field_type);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        result = struct_type;
+    }
+    else if(type_identify_with_class_name(node_type, "Null"))
+    {
+        result = Type::getVoidTy(TheContext);
+    }
+
+    int i;
+    for(i=0; i<node_type->mPointerNum; i++) {
+        result = PointerType::get(result, 0);
+    }
+
+    return result;
+}
+
+static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type)
+{
+    Type* result = NULL;
+    *flg_struct_type = FALSE;
+
+    sNodeType* node_type = create_node_type_from_cl_type(cl_type, klass);
+
+    if(type_identify_with_class_name(node_type, "int") || type_identify_with_class_name(node_type, "uint") || type_identify_with_class_name(node_type, "char"))
+    {
+        result = IntegerType::get(TheContext, 32);
+    }
+    else if(type_identify_with_class_name(node_type, "byte") || type_identify_with_class_name(node_type, "ubyte"))
+    {
+        result = IntegerType::get(TheContext, 8);
+    }
+    else if(type_identify_with_class_name(node_type, "short") || type_identify_with_class_name(node_type, "ushort"))
+    {
+        result = IntegerType::get(TheContext, 16);
+    }
+    else if(type_identify_with_class_name(node_type, "long") || type_identify_with_class_name(node_type, "ulong"))
+    {
+        result = IntegerType::get(TheContext, 64);
+    }
+    else if(type_identify_with_class_name(node_type, "float"))
+    {
+        result = Type::getFloatTy(TheContext);
+    }
+    else if(type_identify_with_class_name(node_type, "double"))
+    {
+        result = Type::getDoubleTy(TheContext);
+    }
+    else if(type_identify_with_class_name(node_type, "Null"))
+    {
+        result = Type::getVoidTy(TheContext);
+    }
+    else if(node_type->mArray && node_type->mArrayNum > 0)
+    {
+        *flg_array_type = TRUE;
+
+        Type* element_type = create_c_type_from_class(node_type->mClass);
+        result = ArrayType::get(element_type, node_type->mArrayNum);
+    }
+    else if(node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)
+    {
+        *flg_struct_type = TRUE;
+
+        StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));
+        std::vector<Type*> fields;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sCLField* field = klass->mFields + i;
+
+            sCLType* cl_type = field->mResultType;
+
+            BOOL flg_struct_type = FALSE;
+            BOOL flg_array_type = FALSE;
+            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type);
+            fields.push_back(field_type);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        result = struct_type;
+    }
+
+    int i;
+    for(i=0; i<node_type->mPointerNum; i++) {
+        result = PointerType::get(result, 0);
+    }
+
+    return result;
+}
+
 BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int real_param_num, char* func_path, BOOL closure, BOOL block, BOOL jit_main)
 {
     char* try_catch_label_name = NULL;
@@ -1266,91 +1447,116 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
                         LVALUE* param = get_stack_ptr_value_from_index(llvm_stack_ptr, -num_params+i);
 
-                        sNodeType* node_type = create_node_type_from_cl_type(cl_param->mType, klass);
+                        BOOL flg_struct_type = FALSE;
+                        BOOL flg_array_type = FALSE;
+                        Type* param_type = create_c_type_from_cl_type(cl_param->mType, klass, &flg_struct_type, &flg_array_type);
 
-                        Type* param_type = NULL;
-                        if(type_identify_with_class_name(node_type, "int"))
-                        {
-                            param_type = Type::getInt32Ty(TheContext);
-                        }
-                        else if(type_identify_with_class_name(node_type, "byte"))
-                        {
-                            param_type = Type::getInt8Ty(TheContext);
-                        }
-                        else if(type_identify_with_class_name(node_type, "short"))
-                        {
-                            param_type = Type::getInt16Ty(TheContext);
-                        }
-                        else if(type_identify_with_class_name(node_type, "long"))
-                        {
-                            param_type = Type::getInt64Ty(TheContext);
-                        }
-                        else if(type_identify_with_class_name(node_type, "float"))
-                        {
-                            param_type = Type::getFloatTy(TheContext);
-                        }
-                        else if(type_identify_with_class_name(node_type, "double"))
-                        {
-                            param_type = Type::getDoubleTy(TheContext);
-                        }
+                        if(flg_array_type) {
+                            Type* param_type2 = convert_array_type_to_pointer(cl_param->mType, klass);
 
-                        int j;
-                        for(j=0; j<node_type->mPointerNum; j++)
-                        {
-                            param_type = PointerType::get(param_type, 0);
-                        }
+                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, param_type2);
 
-                        param->value = Builder.CreateCast(Instruction::Trunc, param->value, param_type);
+/*
+                            Type* array_type = param_type;
+
+                            IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                            Value* param2 = builder.CreateAlloca(array_type, 0, "param_array");
+
+                            Builder.CreateAlignedStore(param->value, param2, 8);
+
+                            param2 = Builder.CreateAlignedLoad(param2, 5);
+                            param2 = Builder.CreateCast(Instruction::BitCast, param2, array_type);
+                            param->value = param2;
+
+
+                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, PointerType::get(array_type, 0));
+                            param->value = Builder.CreateAlignedLoad(param->value, 8);
+                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, array_type);
+*/
+                        }
+                        else if(flg_struct_type) {
+                            Type* i64_array_type = convert_struct_type_to_i64_array(cl_param->mType, klass);
+                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, PointerType::get(i64_array_type, 0));
+
+                            param->value = Builder.CreateAlignedLoad(param->value, 8);
+                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, i64_array_type);
+                        }
+                        else {
+                            param->value = Builder.CreateCast(Instruction::Trunc, param->value, param_type);
+                        }
 
                         params2.push_back(param->value);
                     }
 
-                    Value* result = Builder.CreateCall(fun, params2);
+                    sCLType* result_type = method->mResultType;
 
-                    /// vm stack_ptr to llvm stack ///
-                    LVALUE llvm_value;
-                    llvm_value.value = result;
+                    char* result_type_class_name = CONS_str(&klass->mConst, result_type->mClassNameOffset);
 
-                    switch(size) {
-                    case 1:
-                        llvm_value.kind = kLVKindInt1;
-                        break;
+                    if(strcmp(result_type_class_name, "Null") == 0)
+                    {
+                        Builder.CreateCall(fun, params2);
+                        Value* result = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
 
-                    case 8:
-                        llvm_value.kind = kLVKindInt8;
-                        break;
-
-                    case 16:
-                        llvm_value.kind = kLVKindInt16;
-                        break;
-
-                    case 32:
+                        /// vm stack_ptr to llvm stack ///
+                        LVALUE llvm_value;
+                        llvm_value.value = result;
                         llvm_value.kind = kLVKindInt32;
-                        break;
 
-                    case 64:
-                        llvm_value.kind = kLVKindInt64;
-                        break;
+                        /// dec llvm stack pointer ///
+                        dec_stack_ptr(&llvm_stack_ptr, num_params);
+                        push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
 
-                    case 128:
-                        llvm_value.kind = kLVKindFloat;
-                        break;
-
-                    case 256:
-                        llvm_value.kind = kLVKindDouble;
-                        break;
-
-                    case 1024:
-                        llvm_value.kind = kLVKindPointer8;
-                        break;
+                        inc_vm_stack_ptr(params, current_block, -num_params);
+                        push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
                     }
+                    else {
+                        Value* result = Builder.CreateCall(fun, params2);
 
-                    /// dec llvm stack pointer ///
-                    dec_stack_ptr(&llvm_stack_ptr, num_params);
-                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                        /// vm stack_ptr to llvm stack ///
+                        LVALUE llvm_value;
+                        llvm_value.value = result;
 
-                    inc_vm_stack_ptr(params, current_block, -num_params);
-                    push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                        switch(size) {
+                        case 1:
+                            llvm_value.kind = kLVKindInt1;
+                            break;
+
+                        case 8:
+                            llvm_value.kind = kLVKindInt8;
+                            break;
+
+                        case 16:
+                            llvm_value.kind = kLVKindInt16;
+                            break;
+
+                        case 32:
+                            llvm_value.kind = kLVKindInt32;
+                            break;
+
+                        case 64:
+                            llvm_value.kind = kLVKindInt64;
+                            break;
+
+                        case 128:
+                            llvm_value.kind = kLVKindFloat;
+                            break;
+
+                        case 256:
+                            llvm_value.kind = kLVKindDouble;
+                            break;
+
+                        case 1024:
+                            llvm_value.kind = kLVKindPointer8;
+                            break;
+                        }
+
+                        /// dec llvm stack pointer ///
+                        dec_stack_ptr(&llvm_stack_ptr, num_params);
+                        push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+
+                        inc_vm_stack_ptr(params, current_block, -num_params);
+                        push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                    }
                 }
                 else {
 //printf("class_name2 %s %s\n", class_name, METHOD_NAME2(klass, method));
@@ -2318,6 +2524,9 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 break;
 
             case OP_OBJ_HEAD_OF_MEMORY: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
                 LVALUE llvm_value2;
@@ -2330,6 +2539,8 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 std::vector<Value*> params2;
 
                 params2.push_back(llvm_value2.value);
+                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, offset, true));
+                params2.push_back(param2);
 
                 LVALUE llvm_value;
                 llvm_value.value = Builder.CreateCall(fun, params2);
@@ -4140,7 +4351,12 @@ static BOOL compile_jit_methods(sCLClass* klass)
             num_compiled_method++;
         }
     }
+/*
+    llvm::ModulePassManager modulePassManager = passBuilder.buildPerModuleDefaultPipeline(llvm::PassBuilder::OptimizationLevel::O3);
+    modulePassManager.run(*TheModule, moduleAnalysisManager);
+*/
 
+#ifdef MDEBUG
     llvm::PassBuilder passBuilder;
 
     passBuilder.registerModuleAnalyses(moduleAnalysisManager);
@@ -4148,11 +4364,6 @@ static BOOL compile_jit_methods(sCLClass* klass)
     passBuilder.registerFunctionAnalyses(TheFAM);
     passBuilder.registerLoopAnalyses(loopAnalysisManager);
 
-/*
-    llvm::ModulePassManager modulePassManager = passBuilder.buildPerModuleDefaultPipeline(llvm::PassBuilder::OptimizationLevel::O3);
-    modulePassManager.run(*TheModule, moduleAnalysisManager);
-*/
-#ifndef MDEBUG
     passBuilder.buildModuleOptimizationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
 #endif
 
@@ -4352,6 +4563,7 @@ static BOOL compile_jit_script(char* sname)
     sByteCode_free(&code);
     sConst_free(&constant);
 
+#ifndef MDEBUG
     llvm::PassBuilder passBuilder;
 
     passBuilder.registerModuleAnalyses(moduleAnalysisManager);
@@ -4359,7 +4571,6 @@ static BOOL compile_jit_script(char* sname)
     passBuilder.registerFunctionAnalyses(TheFAM);
     passBuilder.registerLoopAnalyses(loopAnalysisManager);
 
-#ifndef MDEBUG
     passBuilder.buildModuleOptimizationPipeline(llvm::PassBuilder::OptimizationLevel::O3, false);
 #endif
 
@@ -4929,37 +5140,6 @@ void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> param
     inc_vm_stack_ptr(params, current_block, 1);
 }
 
-Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
-{
-    Type* result = NULL;
-
-    sNodeType* node_type = create_node_type_from_cl_type(cl_type, klass);
-
-    if(type_identify_with_class_name(node_type, "int") || type_identify_with_class_name(node_type, "char"))
-    {
-        result = IntegerType::get(TheContext, 32);
-    }
-    else if(type_identify_with_class_name(node_type, "byte"))
-    {
-        result = IntegerType::get(TheContext, 8);
-    }
-    else if(type_identify_with_class_name(node_type, "short"))
-    {
-        result = IntegerType::get(TheContext, 16);
-    }
-    else if(type_identify_with_class_name(node_type, "long"))
-    {
-        result = IntegerType::get(TheContext, 64);
-    }
-
-    int i;
-    for(i=0; i<node_type->mPointerNum; i++) {
-        result = PointerType::get(result, 0);
-    }
-
-    return result;
-}
-
 void create_c_ffi_functions()
 {
     sCLClass* klass = load_class("C", 0, FALSE);
@@ -4969,7 +5149,9 @@ void create_c_ffi_functions()
         for(i=0; i<klass->mNumMethods; i++) {
             sCLMethod* method = klass->mMethods + i;
 
-            Type* result_type = create_c_type_from_cl_type(method->mResultType, klass);;
+            BOOL flg_struct_type = FALSE;
+            BOOL flg_array_type = FALSE;
+            Type* result_type = create_c_type_from_cl_type(method->mResultType, klass, &flg_struct_type, &flg_array_type);
 
             std::vector<Type *> type_params;
 
@@ -4977,7 +5159,16 @@ void create_c_ffi_functions()
             for(j=0; j<method->mNumParams; j++) {
                 sCLParam* param = method->mParams + j;
 
-                Type* param_type = create_c_type_from_cl_type(param->mType, klass);;
+                BOOL flg_struct_type = FALSE;
+                BOOL flg_array_type = FALSE;
+                Type* param_type = create_c_type_from_cl_type(param->mType, klass, &flg_struct_type, &flg_array_type);
+
+                if(flg_struct_type) {
+                    param_type = convert_struct_type_to_i64_array(param->mType, klass);
+                }
+                else if(flg_array_type) {
+                    param_type = convert_array_type_to_pointer(param->mType, klass);
+                }
                 type_params.push_back(param_type);
             }
 
@@ -6857,6 +7048,20 @@ void create_internal_functions()
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "run_array_to_carray_cast", TheModule);
 
+    /// run_array_to_clang_array_cast ///
+    type_params.clear();
+    
+    result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+
+    param1_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param1_type);
+
+    param2_type = PointerType::get(IntegerType::get(TheContext, 64), 0);
+    type_params.push_back(param2_type);
+
+    function_type = FunctionType::get(result_type, type_params, false);
+    Function::Create(function_type, Function::ExternalLinkage, "run_array_to_clang_array_cast", TheModule);
+
     /// run_buffer_to_pointer_cast ///
     type_params.clear();
 
@@ -7059,6 +7264,9 @@ void create_internal_functions()
 
     param1_type = IntegerType::get(TheContext, 32);
     type_params.push_back(param1_type);
+
+    param2_type = IntegerType::get(TheContext, 32);
+    type_params.push_back(param2_type);
 
     function_type = FunctionType::get(result_type, type_params, false);
     Function::Create(function_type, Function::ExternalLinkage, "get_object_head_of_memory", TheModule);

@@ -78,6 +78,7 @@ sNodeType* clone_node_type(sNodeType* node_type)
     }
 
     node_type2->mArray = node_type->mArray;
+    node_type2->mArrayNum = node_type->mArrayNum;
     node_type2->mNullable = node_type->mNullable;
     node_type2->mPointerNum = node_type->mPointerNum;
 
@@ -98,6 +99,7 @@ sNodeType* create_node_type_with_class_pointer(sCLClass* klass)
     node_type->mClass = klass;
     node_type->mNumGenericsTypes = 0;
     node_type->mArray = FALSE;
+    node_type->mArrayNum = 0;
     node_type->mNullable = FALSE;
     node_type->mBlockType = NULL;
 
@@ -118,6 +120,7 @@ static sNodeType* parse_class_name(char** p, char** p2, char* buf, BOOL js)
     node_type->mClass = NULL;
     node_type->mNumGenericsTypes = 0;
     node_type->mArray = FALSE;
+    node_type->mArrayNum = 0;
     node_type->mNullable = FALSE;
     node_type->mBlockType = NULL;
 
@@ -252,6 +255,7 @@ sNodeType* create_node_type_from_cl_type(sCLType* cl_type, sCLClass* klass)
     }
 
     node_type->mArray = cl_type->mArray;
+    node_type->mArrayNum = cl_type->mArrayNum;
     node_type->mNullable = cl_type->mNullable;
     node_type->mPointerNum = cl_type->mPointerNum;
 
@@ -536,6 +540,7 @@ static void solve_self_for_node_type(sNodeType* node_type, ALLOC sNodeType** res
 
         (*result)->mBlockType = node_type->mBlockType;
         (*result)->mArray = node_type->mArray;
+        (*result)->mArrayNum = node_type->mArrayNum;
         (*result)->mNullable = node_type->mNullable;
         (*result)->mPointerNum = node_type->mPointerNum;
     }
@@ -576,6 +581,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
                 if(i < generics_type->mNumGenericsTypes && generics_type->mGenericsTypes[i]) {
                     *result = ALLOC clone_node_type(generics_type->mGenericsTypes[i]);
                     (*result)->mArray = node_type2->mArray;
+                    (*result)->mArrayNum = node_type2->mArrayNum;
                     (*result)->mNullable = node_type2->mNullable;
                     (*result)->mPointerNum = node_type2->mPointerNum;
                     return TRUE;
@@ -620,6 +626,7 @@ BOOL solve_generics_types_for_node_type(sNodeType* node_type, ALLOC sNodeType** 
         }
 
         (*result)->mArray = node_type2->mArray;
+        (*result)->mArrayNum = node_type2->mArrayNum;
         (*result)->mNullable = node_type2->mNullable;
         (*result)->mPointerNum = node_type2->mPointerNum;
     }
@@ -710,6 +717,7 @@ void solve_generics_for_variable(sNodeType* generics_type, sNodeType** generics_
 
     (*generics_type2)->mNumGenericsTypes = generics_type->mNumGenericsTypes;
     (*generics_type2)->mArray = generics_type->mArray;
+    (*generics_type2)->mArrayNum = generics_type->mArrayNum;
     (*generics_type2)->mNullable = generics_type->mNullable;
     (*generics_type2)->mBlockType = generics_type->mBlockType;
 }
@@ -782,6 +790,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
     else if(is_numeric_type_without_float(left_type) && type_identify_with_class_name(right_type, "char")) 
+    {
+        return TRUE;
+    }
+    else if(left_type->mArrayNum > 0 && right_type->mArray && left_class == right_class)
     {
         return TRUE;
     }

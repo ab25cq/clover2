@@ -195,6 +195,7 @@ extern sCLStack* gHeadStack;
 #define CLASS_FLAGS_LAMBDA 0x40
 #define CLASS_FLAGS_JS 0x80
 #define CLASS_FLAGS_NATIVE 0x100
+#define CLASS_FLAGS_STRUCT 0x200
 
 struct sCLTypeStruct;
 
@@ -216,6 +217,7 @@ struct sCLTypeStruct {
     BOOL mArray;
     BOOL mNullable;
     int mPointerNum;
+    int mArrayNum;
 
     sCLBlockType* mBlockType;
 };
@@ -362,6 +364,8 @@ struct sCLFieldStruct {
     int mDelegatedMethodIndex[METHOD_NUM_MAX];  // compile time variable
     int mNumDelegatedMethod;
     int mNumGetterMethodIndex; 
+    
+    int mStructOffset;
 };
 
 struct sCLBlockObjectStruct {
@@ -437,6 +441,8 @@ struct sCLClassStruct {
     int mVersion;
 
     BOOL mAlreadyLoadedJSClass;
+
+    int mAllocSize;
 };
 
 typedef struct sCLClassStruct sCLClass;
@@ -457,7 +463,7 @@ void reset_js_load_class();
 sCLClass* get_class_with_load(char* class_name, BOOL js);
 sCLClass* get_class(char* class_name, BOOL js);
 unsigned int get_hash_key(char* name, unsigned int max);
-sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version, BOOL js, BOOL native_);
+sCLClass* alloc_class(char* class_name, BOOL primitive_, int generics_param_class_num, int method_generics_param_class_num, int generics_number, char name_of_generics_params[GENERICS_TYPES_MAX][VAR_NAME_MAX], sCLClass** type_of_generics_params, BOOL interface, BOOL dynamic_class, BOOL no_free_object, BOOL lambda, sCLClass* unboxing_class, int version, BOOL js, BOOL native_, BOOL struct_, int alloc_size);
 ALLOC sCLType* create_cl_type(sCLClass* klass, sCLClass* klass2);
 void free_cl_type(sCLType* cl_type);
 sCLClass* get_class(char* class_name, BOOL js);
@@ -498,6 +504,7 @@ struct sNodeTypeStruct {
     int mNumGenericsTypes;
 
     BOOL mArray;
+    int mArrayNum;
     BOOL mNullable;
     int mPointerNum;
     MANAGED struct sNodeBlockTypeStruct* mBlockType;
@@ -902,6 +909,11 @@ struct sNodeTreeStruct
 
         float mFloatValue;
         double mDoubleValue;
+
+        struct {
+            char mVarName[VAR_NAME_MAX];
+            BOOL mLoadField;
+        } sLoadVariable;
     } uValue;
 
     sNodeType* mType;
@@ -1907,6 +1919,7 @@ extern int gBufferToPointerCastCount;
 #define OP_BOOL_TO_CBOOL_CAST 7652
 
 #define OP_ARRAY_TO_CARRAY_CAST 7700
+#define OP_ARRAY_TO_CLANG_ARRAY_CAST 7701
 
 #define OP_GET_ARRAY_LENGTH 8000
 
@@ -2033,7 +2046,7 @@ void create_method_name_and_params(char* result, int size_result, sCLClass* klas
 void create_method_name_and_params_for_js(char* result, int size_result, sCLClass* klass, char* method_name, sNodeType* param_types[PARAMS_MAX], int num_params);
 BOOL determine_method_generics_types(sNodeType* left_param, sNodeType* right_param, sNodeType* method_generics_types);
 BOOL is_method_param_name(char* name);
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type);
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type, int offset);
 BOOL add_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, char* field_type_name);
 BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL private_, BOOL protected_, char* field_type_name, int initialize_value);
 
@@ -2138,6 +2151,7 @@ typedef struct sCLObjectStruct sCLObject;
 #define CLOBJECT(obj) ((sCLObject*)(get_object_pointer((obj))))
 
 CLObject create_object(sCLClass* klass, char* type, sVMInfo* info);
+CLObject create_object2(sCLClass* klass, char* type, int alloc_size, sVMInfo* info);
 BOOL free_object(CLObject self);
 void object_mark_fun(CLObject self, unsigned char* mark_flg);
 BOOL object_implements_interface(CLObject object, sCLClass* interface);
@@ -2684,6 +2698,7 @@ BOOL Clover_compaction(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 BOOL Clover_getType(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info);
 
 /// jit.cpp ///
+int get_binary_size_from_class(sCLClass* klass);
 BOOL jit_script_compiler(char* sname);
 BOOL jit(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info, CLVALUE** stack_ptr);
 BOOL jit_funcs(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sCLMethod* method, CLObject block_object, sVMInfo* info);

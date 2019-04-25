@@ -157,7 +157,7 @@ static BOOL parse_generics_params(sGenericsParamInfo* ginfo, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class, int* version, BOOL* js, BOOL *native_)
+static BOOL parse_class_name_and_attributes(char* class_name, int class_name_size, sParserInfo* info, sCompileInfo* cinfo, sCLClass** unboxing_class, int* version, BOOL* js, BOOL *native_, int* alloc_size)
 {
     /// class name ///
     if(!parse_word(class_name, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -182,24 +182,36 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
 
         while(1) {
             while(*info->p != '{' && *info->p != '\0') {
-                char buf[VAR_NAME_MAX];
+                if(isdigit(*info->p)) {
+                    int n = 0;
+                    while(isdigit(*info->p)) {
+                        n = n * 10 + *info->p - '0';
+                        info->p++;
+                        skip_spaces_and_lf(info);
+                    }
 
-                if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
-                    return FALSE;
+                    *alloc_size = n;
                 }
+                else {
+                    char buf[VAR_NAME_MAX];
 
-                if(strcmp(buf, "js") == 0) {
-                    *js = TRUE;
-                }
-                else if(strcmp(buf, "native") == 0) {
-                    *native_ = TRUE;
-                }
-                else if(strcmp(buf, "unboxing") == 0) {
                     if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
                         return FALSE;
                     }
 
-                    *unboxing_class = get_class(buf, *js);
+                    if(strcmp(buf, "js") == 0) {
+                        *js = TRUE;
+                    }
+                    else if(strcmp(buf, "native") == 0) {
+                        *native_ = TRUE;
+                    }
+                    else if(strcmp(buf, "unboxing") == 0) {
+                        if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
+                            return FALSE;
+                        }
+
+                        *unboxing_class = get_class(buf, *js);
+                    }
                 }
             }
 
@@ -238,15 +250,16 @@ static BOOL parse_class_name_and_attributes(char* class_name, int class_name_siz
     return TRUE;
 }
 
-static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)
+static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit, BOOL struct_)
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
     int version = 0;
     BOOL js = FALSE;
     BOOL native_ = FALSE;
+    int alloc_size = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_, &alloc_size))
     {
         return FALSE;
     }
@@ -265,7 +278,7 @@ static BOOL parse_class_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* 
     }
 
     if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class, version, js, native_);
+        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class, version, js, native_, struct_, alloc_size);
         info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
     }
     else {
@@ -471,7 +484,7 @@ BOOL parse_method_name_and_params(char* method_name, int method_name_max, sParse
     return TRUE;
 }
 
-static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, sParserInfo* info, sCompileInfo* cinfo, char* header_path, int header_path_size)
+static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BOOL* static_, BOOL* delegate_, sNodeType** result_type, int* offset, sParserInfo* info, sCompileInfo* cinfo, char* header_path, int header_path_size, BOOL struct_)
 {
     header_path[0] = '\0';
 
@@ -508,6 +521,26 @@ static BOOL parse_field_attributes_and_type(BOOL* private_, BOOL* protected_, BO
     /// parse result type ///
     if(!parse_type(result_type, info)) {
         return FALSE;
+    }
+
+    if(struct_) {
+        expect_next_character_with_one_forward(":", info);
+
+        if(isdigit(*info->p)) {
+            int n = 0;
+            while(isdigit(*info->p)) {
+                n = n * 10 + (*info->p - '0');
+                
+                info->p ++;
+                skip_spaces_and_lf(info);
+            }
+            
+            *offset = n;
+        }
+        else {
+            parser_err_msg(info, "require digit for field offset");
+            info->err_num++;
+        }
     }
 
     char* source_end = info->source + strlen(info->source);
@@ -672,10 +705,11 @@ static BOOL setter_and_getter(sParserInfo* info, sCompileInfo* cinfo, sCLClass* 
     return TRUE;
 }
 
-static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL extern_)
+static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL struct_)
 {
     BOOL native_ = FALSE;
     BOOL static_ = FALSE;
+    BOOL extern_ = strcmp(CLASS_NAME(info->klass), "C") == 0;
 
     char buf[VAR_NAME_MAX];
     if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -710,7 +744,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 
             while(*info->p) {
                 skip_spaces_and_lf(info);
-                if(!parse_methods_and_fields(info, cinfo, interface, extern_)) {
+                if(!parse_methods_and_fields(info, cinfo, interface, struct_)) {
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
@@ -885,10 +919,11 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
         char header_path[PATH_MAX];
+        int offset = -1;
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo, header_path, PATH_MAX)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, &offset, info, cinfo, header_path, PATH_MAX, struct_)) {
             return FALSE;
         }
 
@@ -904,7 +939,7 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
                     info->err_num++;
                 }
 
-                if(!add_field_to_class(info->klass, buf, private_, protected_, delegate_, readonly, result_type)) {
+                if(!add_field_to_class(info->klass, buf, private_, protected_, delegate_, readonly, result_type, offset)) {
                     return FALSE;
                 }
             }
@@ -920,7 +955,8 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
 
         int field_index = search_for_field(klass, field_name);
 
-        if(field_index != -1) {
+        if(!(klass->mFlags & CLASS_FLAGS_STRUCT) && field_index != -1) 
+        {
             sCLField* field = klass->mFields + field_index;
 
             if(!setter_and_getter(info, cinfo, klass, field, field_name, private_)) {
@@ -942,15 +978,16 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
     return TRUE;
 }
 
-static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL struct_)
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
     int version = 0;
     BOOL js = FALSE;
     BOOL native_ = FALSE;
+    int alloc_size = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_, &alloc_size))
     {
         return FALSE;
     }
@@ -965,7 +1002,7 @@ static BOOL parse_class_on_add_methods_and_fields(sParserInfo* info, sCompileInf
     }
     else {
         while(1) {
-            if(!parse_methods_and_fields(info, cinfo, interface, FALSE)) {
+            if(!parse_methods_and_fields(info, cinfo, interface, struct_)) {
                 return FALSE;
             }
 
@@ -1210,8 +1247,9 @@ static BOOL field_delegation_on_compile_time(sParserInfo* info, sCompileInfo* ci
     return TRUE;
 }
 
-BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL struct_)
 {
+    BOOL extern_ = strcmp(CLASS_NAME(info->klass), "C") == 0;
     char buf[VAR_NAME_MAX];
 
     if(!parse_word(buf, VAR_NAME_MAX, info, TRUE, FALSE)) {
@@ -1247,7 +1285,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 
             while(*info->p) {
                 skip_spaces_and_lf(info);
-                if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface)) {
+                if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface, struct_)) {
                     return FALSE;
                 }
                 skip_spaces_and_lf(info);
@@ -1295,7 +1333,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         info->klass->mMethodIndexOnCompileTime++;
 
         if(info->klass->mFlags & CLASS_FLAGS_ALLOCATED) {
-            if((native_ && !js) || interface || strcmp(clibrary_path, "") != 0) {
+            if(extern_ || (native_ && !js) || interface || strcmp(clibrary_path, "") != 0) {
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1368,7 +1406,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
             }
         }
         else {
-            if((native_ && !js)|| interface || strcmp(clibrary_path, "") != 0) {
+            if(extern_ || (native_ && !js)|| interface || strcmp(clibrary_path, "") != 0) {
                 if(*info->p == ';') {
                     info->p++;
                     skip_spaces_and_lf(info);
@@ -1448,10 +1486,11 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         BOOL delegate_ = FALSE;
         sNodeType* result_type = NULL;
         char header_path[PATH_MAX];
+        int offset = -1;
 
         expect_next_character_with_one_forward(":", info);
 
-        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, info, cinfo, header_path, PATH_MAX)) {
+        if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, &offset, info, cinfo, header_path, PATH_MAX, struct_)) {
             return FALSE;
         }
 
@@ -1466,7 +1505,7 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
 
             int field_index = search_for_field(klass, field_name);
 
-            if(field_index != -1) {
+            if(!(klass->mFlags & CLASS_FLAGS_STRUCT) && field_index != -1) {
                 sCLField* field = klass->mFields + field_index;
 
                 if(!setter_and_getter_on_compile_time(info, cinfo, klass, field, field_name, private_))
@@ -1490,15 +1529,16 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
     return TRUE;
 }
 
-static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface)
+static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL struct_)
 {
     char class_name[VAR_NAME_MAX];
     sCLClass* unboxing_class = NULL;
     int version = 0;
     BOOL js = FALSE;
     BOOL native_ = FALSE;
+    int alloc_size = 0;
 
-    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_))
+    if(!parse_class_name_and_attributes(class_name, VAR_NAME_MAX, info, cinfo, &unboxing_class, &version, &js, &native_, &alloc_size))
     {
         return FALSE;
     }
@@ -1513,7 +1553,7 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     }
     else {
         while(1) {
-            if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface)) {
+            if(!parse_methods_and_fields_on_compile_time(info, cinfo, interface, struct_)) {
                 return FALSE;
             }
 
@@ -1533,11 +1573,11 @@ static BOOL parse_class_on_compile_code(sParserInfo* info, sCompileInfo* cinfo, 
     return TRUE;
 }
 
-static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit)
+static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, BOOL dynamic_class, BOOL inherit, BOOL struct_)
 {
     switch(info->parse_phase) {
         case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic_class, inherit)) {
+            if(!parse_class_on_alloc_classes_phase(info, cinfo, interface, dynamic_class, inherit, struct_)) {
                 return FALSE;
             }
             break;
@@ -1569,7 +1609,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, 
         case PARSE_PHASE_ADD_METHODS_AND_FIELDS:
             info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
 
-            if(!parse_class_on_add_methods_and_fields(info, cinfo, interface)) {
+            if(!parse_class_on_add_methods_and_fields(info, cinfo, interface, struct_)) {
                 return FALSE;
             }
             break;
@@ -1585,7 +1625,7 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, 
         case PARSE_PHASE_DO_COMPILE_CODE:
             info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
 
-            if(!parse_class_on_compile_code(info, cinfo, interface)) 
+            if(!parse_class_on_compile_code(info, cinfo, interface, struct_)) 
             {
                 return FALSE;
             }
@@ -1596,153 +1636,6 @@ static BOOL parse_class(sParserInfo* info, sCompileInfo* cinfo, BOOL interface, 
     return TRUE;
 }
 
-static BOOL parse_extern_on_alloc_classes_phase(sParserInfo* info, sCompileInfo* cinfo)
-{
-    char class_name[VAR_NAME_MAX];
-    sCLClass* unboxing_class = NULL;
-    int version = 0;
-    BOOL js = FALSE;
-    BOOL native_ = FALSE;
-    BOOL inherit = TRUE;
-    BOOL interface = FALSE;
-    BOOL dynamic_class = FALSE;
-    
-    xstrncpy(class_name, "C", VAR_NAME_MAX);
-
-    info->klass = get_class(class_name, js);
-
-    if(version > 1 && info->klass == NULL) {
-        if(is_class_file_existance(class_name, version-1, js)) {
-            info->klass = load_class(class_name, version-1, js);
-        }
-    }
-    else if(inherit && info->klass == NULL) {
-        if(is_class_file_existance(class_name, 0, js)) {
-            info->klass = load_class(class_name, 0, js);
-        }
-    }
-
-    if(info->klass == NULL) {
-        info->klass = alloc_class(class_name, FALSE, -1, -1, info->generics_info.mNumParams, info->generics_info.mParamNames, info->generics_info.mInterface, interface, dynamic_class, FALSE, FALSE, unboxing_class, version, js, native_);
-        info->klass->mFlags |= CLASS_FLAGS_ALLOCATED;
-    }
-    else {
-        info->klass->mVersion = version;
-    }
-
-    info->klass->mFlags |= CLASS_FLAGS_MODIFIED;
-
-    if(!skip_block(info)) {
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-static BOOL parse_extern_on_add_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo)
-{
-    char class_name[VAR_NAME_MAX];
-    sCLClass* unboxing_class = NULL;
-    int version = 0;
-    BOOL js = FALSE;
-    BOOL native_ = FALSE;
-    
-    xstrncpy(class_name, "C", VAR_NAME_MAX);
-    
-    BOOL interface = FALSE;
-
-    info->klass = get_class(class_name, js);
-
-    expect_next_character_with_one_forward("{", info);
-
-    if(*info->p == '}') {
-        info->p++;
-        skip_spaces_and_lf(info);
-    }
-    else {
-        while(1) {
-            if(!parse_methods_and_fields(info, cinfo, interface, TRUE)) {
-                return FALSE;
-            }
-
-            if(*info->p == '\0') {
-                parser_err_msg(info, "It is the source end. Close class definition with }");
-                info->err_num++;
-                return TRUE;
-            }
-            else if(*info->p == '}') {
-                info->p++;
-                skip_spaces_and_lf(info);
-                break;
-            }
-        }
-    }
-
-    return TRUE;
-}
-
-static BOOL parse_extern(sParserInfo* info, sCompileInfo* cinfo)
-{
-    switch(info->parse_phase) {
-        case PARSE_PHASE_ALLOC_CLASSES:
-            if(!parse_extern_on_alloc_classes_phase(info, cinfo))
-            {
-                return FALSE;
-            }
-            break;
-            
-        case PARSE_PHASE_ADD_SUPER_CLASSES:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            while(*info->p) {
-                info->p++;
-            }
-            break;
-
-        case PARSE_PHASE_CALCULATE_SUPER_CLASSES:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            while(*info->p) {
-                info->p++;
-            }
-            break;
-
-        case PARSE_PHASE_ADD_GENERICS_TYPES:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            while(*info->p) {
-                info->p++;
-            }
-            break;
-
-        case PARSE_PHASE_ADD_METHODS_AND_FIELDS:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            if(!parse_extern_on_add_methods_and_fields(info, cinfo)) 
-            {
-                return FALSE;
-            }
-            break;
-
-        case PARSE_PHASE_COMPILE_PARAM_INITIALIZER:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            while(*info->p) {
-                info->p++;
-            }
-            break;
-
-        case PARSE_PHASE_DO_COMPILE_CODE:
-            info->mJS = info->klass->mFlags & CLASS_FLAGS_JS;
-
-            while(*info->p) {
-                info->p++;
-            }
-            break;
-    }
-
-    return TRUE;
-}
 
 static BOOL parse_module(sParserInfo* info, sCompileInfo* cinfo)
 {
@@ -1980,34 +1873,27 @@ static BOOL parse_class_source(sParserInfo* info, sCompileInfo* cinfo)
         }
 
         if(strcmp(buf, "class") == 0) {
-            if(!parse_class(info, cinfo, FALSE, FALSE, FALSE)) {
+            if(!parse_class(info, cinfo, FALSE, FALSE, FALSE, FALSE)) {
                 return FALSE;
             }
         }
-        else if(strcmp(buf, "extern") == 0) {
-#ifdef ENABLE_JIT
-            if(!parse_extern(info, cinfo)) {
+        else if(strcmp(buf, "struct") == 0) {
+            if(!parse_class(info, cinfo, FALSE, FALSE, FALSE, TRUE)) {
                 return FALSE;
             }
-#else
-            if(!skip_block(info)) {
-                return FALSE;
-            }
-            skip_spaces_and_lf(info);
-#endif
         }
         else if(strcmp(buf, "inherit") == 0) {
-            if(!parse_class(info, cinfo, FALSE, FALSE, TRUE)) {
+            if(!parse_class(info, cinfo, FALSE, FALSE, TRUE, FALSE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "dynamic_class") == 0) {
-            if(!parse_class(info, cinfo, FALSE, TRUE, FALSE)) {
+            if(!parse_class(info, cinfo, FALSE, TRUE, FALSE, FALSE)) {
                 return FALSE;
             }
         }
         else if(strcmp(buf, "interface") == 0) {
-            if(!parse_class(info, cinfo, TRUE, FALSE, FALSE)) {
+            if(!parse_class(info, cinfo, TRUE, FALSE, FALSE, FALSE)) {
                 return FALSE;
             }
         }

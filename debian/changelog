@@ -1,4 +1,8 @@
 
+clover2 (10.4.9-1) unstable; urgency=medium
+
+    * Continue to implement C-FFI on JIT.
+
 clover2 (10.3.8-1) unstable; urgency=medium
 
     * Some chages

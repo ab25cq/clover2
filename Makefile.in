@@ -555,6 +555,7 @@ install:
 	if test -e Null.so; then $(INSTALL) -m 755 ./Null.so.1.0.0 $(DESTDIR)/share/clover2; cp -a ./Null.so $(DESTDIR)/share/clover2; fi
 
 	if test -e C.oclcl; then $(INSTALL) -m 644 ./C.oclcl $(DESTDIR)/share/clover2; fi
+	if test -e C@1.oclcl; then $(INSTALL) -m 644 ./C@1.oclcl $(DESTDIR)/share/clover2; fi
 
 	$(INSTALL) -m 644 ./Object.oclcl $(DESTDIR)/share/clover2
 	$(INSTALL) -m 644 ./IEqualable.oclcl $(DESTDIR)/share/clover2
@@ -877,3 +878,13 @@ js-test:
 	PWD=`pwd` ./cclover2 code/js.jscl
 	PWD=`pwd` ./cclover2 code/js.ojscl
 	PWD=`pwd` $(NODEJS) code/js.js
+
+c-ffi-test:
+	clang -c CStruct.c
+	./cclover2 CStructTest.clcl
+	./bclover2 CStructTest.oclcl CStruct.o
+	./cclover2 ctest.cl
+	./bclover2 ctest.ocl
+	./ctest
+
+

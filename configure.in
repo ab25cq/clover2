@@ -386,6 +386,8 @@ then
 
     if test -e ./cclover2; then ./cclover2 -jit $1; else cclover2 -jit $1; fi
 
+    shift;
+
     if test -e $FILE_NAME.bc
     then
         $LLVM_DIS $FILE_NAME.bc
@@ -393,25 +395,28 @@ then
 
         if test -e src/jit_main2.o
         then
-            $CXX -o $FILE_NAME src/jit_main2.o $FILE_NAME.s -L . -L $DESTDIR/lib -lclover2 $LIBS 
+            $CXX -o $FILE_NAME src/jit_main2.o $FILE_NAME.s $@ -L . -L $DESTDIR/lib -lclover2 $LIBS
         else
-            $CXX -o $FILE_NAME $DESTDIR/lib/jit_main2.o $FILE_NAME.s -L . -L $DESTDIR/lib -lclover2 $LIBS
+            $CXX -o $FILE_NAME $DESTDIR/lib/jit_main2.o $FILE_NAME.s $@ -L . -L $DESTDIR/lib -lclover2 $LIBS
         fi
     fi
 else
-    if test $1 = -core; then CORE=1; CLASS_NAME=${2%.*}; else CORE=0; CLASS_NAME=${1%.*}; fi
+    if test $1 = -core; then CORE=1; shift; else CORE=0; fi
     if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
+
+    CLASS_NAME=${1%.*}
+    shift;
 
     echo "bitcompile $CLASS_NAME"
 
-    if test $CORE = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
+    if test "$CORE" = 1; then $COMPILER -core -jit $CLASS_NAME.oclcl; else $COMPILER -jit $CLASS_NAME.oclcl; fi
 
     if test -e $CLASS_NAME.bc
     then
         $LLVM_DIS $CLASS_NAME.bc
         $LLC -relocation-model=pic $CLASS_NAME.bc
         $CLANG -o $CLASS_NAME.o -c $CLASS_NAME.s
-        $CLANG -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o -lclover2 $LIBS -L $DESTDIR/lib -L .
+        $CLANG -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o -lclover2 $LIBS -L $DESTDIR/lib -L . $@
         ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
     fi
 fi

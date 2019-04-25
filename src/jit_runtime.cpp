@@ -1389,6 +1389,80 @@ BOOL run_array_to_carray_cast(CLVALUE** stack_ptr, CLVALUE* stack, int var_num, 
     return TRUE;
 }
 
+int get_binary_size_from_class(sCLClass* klass)
+{
+    int element_size = 0;
+
+    if(klass == get_class("int", FALSE) || klass == get_class("uint", FALSE) || klass == get_class("bool", FALSE)) {
+        element_size = 4;
+    }
+    else if(klass == get_class("byte", FALSE) || klass == get_class("ubyte", FALSE)) {
+        element_size = 1;
+    }
+    else if(klass == get_class("short", FALSE) || klass == get_class("ushort", FALSE)) {
+        element_size = 2;
+    }
+    else if(klass == get_class("long", FALSE) || klass == get_class("ulong", FALSE)) {
+        element_size = 8;
+    }
+    else if(klass == get_class("char", FALSE)) {
+        element_size = 4;
+    }
+    else if(klass == get_class("float", FALSE)) {
+        element_size = 4;
+    }
+    else if(klass == get_class("double", FALSE)) {
+        element_size = 8;
+    }
+    else if(klass == get_class("pointer", FALSE)) {
+        element_size = 8;
+    }
+    else if(klass->mFlags & CLASS_FLAGS_STRUCT) {
+        element_size = klass->mAllocSize;
+    }
+    else {
+        fprintf(stderr, "unexpected type on converting clover2 array to c lang array\n");
+        exit(2);
+    }
+
+    return element_size;
+}
+
+char* run_array_to_clang_array_cast(CLObject array, sVMInfo* info)
+{
+    char* result = NULL;
+
+    sCLObject* object_data = CLOBJECT(array);
+
+    sCLClass* klass = object_data->mClass;
+
+    int array_num = object_data->mArrayNum;
+
+    char type_name[OBJECT_TYPE_NAME_MAX];
+    snprintf(type_name, OBJECT_TYPE_NAME_MAX, "%s[%d]", CLASS_NAME(klass), array_num);
+
+    int element_size = get_binary_size_from_class(klass);
+
+    int alloc_size = element_size * array_num;
+
+    CLObject new_array = create_object2(klass, type_name, alloc_size, info);
+
+    push_object_to_global_stack(new_array, info);
+
+    sCLObject* new_array_data = CLOBJECT(new_array);
+
+    char* data = (char*)new_array_data->mFields;
+
+    int i;
+    for(i=0; i<array_num; i++) {
+        memcpy(data + i*element_size, object_data->mFields + i, element_size);
+    }
+
+    result = data;
+
+    return result;
+}
+
 void* run_buffer_to_pointer_cast(CLObject object, sVMInfo* info)
 {
     sCLObject* object_data = CLOBJECT(object);
@@ -1597,11 +1671,11 @@ BOOL call_invoke_dynamic_method(int offset, int offset2, int num_params, int sta
     return TRUE;
 }
 
-char* get_object_head_of_memory(CLObject object)
+char* get_object_head_of_memory(CLObject object, int offset)
 {
     sCLObject* object_data = CLOBJECT(object);
 
-    return (char*)object_data->mFields;
+    return (char*)(object_data->mFields) + offset;
 }
 
 void print_str_value(char* str)

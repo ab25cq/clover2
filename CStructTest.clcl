@@ -1,0 +1,43 @@
+struct CStruct:16 {
+    a:byte:0;
+    b:int:4;
+    c:long:8;
+}
+
+struct CArray:5 {
+    head:byte:0;
+}
+
+
+class C version 2
+{
+    def fun(data:CStruct);
+    def fun2(data2:byte[5]);
+}
+
+class CStructTest {
+    def method(c:char):static {
+        c.toString().println();
+    }
+    def method():static {
+        data := CStruct();
+
+        data.a->byte = 'C';
+        data.b->int = 123;
+        data.c->long = 234;
+
+        Clover.test("struct test1", data.a->byte == 'C' && data.b->int == 123 && data.c->long == 234);
+        
+        C.fun(data);
+
+        data2 := byte[5]();
+
+        data2[0] = 'A';
+        data2[1] = 'B';
+        data2[2] = 'C';
+        data2[3] = 'D';
+        data2[4] = 'E';
+
+        C.fun2(data2);
+    }
+}

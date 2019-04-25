@@ -63,6 +63,14 @@ void dec_andand_oror_array(sVMInfo* info)
 void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_CHAR_TO_BYTE_CAST:
+            puts("OP_CHAR_TO_BYTE_CAST");
+            break;
+
+        case OP_OBJ_HEAD_OF_MEMORY:
+            puts("OP_OBJ_HEAD_OF_MEMORY");
+            break;
+            
         case OP_CREATE_C_STRING:
             puts("OP_CREATE_C_STRING");
             break;
@@ -201,6 +209,10 @@ void show_inst(unsigned inst)
             
         case OP_CREATE_ARRAY:
             puts("OP_CREATE_ARRAY");
+            break;
+
+        case OP_ARRAY_TO_CLANG_ARRAY_CAST:
+            puts("OP_ARRAY_TO_CLANG_ARRAY_CAST");
             break;
 
         case OP_ARRAY_TO_CARRAY_CAST:
@@ -5397,6 +5409,10 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_OBJ_HEAD_OF_MEMORY:
                 {
+                    unsigned int offset = *(unsigned int*)pc;
+                    pc += sizeof(int);
+
+
                     CLObject left = (stack_ptr-1)->mObjectValue;
 
                     if(left == 0) {
@@ -5418,10 +5434,12 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     stack_ptr--;
                     stack_ptr->mLongValue = 0; // zero clear for jit
-                    stack_ptr->mPointerValue = (void*)object_data->mFields;
+                    stack_ptr->mPointerValue = (char*)(object_data->mFields) + offset;
+
                     stack_ptr++;
                 }
                 break;
+
 
             case OP_IMPLEMENTS:
                 {
@@ -7220,8 +7238,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_LOAD_VALUE_FROM_CHAR_ADDRESS:
                 {
-                    
-
                     CLVALUE address = *(stack_ptr-1);
                     stack_ptr--;
 
@@ -7229,9 +7245,8 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
                     stack_ptr->mLongValue = 0;           // zero clear for jit
                     stack_ptr->mCharValue = value;
-                    stack_ptr++;
 
-                    
+                    stack_ptr++;
                 }
                 break;
 
@@ -15991,8 +16006,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 break;
 
             case OP_ARRAY_TO_CARRAY_CAST: {
-                
-
                 unsigned int offset = *(unsigned int*)pc;
                 pc += sizeof(int);
 
@@ -16073,8 +16086,21 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                 stack_ptr->mLongValue = 0;
                 stack_ptr->mObjectValue = new_array;
                 stack_ptr++;
+                }
+                break;
 
-                
+            case OP_ARRAY_TO_CLANG_ARRAY_CAST: {
+                entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "No support array to clang array cast in Virtual Machine");
+                if(info->try_code == code && info->try_offset != 0) {
+                    pc = code->mCodes + info->try_offset;
+                    info->try_offset = 0;
+                    info->try_code = NULL;
+                    break;
+                }
+                else {
+                    remove_stack_to_stack_list(stack_id);
+                    return FALSE;
+                }
                 }
                 break;
                 

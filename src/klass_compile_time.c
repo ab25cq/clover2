@@ -15,6 +15,7 @@ static void node_type_to_cl_type(sNodeType* node_type, ALLOC sCLType** cl_type, 
     (*cl_type)->mArray = node_type->mArray;
     (*cl_type)->mNullable = node_type->mNullable;
     (*cl_type)->mPointerNum = node_type->mPointerNum;
+    (*cl_type)->mArrayNum = node_type->mArrayNum;
 
     if(node_type->mBlockType) {
         (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
@@ -897,6 +898,7 @@ static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type)
     }
 
     sBuf_append_int(buf, cl_type->mArray);
+    sBuf_append_int(buf, cl_type->mArrayNum);
     sBuf_append_int(buf, cl_type->mNullable);
     sBuf_append_int(buf, cl_type->mPointerNum);
 
@@ -980,6 +982,7 @@ static void append_fields_to_buffer(sBuf* buf, sCLField* fields, int num_fields)
         append_cl_type_to_buffer(buf, field->mResultType);
 
         sBuf_append_int(buf, field->mInitializeValue);
+        sBuf_append_int(buf, field->mStructOffset);
     }
 }
 
@@ -1032,6 +1035,8 @@ static void write_class_to_buffer(sCLClass* klass, sBuf* buf)
 
         append_block_to_buffer(buf, block_object);
     }
+
+    sBuf_append_int(buf, klass->mAllocSize);
 
     sBuf_append_int(buf, klass->mVersion);
 }
@@ -1157,7 +1162,7 @@ BOOL write_all_modified_classes()
     return TRUE;
 }
 
-BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type)
+BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protected_, BOOL delegated, BOOL readonly, sNodeType* result_type, int offset)
 {
     if(klass->mNumFields == klass->mSizeFields) {
         int new_size = klass->mSizeFields * 2;
@@ -1173,6 +1178,8 @@ BOOL add_field_to_class(sCLClass* klass, char* name, BOOL private_, BOOL protect
 
     klass->mFields[num_fields].mNumDelegatedMethod = 0;
     memset(&klass->mFields[num_fields].mDelegatedMethodIndex, 0, sizeof(int)*METHOD_NUM_MAX);
+    
+    klass->mFields[num_fields].mStructOffset = offset;
 
     node_type_to_cl_type(result_type, ALLOC &klass->mFields[num_fields].mResultType, klass);
 
@@ -1345,4 +1352,3 @@ BOOL add_class_field_to_class_with_class_name(sCLClass* klass, char* name, BOOL 
 
     return TRUE;
 }
-
