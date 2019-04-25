@@ -1502,7 +1502,6 @@ BOOL load_fundamental_classes_on_runtime()
     load_class("Thread", 0, FALSE);
     load_class("Clover", 0, FALSE);
     load_class("Null", 0, FALSE);
-    load_class("C", 0, FALSE);
 
     gRunningInitializer = TRUE;
     call_all_class_initializer();
