@@ -14,6 +14,10 @@ void fun(struct CStruct data)
 
 void fun2(char data[5])
 {
-printf("fun2 data %p\n", data);
     printf("HELLO array %c %c %c\n", data[0], data[1], data[4]);
+}
+
+void fun3(int a, int b)
+{
+    printf("fun3 %d\n", a + b);
 }

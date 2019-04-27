@@ -7,10 +7,10 @@ class ForBlock {
             println("BBB");
         }
 
-        for it in {1,2,3} {
+        for(it in {1,2,3}) {
             it.toString().println();
         }
-        for it in {1,2,3} {
+        for(it in {1,2,3}) {
             it.toString().println();
         }
     }

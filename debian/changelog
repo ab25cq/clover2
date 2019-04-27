@@ -1,5 +1,9 @@
 
-clover2 (10.4.9-1) unstable; urgency=medium
+clover2 (10.4.1-1) unstable; urgency=medium
+
+    Continue to implement C-FFI on JIT.
+
+clover2 (10.4.0-1) unstable; urgency=medium
 
     * Continue to implement C-FFI on JIT.
 

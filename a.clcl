@@ -1,13 +1,19 @@
+class ClassB {
+    params:List<Integer>;
+    
+    def initialize() {
+        params = list { 1, 2, 3 };
+    }
+}
+
+
 class ClassA
 {
-    def method():static {
-        a:long = 0x02;
+    def main():static {
+        b := ClassB();
 
-        if((a & 0x02).to_bool) {
-            println("TRUE");
-        }
-        else {
-            println("FALSE");
+        for(it in b.params) {
+            it.toString().println();
         }
     }
 }

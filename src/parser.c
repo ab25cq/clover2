@@ -1360,6 +1360,8 @@ static BOOL for_expression(unsigned int* node, sParserInfo* info)
 
 static BOOL for_in_expression(unsigned int* node, sParserInfo* info)
 {
+    expect_next_character_with_one_forward("(", info);
+
     sNodeBlock* node_block = sNodeBlock_alloc(FALSE);
 
     sVarTable* old_vtable = info->lv_table;
@@ -1395,6 +1397,8 @@ static BOOL for_in_expression(unsigned int* node, sParserInfo* info)
     if(!expression(&list_expression_node, info)) {
         return FALSE;
     }
+
+    expect_next_character_with_one_forward(")", info);
 
     /// expression1 ///
     unsigned int head_expression_node = sNodeTree_create_fields("head", list_expression_node, info);
@@ -4692,12 +4696,27 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 }
             }
             else {
-                if(isalpha(*info->p)) {
+                char* p_before = info->p;
+                int sline_before = info->sline;
+
+                expect_next_character_with_one_forward("(", info);
+
+                char buf[VAR_NAME_MAX];
+                parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+                parse_word(buf, VAR_NAME_MAX, info, FALSE, FALSE);
+
+                if(strcmp(buf, "in") == 0) {
+                    info->p = p_before;
+                    info->sline = sline_before;
+
                     if(!for_in_expression(node, info)) {
                         return FALSE;
                     }
                 }
                 else {
+                    info->p = p_before;
+                    info->sline = sline_before;
+
                     if(!for_expression(node, info)) {
                         return FALSE;
                     }

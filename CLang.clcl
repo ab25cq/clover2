@@ -1,0 +1,199 @@
+class CLangVariable
+{
+    var name:String;
+    var type:String;
+
+    def initialize(name:String, type:String) {
+        self.name = name.clone();
+        self.type = type.clone();
+    }
+
+    def clone():CLangVariable {
+        result := CLangVariable(self.name, self.type);
+
+        return result;
+    }
+    def compare(right:CLangVariable): int {
+        return self.name.compare(right.name);
+    }
+    def equals(right:CLangVariable): bool {
+        return self.name.equals(right.name) && self.type.equals(right.type);
+    }
+}
+
+class CLangFunc {
+    var type:String;
+    var name:String;
+    var params:SortableList<CLangVariable>;
+
+    def initialize(type:String, name:String, params:SortableList<CLangVariable>)
+    {
+        self.type = type.clone();
+        self.name = name.clone();
+        self.params = params.clone();
+    }
+
+    def clone():CLangFunc {
+        result := CLangFunc(self.type, self.name, self.params);
+
+        return result;
+    }
+    def compare(right:CLangFunc): int {
+        return self.name.compare(right.name);
+    }
+    def equals(right:CLangFunc): bool {
+        return self.name.equals(right.name) && self.type.equals(right.type) && self.params.equals(right.params);
+    }
+}
+
+class CLang
+{
+    var p:Buffer;
+    var source:Buffer;
+
+    var funcs:SortableList<CLangFunc>;
+
+    def initialize(source:Buffer) {
+        self.p = source;
+        self.source = source;
+
+        self.funcs = SortableList<CLangFunc>();
+    }
+
+    def skipLFAndSpaces() {
+        while(p->byte == ' ' || p->byte == '\t' || p->byte == '\n') 
+        {
+            p++;
+        }
+    }
+
+    def getWord():String {
+        buf := "";
+        while(p->byte != '\0') {
+            if(isalnum(p->byte.to_char) || p->byte == '_')
+            {
+                buf.append(p->byte.to_char);
+                p++;
+            }
+            else {
+                break;
+            }
+        }
+        skipLFAndSpaces();
+
+        return buf;
+
+    }
+    def parseParams():SortableList<CLangVariable> {
+        result := SortableList<CLangVariable>();
+
+        while(p->byte != '\0') {
+            type := getWord();
+            name := getWord();
+
+            variable := CLangVariable(name, type);
+
+            result.push(variable);
+
+            if(p->byte == ',') {
+                p++;
+                skipLFAndSpaces();
+            }
+            elif(p->byte == ')') {
+                p++;
+                skipLFAndSpaces();
+                break;
+            }
+            else {
+                throw Exception("Require , or )");
+            }
+        }
+        
+        return result;
+    }
+
+    def parseHeader() {
+        skipLFAndSpaces();
+
+        while(p->byte != '\0') {
+            buf := getWord();
+
+            if(buf.equals("struct")) {
+            }
+            elif(buf.equals("typedef")) {
+            }
+            elif(buf.equals("extern")) {
+                buf2 := getWord();
+                buf3 := getWord();
+
+                if(p->byte == '(') {
+                    p++;
+                    skipLFAndSpaces();
+
+                    type := buf2;
+                    name := buf3;
+
+                    params := parseParams();
+
+                    if(p->byte == ';') {
+                        p++;
+                        skipLFAndSpaces();
+                    }
+
+                    fun := CLangFunc(type, name, params);
+                    funcs.push(fun);
+                }
+            }
+            ### Function ###
+            else {
+                buf2 := getWord();
+
+                if(p->byte == '(') {
+                    p++;
+                    skipLFAndSpaces();
+
+                    type := buf;
+                    name := buf2;
+
+                    params := parseParams();
+
+                    if(p->byte == ';') {
+                        p++;
+                        skipLFAndSpaces();
+                    }
+                    fun := CLangFunc(type, name, params);
+
+                    funcs.push(fun);
+                }
+            }
+        }
+    }
+    def include(fname:String): static CLang {
+        source := fname.toPath().read();
+        source.append('\0');
+
+        result := CLang(source);
+        result.parseHeader();
+        return result;
+    }
+
+    def pasteHeader():String {
+        result := "";
+        for(it in funcs) {
+            params := "";
+            i := 0;
+            for(it2 in it.params) {
+                params.append("\{it2.type} \{it2.name}");
+
+                if(i != it.params.length()-1) {
+                    params.append(", ");
+                }
+
+                i++;
+            }
+            result.append("def \{it.name}(\{params}):\{it.type};\n");
+        }
+
+        return result;
+    }
+}
