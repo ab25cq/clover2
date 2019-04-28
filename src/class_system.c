@@ -5518,9 +5518,11 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef A_UNDERLINE
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+238].mValue.mIntValue = A_UNDERLINE;
 #endif
+/*
 #ifdef A_ATTRIBUTES
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+239].mValue.mIntValue = A_ATTRIBUTES;
 #endif
+*/
 #ifdef A_ALTCHARSET
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+240].mValue.mIntValue = A_ALTCHARSET;
 #endif
