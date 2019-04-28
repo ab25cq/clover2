@@ -7680,6 +7680,7 @@ BOOL System_wgetparent(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+/*
 BOOL System_wgetdelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* win = lvar;
@@ -7695,6 +7696,7 @@ BOOL System_wgetdelay(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+*/
 
 BOOL System_wgetscrreg(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {

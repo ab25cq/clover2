@@ -367,7 +367,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.is_subwin(pointer)", "System_is_subwin", System_is_subwin },
     { "System.is_syncok(pointer)", "System_is_syncok", System_is_syncok },
     { "System.wgetparent(pointer)", "System_wgetparent", System_wgetparent },
-    { "System.wgetdelay(pointer)", "System_wgetdelay", System_wgetdelay },
+//    { "System.wgetdelay(pointer)", "System_wgetdelay", System_wgetdelay },
     { "System.wgetscrreg(pointer,pointer,pointer)", "System_wgetdelay", System_wgetscrreg },
     { "System.init_pair(short,short,short)", "System_init_pair", System_init_pair },
     { "System.COLOR_PAIR(int)", "System_COLOR_PAIR", System_COLOR_PAIR },

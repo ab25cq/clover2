@@ -436,7 +436,7 @@ inherit System
     def is_subwin(win:pointer@WINDOW): native bool;
     def is_syncok(win:pointer@WINDOW): native bool;
     def wgetparent(win:pointer@WINDOW): native pointer@WINDOW;
-    def wgetdelay(win:pointer@WINDOW): native int;
+#    def wgetdelay(win:pointer@WINDOW): native int;
     def wgetscrreg(win:pointer@WINDOW, top:pointer@int, bottom:pointer@int): native;
     
     def clrtobot(): native;
