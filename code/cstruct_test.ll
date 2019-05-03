@@ -261,6 +261,8 @@ declare void @fun8(i8*)
 
 declare i32 @fun9(i32, i32)
 
+declare i32 @fun10(i32)
+
 define i32 @clover2_main(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num, i64* %constant, i64* %code, i64** %global_stack_ptr_address, i64* %stack_plus_var_num) {
 entry:
   call void @initialize_code_and_constant(i64* %code, i64* %constant, i8* getelementptr inbounds ([112 x i8], [112 x i8]* @gCodeData, i32 0, i32 0), i32 112, i8* getelementptr inbounds ([124 x i8], [124 x i8]* @gConstData, i32 0, i32 0), i32 124)

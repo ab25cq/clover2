@@ -53,5 +53,7 @@ class CStructTest {
         data6 := C.fun9(2, 3);
 
         Clover.test("struct test9", data6 == 5);
+
+        Clover.test("CFFI test10", C.fun10(999) == 999);
     }
 }

@@ -309,7 +309,7 @@ class CLang
         skipLFAndSpaces();
 
         while(p->byte != '\0') {
-            p_before := p.clone();
+            p_before := p.p;
 
             buf := getWord();
 
@@ -331,7 +331,7 @@ class CLang
             }
             ### Function ###
             else {
-                p = p_before;
+                p.p = p_before;
 
                 type := parseType();
                 name := getWord();

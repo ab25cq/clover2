@@ -65,3 +65,8 @@ int fun9(int x, int y)
 {
     return x + y;
 }
+
+int fun10(int x)
+{
+    return x;
+}

@@ -14,3 +14,6 @@ extern char* fun6();
 extern struct CStruct fun7();
 extern void fun8(char* str);
 extern int fun9(int x, int y);
+int fun10(int x);
+
+int Var;

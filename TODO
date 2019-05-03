@@ -1,7 +1,5 @@
-C-FFIでstruct
-
-C-FFIでint以外のデータ型に対応
 
 スタックの値オーバーフローしてたらコンパイル時にエラーをだす。
 
-C FFI Nullのときresultは取れない
+C FFI グローバル変数
+
