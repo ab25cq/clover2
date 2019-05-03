@@ -5540,6 +5540,14 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
             /// shell mode ///
             else if(including_slash || (command_class && class_method_name_existance(command_class, buf)) || (get_variable_index(info->lv_table, buf) == -1 && is_command_name(buf) && *info->p != '('))
             {
+                info->p = p_before;
+                info->sline = sline_before;
+
+                /// name ///
+                if(!parse_word(buf, VAR_NAME_MAX -2, info, TRUE, TRUE)) {
+                    return FALSE;
+                }
+
                 unsigned int params[PARAMS_MAX];
                 int num_params = 0;
 
@@ -5720,6 +5728,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                         break;
                     }
                 }
+                skip_spaces_and_lf(info);
 
                 BOOL blank = *(info->p-1) == ' ' || *(info->p-1) == '\t';
 

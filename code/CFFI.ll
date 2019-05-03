@@ -1,19 +1,14 @@
-; ModuleID = 'code/cstruct_test.bc'
-source_filename = "Module code/cstruct_test.ocl"
+; ModuleID = 'code/CFFI.bc'
+source_filename = "Module code/CFFI.ocl"
 
 @gSigInt = external global i32
-@gCodeData = global [112 x i8] c"\0F\00\00\00\10\00\00\00\00\00\00\00\01\00\00\00+#\00\00\18\00\00\00\11\00\00\00$\00\00\00\01\00\00\00\B8\0B\00\00<\00\00\00\00\00\00\00 \00\00\00\12\00\00\00\01\00\00\00\0F\00\00\00\10\00\00\00@\00\00\00\03\00\00\00\11\00\00\00X\00\00\00\03\00\00\00\B8\0B\00\00p\00\00\00\01\00\00\00 \00\00\00\12\00\00\00\01\00\00\00", align 1
-@gConstData = global [124 x i8] c"code/cstruct_test.cl\00\00\00\00HELLO WORLD\00code/cstruct_test.cl\00\00\00\00C\00\00\00code/cstruct_test.cl\00\00\00\00code/cstruct_test.cl\00\00\00\00CStructTest\00", align 1
-@global_string = private constant [21 x i8] c"code/cstruct_test.cl\00", align 1
-@global_string.2 = private constant [12 x i8] c"HELLO WORLD\00", align 1
-@global_string.3 = private constant [21 x i8] c"code/cstruct_test.cl\00", align 1
+@gCodeData = global [52 x i8] c"\0F\00\00\00\10\00\00\00\00\00\00\00\01\00\00\00\11\00\00\00\10\00\00\00\01\00\00\00\B8\0B\00\00 \00\00\00\01\00\00\00 \00\00\00\12\00\00\00\01\00\00\00", align 1
+@gConstData = global [41 x i8] c"code/CFFI.cl\00\00\00\00code/CFFI.cl\00\00\00\00CFFITest\00", align 1
+@global_string = private constant [13 x i8] c"code/CFFI.cl\00", align 1
+@global_string.2 = private constant [13 x i8] c"code/CFFI.cl\00", align 1
+@global_string.3 = private constant [9 x i8] c"CFFITest\00", align 1
 @global_string.4 = private constant [10 x i8] c"Exception\00", align 1
 @global_string.5 = private constant [17 x i8] c"Signal Interrupt\00", align 1
-@global_string.6 = private constant [21 x i8] c"code/cstruct_test.cl\00", align 1
-@global_string.7 = private constant [21 x i8] c"code/cstruct_test.cl\00", align 1
-@global_string.8 = private constant [12 x i8] c"CStructTest\00", align 1
-@global_string.9 = private constant [10 x i8] c"Exception\00", align 1
-@global_string.10 = private constant [17 x i8] c"Signal Interrupt\00", align 1
 
 declare void @entry_exception_object(i32, i64*)
 
@@ -263,83 +258,50 @@ declare i32 @fun9(i32, i32)
 
 define i32 @clover2_main(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num, i64* %constant, i64* %code, i64** %global_stack_ptr_address, i64* %stack_plus_var_num) {
 entry:
-  call void @initialize_code_and_constant(i64* %code, i64* %constant, i8* getelementptr inbounds ([112 x i8], [112 x i8]* @gCodeData, i32 0, i32 0), i32 112, i8* getelementptr inbounds ([124 x i8], [124 x i8]* @gConstData, i32 0, i32 0), i32 124)
+  call void @initialize_code_and_constant(i64* %code, i64* %constant, i8* getelementptr inbounds ([52 x i8], [52 x i8]* @gCodeData, i32 0, i32 0), i32 52, i8* getelementptr inbounds ([41 x i8], [41 x i8]* @gConstData, i32 0, i32 0), i32 41)
   store i32 0, i32* @gSigInt
-  call void @mark_source_position(i64* %info, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string, i32 0, i32 0), i32 1)
-  %loaded_stack_ptr_address_value = load i64*, i64** %stack_ptr_address, align 8
-  store i64 0, i64* %loaded_stack_ptr_address_value, align 8
-  store i64 ptrtoint ([12 x i8]* @global_string.2 to i64), i64* %loaded_stack_ptr_address_value, align 8
-  %loaded_stack_ptr_address_value1 = load i64*, i64** %stack_ptr_address
-  %"inc_ptr_value(1)" = getelementptr i64, i64* %loaded_stack_ptr_address_value1, i64 1
-  store i64* %"inc_ptr_value(1)", i64** %stack_ptr_address
-  call void @mark_source_position2(i64* %info, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string.3, i32 0, i32 0), i32 1)
-  %0 = call i32 @puts(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.2, i32 0, i32 0))
-  %loaded_stack_ptr_address_value2 = load i64*, i64** %stack_ptr_address
-  %"inc_ptr_value(1)3" = getelementptr i64, i64* %loaded_stack_ptr_address_value2, i64 -1
-  store i64* %"inc_ptr_value(1)3", i64** %stack_ptr_address
-  %loaded_stack_ptr_address_value4 = load i64*, i64** %stack_ptr_address, align 8
-  store i64 0, i64* %loaded_stack_ptr_address_value4, align 8
-  %1 = zext i32 %0 to i64
-  store i64 %1, i64* %loaded_stack_ptr_address_value4, align 8
-  %loaded_stack_ptr_address_value5 = load i64*, i64** %stack_ptr_address
-  %"inc_ptr_value(1)6" = getelementptr i64, i64* %loaded_stack_ptr_address_value5, i64 1
-  store i64* %"inc_ptr_value(1)6", i64** %stack_ptr_address
-  %sig_int_value = load i32, i32* @gSigInt, align 4
-  %2 = trunc i32 %sig_int_value to i1
-  br i1 %2, label %sigint_then_block, label %entry_after_sigint
-
-sigint_then_block:                                ; preds = %entry
-  store i32 0, i32* @gSigInt
-  %3 = call i32 @entry_exception_object_with_class_name2(i64** %stack_ptr_address, i64* %stack, i32 %var_num, i64* %info, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.4, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @global_string.5, i32 0, i32 0))
-  ret i32 0
-
-entry_after_sigint:                               ; preds = %entry
-  %loaded_stack_ptr_address_value7 = load i64*, i64** %stack_ptr_address
-  %"inc_ptr_value(1)8" = getelementptr i64, i64* %loaded_stack_ptr_address_value7, i64 -1
-  store i64* %"inc_ptr_value(1)8", i64** %stack_ptr_address
-  store i32 0, i32* @gSigInt
-  call void @mark_source_position(i64* %info, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string.6, i32 0, i32 0), i32 3)
-  call void @mark_source_position2(i64* %info, i8* getelementptr inbounds ([21 x i8], [21 x i8]* @global_string.7, i32 0, i32 0), i32 3)
-  %4 = call i64* @get_class_with_load_and_initialize(i8* getelementptr inbounds ([12 x i8], [12 x i8]* @global_string.8, i32 0, i32 0), i32 0)
-  %ifcond = icmp eq i64* %4, null
+  call void @mark_source_position(i64* %info, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string, i32 0, i32 0), i32 1)
+  call void @mark_source_position2(i64* %info, i8* getelementptr inbounds ([13 x i8], [13 x i8]* @global_string.2, i32 0, i32 0), i32 1)
+  %0 = call i64* @get_class_with_load_and_initialize(i8* getelementptr inbounds ([9 x i8], [9 x i8]* @global_string.3, i32 0, i32 0), i32 0)
+  %ifcond = icmp eq i64* %0, null
   br i1 %ifcond, label %then_block, label %entry_ifend
 
-then_block:                                       ; preds = %entry_after_sigint
+then_block:                                       ; preds = %entry
   ret i32 0
 
-entry_ifend:                                      ; preds = %entry_after_sigint
-  %5 = call i32 @call_invoke_method(i64* %4, i32 1, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info)
-  %ifcond9 = icmp ne i32 %5, 1
-  br i1 %ifcond9, label %then_block10, label %entry_ifend11
+entry_ifend:                                      ; preds = %entry
+  %1 = call i32 @call_invoke_method(i64* %0, i32 1, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info)
+  %ifcond1 = icmp ne i32 %1, 1
+  br i1 %ifcond1, label %then_block2, label %entry_ifend3
 
-then_block10:                                     ; preds = %entry_ifend
-  %6 = call i8* @get_try_catch_label_name(i64* %info)
-  %catchcond = icmp ne i8* %6, null
+then_block2:                                      ; preds = %entry_ifend
+  %2 = call i8* @get_try_catch_label_name(i64* %info)
+  %catchcond = icmp ne i8* %2, null
   br i1 %catchcond, label %then_block_b, label %entry_ifend_b
 
-entry_ifend11:                                    ; preds = %entry_ifend
-  %loaded_stack_ptr_address_value12 = load i64*, i64** %stack_ptr_address
-  %stack_pointer_offset_value = getelementptr i64, i64* %loaded_stack_ptr_address_value12, i64 -1
-  %stack_pointer_offset_value13 = load i64, i64* %stack_pointer_offset_value, align 8
-  %trunc_variable = trunc i64 %stack_pointer_offset_value13 to i32
-  %sig_int_value14 = load i32, i32* @gSigInt, align 4
-  %7 = trunc i32 %sig_int_value14 to i1
-  br i1 %7, label %sigint_then_block15, label %entry_after_sigint16
+entry_ifend3:                                     ; preds = %entry_ifend
+  %loaded_stack_ptr_address_value = load i64*, i64** %stack_ptr_address
+  %stack_pointer_offset_value = getelementptr i64, i64* %loaded_stack_ptr_address_value, i64 -1
+  %stack_pointer_offset_value4 = load i64, i64* %stack_pointer_offset_value, align 8
+  %trunc_variable = trunc i64 %stack_pointer_offset_value4 to i32
+  %sig_int_value = load i32, i32* @gSigInt, align 4
+  %3 = trunc i32 %sig_int_value to i1
+  br i1 %3, label %sigint_then_block, label %entry_after_sigint
 
-then_block_b:                                     ; preds = %then_block10
+then_block_b:                                     ; preds = %then_block2
   ret i32 0
 
-entry_ifend_b:                                    ; preds = %then_block10
+entry_ifend_b:                                    ; preds = %then_block2
   ret i32 0
 
-sigint_then_block15:                              ; preds = %entry_ifend11
+sigint_then_block:                                ; preds = %entry_ifend3
   store i32 0, i32* @gSigInt
-  %8 = call i32 @entry_exception_object_with_class_name2(i64** %stack_ptr_address, i64* %stack, i32 %var_num, i64* %info, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.9, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @global_string.10, i32 0, i32 0))
+  %4 = call i32 @entry_exception_object_with_class_name2(i64** %stack_ptr_address, i64* %stack, i32 %var_num, i64* %info, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @global_string.4, i32 0, i32 0), i8* getelementptr inbounds ([17 x i8], [17 x i8]* @global_string.5, i32 0, i32 0))
   ret i32 0
 
-entry_after_sigint16:                             ; preds = %entry_ifend11
-  %loaded_stack_ptr_address_value17 = load i64*, i64** %stack_ptr_address
-  %"inc_ptr_value(1)18" = getelementptr i64, i64* %loaded_stack_ptr_address_value17, i64 -1
-  store i64* %"inc_ptr_value(1)18", i64** %stack_ptr_address
+entry_after_sigint:                               ; preds = %entry_ifend3
+  %loaded_stack_ptr_address_value5 = load i64*, i64** %stack_ptr_address
+  %"inc_ptr_value(1)" = getelementptr i64, i64* %loaded_stack_ptr_address_value5, i64 -1
+  store i64* %"inc_ptr_value(1)", i64** %stack_ptr_address
   ret i32 1
 }

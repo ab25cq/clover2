@@ -1,4 +1,10 @@
 
+version 10.4.2
+
+    Finished to implement C-FFI on JIT.
+
+    Continue to implement C Header Parser.
+
 version 10.4.1
 
     Continue to implement C-FFI on JIT.

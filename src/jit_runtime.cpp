@@ -1843,4 +1843,21 @@ void initialize_code_and_constant(sByteCode* code, sConst* constant, char* code_
     constant->mLen = const_len;
 }
 
+CLObject convert_i64array_to_struct(char* class_name, unsigned long* array, sVMInfo* info)
+{
+    sCLClass* klass = get_class_with_load(class_name, FALSE);
+
+    int alloc_size = klass->mAllocSize;
+
+    char* type_name = CLASS_NAME(klass);
+
+    CLObject result = create_object2(klass, type_name, alloc_size, info);
+
+    sCLObject* object_data = CLOBJECT(result);
+
+    memcpy(object_data->mFields, array, alloc_size);
+
+    return result;
+}
+
 }

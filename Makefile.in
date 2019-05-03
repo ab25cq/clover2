@@ -903,11 +903,19 @@ js-test:
 	PWD=`pwd` $(NODEJS) code/js.js
 
 c-ffi-test:
-	clang -c code/CStruct.c
+	clang -c code/CStruct.c -I code/
 	./cclover2 code/CStructTest.clcl
 	./bclover2 CStructTest.oclcl CStruct.o
 	./cclover2 code/cstruct_test.cl
 	./bclover2 code/cstruct_test.ocl
 	./code/cstruct_test
+
+c-ffi-test2:
+	./cclover2 code/CFFITest.clcl
+	./bclover2 CFFITest.oclcl
+	./cclover2 code/CFFI.cl
+	./bclover2 code/CFFI.ocl
+	./code/CFFI
+
 
 

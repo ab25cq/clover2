@@ -1,4 +1,5 @@
 class C version 1
 {
     def puts(str:byte*):int;
+    def strcmp(str1:byte*, str2:byte*):int;
 }

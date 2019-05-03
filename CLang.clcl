@@ -2,14 +2,16 @@ class CLangVariable
 {
     var name:String;
     var type:String;
+    var offset:int;
 
-    def initialize(name:String, type:String) {
+    def initialize(name:String, type:String, offset:int=0) {
         self.name = name.clone();
         self.type = type.clone();
+        self.offset = offset;
     }
 
     def clone():CLangVariable {
-        result := CLangVariable(self.name, self.type);
+        result := CLangVariable(self.name, self.type, self.offset);
 
         return result;
     }
@@ -17,7 +19,37 @@ class CLangVariable
         return self.name.compare(right.name);
     }
     def equals(right:CLangVariable): bool {
-        return self.name.equals(right.name) && self.type.equals(right.type);
+        return self.name.equals(right.name) && self.type.equals(right.type) && self.offset == right.offset;
+    }
+
+    def toString():String {
+        return "variable name \{name} type \{type} offset \{offset}";
+    }
+}
+
+class CLangStruct {
+    var name:String;
+    var fields:SortableList<CLangVariable>;
+
+    def initialize(name:String, fields:SortableList<
+CLangVariable>) {
+        self.name = name;
+        self.fields = fields.clone();
+    }
+
+    def clone():CLangStruct {
+        result := CLangStruct(self.name, self.fields);
+        return result;
+    }
+    def compare(right:CLangStruct): int {
+        return self.name.compare(right.name);
+    }
+    def equals(right:CLangStruct): bool {
+        return self.name.equals(right.name) && self.fields.equals(right.fields);
+    }
+
+    def toString():String {
+        return "struct name \{name} fields \{fields}";
     }
 }
 
@@ -44,6 +76,10 @@ class CLangFunc {
     def equals(right:CLangFunc): bool {
         return self.name.equals(right.name) && self.type.equals(right.type) && self.params.equals(right.params);
     }
+
+    def toString():String {
+        return "type \{type} name \{name} params \{params}";
+    }
 }
 
 class CLang
@@ -52,12 +88,14 @@ class CLang
     var source:Buffer;
 
     var funcs:SortableList<CLangFunc>;
+    var structs:SortableList<CLangStruct>;
 
     def initialize(source:Buffer) {
         self.p = source;
         self.source = source;
 
         self.funcs = SortableList<CLangFunc>();
+        self.structs = SortableList<CLangStruct>();
     }
 
     def skipLFAndSpaces() {
@@ -84,12 +122,44 @@ class CLang
         return buf;
 
     }
+    def parseVarName():String {
+        result := getWord();
+
+        if(p->byte == '[') {
+            result.append(p->byte.to_char);
+            p++;
+            skipLFAndSpaces();
+
+            while(isdigit(p->byte.to_char)) {
+                result.append(p->byte.to_char);
+                p++;
+                skipLFAndSpaces();
+            }
+
+            if(p->byte == ']') {
+                result.append(p->byte.to_char);
+                p++;
+                skipLFAndSpaces();
+            }
+            else {
+                throw Exception("Require ]");
+            }
+        }
+
+        return result;
+    }
     def parseParams():SortableList<CLangVariable> {
         result := SortableList<CLangVariable>();
 
         while(p->byte != '\0') {
-            type := getWord();
-            name := getWord();
+            if(p->byte == ')') {
+                p++;
+                skipLFAndSpaces();
+                break;
+            }
+
+            type := parseType();
+            name := parseVarName();
 
             variable := CLangVariable(name, type);
 
@@ -112,78 +182,291 @@ class CLang
         return result;
     }
 
+    def parseType(): String {
+        result := getWord();
+
+        if(result.equals("struct")) {
+            result = getWord();
+        }
+
+        while(p->byte == '*') {
+            result.append(p->byte.to_char);
+
+            p++;
+            skipLFAndSpaces();
+        }
+
+        return result;
+    }
+
+    def expected_next_charactor(c:byte) {
+        if(p->byte == c) {
+            p++;
+            skipLFAndSpaces();
+        }
+        else {
+            throw Exception("expected next character is \{c}");
+        }
+    }
+
+    def parseStruct() {
+        name := getWord();
+
+        expected_next_charactor('{');
+
+        fields := SortableList<CLangVariable>;
+
+        while(true) {
+            if(p->byte == '}') {
+                p++;
+                skipLFAndSpaces();
+
+                expected_next_charactor(';');
+                break;
+            }
+            else {
+                field_type := parseType();
+                field_name := parseVarName();
+
+                expected_next_charactor(';');
+
+                variable := CLangVariable(field_name, field_type);
+
+                fields.push(variable);
+            }
+        }
+
+        struct_ := CLangStruct(name, fields);
+        structs.push(struct_);
+    }
+
+    def parseFunction(type:String, name:String) {
+        params := parseParams();
+
+
+        if(p->byte == ';') {
+            p++;
+            skipLFAndSpaces();
+        }
+
+        fun := CLangFunc(type, name, params);
+        funcs.push(fun);
+    }
+
+    def removeComment()
+    {
+        result := Buffer();
+        p = source;
+        while(true) {
+            if(p->byte == '/' && (p+1)->byte == '*')
+            {
+                while(true) {
+                    if(p->byte == '*' 
+                        && (p+1)->byte == '/')
+                    {
+                        p+=2;
+                        break;
+                    }
+                    elif(p->byte == '\0') {
+                        throw Exception("Require */ before the source end");
+                    }
+                    else {
+                        p++;
+                    }
+                }
+            }
+            elif(p->byte == '/' && (p+1)->byte == '/')
+            {
+                while(true) {
+                    if(p->byte == '\n')
+                    {
+                        p++;
+                        break;
+                    }
+                    elif(p->byte == '\0') {
+                        break;
+                    }
+                    else {
+                        p++;
+                    }
+                }
+            }
+            elif(p->byte == '\0') {
+                result.append(p->byte);
+                break;
+            }
+            else {
+                result.append(p->byte);
+                p++;
+            }
+        }
+
+        source = result;
+        p = source;
+    }
+
     def parseHeader() {
         skipLFAndSpaces();
 
         while(p->byte != '\0') {
+            p_before := p.clone();
+
             buf := getWord();
 
             if(buf.equals("struct")) {
+                parseStruct();
             }
             elif(buf.equals("typedef")) {
             }
             elif(buf.equals("extern")) {
-                buf2 := getWord();
-                buf3 := getWord();
+                type := parseType();
+                name := getWord();
 
                 if(p->byte == '(') {
                     p++;
                     skipLFAndSpaces();
 
-                    type := buf2;
-                    name := buf3;
-
-                    params := parseParams();
-
-                    if(p->byte == ';') {
-                        p++;
-                        skipLFAndSpaces();
-                    }
-
-                    fun := CLangFunc(type, name, params);
-                    funcs.push(fun);
+                    parseFunction(type, name);
                 }
             }
             ### Function ###
             else {
-                buf2 := getWord();
+                p = p_before;
+
+                type := parseType();
+                name := getWord();
 
                 if(p->byte == '(') {
                     p++;
                     skipLFAndSpaces();
 
-                    type := buf;
-                    name := buf2;
-
-                    params := parseParams();
-
-                    if(p->byte == ';') {
-                        p++;
-                        skipLFAndSpaces();
-                    }
-                    fun := CLangFunc(type, name, params);
-
-                    funcs.push(fun);
+                    parseFunction(type, name);
                 }
             }
         }
     }
-    def include(fname:String): static CLang {
+    def include(fname:String): static {
         source := fname.toPath().read();
         source.append('\0');
 
-        result := CLang(source);
-        result.parseHeader();
+        c := CLang(source);
+        c.removeComment();
+
+        c.parseHeader();
+
+        Clover.appendClass(c.pasteHeader());
+    }
+    def translateCVarNameToClover2VarName(name:String, type:String):String
+    {
+        result := name;
+
+        if(name.match(/.+\[\d+\]/)) {
+            result  = name.scan(/(.+)\[\d+\]/).items(1);
+        }
+
+        return result;
+    }
+
+    def translateCTypeToClover2Type(name:String, type:String):String
+    {
+        if(type.match(/char\*+/)) {
+            stars := type.scan(/char(\*+)/).items(1);
+            type = "byte".add(stars);
+        }
+        elif(type.equals("char")) {
+            type = "byte";
+        }
+
+        if(name.match(/.+\[\d+\]/)) {
+            array_name := name.scan(/.+(\[\d+\])/).items(1);
+            type.append(array_name);
+        }
+
+        return type;
+    }
+
+    def pasteStructs(): String {
+        result := "";
+
+        Command.mkdir("-p", getenv("HOME").add("/.clover2/tmp"));
+        Command.chmod("755", getenv("HOME").add("/.clover2/tmp"));
+
+        for(it in structs) {
+            """
+            #include <stdio.h>
+            #include <stdlib.h>
+
+            \{source}
+
+            int main() {
+                struct \{it.name} data;
+                printf("%ld\\n", sizeof(struct \{it.name}));
+                \{
+                result := "";
+                for(it2 in it.fields) {
+                    result.append(
+                        """
+                        printf("%ld\\n", (char*)&data.\{it2.name} - (char*)&data);
+                        """
+                    );
+                }
+                result;
+                }
+                exit(0);
+            }
+            """.write(getenv("HOME").add("/.clover2/tmp/tmp.c"));
+
+            gcc("-o", "clover2_get_struct_size", getenv("HOME").add("/.clover2/tmp/tmp.c"));
+            system("./clover2_get_struct_size > clover2_get_struct_size_out");
+            output := cat("clover2_get_struct_size_out").toString().split(/\n/);
+
+            size := output.items(0).to_int();
+            n := 1;
+            for(it2 in it.fields) {
+                it2.offset = output.items(n).to_int();
+                n++;
+            }
+            rm("./clover2_get_struct_size")
+            rm("./clover2_get_struct_size_out")
+
+
+            result.append(
+                """
+                struct \{it.name}:\{size} {
+                \{
+                    result := "";
+                    for(it2 in it.fields) {
+                        name := it2.name;
+                        type := it2.type;
+                        offset := it2.offset;
+
+                        clover2_name := translateCVarNameToClover2VarName(name, type);
+                        clover2_type := translateCTypeToClover2Type(name, type);
+
+                        result.append("\{clover2_name}:\{clover2_type}:\{offset};\n");
+                    }
+                    result;
+                }
+                }
+                """
+            );
+        }
+
         return result;
     }
 
     def pasteHeader():String {
-        result := "";
+        result := "class C version 2 {\n";
         for(it in funcs) {
             params := "";
             i := 0;
             for(it2 in it.params) {
-                params.append("\{it2.type} \{it2.name}");
+                name := it2.name.clone();
+                type := it2.type.clone();
+
+                clover2_name := translateCVarNameToClover2VarName(name, type);
+                clover2_type := translateCTypeToClover2Type(name, type);
+                params.append("\{clover2_name}:\{clover2_type}");
 
                 if(i != it.params.length()-1) {
                     params.append(", ");
@@ -191,8 +474,21 @@ class CLang
 
                 i++;
             }
-            result.append("def \{it.name}(\{params}):\{it.type};\n");
+
+            if(it.type.equals("void")) {
+                result.append("def \{it.name}(\{params});\n");
+            }
+            else {
+                name := it.name;
+                type := it.type;
+                type = translateCTypeToClover2Type(name, type);
+                result.append("def \{name}(\{params}):\{type};\n");
+            }
         }
+
+        result.append("}\n");
+
+        result.append(pasteStructs());
 
         return result;
     }

@@ -627,6 +627,10 @@ dynamic_class Command
                 if(method_name.chars(0) == '/') {
                     execv(method_name, params);
                 }
+                elif(method_name.indexOf("./") == 0)
+                {
+                    execv(method_name, params);
+                }
                 else {
                     execvp(method_name, params);
                 }
@@ -711,6 +715,10 @@ dynamic_class Command
                 if(method_name.chars(0) == '/') {
                     execv(method_name, params);
                 }
+                elif(method_name.indexOf("./") == 0)
+                {
+                    execv(method_name, params);
+                }
                 else {
                     execvp(method_name, params);
                 }
@@ -774,6 +782,10 @@ dynamic_class Command
 
             try {
                 if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                elif(method_name.indexOf("./") == 0)
+                {
                     execv(method_name, params);
                 }
                 else {
@@ -842,6 +854,10 @@ dynamic_class Command
 
             try {
                 if(method_name.chars(0) == '/') {
+                    execv(method_name, params);
+                }
+                elif(method_name.indexOf("./") == 0)
+                {
                     execv(method_name, params);
                 }
                 else {

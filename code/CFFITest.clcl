@@ -1,0 +1,20 @@
+struct CFFIStruct : 16 {
+    a:long:0;
+    b:long:8;
+}
+
+class CFFITest {
+    def getStruct(): static CFFIStruct {
+        data := CFFIStruct();
+        data;
+    }
+
+    def main():static {
+        data := CFFITest.getStruct();
+
+        data.a->long = 111;
+        data.b->long = 222;
+
+        Clover.test("CFFI test", data.a->long == 111 && data.b->long == 222);
+    }
+}

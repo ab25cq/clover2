@@ -2958,8 +2958,10 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
         info->stack_num++;
 
-        append_opecode_to_code(info->code, OP_OBJ_HEAD_OF_MEMORY, info->no_output);
-        append_int_value_to_code(info->code, 0, info->no_output);
+        if(!info->no_load_head_of_memory) {
+            append_opecode_to_code(info->code, OP_OBJ_HEAD_OF_MEMORY, info->no_output);
+            append_int_value_to_code(info->code, 0, info->no_output);
+        }
     }
     else {
         append_opecode_to_code(info->code, OP_LOAD, info->no_output);
@@ -6952,6 +6954,11 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     sNodeType* value_result_type;
     if(expression_node != 0) {
+        if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable)
+        {
+            info->no_load_head_of_memory = TRUE;
+        }
+
         if(!compile(expression_node, info)) {
             return FALSE;
         }
@@ -7049,6 +7056,8 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
         return TRUE;
     }
+
+    sCLClass* result_class = result_type2->mClass;
 
     append_opecode_to_code(info->code, OP_RETURN, info->no_output);
 

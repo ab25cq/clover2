@@ -948,6 +948,8 @@ struct sCompileInfoStruct
     sNodeType* question_operator_result_type;
 
     int mNumBlockObject;
+
+    BOOL no_load_head_of_memory;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
