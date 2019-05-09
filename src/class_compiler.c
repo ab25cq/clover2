@@ -921,6 +921,10 @@ static BOOL parse_methods_and_fields(sParserInfo* info, sCompileInfo* cinfo, BOO
         char header_path[PATH_MAX];
         int offset = -1;
 
+        if(extern_) {
+            static_ = TRUE;
+        }
+
         expect_next_character_with_one_forward(":", info);
 
         if(!parse_field_attributes_and_type(&private_, &protected_, &static_, &delegate_, &result_type, &offset, info, cinfo, header_path, PATH_MAX, struct_)) {
@@ -1487,6 +1491,10 @@ BOOL parse_methods_and_fields_on_compile_time(sParserInfo* info, sCompileInfo* c
         sNodeType* result_type = NULL;
         char header_path[PATH_MAX];
         int offset = -1;
+
+        if(extern_) {
+            static_ = TRUE;
+        }
 
         expect_next_character_with_one_forward(":", info);
 

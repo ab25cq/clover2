@@ -2,7 +2,16 @@
 source_filename = "Module code/cstruct_test.ocl"
 
 @gSigInt = external global i32
-@gCodeData = global [112 x i8] c"\0F\00\00\00\10\00\00\00\00\00\00\00\01\00\00\00+#\00\00\18\00\00\00\11\00\00\00$\00\00\00\01\00\00\00\B8\0B\00\00<\00\00\00\00\00\00\00 \00\00\00\12\00\00\00\01\00\00\00\0F\00\00\00\10\00\00\00@\00\00\00\03\00\00\00\11\00\00\00X\00\00\00\03\00\00\00\B8\0B\00\00p\00\00\00\01\00\00\00 \00\00\00\12\00\00\00\01\00\00\00", align 1
+@gVar = external global i32
+@gVar2 = external global float
+@gVar3 = external global double
+@gVar4 = external global i64
+@gVar5 = external global i8
+@gVar6 = external global i8*
+@gVar7 = external global [3 x i8]
+@gVar8 = external global [3 x i32]
+@gVar9 = external global [2 x i64]
+@gCodeData = global [112 x i8] c"\0F\00\00\00\10\00\00\00\00\00\00\00\01\00\00\00+#\00\00\18\00\00\00\11\00\00\00$\00\00\00\01\00\00\00\B8\0B\00\00<\00\00\00\00\00\00\00 \00\00\00\12\00\00\00\01\00\00\00\0F\00\00\00\10\00\00\00@\00\00\00\03\00\00\00\11\00\00\00X\00\00\00\03\00\00\00\B8\0B\00\00p\00\00\00\05\00\00\00 \00\00\00\12\00\00\00\01\00\00\00", align 1
 @gConstData = global [124 x i8] c"code/cstruct_test.cl\00\00\00\00HELLO WORLD\00code/cstruct_test.cl\00\00\00\00C\00\00\00code/cstruct_test.cl\00\00\00\00code/cstruct_test.cl\00\00\00\00CStructTest\00", align 1
 @global_string = private constant [21 x i8] c"code/cstruct_test.cl\00", align 1
 @global_string.2 = private constant [12 x i8] c"HELLO WORLD\00", align 1
@@ -263,6 +272,18 @@ declare i32 @fun9(i32, i32)
 
 declare i32 @fun10(i32)
 
+declare void @fun11()
+
+declare void @fun12(i8)
+
+declare void @fun13(i32*)
+
+declare void @fun14(i32*)
+
+declare void @fun15(i8*)
+
+declare void @fun16([2 x i64])
+
 define i32 @clover2_main(i64* %stack_ptr, i64* %lvar, i64* %info, i64* %stack, i64** %stack_ptr_address, i32 %var_num, i64* %constant, i64* %code, i64** %global_stack_ptr_address, i64* %stack_plus_var_num) {
 entry:
   call void @initialize_code_and_constant(i64* %code, i64* %constant, i8* getelementptr inbounds ([112 x i8], [112 x i8]* @gCodeData, i32 0, i32 0), i32 112, i8* getelementptr inbounds ([124 x i8], [124 x i8]* @gConstData, i32 0, i32 0), i32 124)
@@ -310,7 +331,7 @@ then_block:                                       ; preds = %entry_after_sigint
   ret i32 0
 
 entry_ifend:                                      ; preds = %entry_after_sigint
-  %5 = call i32 @call_invoke_method(i64* %4, i32 1, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info)
+  %5 = call i32 @call_invoke_method(i64* %4, i32 5, i64* %stack, i32 %var_num, i64** %stack_ptr_address, i64* %info)
   %ifcond9 = icmp ne i32 %5, 1
   br i1 %ifcond9, label %then_block10, label %entry_ifend11
 

@@ -117,7 +117,11 @@ void free_nodes()
 int get_var_size(sNodeType* var_type)
 {
     int size = 0;
-    if(var_type->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
+    if(var_type->mClass->mFlags & CLASS_FLAGS_STRUCT)
+    {
+        size = -1;
+    }
+    else if(var_type->mClass->mFlags & CLASS_FLAGS_INTERFACE) {
         size = 32;
     }
     else if(type_identify_with_class_name(var_type, "byte") || type_identify_with_class_name(var_type, "ubyte"))
@@ -2958,7 +2962,8 @@ static BOOL compile_load_variable(unsigned int node, sCompileInfo* info)
 
         info->stack_num++;
 
-        if(!info->no_load_head_of_memory) {
+        if(!info->no_load_head_of_memory)
+        {
             append_opecode_to_code(info->code, OP_OBJ_HEAD_OF_MEMORY, info->no_output);
             append_int_value_to_code(info->code, 0, info->no_output);
         }
@@ -6954,7 +6959,7 @@ static BOOL compile_return_expression(unsigned int node, sCompileInfo* info)
 
     sNodeType* value_result_type;
     if(expression_node != 0) {
-        if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable)
+        if(gNodes[expression_node].mNodeType == kNodeTypeLoadVariable || gNodes[expression_node].mNodeType == kNodeTypeLoadClassField)
         {
             info->no_load_head_of_memory = TRUE;
         }
@@ -7709,6 +7714,15 @@ static BOOL compile_load_class_field(unsigned int node, sCompileInfo* info)
 
     info->type = field_type;
 
+    if(info->no_load_head_of_memory)
+    {
+        if(strcmp(CLASS_NAME(klass), "C") == 0 && (field_type->mClass->mFlags & CLASS_FLAGS_STRUCT))
+        {
+            append_opecode_to_code(info->code, OP_BOXING_C_STRUCT, info->no_output);
+            append_class_name_to_constant_pool_and_code(info, field_type->mClass);
+        }
+    }
+
     return TRUE;
 }
 
@@ -7854,8 +7868,7 @@ BOOL compile_store_value_to_pointer(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(left_type == NULL 
-        || (!type_identify_with_class_name(left_type, "pointer") && !type_identify_with_class_name(left_type, "Buffer")))
+    if(left_type == NULL || (!type_identify_with_class_name(left_type, "pointer") && !type_identify_with_class_name(left_type, "Buffer")))
     {
         compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
@@ -7985,8 +7998,7 @@ BOOL compile_load_value_from_pointer(unsigned int node, sCompileInfo* info)
 
     sNodeType* left_type = info->type;
 
-    if(left_type == NULL 
-        || (!type_identify_with_class_name(left_type, "pointer") && !type_identify_with_class_name(left_type, "Buffer")))
+    if(left_type == NULL || (!type_identify_with_class_name(left_type, "pointer") && !type_identify_with_class_name(left_type, "Buffer") && left_type->mArrayNum == 0))
     {
         compile_err_msg(info, "Left node requires the pointer class");
         info->err_num++;
@@ -9141,10 +9153,18 @@ BOOL compile_load_array_element(unsigned int node, sCompileInfo* info)
 
         var_type->mArray = FALSE;
 
-        append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+        if(left_type->mArrayNum > 0) {
+            append_opecode_to_code(info->code, OP_LOAD_ELEMENT_OF_CLANG, info->no_output);
 
-        int size = get_var_size(var_type);
-        append_int_value_to_code(info->code, size, info->no_output);
+            int size = get_var_size(var_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+        }
+        else {
+            append_opecode_to_code(info->code, OP_LOAD_ELEMENT, info->no_output);
+
+            int size = get_var_size(var_type);
+            append_int_value_to_code(info->code, size, info->no_output);
+        }
 
         info->stack_num-=2;
         info->stack_num++;
@@ -9387,7 +9407,15 @@ BOOL compile_store_array_element(unsigned int node, sCompileInfo* info)
         store_delegated_varialbe(left_type3, right_type2, info);
 
         //// generate code ///
-        if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
+        if(left_type->mArrayNum > 0) {
+            append_opecode_to_code(info->code, OP_STORE_ELEMENT_OF_CLANG, info->no_output);
+
+            int size = get_var_size(right_type2);
+            append_int_value_to_code(info->code, size, info->no_output);
+
+            info->type = right_type2;
+        }
+        else if(type_identify_with_class_name(left_type3, "Buffer") && type_identify_with_class_name(right_type2, "pointer")) {
             append_opecode_to_code(info->code, OP_STORE_ELEMENT_OF_BUFFER, info->no_output);
 
             info->type = create_node_type_with_class_name("pointer", info->pinfo->mJS);

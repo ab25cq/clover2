@@ -134,6 +134,12 @@ BOOL compile_method(sCLMethod* method, sParserParam* params, int num_params, sPa
 
     /// set result value on the stack ///
     sNodeType* result_type = create_node_type_from_cl_type(method->mResultType, info->klass);
+
+    if(result_type->mArrayNum > 0) {
+        compile_err_msg(cinfo, "method can't return C array type. Instead of it use pointer class for result type.");
+        return FALSE;
+    }
+
     if(!(method->mFlags & METHOD_FLAGS_CLASS_METHOD) && strcmp(CONS_str(&info->klass->mConst, method->mNameOffset), "initialize") == 0) 
     {
         arrange_stack(&cinfo2);

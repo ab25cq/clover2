@@ -3,3 +3,17 @@
 
 C FFI グローバル変数
 
+C FFI グローバル変数、pointer, struct, arrayの３つが動かない。
+
+pointer終わった。
+
+配列のランダムアクセス
+
+struct
+structの配列
+
+C FFI C関数でi8*だけじゃなくてi32*の引数も渡せるか。
+
+array終わったかな。
+
+struct

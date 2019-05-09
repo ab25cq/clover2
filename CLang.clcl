@@ -89,6 +89,7 @@ class CLang
 
     var funcs:SortableList<CLangFunc>;
     var structs:SortableList<CLangStruct>;
+    var vars:SortableList<CLangVariable>;
 
     def initialize(source:Buffer) {
         self.p = source;
@@ -96,6 +97,7 @@ class CLang
 
         self.funcs = SortableList<CLangFunc>();
         self.structs = SortableList<CLangStruct>();
+        self.vars = SortableList<CLangVariable>();
     }
 
     def skipLFAndSpaces() {
@@ -210,6 +212,7 @@ class CLang
     }
 
     def parseStruct() {
+        tmp := getWord();
         name := getWord();
 
         expected_next_charactor('{');
@@ -242,7 +245,6 @@ class CLang
 
     def parseFunction(type:String, name:String) {
         params := parseParams();
-
 
         if(p->byte == ';') {
             p++;
@@ -314,13 +316,41 @@ class CLang
             buf := getWord();
 
             if(buf.equals("struct")) {
-                parseStruct();
+                tmp := getWord();
+
+                if(p->byte == '{') {
+                    p.p = p_before;
+
+                    parseStruct();
+                }
+                else {
+                    p.p = p_before;
+
+                    type := parseType();
+                    name := parseVarName();
+
+                    if(p->byte == '(') {
+                        p++;
+                        skipLFAndSpaces();
+
+                        parseFunction(type, name);
+                    }
+                    else {
+                        if(p->byte == ';') {
+                            p++;
+                            skipLFAndSpaces();
+                        }
+
+                        var_ := CLangVariable(name, type);
+                        vars.push(var_);
+                    }
+                }
             }
             elif(buf.equals("typedef")) {
             }
             elif(buf.equals("extern")) {
                 type := parseType();
-                name := getWord();
+                name := parseVarName();
 
                 if(p->byte == '(') {
                     p++;
@@ -328,19 +358,37 @@ class CLang
 
                     parseFunction(type, name);
                 }
+                else {
+                    if(p->byte == ';') {
+                        p++;
+                        skipLFAndSpaces();
+                    }
+
+                    var_ := CLangVariable(name, type);
+                    vars.push(var_);
+                }
             }
             ### Function ###
             else {
                 p.p = p_before;
 
                 type := parseType();
-                name := getWord();
+                name := parseVarName();
 
                 if(p->byte == '(') {
                     p++;
                     skipLFAndSpaces();
 
                     parseFunction(type, name);
+                }
+                else {
+                    if(p->byte == ';') {
+                        p++;
+                        skipLFAndSpaces();
+                    }
+
+                    var_ := CLangVariable(name, type);
+                    vars.push(var_);
                 }
             }
         }
@@ -485,10 +533,28 @@ class CLang
                 result.append("def \{name}(\{params}):\{type};\n");
             }
         }
+        for(it in vars) {
+            name := it.name;
+            type := it.type;
+            type = translateCTypeToClover2Type(name, type);
+
+            if(name.match(/[a-zA-Z_0-9]+\[[0-9]+\]/)) {
+                name = name.scan(/([a-zA-Z_0-9]+)\[[0-9]+\]/).items(1);
+                #type = "pointer"
+            }
+
+            if(type.match(/[a-zA-Z_0-9]+\*+/)) {
+                type = "pointer"
+            }
+            
+            result.append("var \{name}:\{type};\n");
+        }
 
         result.append("}\n");
 
         result.append(pasteStructs());
+
+result.println();
 
         return result;
     }

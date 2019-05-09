@@ -63,14 +63,34 @@ void dec_andand_oror_array(sVMInfo* info)
 void show_inst(unsigned inst)
 {
     switch(inst) {
+        case OP_CLANG_ARRAY_TO_CLANG_POINTER:
+            puts("OP_CLANG_ARRAY_TO_CLANG_POINTER");
+            break;
+
         case OP_CHAR_TO_BYTE_CAST:
             puts("OP_CHAR_TO_BYTE_CAST");
+            break;
+        
+        case OP_LOAD_ADDRESS:
+            puts("OP_LOAD_ADDRESS");
+            break;
+
+        case OP_STORE_ELEMENT_OF_CLANG:
+            puts("OP_STORE_ELEMENT_OF_CLANG");
             break;
 
         case OP_OBJ_HEAD_OF_MEMORY:
             puts("OP_OBJ_HEAD_OF_MEMORY");
             break;
-            
+
+        case OP_CHAR_TO_CCHAR_CAST:
+            puts("OP_CHAR_TO_CCHAR_CAST");
+            break;
+        
+        case OP_BOXING_C_STRUCT:
+            puts("OP_BOXING_C_STRUCT");
+            break;
+        
         case OP_CREATE_C_STRING:
             puts("OP_CREATE_C_STRING");
             break;
@@ -604,6 +624,10 @@ void show_inst(unsigned inst)
 
         case OP_LOAD_ELEMENT:
             puts("OP_LOAD_ELEMENT");
+            break;
+
+        case OP_LOAD_ELEMENT_OF_CLANG:
+            puts("OP_LOAD_ELEMENT_OF_CLANG");
             break;
 
         case OP_STORE_ELEMENT:
@@ -6614,6 +6638,43 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     stack_ptr++;
                 }
                 break;
+            
+            case OP_BOXING_C_STRUCT: {
+                int tmp = *(int*)pc;
+                pc += sizeof(int);
+
+                entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "this opecode is not supported in Clover2 VM");
+                if(info->try_code == code && info->try_offset != 0) {
+                    pc = code->mCodes + info->try_offset;
+                    info->try_offset = 0;
+                    info->try_code = NULL;
+                    break;
+                }
+                else {
+                    remove_stack_to_stack_list(stack_id);
+                    return FALSE;
+                }
+                }
+                break;
+
+            case OP_LOAD_ELEMENT_OF_CLANG:
+                {
+                    int tmp = *(int*)pc;
+                    pc += sizeof(int);
+
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "CLang Array is not supported in Clover2 VM");
+                    if(info->try_code == code && info->try_offset != 0) {
+                        pc = code->mCodes + info->try_offset;
+                        info->try_offset = 0;
+                        info->try_code = NULL;
+                        break;
+                    }
+                    else {
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
+                }
+                break;
 
             case OP_STORE_ELEMENT:
                 {
@@ -6664,6 +6725,25 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     stack_ptr-=3;
                     *stack_ptr = value;
                     stack_ptr++;
+                }
+                break;
+
+            case OP_STORE_ELEMENT_OF_CLANG:
+                {
+                    int tmp = *(int*)pc;
+                    pc += sizeof(int);
+
+                    entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "CLang Array is not supported in Clover2");
+                    if(info->try_code == code && info->try_offset != 0) {
+                        pc = code->mCodes + info->try_offset;
+                        info->try_offset = 0;
+                        info->try_code = NULL;
+                        break;
+                    }
+                    else {
+                        remove_stack_to_stack_list(stack_id);
+                        return FALSE;
+                    }
                 }
                 break;
 
@@ -16100,6 +16180,20 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
                     remove_stack_to_stack_list(stack_id);
                     return FALSE;
                 }
+                }
+                break;
+        
+            case OP_CLANG_ARRAY_TO_CLANG_POINTER:
+                entry_exception_object_with_class_name(&stack_ptr, stack, var_num, info, "Exception", "No support clang array to clang pointer cast in Virtual Machine");
+                if(info->try_code == code && info->try_offset != 0) {
+                    pc = code->mCodes + info->try_offset;
+                    info->try_offset = 0;
+                    info->try_code = NULL;
+                    break;
+                }
+                else {
+                    remove_stack_to_stack_list(stack_id);
+                    return FALSE;
                 }
                 break;
                 

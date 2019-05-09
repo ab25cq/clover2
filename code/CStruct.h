@@ -15,5 +15,28 @@ extern struct CStruct fun7();
 extern void fun8(char* str);
 extern int fun9(int x, int y);
 int fun10(int x);
+void fun11();
 
-int Var;
+void fun12(char c);
+
+int gVar;
+float gVar2;
+double gVar3;
+long gVar4;
+char gVar5;
+
+long* gVar6;
+
+char gVar7[3];
+int gVar8[3];
+
+void fun13(int* data);
+void fun14(int data[3]);
+
+void fun15(char data[3]);
+
+struct CStruct gVar9;
+
+void fun16(struct CStruct data);
+
+

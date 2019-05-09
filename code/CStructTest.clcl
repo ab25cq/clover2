@@ -2,18 +2,66 @@ __BEGIN__
 CLang.include("code/CStruct.h");
 __END__
 
+struct CFFIStruct : 16 {
+    a:long:0;
+    b:long:8;
+}
+
+class CFFITest {
+    def getStruct(): static CFFIStruct {
+        data := CFFIStruct();
+        data;
+    }
+
+    def main():static {
+        data := CFFITest.getStruct();
+
+        data.a->long = 111;
+        data.b->long = 222;
+
+        Clover.test("CFFI test", data.a->long == 111 && data.b->long == 222);
+    }
+}
+
 class CStructTest {
     def method(c:char):static {
         c.toString().println();
     }
+    def method2():static CStruct {
+        data := CStruct();
+        data.a->byte = 'C';
+        data.b->int = 123;
+        data.c->long = 234;
+
+        return data;
+    }
+    def method3(): static pointer {
+        return C.gVar6;
+    }
+    def method4(): static pointer {
+        C.gVar8[0] = 777;
+        C.gVar8[1] = 888;
+        C.gVar8[2] = 999;
+
+        return C.gVar8;
+    }
+    def method5():static CStruct {
+        C.gVar9.a->byte = 'D';
+        C.gVar9.b->int = 777;
+        C.gVar9.c->long = 888;
+
+        return C.gVar9;
+    }
     def method():static {
+        CFFITest.main();
+
         data := CStruct();
 
         data.a->byte = 'C';
         data.b->int = 123;
         data.c->long = 234;
 
-        Clover.test("struct test1", data.a->byte == 'C' && data.b->int == 123 && data.c->long == 234);
+        Clover.test("CFFI test1", data.a->byte == 'C' && data.b->int == 123 && data.c->long == 234);
         
         C.fun(data);
 
@@ -45,15 +93,97 @@ class CStructTest {
 
         C.fun5(data4);
 
-        Clover.test("strcut test6", C.strcmp(C.fun6(), C"fun6") == 0);
+        Clover.test("CFFI test6", C.strcmp(C.fun6(), C"fun6") == 0);
 
         data5 := C.fun7();
+
+        Clover.test("CFFI test7", data5.a->byte == 'a' && data5.b->int == 123 && data5.c->long == 234);
+
+
         C.fun8(c"ABC");
 
         data6 := C.fun9(2, 3);
 
-        Clover.test("struct test9", data6 == 5);
+        Clover.test("CFFI test8", data6 == 5);
 
-        Clover.test("CFFI test10", C.fun10(999) == 999);
+        Clover.test("CFFI test9", C.fun10(999) == 999);
+
+        C.fun11();
+
+        Clover.test("CFFI test10", C.gVar == 123);
+
+        C.gVar = 234;
+
+        Clover.test("CFFI test11", C.gVar == 234);
+
+        C.gVar2 = 1.1f;
+
+        Clover.test("CFFI test12", C.gVar2 == 1.1f);
+
+        C.gVar3 = 1.1;
+
+        Clover.test("CFFI test13", C.gVar3 == 1.1);
+
+        C.gVar4 = 10000l;
+
+        Clover.test("CFFI test14", C.gVar4 == 10000l);
+
+        C.gVar5 = 11;
+
+        Clover.test("CFFI test15", C.gVar5 == 11);
+
+        l:long = 6;
+
+        C.gVar6 = &l;
+
+        Clover.test("CFFI test16", C.gVar6->long == 6);
+
+        C.gVar7[0] = 'A';
+        C.gVar7[1] = 'B';
+        C.gVar7[2] = '\0';
+
+        C.fun12(C.gVar7[0]);
+
+        Clover.test("CFFI test17", C.gVar7[0] == 'A' && C.gVar7[1] == 'B' && C.gVar7[2] == '\0');
+        C.puts(C.gVar7);
+
+        C.fun15(C.gVar7);
+
+        C.gVar8[0] = 111;
+        C.gVar8[1] = 1256;
+        C.gVar8[2] = 2560;
+
+        Clover.test("CFFI test19", C.gVar8[0] == 111 && C.gVar8[1] == 1256 && C.gVar8[2] == 2560);
+
+        C.fun13(C.gVar8);
+
+        C.fun14(C.gVar8);
+
+        C.gVar9.a->byte = 'C';
+
+        C.gVar9.b->int = 123;
+        C.gVar9.c->long = 234;
+
+        C.fun16(C.gVar9);
+
+        data7 := CStructTest.method2();
+
+        Clover.test("CFFI test20", data7.a->byte == 'C' && data7.b->int == 123 && data7.c->long == 234);
+
+
+        l = 8;
+        C.gVar6 = &l;
+
+        data10 := CStructTest.method3();
+
+        Clover.test("CFFI test21", data10->long == 8);
+
+        data9 := CStructTest.method4();
+
+        Clover.test("CFFI test22", data9->int == 777 && (data9+4)->int == 888 && (data9+8)->int == 999);
+
+        data8 := CStructTest.method5();
+
+        Clover.test("CFFI test23", data8.a->byte == 'D' && data8.b->int == 777 && data8.c->long == 888);
     }
 }

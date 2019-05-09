@@ -350,11 +350,15 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     sCLClass* left_class = left3->mClass;
     sCLClass* right_class = right3->mClass;
 
-    if(left3->mPointerNum > 0 && type_identify_with_class_name(right3, "pointer"))
+    if(type_identify_with_class_name(left3, "pointer") && right3->mArrayNum > 0)
     {
         return TRUE;
     }
-    if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
+    else if(left3->mPointerNum > 0 && type_identify_with_class_name(right3, "pointer"))
+    {
+        return TRUE;
+    }
+    else if(type_identify_with_class_name(right3, "Anonymous") && !(left_class->mFlags & CLASS_FLAGS_PRIMITIVE)) 
     {
         return TRUE;
     }
@@ -423,6 +427,12 @@ BOOL substitution_posibility(sNodeType* left, sNodeType* right, sNodeType* left_
     }
     else {
         if(left3->mClass == right3->mClass && left3->mArray == right3->mArray && left3->mNumGenericsTypes == right3->mNumGenericsTypes) {
+            if(left3->mArray && right3->mArray) {
+                if(left3->mArrayNum != right3->mArrayNum)
+                {
+                    return FALSE;
+                }
+            }
             int i;
             for(i=0; i<left3->mNumGenericsTypes; i++) {
 /*
@@ -794,6 +804,10 @@ BOOL cast_posibility(sNodeType* left_type, sNodeType* right_type)
         return TRUE;
     }
     else if(left_type->mArrayNum > 0 && right_type->mArray && left_class == right_class)
+    {
+        return TRUE;
+    }
+    else if(right_type->mArrayNum > 0 && left_type->mPointerNum > 0 && left_class == right_class)
     {
         return TRUE;
     }

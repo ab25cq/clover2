@@ -2910,11 +2910,27 @@ void cast_array_to_clang_array(sNodeType* left_type, sNodeType** right_type, sCo
     *right_type = clone_node_type(left_type);
 }
 
+void cast_clang_array_to_clang_pointer(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
+{
+    sCLClass* klass = left_type->mClass;
+
+    append_opecode_to_code(info->code, OP_CLANG_ARRAY_TO_CLANG_POINTER, info->no_output);
+
+    *right_type = clone_node_type(left_type);
+}
+
 void cast_right_type_to_left_type(sNodeType* left_type, sNodeType** right_type, sCompileInfo* info)
 {
-    if(left_type->mArrayNum > 0 && (*right_type)->mArray && left_type->mClass == (*right_type)->mClass)
+    sCLClass* left_class = left_type->mClass;
+    sCLClass* right_class = (*right_type)->mClass;
+
+    if(left_type->mArrayNum > 0 && (*right_type)->mArrayNum == 0 && (*right_type)->mArray && left_type->mClass == (*right_type)->mClass)
     {
         cast_array_to_clang_array(left_type, right_type, info);
+    }
+    else if((*right_type)->mArrayNum > 0 && left_type->mPointerNum > 0 && left_class == right_class)
+    {
+        cast_clang_array_to_clang_pointer(left_type, right_type, info);
     }
     else if(left_type->mArray) {
     }

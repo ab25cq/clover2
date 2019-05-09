@@ -366,6 +366,9 @@ struct sCLFieldStruct {
     int mNumGetterMethodIndex; 
     
     int mStructOffset;
+
+    void* mLLVMValue;
+    void* mLLVMElementType;
 };
 
 struct sCLBlockObjectStruct {
@@ -950,6 +953,7 @@ struct sCompileInfoStruct
     int mNumBlockObject;
 
     BOOL no_load_head_of_memory;
+    BOOL return_c_variable_of_c_struct;
 };
 
 typedef struct sCompileInfoStruct sCompileInfo;
@@ -1401,8 +1405,10 @@ extern int gBufferToPointerCastCount;
 #define OP_STORE_CLASS_FIELD 4007
 #define OP_STORE_CLASS_FIELD_OF_BUFFER 4008
 #define OP_LOAD_ELEMENT 4009
-#define OP_STORE_ELEMENT 4010
-#define OP_STORE_ELEMENT_OF_BUFFER 4011
+#define OP_LOAD_ELEMENT_OF_CLANG 4010
+#define OP_STORE_ELEMENT 4011
+#define OP_STORE_ELEMENT_OF_BUFFER 4012
+#define OP_STORE_ELEMENT_OF_CLANG 4013
 
 #define OP_STORE_VALUE_TO_INT_ADDRESS 5000
 #define OP_STORE_VALUE_TO_UINT_ADDRESS 5001
@@ -1922,6 +1928,7 @@ extern int gBufferToPointerCastCount;
 
 #define OP_ARRAY_TO_CARRAY_CAST 7700
 #define OP_ARRAY_TO_CLANG_ARRAY_CAST 7701
+#define OP_CLANG_ARRAY_TO_CLANG_POINTER 7702
 
 #define OP_GET_ARRAY_LENGTH 8000
 
@@ -1982,6 +1989,7 @@ extern int gBufferToPointerCastCount;
 #define OP_CPOINTER_TO_BOOL_CAST 9122
 #define OP_CCHAR_TO_BOOL_CAST 9123
 #define OP_CBOOL_TO_BOOL_CAST 9124
+#define OP_BOXING_C_STRUCT 9125
 
 BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass* klass, sVMInfo* info);
 sCLClass* get_class_with_load_and_initialize(char* class_name, BOOL js);

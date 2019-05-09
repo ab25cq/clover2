@@ -130,7 +130,7 @@ Type* convert_array_type_to_pointer(sCLType* cl_type, sCLClass* klass)
 }
 
 
-static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type);
+static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type, Type** element_type);
 
 Type* create_c_type_from_class(sCLClass* klass)
 {
@@ -162,6 +162,10 @@ Type* create_c_type_from_class(sCLClass* klass)
     {
         result = Type::getDoubleTy(TheContext);
     }
+    else if(type_identify_with_class_name(node_type, "pointer"))
+    {
+        result = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    }
     else if(node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)
     {
         sCLClass* klass = node_type->mClass;
@@ -175,9 +179,11 @@ Type* create_c_type_from_class(sCLClass* klass)
 
             sCLType* cl_type = field->mResultType;
 
+            Type* element_type = nullptr;
+
             BOOL flg_struct_type = FALSE;
             BOOL flg_array_type = FALSE;
-            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type);
+            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type, &element_type);
             fields.push_back(field_type);
         }
 
@@ -192,15 +198,18 @@ Type* create_c_type_from_class(sCLClass* klass)
         result = Type::getVoidTy(TheContext);
     }
 
-    int i;
-    for(i=0; i<node_type->mPointerNum; i++) {
-        result = PointerType::get(result, 0);
+    if(!type_identify_with_class_name(node_type, "pointer"))
+    {
+        int i;
+        for(i=0; i<node_type->mPointerNum; i++) {
+            result = PointerType::get(result, 0);
+        }
     }
 
     return result;
 }
 
-static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type)
+static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type, Type** element_type)
 {
     Type* result = NULL;
     *flg_struct_type = FALSE;
@@ -235,12 +244,16 @@ static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL*
     {
         result = Type::getVoidTy(TheContext);
     }
+    else if(type_identify_with_class_name(node_type, "pointer"))
+    {
+        result = PointerType::get(IntegerType::get(TheContext, 8), 0);
+    }
     else if(node_type->mArray && node_type->mArrayNum > 0)
     {
         *flg_array_type = TRUE;
 
-        Type* element_type = create_c_type_from_class(node_type->mClass);
-        result = ArrayType::get(element_type, node_type->mArrayNum);
+        *element_type = create_c_type_from_class(node_type->mClass);
+        result = ArrayType::get(*element_type, node_type->mArrayNum);
     }
     else if(node_type->mClass->mFlags & CLASS_FLAGS_STRUCT)
     {
@@ -255,9 +268,11 @@ static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL*
 
             sCLType* cl_type = field->mResultType;
 
+            Type* element_type = nullptr;
+
             BOOL flg_struct_type = FALSE;
             BOOL flg_array_type = FALSE;
-            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type);
+            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type, &element_type);
             fields.push_back(field_type);
         }
 
@@ -268,9 +283,12 @@ static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL*
         result = struct_type;
     }
 
-    int i;
-    for(i=0; i<node_type->mPointerNum; i++) {
-        result = PointerType::get(result, 0);
+    if(!type_identify_with_class_name(node_type, "pointer"))
+    {
+        int i;
+        for(i=0; i<node_type->mPointerNum; i++) {
+            result = PointerType::get(result, 0);
+        }
     }
 
     return result;
@@ -438,7 +456,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
-//show_inst(inst);
+show_inst(inst);
 //show_int_value_on_runtime(inst);
 
         switch(inst) {
@@ -1448,9 +1466,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
                         LVALUE* param = get_stack_ptr_value_from_index(llvm_stack_ptr, -num_params+i);
 
+                        Type* element_type = nullptr;
+
                         BOOL flg_struct_type = FALSE;
                         BOOL flg_array_type = FALSE;
-                        Type* param_type = create_c_type_from_cl_type(cl_param->mType, klass, &flg_struct_type, &flg_array_type);
+                        Type* param_type = create_c_type_from_cl_type(cl_param->mType, klass, &flg_struct_type, &flg_array_type, &element_type);
 
                         if(flg_array_type) {
                             Type* param_type2 = convert_array_type_to_pointer(cl_param->mType, klass);
@@ -1462,6 +1482,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                             param->value = Builder.CreateCast(Instruction::BitCast, param->value, PointerType::get(i64_array_type, 0));
 
                             param->value = Builder.CreateAlignedLoad(param->value, 8);
+
                             param->value = Builder.CreateCast(Instruction::BitCast, param->value, i64_array_type);
                         }
                         else {
@@ -1495,9 +1516,11 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                     else {
                         Value* result = Builder.CreateCall(fun, params2);
 
+                        Type* element_type = nullptr;
+
                         BOOL flg_struct_type = FALSE;
                         BOOL flg_array_type = FALSE;
-                        Type* result_llvm_type = create_c_type_from_cl_type(result_type, klass, &flg_struct_type, &flg_array_type);
+                        Type* result_llvm_type = create_c_type_from_cl_type(result_type, klass, &flg_struct_type, &flg_array_type, &element_type);
 
                         if(flg_struct_type) {
                             /// array type cast ///
@@ -2188,47 +2211,78 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 int field_index = *(int*)pc;
                 pc += sizeof(int);
 
-                LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+                char* class_name = CONS_str(constant, offset);
 
-                Function* fun = TheModule->getFunction("store_class_field");
+                if(strcmp(class_name, "C") == 0) {
+                    LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                std::vector<Value*> params2;
+                    sCLClass* klass = get_class("C", FALSE);
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                    if(field_index < 0 || field_index >= klass->mNumClassFields)
+                    {
+                        fprintf(stderr, "field index is invalid. Field index is %d\n", field_index);
+                        exit(2);
+                    }
 
-                std::string stack_value_name("stack");
-                Value* param2 = params[stack_value_name];
-                params2.push_back(param2);
+                    sCLField* field = klass->mClassFields + field_index;
 
-                std::string var_num_value_name("var_num");
-                Value* param3 = params[var_num_value_name];
-                params2.push_back(param3);
+                    sNodeType* node_type = create_node_type_from_cl_type(field->mResultType, klass);
 
-                std::string info_value_name("info");
-                Value* param4 = params[info_value_name];
-                params2.push_back(param4);
+                    if(type_identify_with_class_name(node_type, "pointer"))
+                    {
+                        Value* field_value = (Value*)field->mLLVMValue;
+                        llvm_value->value = Builder.CreateCast(Instruction::BitCast, llvm_value->value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                        Builder.CreateStore(llvm_value->value, field_value);
+                    }
+                    else {
+                        Value* field_value = (Value*)field->mLLVMValue;
+                        Builder.CreateStore(llvm_value->value, field_value);
+                    }
+                }
+                else {
+                    LVALUE* llvm_value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
-                params2.push_back(param5);
 
-                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
-                params2.push_back(param6);
+                    Function* fun = TheModule->getFunction("store_class_field");
 
-                std::string constant_value_name("constant");
-                Value* param7 = params[constant_value_name];
-                params2.push_back(param7);
+                    std::vector<Value*> params2;
 
-                LVALUE value2;
-                value2 = trunc_value(llvm_value, 64);
+                    std::string stack_ptr_address_name("stack_ptr_address");
+                    Value* param1 = params[stack_ptr_address_name];
+                    params2.push_back(param1);
 
-                Value* param8 = value2.value;
-                params2.push_back(param8);
+                    std::string stack_value_name("stack");
+                    Value* param2 = params[stack_value_name];
+                    params2.push_back(param2);
 
-                Value* result = Builder.CreateCall(fun, params2);
+                    std::string var_num_value_name("var_num");
+                    Value* param3 = params[var_num_value_name];
+                    params2.push_back(param3);
 
-                finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+                    std::string info_value_name("info");
+                    Value* param4 = params[info_value_name];
+                    params2.push_back(param4);
+
+                    Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                    params2.push_back(param5);
+
+                    Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                    params2.push_back(param6);
+
+                    std::string constant_value_name("constant");
+                    Value* param7 = params[constant_value_name];
+                    params2.push_back(param7);
+
+                    LVALUE value2;
+                    value2 = trunc_value(llvm_value, 64);
+
+                    Value* param8 = value2.value;
+                    params2.push_back(param8);
+
+                    Value* result = Builder.CreateCall(fun, params2);
+
+                    finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+                }
                 }
                 break;
 
@@ -2294,53 +2348,178 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 int size = *(int*)pc;
                 pc += sizeof(int);
 
-                Function* fun = TheModule->getFunction("load_class_field");
+                char* class_name = CONS_str(constant, offset);
 
-                std::vector<Value*> params2;
+                if(strcmp(class_name, "C") == 0) {
+                    sCLClass* klass = get_class("C", FALSE);
 
-                std::string stack_ptr_address_name("stack_ptr_address");
-                Value* param1 = params[stack_ptr_address_name];
-                params2.push_back(param1);
+                    if(field_index < 0 || field_index >= klass->mNumClassFields)
+                    {
+                        fprintf(stderr, "field index is invalid. Field index is %d\n", field_index);
+                        exit(2);
+                    }
 
-                std::string stack_value_name("stack");
-                Value* param2 = params[stack_value_name];
-                params2.push_back(param2);
+                    sCLField* field = klass->mClassFields + field_index;
 
-                std::string var_num_value_name("var_num");
-                Value* param3 = params[var_num_value_name];
-                params2.push_back(param3);
+                    Value* field_value = (Value*)field->mLLVMValue;
+                    Type* element_type = (Type*)field->mLLVMElementType;
 
-                std::string info_value_name("info");
-                Value* param4 = params[info_value_name];
-                params2.push_back(param4);
+                    LVALUE llvm_value;
 
-                Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
-                params2.push_back(param5);
+                    if(size == -1) {
+                        llvm_value.value = field_value;
+                        llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                        llvm_value.kind = kLVKindPointer8;
 
-                Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
-                params2.push_back(param6);
+/*
+                        Type* i64_array_type = convert_struct_type_to_i64_array(field->mResultType, klass);
+                        llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, PointerType::get(i64_array_type, 0));
 
-                std::string constant_value_name("constant");
-                Value* param7 = params[constant_value_name];
-                params2.push_back(param7);
+                        llvm_value.value = Builder.CreateAlignedLoad(llvm_value.value, 8);
 
-                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                Value* param8 = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "MACHINE_STACK_VALUE");
-                params2.push_back(param8);
+                        llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, i64_array_type);
+*/
+                    }
+                    /// array ///
+                    else if(element_type) {
+                        llvm_value.value = field_value;
+                        llvm_value.element_type = element_type;
 
-                Value* result = Builder.CreateCall(fun, params2);
+                        switch(size) {
+                            case 1:
+                                llvm_value.kind = kLVKindInt32;
+                                break;
 
-                finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+                            case 8:
+                                llvm_value.kind = kLVKindInt8;
+                                break;
 
-                LVALUE llvm_value;
-                llvm_value.value = Builder.CreateAlignedLoad(param8, 8);
-                llvm_value.kind = kLVKindInt64;
+                            case 16:
+                                llvm_value.kind = kLVKindInt16;
+                                break;
 
-                LVALUE llvm_value2 = llvm_value;
-                trunc_variable(&llvm_value2, size);
+                            case 32:
+                                llvm_value.kind = kLVKindInt32;
+                                break;
 
-                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
-                push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                            case 64:
+                                llvm_value.kind = kLVKindInt64;
+                                break;
+
+                            case 128:
+                                llvm_value.kind = kLVKindFloat;
+                                break;
+
+                            case 256:
+                                llvm_value.kind = kLVKindDouble;
+                                break;
+
+                        }
+                    }
+                    else {
+                        switch(size) {
+                            case 1:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 4, "FFIVariable");
+                                llvm_value.kind = kLVKindInt32;
+                                break;
+
+                            case 8:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 1, "FFIVariable");
+                                llvm_value.kind = kLVKindInt8;
+                                break;
+
+                            case 16:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 2, "FFIVariable");
+                                llvm_value.kind = kLVKindInt16;
+                                break;
+
+                            case 32:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 4, "FFIVariable");
+                                llvm_value.kind = kLVKindInt32;
+                                break;
+
+                            case 64:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 8, "FFIVariable");
+                                llvm_value.kind = kLVKindInt64;
+                                break;
+
+                            case 128:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 4, "FFIVariable");
+#if LLVM_VERSION_MAJOR >= 5
+                                llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext), "trunc_variable");
+                                llvm_value.kind = kLVKindFloat;
+#else
+                                llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext), "trunc_variable");
+                                llvm_value.kind = kLVKindFloat;
+#endif
+                                break;
+
+                            case 256:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 8, "FFIVariable");
+                                llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext), "trunc_variable");
+                                llvm_value.kind = kLVKindDouble;
+                                break;
+
+                            case 1024:
+                                llvm_value.value = Builder.CreateAlignedLoad(field_value, 8, "FFIVariable");
+                                break;
+                        }
+
+                        llvm_value.element_type = element_type;
+                    }
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                    push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
+                else {
+                    Function* fun = TheModule->getFunction("load_class_field");
+
+                    std::vector<Value*> params2;
+
+                    std::string stack_ptr_address_name("stack_ptr_address");
+                    Value* param1 = params[stack_ptr_address_name];
+                    params2.push_back(param1);
+
+                    std::string stack_value_name("stack");
+                    Value* param2 = params[stack_value_name];
+                    params2.push_back(param2);
+
+                    std::string var_num_value_name("var_num");
+                    Value* param3 = params[var_num_value_name];
+                    params2.push_back(param3);
+
+                    std::string info_value_name("info");
+                    Value* param4 = params[info_value_name];
+                    params2.push_back(param4);
+
+                    Value* param5 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)field_index);
+                    params2.push_back(param5);
+
+                    Value* param6 = ConstantInt::get(Type::getInt32Ty(TheContext), (uint32_t)offset);
+                    params2.push_back(param6);
+
+                    std::string constant_value_name("constant");
+                    Value* param7 = params[constant_value_name];
+                    params2.push_back(param7);
+
+                    IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                    Value* param8 = builder.CreateAlloca(Type::getInt64Ty(TheContext), 0, "MACHINE_STACK_VALUE");
+                    params2.push_back(param8);
+
+                    Value* result = Builder.CreateCall(fun, params2);
+
+                    finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+
+                    LVALUE llvm_value;
+                    llvm_value.value = Builder.CreateAlignedLoad(param8, 8);
+                    llvm_value.kind = kLVKindInt64;
+
+                    LVALUE llvm_value2 = llvm_value;
+                    trunc_variable(&llvm_value2, size);
+
+                    push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
+                    push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
                 }
                 break;
 
@@ -2547,22 +2726,31 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
                 LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
 
-                LVALUE llvm_value2;
-                llvm_value2 = trunc_value(value, 32);
-
-                if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, function, &current_block, (char*)"Exception", (char*)"Null pointer exception(1)", llvm_stack, var_num);
-
-                Function* fun = TheModule->getFunction("get_object_head_of_memory");
-
-                std::vector<Value*> params2;
-
-                params2.push_back(llvm_value2.value);
-                Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, offset, true));
-                params2.push_back(param2);
-
                 LVALUE llvm_value;
-                llvm_value.value = Builder.CreateCall(fun, params2);
-                llvm_value.kind = kLVKindPointer8;
+                if(value->kind == kLVKindPointer8)
+                {
+                    Value* add_value = ConstantInt::get(TheContext, llvm::APInt(64, offset, true)); 
+                    llvm_value.value = Builder.CreateGEP(value->value, add_value, "gepaddtmp");
+                    llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                    llvm_value.kind = kLVKindPointer8;
+                }
+                else {
+                    LVALUE llvm_value2;
+                    llvm_value2 = trunc_value(value, 32);
+
+                    if_value_is_zero_entry_exception_object(llvm_value2.value, 32, FALSE, FALSE, params, function, &current_block, (char*)"Exception", (char*)"Null pointer exception(1)", llvm_stack, var_num);
+
+                    Function* fun = TheModule->getFunction("get_object_head_of_memory");
+
+                    std::vector<Value*> params2;
+
+                    params2.push_back(llvm_value2.value);
+                    Value* param2 = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, offset, true));
+                    params2.push_back(param2);
+
+                    llvm_value.value = Builder.CreateCall(fun, params2);
+                    llvm_value.kind = kLVKindPointer8;
+                }
 
                 dec_stack_ptr(&llvm_stack_ptr, 1);
                 inc_vm_stack_ptr(params, current_block, -1);
@@ -2734,6 +2922,88 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 }
                 break;
 
+            case OP_LOAD_ELEMENT_OF_CLANG: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* array = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* element_num = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Type* array_type = array->value->getType();
+                Type* element_type = array->element_type;
+
+                Value* array_offset_value = array->value;
+/*
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+
+                Value* array_offset_value = builder.CreateAlloca(array_type, 0, "array_offset_value");
+*/
+                Value* array_offset_value2 = Builder.CreateCast(Instruction::BitCast, array_offset_value, PointerType::get(element_type, 0));
+
+                Value* lvalue = array_offset_value2;
+                Value* rvalue = element_num->value;
+
+                Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+                LVALUE llvm_value;
+                switch(size) {
+                case 1:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 1);
+                    llvm_value.kind = kLVKindInt1;
+                    break;
+
+                case 8:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 1);
+                    llvm_value.kind = kLVKindInt8;
+                    break;
+
+                case 16:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 2);
+                    llvm_value.kind = kLVKindInt16;
+                    break;
+
+                case 32:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 4);
+                    llvm_value.kind = kLVKindInt32;
+                    break;
+
+                case 64:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 8);
+                    llvm_value.kind = kLVKindInt64;
+                    break;
+
+                case 128:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 4);
+#if LLVM_VERSION_MAJOR >= 5
+                    llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getFloatTy(TheContext), "trunc_variable");
+                    llvm_value.kind = kLVKindFloat;
+#else
+                    llvm_value.value = Builder.CreateCast(Instruction::UIToFP, llvm_value.value, Type::getFloatTy(TheContext), "trunc_variable");
+                    llvm_value.kind = kLVKindFloat;
+#endif
+                    break;
+
+                case 256:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 8);
+                    llvm_value.value = Builder.CreateCast(Instruction::BitCast, llvm_value.value, Type::getDoubleTy(TheContext), "trunc_variable");
+                    llvm_value.kind = kLVKindDouble;
+                    break;
+
+                case 1024:
+                    llvm_value.value = Builder.CreateAlignedLoad(element_address_value, 8);
+                    llvm_value.value = Builder.CreateCast(Instruction::IntToPtr, llvm_value.value, PointerType::get(IntegerType::get(TheContext, 8), 0), "trunc_variable");
+                    llvm_value.kind = kLVKindPointer8;
+                    break;
+                }
+
+                dec_stack_ptr(&llvm_stack_ptr, 2);
+                inc_vm_stack_ptr(params, current_block, -2);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
+                break;
+
             case OP_STORE_ELEMENT: {
                 LVALUE* array = get_stack_ptr_value_from_index(llvm_stack_ptr, -3);
                 LVALUE* element_num = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
@@ -2775,6 +3045,74 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 Value* result = Builder.CreateCall(fun, params2);
 
                 finish_method_call(result, params, &current_block, function, &try_catch_label_name, llvm_stack, var_num);
+
+                LVALUE llvm_value = *value;
+
+                dec_stack_ptr(&llvm_stack_ptr, 3);
+                inc_vm_stack_ptr(params, current_block, -3);
+
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+                push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                }
+                break;
+
+            case OP_STORE_ELEMENT_OF_CLANG: {
+                int size = *(int*)pc;
+                pc += sizeof(int);
+
+                LVALUE* array = get_stack_ptr_value_from_index(llvm_stack_ptr, -3);
+                LVALUE* element_num = get_stack_ptr_value_from_index(llvm_stack_ptr, -2);
+                LVALUE* value = get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Type* array_type = array->value->getType();
+                Type* element_type = array->element_type;
+
+/*
+                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+
+                Value* array_offset_value = builder.CreateAlloca(array_type, 0, "array_offset_value");
+*/
+                Value* array_offset_value = array->value;
+                Value* array_offset_value2 = Builder.CreateCast(Instruction::BitCast, array_offset_value, PointerType::get(element_type, 0));
+
+                Value* lvalue = array_offset_value2;
+                Value* rvalue = element_num->value;
+
+                Value* element_address_value = Builder.CreateGEP(lvalue, rvalue);
+
+                switch(size) {
+                case 1:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 1);
+                    break;
+
+                case 8:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 1);
+                    break;
+
+                case 16:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 2);
+                    break;
+
+                case 32:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 4);
+                    break;
+
+                case 64:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 8);
+                    break;
+
+                case 128:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 4);
+                    break;
+
+                case 256:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 8);
+                    break;
+
+                case 1024:
+                    Builder.CreateAlignedStore(value->value, element_address_value, 8);
+                    break;
+                }
 
                 LVALUE llvm_value = *value;
 
@@ -4287,6 +4625,43 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 }
                 break;
 
+            case OP_BOXING_C_STRUCT: {
+                int offset = *(int*)pc;
+                pc += sizeof(int);
+
+                char* class_name = CONS_str(constant, offset);
+
+                LVALUE llvm_value = *get_stack_ptr_value_from_index(llvm_stack_ptr, -1);
+
+                Function* fun = TheModule->getFunction("convert_i64array_to_struct");
+
+                std::vector<Value*> params2;
+
+                Value* param1 = llvm_create_string(class_name);
+                params2.push_back(param1);
+
+                Value* param2 = llvm_value.value;
+                Value* param2a = Builder.CreateCast(Instruction::BitCast, param2, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                params2.push_back(param2a);
+
+                std::string info_value_name("info");
+                Value* param3 = params[info_value_name];
+                params2.push_back(param3);
+
+                LVALUE llvm_value2;
+                llvm_value2.value = Builder.CreateCall(fun, params2);
+                llvm_value2.kind = kLVKindObject;
+
+                /// dec llvm stack pointer ///
+                dec_stack_ptr(&llvm_stack_ptr, 1);
+                inc_vm_stack_ptr(params, current_block, -1);
+
+                /// vm stack_ptr to llvm stack ///
+                push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value2);
+                push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value2);
+                }
+                break;
+
             default:
                 if(!compile_to_native_code2(code, constant, inst, &pc, &llvm_stack_ptr, llvm_stack, params, &current_block, &function, var_num, &try_catch_label_name))
                 {
@@ -5160,6 +5535,8 @@ void push_value_to_vm_stack_ptr_with_aligned(std::map<std::string, Value*> param
 
 void create_c_ffi_functions()
 {
+    TheLabels.clear();
+
     sCLClass* klass = load_class("C", 0, FALSE);
 
     if(klass) {
@@ -5167,9 +5544,11 @@ void create_c_ffi_functions()
         for(i=0; i<klass->mNumMethods; i++) {
             sCLMethod* method = klass->mMethods + i;
 
+            Type* element_type = nullptr;
+
             BOOL flg_struct_type = FALSE;
             BOOL flg_array_type = FALSE;
-            Type* result_type = create_c_type_from_cl_type(method->mResultType, klass, &flg_struct_type, &flg_array_type);
+            Type* result_type = create_c_type_from_cl_type(method->mResultType, klass, &flg_struct_type, &flg_array_type, &element_type);
 
             if(flg_struct_type) {
                 result_type = convert_struct_type_to_i64_array(method->mResultType, klass);
@@ -5181,9 +5560,11 @@ void create_c_ffi_functions()
             for(j=0; j<method->mNumParams; j++) {
                 sCLParam* param = method->mParams + j;
 
+                Type* element_type = nullptr;
+
                 BOOL flg_struct_type = FALSE;
                 BOOL flg_array_type = FALSE;
-                Type* param_type = create_c_type_from_cl_type(param->mType, klass, &flg_struct_type, &flg_array_type);
+                Type* param_type = create_c_type_from_cl_type(param->mType, klass, &flg_struct_type, &flg_array_type, &element_type);
 
                 if(flg_struct_type) {
                     param_type = convert_struct_type_to_i64_array(param->mType, klass);
@@ -5198,6 +5579,24 @@ void create_c_ffi_functions()
 
             FunctionType* function_type = FunctionType::get(result_type, type_params, false);
             Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
+        }
+        for(i=0; i<klass->mNumClassFields; i++) {
+            sCLField* field = klass->mClassFields + i;
+
+            Type* element_type = nullptr;
+
+            BOOL flg_struct_type = FALSE;
+            BOOL flg_array_type = FALSE;
+            Type* result_type = create_c_type_from_cl_type(field->mResultType, klass, &flg_struct_type, &flg_array_type, &element_type);
+
+            if(flg_struct_type) {
+                result_type = convert_struct_type_to_i64_array(field->mResultType, klass);
+            }
+
+            char* field_name = FIELD_NAME(klass, field);
+
+            field->mLLVMValue = (void*)new GlobalVariable(*TheModule, result_type, false, GlobalValue::ExternalLinkage, nullptr, field_name);
+            field->mLLVMElementType = (void*)element_type;
         }
     }
 }

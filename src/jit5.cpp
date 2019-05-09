@@ -5097,6 +5097,21 @@ value->value = Builder.CreateCast(Instruction::BitCast, value->value, Type::getD
             }
             break;
 
+        case OP_CLANG_ARRAY_TO_CLANG_POINTER: {
+            LVALUE* array = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
+
+            LVALUE llvm_value;
+            llvm_value.value = Builder.CreateCast(Instruction::BitCast, array->value, PointerType::get(IntegerType::get(TheContext, 8), 0), "value");
+            llvm_value.kind = kLVKindPointer8;
+
+            dec_stack_ptr(llvm_stack_ptr, 1);
+            push_value_to_stack_ptr(llvm_stack_ptr, &llvm_value);
+
+            inc_vm_stack_ptr(params, *current_block, -1);
+            push_value_to_vm_stack_ptr_with_aligned(params, *current_block, &llvm_value);
+            }
+            break;
+
         case OP_BYTE_TO_BOOL_CAST: {
             LVALUE* lvalue = get_stack_ptr_value_from_index(*llvm_stack_ptr, -1);
             Value* rvalue = ConstantInt::get(Type::getInt8Ty(TheContext), (uint8_t)0);

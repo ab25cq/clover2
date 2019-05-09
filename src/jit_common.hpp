@@ -102,6 +102,8 @@ struct LVALUEStruct {
     enum eLVALUEKind kind;
     Value* parent_stack;
     struct LVALUEStruct* parent_llvm_stack;
+
+    Type* element_type;
 };
 
 void InitializeModuleAndPassManager(char* class_name);
