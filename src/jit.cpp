@@ -456,7 +456,7 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
         unsigned int inst = *(unsigned int*)pc;
         pc+=sizeof(int);
-show_inst(inst);
+//show_inst(inst);
 //show_int_value_on_runtime(inst);
 
         switch(inst) {
