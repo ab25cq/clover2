@@ -1,4 +1,12 @@
 
+clover2 (10.4.4-1) unstable; urgency=medium
+
+    * Finished to implement C-FFI on JIT.
+
+clover2 (10.4.3-1) unstable; urgency=medium
+
+    * Finished to implement C-FFI on JIT.
+
 clover2 (10.4.2-1) unstable; urgency=medium
 
     * Finished to implement C-FFI on JIT. Continue to implement C Header Parser.

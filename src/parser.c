@@ -198,7 +198,7 @@ BOOL parse_word(char* buf, int buf_size, sParserInfo* info, BOOL print_out_err_m
     char* p2 = buf;
 
     if(isalpha(*info->p) || *info->p == '_') {
-        while(isalnum(*info->p) || *info->p == '_') {
+        while(isalnum(*info->p) || *info->p == '_' || *info->p == '$') {
             if(p2 - buf < buf_size-1) {
                 *p2++ = *info->p;
                 info->p++;

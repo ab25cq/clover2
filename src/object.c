@@ -61,6 +61,7 @@ static unsigned long long object_size(sCLClass* klass)
         size = sizeof(sCLObject) - sizeof(CLVALUE) * DUMMY_ARRAY_SIZE;
         size += (unsigned int)sizeof(CLVALUE) * klass->mNumFields;
 
+
         unsigned int size2 = size;
 
         alignment((unsigned int*)&size2);
@@ -88,13 +89,18 @@ CLObject create_object(sCLClass* klass, char* type, sVMInfo* info)
 
     alignment(&size);
 
-    CLObject obj = alloc_heap_mem(size, klass, -1, info);
+    CLObject obj;
+    if(klass->mFlags & CLASS_FLAGS_STRUCT) {
+        int alloc_size = klass->mAllocSize;
+        obj = create_object2(klass, type, alloc_size, info);
+    }
+    else {
+        obj = alloc_heap_mem(size, klass, -1, info);
 
-    sCLObject* object_data = CLOBJECT(obj);
+        sCLObject* object_data = CLOBJECT(obj);
 
-    object_data->mType = MSTRDUP(type);
-
-//printf("create_object %d %s\n", obj, CLASS_NAME(klass));
+        object_data->mType = MSTRDUP(type);
+    }
 
     return obj;
 }
@@ -110,8 +116,6 @@ CLObject create_object2(sCLClass* klass, char* type, int alloc_size, sVMInfo* in
     sCLObject* object_data = CLOBJECT(obj);
 
     object_data->mType = MSTRDUP(type);
-
-//printf("create_object %d %s\n", obj, CLASS_NAME(klass));
 
     return obj;
 }

@@ -1,0 +1,43 @@
+LLVM_DIS="llvm-dis"
+LLC="llc"
+CLANG="clang-7"
+CLANGPLUSPLUS="clang++"
+LLVM_CONFIG="llvm-config"
+LIBS=" -lutil -lncursesw -lreadline -ldl -lm -lpcre -lrt -I/data/data/com.termux/files/usr/include  -Oz --target=aarch64-linux-android21 -fno-addrsig -I/data/data/com.termux/files/usr/include -fPIC -fvisibility-inlines-hidden -Werror=date-time -Werror=unguarded-availability-new -std=c++11 -Wall -Wextra -Wno-unused-parameter -Wwrite-strings -Wcast-qual -Wmissing-field-initializers -pedantic -Wno-long-long -Wcovered-switch-default -Wnon-virtual-dtor -Wdelete-non-virtual-dtor -Wstring-conversion -fdiagnostics-color -ffunction-sections -fdata-sections -Os -DNDEBUG  -fno-exceptions -fno-rtti -D__STDC_CONSTANT_MACROS -D__STDC_FORMAT_MACROS -D__STDC_LIMIT_MACROS
+-L/data/data/com.termux/files/usr/lib 
+-lLLVM-7"
+CXX="clang-7"
+DESTDIR="/data/data/com.termux/files/home"
+EXT_NAME=${1##*.}
+if test $EXT_NAME = ocl
+then
+    FILE_NAME=${1%.*};
+
+    echo "bitcompile $1"
+
+    shift;
+
+    if test -e $FILE_NAME.bc
+    then
+        if test -e src/jit_main2.o
+        then
+            $CXX -o $FILE_NAME src/jit_main2.o $FILE_NAME.ll $@ -L . -L $DESTDIR/lib -lclover2 $LIBS
+        else
+            $CXX -o $FILE_NAME $DESTDIR/lib/jit_main2.o $FILE_NAME.ll $@ -L . -L $DESTDIR/lib -lclover2 $LIBS
+        fi
+    fi
+else
+    if test $1 = -core; then CORE=1; shift; else CORE=0; fi
+    if test -e ./cclover2; then COMPILER=./cclover2; else COMPILER=cclover2; fi;
+
+    CLASS_NAME=${1%.*}
+    shift;
+
+    echo "bitcompile $CLASS_NAME"
+
+    if test -e $CLASS_NAME.bc
+    then
+        $CLANG -shared -Wl,-soname=$CLASS_NAME.so.1 -o $CLASS_NAME.so.1.0.0 $CLASS_NAME.o -lclover2 $LIBS -L $DESTDIR/lib -L . $@
+        ln -fs $CLASS_NAME.so.1.0.0 $CLASS_NAME.so
+    fi
+fi

@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.4.4
+
+    Finished to implement C-FFI on JIT.
+
 version 10.4.3
 
     Finished to implement C-FFI on JIT.

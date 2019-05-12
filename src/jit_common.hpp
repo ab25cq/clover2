@@ -17,6 +17,7 @@ extern "C"
 #include "llvm/IR/Verifier.h"
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/Scalar.h"
+#include "llvm/IR/Attributes.h"
 
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/ADT/STLExtras.h"

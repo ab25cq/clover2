@@ -1,12 +1,12 @@
 __BEGIN__
 CLang.include("code/CStruct.h");
 __END__
-
 struct CFFIStruct : 16 {
     a:long:0;
     b:long:8;
 }
 
+/*
 class CFFITest {
     def getStruct(): static CFFIStruct {
         data := CFFIStruct();
@@ -22,8 +22,10 @@ class CFFITest {
         Clover.test("CFFI test", data.a->long == 111 && data.b->long == 222);
     }
 }
+*/
 
 class CStructTest {
+/*
     def method(c:char):static {
         c.toString().println();
     }
@@ -52,7 +54,9 @@ class CStructTest {
 
         return C.gVar9;
     }
+*/
     def method():static {
+/*
         CFFITest.main();
 
         data := CStruct();
@@ -185,5 +189,29 @@ class CStructTest {
         data8 := CStructTest.method5();
 
         Clover.test("CFFI test23", data8.a->byte == 'D' && data8.b->int == 777 && data8.c->long == 888);
+
+        C.fun18();
+
+        data11 := CStruct2();
+
+        data11.XXX$a->int = 111;
+        data11.XXX$b->int = 222;
+        data11.ZZZ$zzz->long = 333;
+        data11.c->long = 444
+
+        C.fun17(data11);
+
+        C.gVar10.XXX$a->int = 111;
+        C.gVar10.XXX$b->int = 222;
+        C.gVar10.ZZZ$zzz->long = 333;
+        C.gVar10.c->long = 444
+
+        C.fun17(C.gVar10);
+*/
+
+         #C.fun19();
+         data12 := C.fun19();
+
+         C.fun17(data12);
     }
 }

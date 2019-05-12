@@ -39,4 +39,39 @@ struct CStruct gVar9;
 
 void fun16(struct CStruct data);
 
+struct CStruct2 {
+    struct {
+        int a;
+        int b;
+    } XXX;
+
+    union {
+        long zzz;
+        long zzz2;
+    } ZZZ;
+
+    long c;
+};
+
+void fun17(struct CStruct2 data);
+
+union CUnion {
+    int a;
+    long b;
+
+    union {
+        struct {
+            long c;
+            long d;
+
+        } XXX;
+        int g;
+    } YYY;
+};
+
+struct CStruct2 gVar10;
+
+void fun18();
+
+struct CStruct2 fun19();
 

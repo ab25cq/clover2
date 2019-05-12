@@ -9,6 +9,7 @@ FunctionAnalysisManager TheFAM(false);
 LoopAnalysisManager loopAnalysisManager(false);
 CGSCCAnalysisManager cGSCCAnalysisManager(false);
 ModuleAnalysisManager moduleAnalysisManager(false);
+std::map<std::string, Type*> gLLVMStructType;
 
 GlobalVariable* gSigIntValue;
 
@@ -94,7 +95,48 @@ Function* create_llvm_function(const std::string& name)
     return function;
 }
 
-Type* convert_struct_type_to_i64_array(sCLType* cl_type, sCLClass* klass)
+static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type, Type** element_type);
+
+Type* create_struct_type_from_struct_class(sCLClass* klass)
+{
+    Type* result = nullptr;
+    char* class_name = CLASS_NAME(klass);
+    
+    if(gLLVMStructType[class_name] == nullptr) 
+    {
+        StructType* struct_type = StructType::create(TheContext, CLASS_NAME(klass));;
+        std::vector<Type*> fields;
+
+        int i;
+        for(i=0; i<klass->mNumFields; i++) {
+            sCLField* field = klass->mFields + i;
+
+            sCLType* cl_type = field->mResultType;
+
+            Type* element_type = nullptr;
+
+            BOOL flg_struct_type = FALSE;
+            BOOL flg_array_type = FALSE;
+            Type* field_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type, &element_type);
+            fields.push_back(field_type);
+        }
+
+        if(struct_type->isOpaque()) {
+            struct_type->setBody(fields, false);
+        }
+
+        gLLVMStructType[class_name] = struct_type;
+
+        result = struct_type;
+    }
+    else {
+        result = gLLVMStructType[class_name];
+    }
+
+    return result;
+}
+
+Type* convert_struct_type_to_i64_array(sCLType* cl_type, sCLClass* klass, BOOL* flg_i64type)
 {
     int offset = cl_type->mClassNameOffset;
     char* class_name = CONS_str(&klass->mConst, offset);
@@ -107,9 +149,22 @@ Type* convert_struct_type_to_i64_array(sCLType* cl_type, sCLClass* klass)
     Type* result;
     if(i64_num == 1) {
         result = IntegerType::get(TheContext, 64);
+
+        *flg_i64type = TRUE;
+    }
+    else if(i64_num == 2) {
+        result = ArrayType::get(Type::getInt64Ty(TheContext), i64_num);
+
+        *flg_i64type = TRUE;
     }
     else {
-        result = ArrayType::get(Type::getInt64Ty(TheContext), i64_num);
+/*
+        Type* struct_type = create_struct_type_from_struct_class(klass2);
+        result = PointerType::get(struct_type, 0);
+*/
+        result = PointerType::get(IntegerType::get(TheContext, 8), 0);
+
+        *flg_i64type = FALSE;
     }
 
     return result;
@@ -129,8 +184,6 @@ Type* convert_array_type_to_pointer(sCLType* cl_type, sCLClass* klass)
     return result;
 }
 
-
-static Type* create_c_type_from_cl_type(sCLType* cl_type, sCLClass* klass, BOOL* flg_struct_type, BOOL* flg_array_type, Type** element_type);
 
 Type* create_c_type_from_class(sCLClass* klass)
 {
@@ -1454,10 +1507,32 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                 if(strcmp(class_name, "C") == 0) {
                     char* fun_name = METHOD_NAME2(klass, method);
 
+                    std::vector<Value*> params2;
+
+                    sCLType* cl_type = method->mResultType;
+
+                    Type* element_type = nullptr;
+                    BOOL flg_struct_type = FALSE;
+                    BOOL flg_array_type = FALSE;
+                    BOOL flg_i64type = FALSE;
+                    Type* param_type = create_c_type_from_cl_type(cl_type, klass, &flg_struct_type, &flg_array_type, &element_type);
+
+                    if(flg_struct_type) {
+                        Type* i64_array_type = convert_struct_type_to_i64_array(cl_type, klass, &flg_i64type);
+
+                        if(!flg_i64type) {
+                            sCLClass* struct_type_class = create_node_type_from_cl_type(cl_type, klass)->mClass;
+
+                            Type* struct_type = create_struct_type_from_struct_class(struct_type_class);
+                            IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                            Value* param1 = builder.CreateAlloca(struct_type, 0, "STRUCT_RESULT");
+                            param1 = Builder.CreateCast(Instruction::BitCast, param1, PointerType::get(IntegerType::get(TheContext, 8), 0));
+                            params2.push_back(param1);
+                        }
+                    }
+
                     int num_params = method->mNumParams;
                     Function* fun = TheModule->getFunction(fun_name);
-
-                    std::vector<Value*> params2;
 
                     int i;
                     for(i=0; i<num_params; i++)
@@ -1478,12 +1553,22 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
                             param->value = Builder.CreateCast(Instruction::BitCast, param->value, param_type2);
                         }
                         else if(flg_struct_type) {
-                            Type* i64_array_type = convert_struct_type_to_i64_array(cl_param->mType, klass);
-                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, PointerType::get(i64_array_type, 0));
+                            BOOL flg_i64type = FALSE;
+                            Type* i64_array_type = convert_struct_type_to_i64_array(cl_param->mType, klass, &flg_i64type);
 
-                            param->value = Builder.CreateAlignedLoad(param->value, 8);
+                            if(flg_i64type) {
+                                param->value = Builder.CreateCast(Instruction::BitCast, param->value, PointerType::get(i64_array_type, 0));
 
-                            param->value = Builder.CreateCast(Instruction::BitCast, param->value, i64_array_type);
+                                param->value = Builder.CreateAlignedLoad(param->value, 8);
+
+                                param->value = Builder.CreateCast(Instruction::BitCast, param->value, i64_array_type);
+                            }
+                            else {
+/*
+                            Type* param_type = PointerType::get(Type::getVoidTy(TheContext), 0);
+                                param->value = Builder.CreateCast(Instruction::BitCast, param->value, param_type);
+*/
+                            }
                         }
                         else {
                             param->value = Builder.CreateCast(Instruction::Trunc, param->value, param_type);
@@ -1496,7 +1581,43 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
                     char* result_type_class_name = CONS_str(&klass->mConst, result_type->mClassNameOffset);
 
-                    if(strcmp(result_type_class_name, "Null") == 0)
+                    if(flg_struct_type && !flg_i64type) 
+                    {
+                        Builder.CreateCall(fun, params2);
+
+                        Value* result = params2[0];
+
+                        Function* fun = TheModule->getFunction("convert_i64array_to_struct");
+
+                        std::vector<Value*> params2;
+
+                        char* class_name = result_type_class_name;
+
+                        Value* param1 = llvm_create_string(class_name);
+                        params2.push_back(param1);
+
+                        Value* param2 = Builder.CreateCast(Instruction::BitCast, result, PointerType::get(IntegerType::get(TheContext, 64), 0));
+
+                        params2.push_back(param2);
+
+                        std::string info_value_name("info");
+                        Value* param3 = params[info_value_name];
+                        params2.push_back(param3);
+
+                        result = Builder.CreateCall(fun, params2);
+
+                        LVALUE llvm_value;
+                        llvm_value.value = result;
+                        llvm_value.kind = kLVKindInt32;
+
+                        /// dec llvm stack pointer ///
+                        dec_stack_ptr(&llvm_stack_ptr, num_params);
+                        push_value_to_stack_ptr(&llvm_stack_ptr, &llvm_value);
+
+                        inc_vm_stack_ptr(params, current_block, -num_params);
+                        push_value_to_vm_stack_ptr_with_aligned(params, current_block, &llvm_value);
+                    }
+                    else if(strcmp(result_type_class_name, "Null") == 0)
                     {
                         Builder.CreateCall(fun, params2);
                         Value* result = ConstantInt::get(Type::getInt32Ty(TheContext), APInt(32, 0, true));
@@ -1524,36 +1645,38 @@ BOOL compile_to_native_code(sByteCode* code, sConst* constant, int var_num, int 
 
                         if(flg_struct_type) {
                             /// array type cast ///
-                            Type* i64_array_type = convert_struct_type_to_i64_array(result_type, klass);
+                            BOOL flg_i64type = FALSE;
+                            Type* i64_array_type = convert_struct_type_to_i64_array(result_type, klass, &flg_i64type);
+                            if(flg_i64type) {
+                                IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
+                                Value* result_memory = builder.CreateAlloca(i64_array_type, 0, "STRUCT_RESULT");
+                                result = Builder.CreateCast(Instruction::BitCast, result, i64_array_type);
+                                result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(i64_array_type, 0));
+                                Builder.CreateAlignedStore(result, result_memory, 4);
 
-                            IRBuilder<> builder(&function->getEntryBlock(), function->getEntryBlock().begin());
-                            Value* result_memory = builder.CreateAlloca(i64_array_type, 0, "STRUCT_RESULT");
-                            result = Builder.CreateCast(Instruction::BitCast, result, i64_array_type);
-                            result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(i64_array_type, 0));
-                            Builder.CreateAlignedStore(result, result_memory, 4);
+                                result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(i64_array_type, 0));
 
-                            result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(i64_array_type, 0));
+                                result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(IntegerType::get(TheContext, 64), 0));
 
-                            result_memory = Builder.CreateCast(Instruction::BitCast, result_memory, PointerType::get(IntegerType::get(TheContext, 64), 0));
+                                Function* fun = TheModule->getFunction("convert_i64array_to_struct");
 
-                            Function* fun = TheModule->getFunction("convert_i64array_to_struct");
+                                std::vector<Value*> params2;
 
-                            std::vector<Value*> params2;
+                                int offset = result_type->mClassNameOffset;
+                                char* class_name = CONS_str(&klass->mConst, offset);
 
-                            int offset = result_type->mClassNameOffset;
-                            char* class_name = CONS_str(&klass->mConst, offset);
+                                Value* param1 = llvm_create_string(class_name);
+                                params2.push_back(param1);
 
-                            Value* param1 = llvm_create_string(class_name);
-                            params2.push_back(param1);
+                                Value* param2 = result_memory;
+                                params2.push_back(param2);
 
-                            Value* param2 = result_memory;
-                            params2.push_back(param2);
+                                std::string info_value_name("info");
+                                Value* param3 = params[info_value_name];
+                                params2.push_back(param3);
 
-                            std::string info_value_name("info");
-                            Value* param3 = params[info_value_name];
-                            params2.push_back(param3);
-
-                            result = Builder.CreateCall(fun, params2);
+                                result = Builder.CreateCall(fun, params2);
+                            }
                         }
 
                         /// vm stack_ptr to llvm stack ///
@@ -4697,6 +4820,7 @@ static BOOL compile_jit_methods(sCLClass* klass)
 
     create_internal_functions();
     TheLabels.clear();
+    gLLVMStructType.clear();
 
     int i;
     int num_compiled_method = 0;
@@ -5544,17 +5668,23 @@ void create_c_ffi_functions()
         for(i=0; i<klass->mNumMethods; i++) {
             sCLMethod* method = klass->mMethods + i;
 
+            std::vector<Type *> type_params;
             Type* element_type = nullptr;
 
             BOOL flg_struct_type = FALSE;
             BOOL flg_array_type = FALSE;
             Type* result_type = create_c_type_from_cl_type(method->mResultType, klass, &flg_struct_type, &flg_array_type, &element_type);
+            BOOL flg_i64type = FALSE;
 
             if(flg_struct_type) {
-                result_type = convert_struct_type_to_i64_array(method->mResultType, klass);
-            }
+                result_type = convert_struct_type_to_i64_array(method->mResultType, klass, &flg_i64type);
 
-            std::vector<Type *> type_params;
+                if(!flg_i64type) {
+                    result_type = PointerType::get(IntegerType::get(TheContext, 8), 0);
+                    type_params.push_back(result_type);
+                    result_type = Type::getVoidTy(TheContext);
+                }
+            }
 
             int j=0;
             for(j=0; j<method->mNumParams; j++) {
@@ -5567,7 +5697,8 @@ void create_c_ffi_functions()
                 Type* param_type = create_c_type_from_cl_type(param->mType, klass, &flg_struct_type, &flg_array_type, &element_type);
 
                 if(flg_struct_type) {
-                    param_type = convert_struct_type_to_i64_array(param->mType, klass);
+                    BOOL flg_i64type = FALSE;
+                    param_type = convert_struct_type_to_i64_array(param->mType, klass, &flg_i64type);
                 }
                 else if(flg_array_type) {
                     param_type = convert_array_type_to_pointer(param->mType, klass);
@@ -5578,7 +5709,13 @@ void create_c_ffi_functions()
             char* func_name = METHOD_NAME2(klass, method);
 
             FunctionType* function_type = FunctionType::get(result_type, type_params, false);
-            Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
+            Function* func = Function::Create(function_type, Function::ExternalLinkage, func_name, TheModule);
+            if(flg_struct_type) {
+                if(!flg_i64type) {
+                    func->addAttribute(1, Attribute::StructRet);
+                }
+            }
+
         }
         for(i=0; i<klass->mNumClassFields; i++) {
             sCLField* field = klass->mClassFields + i;
@@ -5590,7 +5727,8 @@ void create_c_ffi_functions()
             Type* result_type = create_c_type_from_cl_type(field->mResultType, klass, &flg_struct_type, &flg_array_type, &element_type);
 
             if(flg_struct_type) {
-                result_type = convert_struct_type_to_i64_array(field->mResultType, klass);
+                BOOL flg_i64type = FALSE;
+                result_type = convert_struct_type_to_i64_array(field->mResultType, klass, &flg_i64type);
             }
 
             char* field_name = FIELD_NAME(klass, field);

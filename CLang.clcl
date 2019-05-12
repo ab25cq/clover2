@@ -29,27 +29,55 @@ class CLangVariable
 
 class CLangStruct {
     var name:String;
+    var tagName:String;
     var fields:SortableList<CLangVariable>;
 
-    def initialize(name:String, fields:SortableList<
-CLangVariable>) {
-        self.name = name;
+    def initialize(name:String, tag_name:String, fields:SortableList<CLangVariable>) {
+        self.name = name.clone();
         self.fields = fields.clone();
+        self.tagName = tag_name.clone();
     }
 
     def clone():CLangStruct {
-        result := CLangStruct(self.name, self.fields);
+        result := CLangStruct(self.name, self.tagName, self.fields);
         return result;
     }
     def compare(right:CLangStruct): int {
         return self.name.compare(right.name);
     }
     def equals(right:CLangStruct): bool {
-        return self.name.equals(right.name) && self.fields.equals(right.fields);
+        return self.name.equals(right.name) && self.tagName.equals(right.tagName) && self.fields.equals(right.fields);
     }
 
     def toString():String {
-        return "struct name \{name} fields \{fields}";
+        return "struct name \{name} tagName \{tagName} fields \{fields}";
+    }
+}
+
+class CLangUnion {
+    var name:String;
+    var tagName:String;
+    var fields:SortableList<CLangVariable>;
+
+    def initialize(name:String, tag_name:String, fields:SortableList<CLangVariable>) {
+        self.name = name.clone();
+        self.fields = fields.clone();
+        self.tagName = tag_name.clone();
+    }
+
+    def clone():CLangUnion {
+        result := CLangUnion(self.name, self.tagName, self.fields);
+        return result;
+    }
+    def compare(right:CLangUnion): int {
+        return self.name.compare(right.name);
+    }
+    def equals(right:CLangUnion): bool {
+        return self.name.equals(right.name) && self.tagName.equals(right.tagName) && self.fields.equals(right.fields);
+    }
+
+    def toString():String {
+        return "struct name \{name} tagName \{tagName} fields \{fields}";
     }
 }
 
@@ -89,6 +117,7 @@ class CLang
 
     var funcs:SortableList<CLangFunc>;
     var structs:SortableList<CLangStruct>;
+    var unions:SortableList<CLangUnion>;
     var vars:SortableList<CLangVariable>;
 
     def initialize(source:Buffer) {
@@ -97,6 +126,7 @@ class CLang
 
         self.funcs = SortableList<CLangFunc>();
         self.structs = SortableList<CLangStruct>();
+        self.unions = SortableList<CLangUnion>();
         self.vars = SortableList<CLangVariable>();
     }
 
@@ -190,6 +220,9 @@ class CLang
         if(result.equals("struct")) {
             result = getWord();
         }
+        elif(result.equals("union")) {
+            result = getWord();
+        }
 
         while(p->byte == '*') {
             result.append(p->byte.to_char);
@@ -211,36 +244,198 @@ class CLang
         }
     }
 
-    def parseStruct() {
+    def parseStruct():CLangStruct {
         tmp := getWord();
-        name := getWord();
+
+        name := "";
+
+        if(p->byte != '{') {
+            name = getWord();
+        }
 
         expected_next_charactor('{');
 
         fields := SortableList<CLangVariable>;
+
+        tag_name := "";
 
         while(true) {
             if(p->byte == '}') {
                 p++;
                 skipLFAndSpaces();
 
-                expected_next_charactor(';');
+                if(p->byte == ';') {
+                    p++;
+                    skipLFAndSpaces();
+                }
+                else {
+                    tag_name = getWord();
+                    expected_next_charactor(';');
+                }
                 break;
             }
             else {
-                field_type := parseType();
-                field_name := parseVarName();
+                p_before := p.p;
 
-                expected_next_charactor(';');
+                buf := getWord();
 
-                variable := CLangVariable(field_name, field_type);
+                if(buf.equals("struct")) {
+                    struct_ := parseStruct();
 
-                fields.push(variable);
+                    for(it in struct_.fields) {
+                        field_type := "";
+                        field_name := "";
+
+                        if(struct_.tagName.equals(""))
+                        {
+                            field_type = it.type;
+                            field_name = it.name;
+                        }
+                        else {
+                            field_type = it.type;
+                            field_name = struct_.tagName.add("$").add(it.name);
+                        }
+
+                        variable := CLangVariable(field_name, field_type);
+
+                        fields.push(variable);
+                    }
+                }
+                elif(buf.equals("union")) {
+                    union_ := parseUnion();
+
+                    for(it in union_.fields) {
+                        field_type := "";
+                        field_name := "";
+
+                        if(union_.tagName.equals(""))
+                        {
+                            field_type = it.type;
+                            field_name = it.name;
+                        }
+                        else {
+                            field_type = it.type;
+                            field_name = union_.tagName.add("$").add(it.name);
+                        }
+
+                        variable := CLangVariable(field_name, field_type);
+
+                        fields.push(variable);
+                    }
+                }
+                else {
+                    p.p = p_before;
+
+                    field_type := parseType();
+                    field_name := parseVarName();
+
+                    expected_next_charactor(';');
+
+                    variable := CLangVariable(field_name, field_type);
+
+                    fields.push(variable);
+                }
             }
         }
 
-        struct_ := CLangStruct(name, fields);
-        structs.push(struct_);
+        return CLangStruct(name, tag_name, fields);
+    }
+
+    def parseUnion():CLangUnion {
+        tmp := getWord();
+
+        name := "";
+
+        if(p->byte != '{') {
+            name = getWord();
+        }
+
+        expected_next_charactor('{');
+
+        fields := SortableList<CLangVariable>;
+
+        tag_name := "";
+
+        while(true) {
+            if(p->byte == '}') {
+                p++;
+                skipLFAndSpaces();
+
+                if(p->byte == ';') {
+                    p++;
+                    skipLFAndSpaces();
+                }
+                else {
+                    tag_name = getWord();
+                    expected_next_charactor(';');
+                }
+                break;
+            }
+            else {
+                p_before := p.p;
+
+                buf := getWord();
+
+                if(buf.equals("struct")) {
+                    struct_ := parseStruct();
+
+                    for(it in struct_.fields) {
+                        field_type := "";
+                        field_name := "";
+
+                        if(struct_.tagName.equals(""))
+                        {
+                            field_type = it.type;
+                            field_name = it.name;
+                        }
+                        else {
+                            field_type = it.type;
+                            field_name = struct_.tagName.add("$").add(it.name);
+                        }
+
+                        variable := CLangVariable(field_name, field_type);
+
+                        fields.push(variable);
+                    }
+                }
+                elif(buf.equals("union")) {
+                    union_ := parseUnion();
+
+                    for(it in union_.fields) {
+                        field_type := "";
+                        field_name := "";
+
+                        if(union_.tagName.equals(""))
+                        {
+                            field_type = it.type;
+                            field_name = it.name;
+                        }
+                        else {
+                            field_type = it.type;
+                            field_name = union_.tagName.add("$").add(it.name);
+                        }
+
+                        variable := CLangVariable(field_name, field_type);
+
+                        fields.push(variable);
+                    }
+                }
+                else {
+                    p.p = p_before;
+
+                    field_type := parseType();
+                    field_name := parseVarName();
+
+                    expected_next_charactor(';');
+
+                    variable := CLangVariable(field_name, field_type);
+
+                    fields.push(variable);
+                }
+            }
+        }
+
+        return CLangUnion(name, tag_name, fields);
     }
 
     def parseFunction(type:String, name:String) {
@@ -321,7 +516,40 @@ class CLang
                 if(p->byte == '{') {
                     p.p = p_before;
 
-                    parseStruct();
+                    struct_ := parseStruct();
+                    structs.push(struct_);
+                }
+                else {
+                    p.p = p_before;
+
+                    type := parseType();
+                    name := parseVarName();
+
+                    if(p->byte == '(') {
+                        p++;
+                        skipLFAndSpaces();
+
+                        parseFunction(type, name);
+                    }
+                    else {
+                        if(p->byte == ';') {
+                            p++;
+                            skipLFAndSpaces();
+                        }
+
+                        var_ := CLangVariable(name, type);
+                        vars.push(var_);
+                    }
+                }
+            }
+            elif(buf.equals("union")) {
+                tmp := getWord();
+
+                if(p->byte == '{') {
+                    p.p = p_before;
+
+                    union_ := parseUnion();
+                    unions.push(union_);
                 }
                 else {
                     p.p = p_before;
@@ -353,6 +581,8 @@ class CLang
                 name := parseVarName();
 
                 if(p->byte == '(') {
+                    field_type :=
+                    field_name :=
                     p++;
                     skipLFAndSpaces();
 
@@ -454,7 +684,67 @@ class CLang
                 for(it2 in it.fields) {
                     result.append(
                         """
-                        printf("%ld\\n", (char*)&data.\{it2.name} - (char*)&data);
+                        printf("%ld\\n", (char*)&data.\{it2.name.sub(/\$/g, ".")} - (char*)&data);
+                        """
+                    );
+                }
+                result;
+                }
+                exit(0);
+            }
+            """.write(getenv("HOME").add("/.clover2/tmp/tmp.c"));
+
+            gcc("-o", "clover2_get_struct_size", getenv("HOME").add("/.clover2/tmp/tmp.c"));
+            system("./clover2_get_struct_size > clover2_get_struct_size_out");
+            output := cat("clover2_get_struct_size_out").toString().split(/\n/);
+
+            size := output.items(0).to_int();
+            n := 1;
+            for(it2 in it.fields) {
+                it2.offset = output.items(n).to_int();
+                n++;
+            }
+            rm("./clover2_get_struct_size")
+            rm("./clover2_get_struct_size_out")
+
+
+            result.append(
+                """
+                struct \{it.name}:\{size} {
+                \{
+                    result := "";
+                    for(it2 in it.fields) {
+                        name := it2.name;
+                        type := it2.type;
+                        offset := it2.offset;
+
+                        clover2_name := translateCVarNameToClover2VarName(name, type);
+                        clover2_type := translateCTypeToClover2Type(name, type);
+
+                        result.append("\{clover2_name}:\{clover2_type}:\{offset};\n");
+                    }
+                    result;
+                }
+                }
+                """
+            );
+        }
+        for(it in unions) {
+            """
+            #include <stdio.h>
+            #include <stdlib.h>
+
+            \{source}
+
+            int main() {
+                union \{it.name} data;
+                printf("%ld\\n", sizeof(union \{it.name}));
+                \{
+                result := "";
+                for(it2 in it.fields) {
+                    result.append(
+                        """
+                        printf("%ld\\n", (char*)&data.\{it2.name.sub(/\$/g, ".")} - (char*)&data);
                         """
                     );
                 }

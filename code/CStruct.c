@@ -105,3 +105,36 @@ void fun16(struct CStruct data)
     puts("OK");
 }
 
+void fun17(struct CStruct2 data)
+{
+    printf("CFFI Test...");
+    assert(data.XXX.a == 111 && data.XXX.b == 222 && data.ZZZ.zzz == 333 && data.c == 444);
+    puts("OK");
+}
+
+void fun18()
+{
+    struct CStruct2 data;
+    data.XXX.a = 111;
+    data.XXX.b = 222;
+    data.ZZZ.zzz = 333;
+    data.c = 444;
+    fun17(data);
+}
+
+struct CStruct2 fun19()
+{
+    struct CStruct2 data;
+
+    data.XXX.a = 111;
+    data.XXX.b = 222;
+    data.ZZZ.zzz = 333;
+    data.c = 444;
+
+    return data;
+}
+
+void fun20()
+{
+    struct CStruct2 data = fun19();
+}
