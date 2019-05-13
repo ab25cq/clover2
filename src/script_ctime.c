@@ -122,6 +122,8 @@ static BOOL write_code_and_constant_to_file(sByteCode* code, sConst* constant, i
     sBuf_append_char(&buf, 'E');
     sBuf_append_char(&buf, 'R');
 
+    alignment((unsigned int*)&buf.mLen);
+
     sBuf_append_int(&buf, var_num);
 
     append_byte_codes_to_buffer(&buf, code);

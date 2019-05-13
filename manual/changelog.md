@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.4.5
+
+    Faster compile speed.
+
 version 10.4.4
 
     Finished to implement C-FFI on JIT.

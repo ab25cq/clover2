@@ -255,57 +255,64 @@ BOOL search_for_class_file(char* class_name, char* class_file_name, size_t class
     return FALSE;
 }
 
-BOOL read_from_file(int fd, void* buf, size_t size)
+BOOL read_from_file(char** p, void* buf, size_t size, char* head)
 {
-    size_t size2;
+    memcpy(buf, *p, size);
 
-    size2 = read(fd, buf, size);
+    (*p) += size;
 
-    if(size2 < size) {
-        return FALSE;
-    }
-;
+    alignment_pointer(p, head);
+
     return TRUE;
 }
 
-static BOOL read_char_from_file(int fd, char* c)
+BOOL read_char_from_file(char** p, char* c)
 {
-    return read_from_file(fd, c, sizeof(char));
+    *c = **p;
+    (*p)++;
+
+    return TRUE;
 }
 
-BOOL read_int_from_file(int fd, int* n)
+BOOL read_int_from_file(char** p, int* n)
 {
-    return read_from_file(fd, n, sizeof(int));
+    *n = *(int*)(*p);
+    (*p) += sizeof(int);
+
+    return TRUE;
 }
 
-static BOOL read_long_from_file(int fd, clint64* n)
+static BOOL read_long_from_file(char** p, clint64* n)
 {
-    return read_from_file(fd, n, sizeof(clint64));
+    *n = *(clint64*)(*p);
+    (*p) +=sizeof(clint64);
+
+    return TRUE;
 }
 
-BOOL read_const_from_file(int fd, sConst* constant)
+BOOL read_const_from_file(char** p, sConst* constant, char* head)
 {
     int len;
-    if(!read_int_from_file(fd, &len)) {
+    if(!read_int_from_file(p, &len)) {
         return FALSE;
     }
 
     sConst_init_with_size(constant, len+1);
     constant->mLen = len;
 
-    if(!read_from_file(fd, constant->mConst, len)) {
+    if(!read_from_file(p, constant->mConst, len, head)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static BOOL read_cl_type_from_file(int fd, sCLType** cl_type);
+static BOOL read_cl_type_from_file(char** p, sCLType** cl_type);
 
-static BOOL read_cl_block_type_from_file(int fd, sCLBlockType** cl_block_type)
+static BOOL read_cl_block_type_from_file(char** p, sCLBlockType** cl_block_type)
 {
     int num_params;
-    if(!read_int_from_file(fd, &num_params)) {
+    if(!read_int_from_file(p, &num_params)) {
         return FALSE;
     }
 
@@ -313,30 +320,30 @@ static BOOL read_cl_block_type_from_file(int fd, sCLBlockType** cl_block_type)
 
     int i;
     for(i=0; i<num_params; i++) {
-        if(!read_cl_type_from_file(fd, &(*cl_block_type)->mParams[i])) {
+        if(!read_cl_type_from_file(p, &(*cl_block_type)->mParams[i])) {
             return FALSE;
         }
     }
 
-    if(!read_cl_type_from_file(fd, &(*cl_block_type)->mResultType)) {
+    if(!read_cl_type_from_file(p, &(*cl_block_type)->mResultType)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
+static BOOL read_cl_type_from_file(char** p, sCLType** cl_type)
 {
     *cl_type = MCALLOC(1, sizeof(sCLType));
 
     int n;
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
 
     (*cl_type)->mClassNameOffset = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
 
@@ -344,38 +351,38 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
 
     int i;
     for(i=0; i<(*cl_type)->mNumGenericsTypes; i++) {
-        if(!read_cl_type_from_file(fd, &(*cl_type)->mGenericsTypes[i])) {
+        if(!read_cl_type_from_file(p, &(*cl_type)->mGenericsTypes[i])) {
             return FALSE;
         }
     }
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
     (*cl_type)->mArray = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
     (*cl_type)->mArrayNum = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
     (*cl_type)->mNullable = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
     (*cl_type)->mPointerNum = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
 
     if(n) {
         (*cl_type)->mBlockType = MCALLOC(1, sizeof(sCLBlockType));
-        if(!read_cl_block_type_from_file(fd, &(*cl_type)->mBlockType)) {
+        if(!read_cl_block_type_from_file(p, &(*cl_type)->mBlockType)) {
             return FALSE;
         }
     }
@@ -383,30 +390,30 @@ static BOOL read_cl_type_from_file(int fd, sCLType** cl_type)
     return TRUE;
 }
 
-BOOL read_code_from_file(int fd, sByteCode* code)
+BOOL read_code_from_file(char** p, sByteCode* code, char* head)
 {
     int n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
 
     sByteCode_init_with_size(code, n);
     code->mLen = n;
 
-    if(!read_from_file(fd, code->mCodes, n)) {
+    if(!read_from_file(p, code->mCodes, n, head)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods, int* size_methods, sCLClass* klass)
+static BOOL read_methods_from_file(char** p, sCLMethod** methods, int* num_methods, int* size_methods, sCLClass* klass, char* head)
 {
     int n;
     clint64 l;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
 
@@ -424,47 +431,47 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
     for(i=0; i<*num_methods; i++) {
         sCLMethod* method = (*methods) + i;
 
-        if(!read_long_from_file(fd, &l))  {
+        if(!read_long_from_file(p, &l))  {
             return FALSE;
         }
 
         method->mFlags = l;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         method->mNameOffset = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         method->mPathOffset = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         method->mMethodNameAndParamsOffset = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         method->mJSMethodNameAndParamsOffset = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         method->mJSMethodNameOffset = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         method->mMethodIndex = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         method->mNumParams = n;
@@ -473,24 +480,24 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
         for(j=0; j<method->mNumParams; j++) {
             sCLParam* param = method->mParams + j;
 
-            if(!read_int_from_file(fd, &n)) {
+            if(!read_int_from_file(p, &n)) {
                 return FALSE;
             }
 
             param->mNameOffset = n;
 
-            if(!read_cl_type_from_file(fd, &param->mType)) {
+            if(!read_cl_type_from_file(p, &param->mType)) {
                 return FALSE;
             }
 
-            if(!read_int_from_file(fd, &n)) {
+            if(!read_int_from_file(p, &n)) {
                 return FALSE;
             }
 
             param->mDefaultValueOffset = n;
         }
 
-        if(!read_cl_type_from_file(fd, &method->mResultType)) {
+        if(!read_cl_type_from_file(p, &method->mResultType)) {
             return FALSE;
         }
 
@@ -502,31 +509,31 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
 
             method->mVarNum = 0;
         } else {
-            if(!read_code_from_file(fd, &method->mByteCodes)) {
+            if(!read_code_from_file(p, &method->mByteCodes, head)) {
                 return FALSE;
             }
 
-            if(!read_int_from_file(fd, &n)) {
+            if(!read_int_from_file(p, &n)) {
                 return FALSE;
             }
 
             method->mVarNum = n;
         }
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         method->mNumGenerics = n;
         for(j=0; j<method->mNumGenerics; j++) {
-            if(!read_int_from_file(fd, &n)) {
+            if(!read_int_from_file(p, &n)) {
                 return FALSE;
             }
 
             method->mGenericsParamTypeOffsets[j] = n;
         }
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
@@ -543,7 +550,7 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
             }
         }
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
@@ -553,7 +560,7 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
         else {
             char* buf = MCALLOC(1, n);
 
-            if(!read(fd, buf, n)) {
+            if(!read_from_file(p, buf, n, head)) {
                 return FALSE;
             }
 
@@ -569,12 +576,12 @@ static BOOL read_methods_from_file(int fd, sCLMethod** methods, int* num_methods
     return TRUE;
 }
 
-static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, int* size_fields, sCLClass* klass)
+static BOOL read_fields_from_file(char** p, sCLField** fields, int* num_fields, int* size_fields, sCLClass* klass)
 {
     int n;
     clint64 l;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         return FALSE;
     }
     if(n == 0) {
@@ -591,27 +598,27 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     for(i=0; i<*num_fields; i++) {
         sCLField* field = (*fields) + i;
 
-        if(!read_long_from_file(fd, &l))  {
+        if(!read_long_from_file(p, &l))  {
             return FALSE;
         }
 
         field->mFlags = l;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         field->mNameOffset = n;
 
-        if(!read_cl_type_from_file(fd, &field->mResultType)) {
+        if(!read_cl_type_from_file(p, &field->mResultType)) {
             return FALSE;
         }
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         field->mInitializeValue = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
         field->mStructOffset = n;
@@ -620,33 +627,33 @@ static BOOL read_fields_from_file(int fd, sCLField** fields, int* num_fields, in
     return TRUE;
 }
 
-BOOL read_block_from_file(int fd, sCLBlockObject* block_object)
+BOOL read_block_from_file(char** p, sCLBlockObject* block_object, char* head)
 {
-    if(!read_code_from_file(fd, &block_object->mByteCodes)) {
+    if(!read_code_from_file(p, &block_object->mByteCodes, head)) {
         return FALSE;
     }
-    if(!read_const_from_file(fd, &block_object->mConst)) {
+    if(!read_const_from_file(p, &block_object->mConst, head)) {
         return FALSE;
     }
-    if(!read_int_from_file(fd, &block_object->mVarNum)) {
+    if(!read_int_from_file(p, &block_object->mVarNum)) {
         return FALSE;
     }
-    if(!read_int_from_file(fd, &block_object->mNumParams)) {
+    if(!read_int_from_file(p, &block_object->mNumParams)) {
         return FALSE;
     }
-    if(!read_int_from_file(fd, &block_object->mLambda)) {
+    if(!read_int_from_file(p, &block_object->mLambda)) {
         return FALSE;
     }
 
     return TRUE;
 }
 
-static sCLClass* read_class_from_file(char* class_name, int fd)
+static sCLClass* read_class_from_file(char* class_name, char** p, char* head)
 {
     sCLClass* klass = MCALLOC(1, sizeof(sCLClass));
 
     int n;
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
@@ -654,13 +661,13 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
 
     int i;
     for(i=0; i<klass->mNumGenerics; i++) {
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             return FALSE;
         }
 
         klass->mGenericsParamNameOffsets[i] = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             MFREE(klass);
             return NULL;
         }
@@ -668,48 +675,48 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         klass->mGenericsParamTypeOffsets[i] = n;
     }
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mGenericsParamClassNum = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mMethodGenericsParamClassNum = n;
 
     clint64 l;
-    if(!read_long_from_file(fd, &l)) {
+    if(!read_long_from_file(p, &l)) {
         MFREE(klass);
         return NULL;
     }
     klass->mFlags = l;
     klass->mFlags &= ~CLASS_FLAGS_MODIFIED;
 
-    if(!read_const_from_file(fd, &klass->mConst)) {
+    if(!read_const_from_file(p, &klass->mConst, head)) {
         MFREE(klass);
         return NULL;
     }
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mClassNameOffset = n;
 
-    if(!read_methods_from_file(fd, &klass->mMethods, &klass->mNumMethods, &klass->mSizeMethods, klass)) {
+    if(!read_methods_from_file(p, &klass->mMethods, &klass->mNumMethods, &klass->mSizeMethods, klass, head)) {
         MFREE(klass);
         return NULL;
     }
 
-    if(!read_fields_from_file(fd, &klass->mFields, &klass->mNumFields, &klass->mSizeFields, klass)) {
+    if(!read_fields_from_file(p, &klass->mFields, &klass->mNumFields, &klass->mSizeFields, klass)) {
         MFREE(klass);
         return NULL;
     }
 
-    if(!read_fields_from_file(fd, &klass->mClassFields, &klass->mNumClassFields, &klass->mSizeClassFields, klass)) {
+    if(!read_fields_from_file(p, &klass->mClassFields, &klass->mNumClassFields, &klass->mSizeClassFields, klass)) {
         MFREE(klass);
         return NULL;
     }
@@ -718,57 +725,57 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
     klass->mSizeBlockObjects = 4;
     klass->mNumBlockObjects = 0;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mClassInitializeMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mClassFinalizeMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mFinalizeMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mCallingClassMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mCallingMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mAllocSizeMethodIndex = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mNumTypedef = n;
 
     for(i=0; i<klass->mNumTypedef; i++) {
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             MFREE(klass);
             return NULL;
         }
 
         klass->mTypedefClassName1Offsets[i] = n;
 
-        if(!read_int_from_file(fd, &n)) {
+        if(!read_int_from_file(p, &n)) {
             MFREE(klass);
             return NULL;
         }
@@ -776,21 +783,21 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         klass->mTypedefClassName2Offsets[i] = n;
     }
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
 
     klass->mUnboxingClassNameOffset = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
 
     klass->mLabelNum = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
@@ -804,7 +811,7 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         for(i=0; i<n; i++) {
             sCLBlockObject* block_object = klass->mBlockObjects + i;
 
-            if(!read_block_from_file(fd, block_object)) {
+            if(!read_block_from_file(p, block_object, head)) {
                 MFREE(klass);
                 return NULL;
             }
@@ -816,13 +823,13 @@ static sCLClass* read_class_from_file(char* class_name, int fd)
         klass->mNumBlockObjects = 0;
     }
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
     klass->mAllocSize = n;
 
-    if(!read_int_from_file(fd, &n)) {
+    if(!read_int_from_file(p, &n)) {
         MFREE(klass);
         return NULL;
     }
@@ -950,31 +957,88 @@ static void set_boxing_and_unboxing_class(char* primitive_class_name, char* lapp
     if(klass2) { klass2->mUnboxingClass = klass; }
 }
 
+BOOL read_file(char* fname, sBuf* source)
+{
+    int f = open(fname, O_RDONLY);
+
+    if(f < 0) {
+        fprintf(stderr, "%s doesn't exist(2)\n", fname);
+        return FALSE;
+    }
+
+    while(1) {
+        char buf[BUFSIZ+1];
+        int size = read(f, buf, BUFSIZ);
+
+        if(size == 0) {
+            break;
+        }
+        else if(size < 0) {
+            fprintf(stderr, "unexpected error\n");
+            close(f);
+            return FALSE;
+        }
+
+        sBuf_append_fast(source, buf, size);
+
+        if(size < BUFSIZ) {
+            break;
+        }
+    }
+
+    close(f);
+
+    return TRUE;
+}
+
 sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
 {
-    /// check the existance of the load class ///
-    int fd = open(class_file_name, O_RDONLY);
+    sBuf buf;
+    sBuf_init(&buf);
 
-    if(fd < 0) {
+    if(!read_file(class_file_name, &buf)) {
+        MFREE(buf.mBuf);
         return NULL;
     }
 
-    /// check magic number. Is this Clover object file? ///
+    char* p = buf.mBuf;
+
+    /// check magic number. ///
     char c;
 
-    if(!read_from_file(fd, &c, 1) || c != 11) { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 12) { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 34) { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 55) { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'C') { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'L') { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'O') { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'V') { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'E') { close(fd); return NULL; }
-    if(!read_from_file(fd, &c, 1) || c != 'R') { close(fd); return NULL; }
+    read_char_from_file(&p, &c);
+    if(c != 11) { return NULL; }
 
-    sCLClass* klass = read_class_from_file(class_name, fd);
-    close(fd);
+    read_char_from_file(&p, &c);
+    if(c != 12) { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 34) { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 55) { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'C') { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'L') { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'O') { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'V') { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'E') { return NULL; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'R') { return NULL; }
+
+    alignment_pointer(&p, buf.mBuf);
+
+    sCLClass* klass = read_class_from_file(class_name, &p, buf.mBuf);
 
     if(klass == NULL) {
         fprintf(stderr, "Clover2 can't load class %s because of class file\n", class_name);
@@ -1011,6 +1075,8 @@ sCLClass* load_class_from_class_file(char* class_name, char* class_file_name)
     klass->mInitMethodIndexOnCompileTime = klass->mNumMethods;
 
     klass->mAlreadyLoadedJSClass = FALSE;
+
+    MFREE(buf.mBuf);
 
     return klass;
 }

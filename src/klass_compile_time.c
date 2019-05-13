@@ -873,6 +873,8 @@ void append_const_to_buffer(sBuf* buf, sConst* constant)
 {
     sBuf_append_int(buf, constant->mLen);
     sBuf_append(buf, constant->mConst, sizeof(char)*constant->mLen);
+
+    alignment((unsigned int*)&buf->mLen);
 }
 
 static void append_cl_type_to_buffer(sBuf* buf, sCLType* cl_type);
@@ -915,6 +917,8 @@ void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code)
 {
     sBuf_append_int(buf, code->mLen);
     sBuf_append(buf, code->mCodes, code->mLen);
+
+    alignment((unsigned int*)&buf->mLen);
 }
 
 static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* klass, int num_methods)
@@ -961,6 +965,8 @@ static void append_methods_to_buffer(sBuf* buf, sCLMethod* methods, sCLClass* kl
         if(method->mNativeCodes) {
             sBuf_append_int(buf, method->mNativeCodes->mLen);
             sBuf_append(buf, method->mNativeCodes->mBuf, method->mNativeCodes->mLen);
+
+            alignment((unsigned int*)&buf->mLen);
         }
         else {
             sBuf_append_int(buf, 0);
@@ -1056,6 +1062,8 @@ BOOL write_class_to_class_file(sCLClass* klass)
 
     strcpy(magic_number + 4, "CLOVER");
     sBuf_append(&buf, magic_number, sizeof(char)*10);
+
+    alignment((unsigned int*)&buf.mLen);
 
     write_class_to_buffer(klass, &buf);
 

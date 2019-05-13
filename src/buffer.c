@@ -45,6 +45,19 @@ void sBuf_append(sBuf* self, void* str, size_t size)
     MFREE(str2);
 }
 
+void sBuf_append_fast(sBuf* self, void* str, size_t size)
+{
+    if(self->mSize <= self->mLen + size + 1) {
+        self->mSize = (self->mLen + size + 1) * 2;
+        self->mBuf = MREALLOC(self->mBuf, sizeof(char)*self->mSize);
+    }
+
+    memcpy(self->mBuf + self->mLen, str, size);
+
+    self->mLen += size;
+    self->mBuf[self->mLen] = 0;
+}
+
 /*
 void sBuf_append(sBuf* self, void* str, size_t size)
 {

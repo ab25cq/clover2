@@ -103,52 +103,74 @@ BOOL read_source(char* fname, sBuf* source)
 
 BOOL eval_file(char* fname, int stack_size)
 {
-    int fd = open(fname, O_RDONLY);
+    sBuf buf;
 
-    if(fd < 0) {
-        fprintf(stderr, "%s doesn't exist(1)\n", fname);
+    sBuf_init(&buf);
+
+    if(!read_file(fname, &buf)) {
+        MFREE(buf.mBuf);
         return FALSE;
     }
 
+    char* p = buf.mBuf;
+
     /// magic number ///
     char c;
-    if(!read_from_file(fd, &c, 1) || c != 10) { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 12) { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 34) { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 55) { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'C') { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'L') { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'O') { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'V') { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'E') { close(fd); return FALSE; }
-    if(!read_from_file(fd, &c, 1) || c != 'R') { close(fd); return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 10) { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 12) { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 34) { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 55) { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'C') { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'L') { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'O') { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'V') { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'E') { return FALSE; }
+
+    read_char_from_file(&p, &c);
+    if(c != 'R') { return FALSE; }
+
+    alignment_pointer(&p, buf.mBuf);
 
     int var_num;
-    if(!read_int_from_file(fd, &var_num)) {
-        close(fd);
+    if(!read_int_from_file(&p, &var_num)) {
         fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
 
     sByteCode code;
-    if(!read_code_from_file(fd, &code))
+    if(!read_code_from_file(&p, &code, buf.mBuf))
     {
-        close(fd);
         fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
 
     sConst constant;
-    if(!read_const_from_file(fd, &constant))
+    if(!read_const_from_file(&p, &constant, buf.mBuf))
     {
-        close(fd);
         fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
 
     int n;
-    if(!read_int_from_file(fd, &n)) {
-        close(fd);
+    if(!read_int_from_file(&p, &n)) {
         fprintf(stderr, "Clover2 can't read variable number\n");
         return FALSE;
     }
@@ -157,8 +179,7 @@ BOOL eval_file(char* fname, int stack_size)
     for(i=0; i<n; i++) {
         sCLBlockObject block_object;
 
-        if(!read_block_from_file(fd, &block_object)) {
-            close(fd);
+        if(!read_block_from_file(&p, &block_object, buf.mBuf)) {
             fprintf(stderr, "Clover2 can't read variable number\n");
             return FALSE;
         }
@@ -184,7 +205,6 @@ BOOL eval_file(char* fname, int stack_size)
         MFREE(info.running_class_name);
         MFREE(info.running_method_name);
         free_global_stack(&info);
-        close(fd);
         MFREE(stack);
         sByteCode_free(&code);
         sConst_free(&constant);
@@ -199,10 +219,11 @@ BOOL eval_file(char* fname, int stack_size)
 
     vm_mutex_off(); // see OP_RETURN
 
-    close(fd);
     MFREE(stack);
     sByteCode_free(&code);
     sConst_free(&constant);
+
+    MFREE(buf.mBuf);
 
     return TRUE;
 }

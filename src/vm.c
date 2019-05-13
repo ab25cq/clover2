@@ -12469,8 +12469,6 @@ BOOL vm(sByteCode* code, sConst* constant, CLVALUE* stack, int var_num, sCLClass
 
             case OP_UINTEGER_TO_DOUBLE_CAST:
                 {
-                    
-
                     CLObject obj = (stack_ptr-1)->mObjectValue;
 
                     if(obj == 0) {

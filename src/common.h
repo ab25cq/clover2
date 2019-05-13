@@ -460,8 +460,10 @@ typedef struct sCLClassStruct sCLClass;
 void class_init();
 void class_final();
 
-BOOL read_block_from_file(int fd, sCLBlockObject* block_object);
-BOOL read_from_file(int fd, void* buf, size_t size);
+BOOL read_file(char* fname, sBuf* source);
+BOOL read_block_from_file(char** p, sCLBlockObject* block_object, char* head);
+BOOL read_from_file(char** p, void* buf, size_t size, char* head);
+BOOL read_char_from_file(char** p, char* c);
 void reset_js_load_class();
 sCLClass* get_class_with_load(char* class_name, BOOL js);
 sCLClass* get_class(char* class_name, BOOL js);
@@ -2031,9 +2033,9 @@ void dependency_final();
 void append_block_to_buffer(sBuf* buf, sCLBlockObject* block_object);
 void append_byte_codes_to_buffer(sBuf* buf, sByteCode* code);
 void append_const_to_buffer(sBuf* buf, sConst* constant);
-BOOL read_code_from_file(int fd, sByteCode* code);
-BOOL read_int_from_file(int fd, int* n);
-BOOL read_const_from_file(int fd, sConst* constant);
+BOOL read_code_from_file(char** p, sByteCode* code, char* head);
+BOOL read_int_from_file(char** p, int* n);
+BOOL read_const_from_file(char** p, sConst* constant, char* head);
 void add_native_code_to_method(sCLMethod* method, sBuf* native_code);
 BOOL add_method_to_class(sCLClass* klass, char* method_name, sParserParam* params, int num_params, sNodeType* result_type, BOOL native_, BOOL static_, BOOL dynamic_, BOOL pure_native_, sGenericsParamInfo* ginfo, sCLMethod** appended_method, char* clibrary_path, sParserInfo* info);
 int add_block_object_to_class(sCLClass* klass, sByteCode codes, sConst constant, int var_num, int num_params, BOOL lambda);
@@ -2623,6 +2625,7 @@ extern CLObject signal_handler_object[SIGMAX];
 
 /// alignment.c ///
 void alignment(unsigned int* size);
+void alignment_pointer(char** p, char* head);
 
 /// clover_to_clang ///
 ALLOC wchar_t* string_object_to_wchar_array(CLObject string_object);
