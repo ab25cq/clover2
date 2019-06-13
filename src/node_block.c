@@ -59,6 +59,8 @@ void append_node_to_node_block(sNodeBlock* node_block, unsigned int node)
         int new_size = node_block->mSizeNodes * 2;
         node_block->mNodes = MREALLOC(node_block->mNodes, sizeof(unsigned int)*new_size);
         memset(node_block->mNodes + node_block->mSizeNodes, 0, sizeof(unsigned int)*(new_size-node_block->mSizeNodes));
+
+        node_block->mSizeNodes = new_size;
     }
 
     node_block->mNodes[node_block->mNumNodes] = node;

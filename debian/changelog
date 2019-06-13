@@ -1,4 +1,8 @@
 
+clover2 (10.4.6-1) unstable; urgency=medium
+
+    * Fixed the block size bug
+
 clover2 (10.4.5-1) unstable; urgency=medium
 
     * Faster compile speed.

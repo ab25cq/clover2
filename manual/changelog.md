@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.4.6
+
+    Fixed block size bug
+
 version 10.4.5
 
     Faster compile speed.
