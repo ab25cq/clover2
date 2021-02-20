@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.5.0
+
+    Fixed REPL bug. File name completion and local variable completion.
+
 version 10.4.6
 
     Fixed block size bug
