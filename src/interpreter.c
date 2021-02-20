@@ -1571,7 +1571,34 @@ static int my_complete_internal(int count, int key)
 
     tmp_lv_table = clone_var_table(gLVTable);
 
-    BOOL inputing_path_object = is_path_object(line, "iclover2", tmp_lv_table);
+
+    char* p = line;
+
+    BOOL slash = FALSE;
+    BOOL dquort = FALSE;
+    BOOL squort = FALSE;
+
+    while(p < line + strlen(line)) {
+        if(*p == '\"') {
+            p++;
+            dquort = !dquort;
+        }
+        else if(*p == '\'') {
+            p++;
+            squort = !squort;
+        }
+        else if(*p == '\\') {
+            p+=2;
+        }
+        else if(dquort || squort) {
+            p++;
+        }
+        else {
+            p++;
+        }
+    }
+
+    BOOL inputing_path_object = dquort;
 
     if(inputing_path_object) {
         pathObjectCompletion(line);
@@ -2294,7 +2321,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.4.6";
+char* gVersion = "10.5.0";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -2400,7 +2427,8 @@ int main(int argc, char** argv)
     CLVALUE* stack = MCALLOC(1, sizeof(CLVALUE)*stack_size);
 
     gStack = stack;
-    gLVTable = clone_var_table(lv_table);
+    gLVTable = lv_table;
+    //gLVTable = clone_var_table(lv_table);
 
     if(gCommandLineScript) {
         compiler_init(FALSE);
