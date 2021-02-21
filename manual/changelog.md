@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.5.1
+
+    You can write slist ( 1, 2, 3 ) as slist { 1, 2, 3 }
+
 version 10.5.0
 
     Fixed REPL bug. File name completion and local variable completion.
