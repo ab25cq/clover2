@@ -3402,14 +3402,14 @@ static BOOL parse_carray_value(unsigned int* node, sParserInfo* info, char tail_
     return TRUE;
 }
 
-static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info, char close_character) 
 {
     int num_elements = 0;
 
     unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
     memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == close_character) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3430,7 +3430,7 @@ static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == close_character) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3443,14 +3443,14 @@ static BOOL parse_equalable_carray_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_sortable_carray_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_sortable_carray_value(unsigned int* node, sParserInfo* info, char close_character) 
 {
     int num_elements = 0;
 
     unsigned int array_elements[ARRAY_VALUE_ELEMENT_MAX];
     memset(array_elements, 0, sizeof(unsigned int)*ARRAY_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == close_character) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3471,7 +3471,7 @@ static BOOL parse_sortable_carray_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == close_character) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3484,7 +3484,7 @@ static BOOL parse_sortable_carray_value(unsigned int* node, sParserInfo* info)
     return TRUE;
 }
 
-static BOOL parse_hash_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_hash_value(unsigned int* node, sParserInfo* info, char close_character) 
 {
     int num_elements = 0;
 
@@ -3494,7 +3494,7 @@ static BOOL parse_hash_value(unsigned int* node, sParserInfo* info)
     memset(hash_keys, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
     memset(hash_items, 0, sizeof(unsigned int)*HASH_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == close_character) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3521,7 +3521,7 @@ static BOOL parse_hash_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == close_character) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -3699,14 +3699,14 @@ static BOOL parse_js_array(unsigned int* node, sParserInfo* info, char tail_char
 }
 
 
-static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info) 
+static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info, char close_character) 
 {
     int num_elements = 0;
 
     unsigned int tuple_element[TUPLE_VALUE_ELEMENT_MAX];
     memset(tuple_element, 0, sizeof(unsigned int)*TUPLE_VALUE_ELEMENT_MAX);
 
-    if(*info->p == '}') {
+    if(*info->p == close_character) {
         info->p++;
         skip_spaces_and_lf(info);
     }
@@ -3727,7 +3727,7 @@ static BOOL parse_tuple_value(unsigned int* node, sParserInfo* info)
                 info->p++;
                 skip_spaces_and_lf(info);
             }
-            else if(*info->p == '}') {
+            else if(*info->p == close_character) {
                 info->p++;
                 skip_spaces_and_lf(info);
                 break;
@@ -4838,12 +4838,30 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "list") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_list_value(node, info, ')')) {
+                return FALSE;
+            }
+        }
         else if((strcmp(buf, "equalable_list") == 0 || strcmp(buf, "elist") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
 
             if(!parse_equalable_list_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else if((strcmp(buf, "equalable_list") == 0 || strcmp(buf, "elist") == 0) && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_equalable_list_value(node, info, ')')) {
                 return FALSE;
             }
         }
@@ -4856,12 +4874,30 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if((strcmp(buf, "sortable_list") == 0 || strcmp(buf, "slist") == 0) && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_sortable_list_value(node, info, ')')) {
+                return FALSE;
+            }
+        }
         else if(strcmp(buf, "tuple") == 0 && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_tuple_value(node, info)) {
+            if(!parse_tuple_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "tuple") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_tuple_value(node, info, ')')) {
                 return FALSE;
             }
         }
@@ -4870,7 +4906,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_hash_value(node, info)) {
+            if(!parse_hash_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else if(strcmp(buf, "hash") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_hash_value(node, info, ')')) {
                 return FALSE;
             }
         }
@@ -4883,12 +4928,30 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 return FALSE;
             }
         }
+        else if(strcmp(buf, "array") == 0 && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_carray_value(node, info, ')')) {
+                return FALSE;
+            }
+        }
         else if((strcmp(buf, "equalable_array") == 0 || strcmp(buf, "earray") == 0) && *info->p == '{') {
             skip_spaces_and_lf(info);
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_equalable_carray_value(node, info)) {
+            if(!parse_equalable_carray_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else if((strcmp(buf, "equalable_array") == 0 || strcmp(buf, "earray") == 0) && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_equalable_carray_value(node, info, ')')) {
                 return FALSE;
             }
         }
@@ -4897,7 +4960,16 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
 
             expect_next_character_with_one_forward("{", info);
 
-            if(!parse_sortable_carray_value(node, info)) {
+            if(!parse_sortable_carray_value(node, info, '}')) {
+                return FALSE;
+            }
+        }
+        else if((strcmp(buf, "sortable_array") == 0 || strcmp(buf, "sarray") == 0) && *info->p == '(') {
+            skip_spaces_and_lf(info);
+
+            expect_next_character_with_one_forward("(", info);
+
+            if(!parse_sortable_carray_value(node, info, ')')) {
                 return FALSE;
             }
         }
