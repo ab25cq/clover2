@@ -264,24 +264,11 @@ AC_SUBST(LIBS)
 if which clang-7 > /dev/null
 then
     CC=clang-7
-    if which ccache > /dev/null
-    then
-        CC="ccache clang-7"
-    fi
 elif which clang > /dev/null
 then
     CC=clang
-    if which ccache > /dev/null
-    then
-        CC="ccache clang"
-    fi
 else
     CC=gcc
-
-    if which ccache > /dev/null
-    then
-        CC="ccache gcc"
-    fi
 fi
 
 AC_SUBST(CC)
@@ -297,23 +284,11 @@ CXXFLAGS="-fPIC -rdynamic $CXXFLAGS"
 if which clang++-7 > /dev/null
 then
     CXX=clang++-7
-    if which ccache > /dev/null
-    then
-        CXX="ccache clang++-7"
-    fi
 elif which clang++ > /dev/null
 then
     CXX=clang++
-    if which ccache > /dev/null
-    then
-        CXX="ccache clang++"
-    fi
 else
     CXX=g++
-    if which ccache > /dev/null
-    then
-        CXX="ccache g++"
-    fi
 fi
 
 if which llvm-config-7 > /dev/null
