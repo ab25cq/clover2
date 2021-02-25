@@ -24,6 +24,13 @@ Clover2を使い始めようとするあなたへ。この言語はJavaやC#と�
 ```
 > ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
 > m+a+i+n+.+c
+> "AAA".scan(/./).join("+").append("\n").multiply(5000).toCommand().less()
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
 ```
 
 とless外部コマンドで表示される。

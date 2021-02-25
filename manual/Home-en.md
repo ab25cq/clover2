@@ -21,6 +21,13 @@ There are two kinds of primitive classes and ordinary classes, primitive classes
 ```
 > ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
 > m+a+i+n+.+c
+> "AAA".scan(/./).join("+").append("\n").multiply(5000).toCommand().less()
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
+> A+A+A
 ```
 
 And less displayed with an external command.
