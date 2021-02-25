@@ -86,9 +86,7 @@ version 10.5.1
         """
     );
 
-    11. Threadをサポートします。
-
-    12. C言語へのFFIがあります。
+    11. C言語へのFFIがあります。
 
     class System
     {
@@ -98,7 +96,7 @@ version 10.5.1
 
     などと拡張ライブラリを作成せずにC言語のライブラリを使うことができます。
 
-    13. メモリーセーフなポインタがあります。
+    12. メモリーセーフなポインタがあります。
 
     p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
 
@@ -216,9 +214,7 @@ FEATURES
         """
     );
 
-    11. Threads are supported.
-
-    12. FFI to C Language
+    13. FFI to C Language
 
     class System
     {
@@ -228,7 +224,7 @@ FEATURES
 
     You can use C language libraries without creating extension libraries etc.
 
-    13. Memory safe pointer
+    14. Memory safe pointer
 
     p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
 
@@ -261,4 +257,12 @@ Sample Code
     > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
     > {uname(), hostname(), pwd()}.each { it.less() }
+
+    > "AAA".scan(/./).join("+").append("\n").multiply(5000).toCommand().less()
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
 
