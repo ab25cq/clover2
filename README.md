@@ -1,5 +1,7 @@
 # clover2 computer language
 
+この言語はアプリケーションを作るタイプの言語ではないかもしれません。iclover2を使ってシェルとして使うといいと思います。
+
 version 10.5.1
 
 サポートしている機能
@@ -130,6 +132,8 @@ version 10.5.1
     > {uname(), hostname(), pwd()}.each { it.less() }
 
 Yet another compiler and a Virtual Machine.
+
+This compiler may be not used as making application. It may be used as shell with iclover2.
 
 FEATURES
 
