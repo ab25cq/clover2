@@ -21,13 +21,6 @@ There are two kinds of primitive classes and ordinary classes, primitive classes
 ```
 > ls().grep("main.c").toString().scan(/./).join("+").toCommand().less()
 > m+a+i+n+.+c
-> "AAA".scan(/./).join("+").append("\n").multiply(5000).toCommand().less()
-> A+A+A
-> A+A+A
-> A+A+A
-> A+A+A
-> A+A+A
-> A+A+A
 ```
 
 And less displayed with an external command.
@@ -102,9 +95,7 @@ Method names, external command names, file names are also supplemented. Just lik
     );
 ```
 
-11. Threads are supported.
-
-12. FFI to C Language
+11. FFI to C Language
 ```
     class System
     {
@@ -113,7 +104,7 @@ Method names, external command names, file names are also supplemented. Just lik
     }
 ```
 
-13. Memory safe pointer
+12. Memory safe pointer
 
 ```
     p := b"ABC"; p++; Clover.test("Memory safe pointer test", p->byte == 'B'); try { p +=100 } catch(e:Exception) { println("Out of range");  }
@@ -147,6 +138,14 @@ You can use C language libraries without creating extension libraries etc.
     > {1,2,3}.map { it.toString().toCommand() }.each { it.less() }
 
     > {uname(), hostname(), pwd()}.each { it.less() }
+
+    > "AAA".scan(/./).join("+").append("\n").multiply(5000).toCommand().less()
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
+    A+A+A
 ```
 
 # Operating environment $
