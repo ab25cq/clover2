@@ -231,6 +231,8 @@ inherit System
     def cfsetispeed(terminfo:termios, speed:speed_t): static native throws Exception;
     def cfsetospeed(terminfo:termios, speed:speed_t): static native throws Exception;
     def cfsetspeed(terminfo:termios, speed:speed_t): static native throws Exception;
+    def getmaxx(): native static int throws Exception;
+    def getmaxy(): native static int throws Exception;
 }
 
 class termios
@@ -623,6 +625,9 @@ dynamic_class Command
             close(child2parent_write_fd);
             close(child2parent_write_fd_err);
 
+            setenv("COLUMNS", getmaxx().toString(), 1);
+            setenv("LINES", getmaxy().toString(), 1);
+
             try {
                 if(method_name.chars(0) == '/') {
                     execv(method_name, params);
@@ -711,6 +716,9 @@ dynamic_class Command
             close(child2parent_write_fd);
             close(child2parent_write_fd_err);
 
+            setenv("COLUMNS", getmaxx().toString(), 1);
+            setenv("LINES", getmaxy().toString(), 1);
+
             try {
                 if(method_name.chars(0) == '/') {
                     execv(method_name, params);
@@ -780,6 +788,9 @@ dynamic_class Command
             setpgid(0, 0);
             tcsetpgrp(0, pid);
 
+            setenv("COLUMNS", getmaxx().toString(), 1);
+            setenv("LINES", getmaxy().toString(), 1);
+
             try {
                 if(method_name.chars(0) == '/') {
                     execv(method_name, params);
@@ -848,6 +859,9 @@ dynamic_class Command
 
             setpgid(0, 0);
             tcsetpgrp(0, pid);
+
+            setenv("COLUMNS", getmaxx().toString(), 1);
+            setenv("LINES", getmaxy().toString(), 1);
 
             dup2(parent2child_read_fd, 0);
             close(parent2child_read_fd);
