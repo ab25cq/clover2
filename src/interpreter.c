@@ -1541,7 +1541,7 @@ void topLevelCompletion(char* line)
     }
 
     classNameCompletion();
-    localVariableCompletion(line);
+    //localVariableCompletion(line);
     globalMethodCompletion();
     systemMethodCompletion();
     commandCompletion();
@@ -2321,7 +2321,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.5.1";
+char* gVersion = "10.5.2";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
