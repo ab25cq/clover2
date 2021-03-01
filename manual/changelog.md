@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.5.3
+
+    Fixed a Command class bug
+
 version 10.5.2
 
     Fixed a interpreter bug

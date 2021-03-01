@@ -659,15 +659,15 @@ dynamic_class Command
         child_output:Buffer = B"";
         
         while(true) {
-            pipe_data := Buffer(128.to_ulong);
+            pipe_data := Buffer(8192.to_ulong);
 
-            readed_byte := read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            readed_byte := read(child2parent_read_fd, pipe_data, 8192.to_ulong);
 
             child_output.append(pipe_data);
 
-            pipe_data_err := Buffer(128.to_ulong);
+            pipe_data_err := Buffer(8192.to_ulong);
 
-            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
 
             child_output.append(pipe_data_err);
 
@@ -752,18 +752,24 @@ dynamic_class Command
         child_output_error := B"";
         
         while(true) {
-            pipe_data := Buffer(128.to_ulong);
-            readed_byte := read(child2parent_read_fd, pipe_data, 128.to_ulong);
+            pipe_data := Buffer(8192.to_ulong);
+            readed_byte := read(child2parent_read_fd, pipe_data, 8192.to_ulong);
 
-            pipe_data_err := Buffer(128.to_ulong);
-            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 128.to_ulong);
+            if(readed_byte == 0) {
+                break;
+            }
+
+/*
+            pipe_data_err := Buffer(8192.to_ulong);
+            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
 
             if(readed_byte == 0 && readed_byte_err == 0) {
                 break;
             }
+*/
 
             child_output.append(pipe_data);
-            child_output_error.append(pipe_data_err);
+#            child_output_error.append(pipe_data_err);
         }
 
         close(child2parent_read_fd);
