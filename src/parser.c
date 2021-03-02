@@ -4645,7 +4645,7 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
         char* p_before = info->p;
         int sline_before = info->sline;
 
-        if(*info->p == '.' || *(info->p+1) == '/') {
+        if(*info->p == '.' && *(info->p+1) == '/') {
             info->p += 2;
             buf[0] = '.';
             buf[1] = '/';
@@ -5616,8 +5616,10 @@ static BOOL expression_node(unsigned int* node, sParserInfo* info)
                 info->sline = sline_before;
 
                 /// name ///
-                if(!parse_word(buf, VAR_NAME_MAX -2, info, TRUE, TRUE)) {
-                    return FALSE;
+                if(!including_slash) {
+                    if(!parse_word(buf, VAR_NAME_MAX -2, info, TRUE, TRUE)) {
+                        return FALSE;
+                    }
                 }
 
                 unsigned int params[PARAMS_MAX];

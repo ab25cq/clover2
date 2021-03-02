@@ -641,7 +641,7 @@ dynamic_class Command
                 }
             } catch(e:Exception) {
                 buffer := e.message.append("\n").toBuffer();
-                System.write(2, buffer, buffer.len);
+                System.write(2, buffer, buffer.len.to_ulong);
                 exit(64);
             }
         }
@@ -733,6 +733,8 @@ dynamic_class Command
             } catch(e:Exception) {
                 buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
+                System.write(2, method_name.toBuffer(), method_name.length());
+                System.write(2, "\n".toBuffer(), 1);
                 exit(2);
             }
             exit(2);
@@ -811,6 +813,8 @@ dynamic_class Command
             } catch(e:Exception) {
                 buffer := e.message.append("\n").toBuffer();
                 System.write(2, buffer, buffer.len);
+                System.write(2, method_name.toBuffer(), method_name.length());
+                System.write(2, "\n".toBuffer(), 1);
                 exit(64);
             }
         }
@@ -885,7 +889,7 @@ dynamic_class Command
                 }
             } catch(e:Exception) {
                 buffer := e.message.append("\n").toBuffer();
-                System.write(2, buffer, buffer.len);
+                System.write(2, buffer, buffer.len.to_ulong);
 #                exit(64);
             }
         }
