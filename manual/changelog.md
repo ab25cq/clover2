@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.5.5
+
+    Fixed shell mode bug. This can be runned. > neo\-c a.nc;
+
 version 10.5.4
 
     Fixed shell mode bug. This can be runned. > clang a.c; ./a.out

@@ -945,8 +945,25 @@ void command_completion()
                                 struct stat stat_;
                                 if(stat(path2, &stat_) == 0) {
                                     if(stat_.st_mode & S_IXUSR) {
+                                        char* entry_d_name[PATH_MAX];
+
+                                        char* p = entry->d_name;
+                                        char* p2 = entry_d_name;
+
+                                        while(*p) {
+                                            if(isalnum(*p)) {
+                                                *p2++ = *p++;
+                                            }
+                                            else {
+                                                *p2++ = '\\';
+                                                *p2++ = *p++;
+                                            }
+                                        }
+
+                                        *p2 = '\0';
+
                                         char candidate[PATH_MAX];
-                                        snprintf(candidate, PATH_MAX, "%s(", entry->d_name);
+                                        snprintf(candidate, PATH_MAX, "%s(", entry_d_name);
                                         gCandidates[gNumCandidates++] = MANAGED MSTRDUP(candidate);
 
                                         if(gNumCandidates >= gSizeCandidates) {
@@ -954,7 +971,7 @@ void command_completion()
                                             gCandidates = MREALLOC(gCandidates, sizeof(char*)*gSizeCandidates);
                                         }
 
-                                        snprintf(candidate, PATH_MAX, "%s", entry->d_name);
+                                        snprintf(candidate, PATH_MAX, "%s", entry_d_name);
                                         gCandidates[gNumCandidates++] = MANAGED MSTRDUP(candidate);
 
                                         if(gNumCandidates >= gSizeCandidates) {
@@ -2321,7 +2338,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.5.4";
+char* gVersion = "10.5.5";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
