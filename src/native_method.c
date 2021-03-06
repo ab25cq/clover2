@@ -139,6 +139,7 @@ static sNativeMethod gNativeMethods[] = {
     { "System.close(int)", "System_close", System_close },
     { "System.read(int,Buffer,ulong)", "System_read", System_read },
     { "System.write(int,Buffer,ulong)", "System_write", System_write },
+    { "System.fcntl(int,int,int)", "System_fcntl", System_fcntl },
     { "System.localtime(ulong,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer,pointer)", "System_localtime", System_localtime },
     { "System.mktime(tm)", "System_mktime", System_mktime },
     { "System.lstat(String,stat)", "System_lstat", System_lstat },

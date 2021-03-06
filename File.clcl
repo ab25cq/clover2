@@ -95,6 +95,9 @@ inherit System
 
     PATH_MAX: static int;
 
+    F_GETFL: static int;
+    F_SETFL: static int;
+
     def initialize_file_system(): static native;
 
     def initialize(): static {
@@ -105,6 +108,8 @@ inherit System
     def close(fd:int): static native int throws Exception;
     def read(fd:int, buf:Buffer, size:size_t): static native ssize_t throws Exception;
     def write(fd:int, buf:Buffer, size:size_t): static native ssize_t throws Exception;
+
+    def fcntl(fd:int, flag:int, val:int): static native int throws Exception;
 
     def time(): static native time_t;
     def localtime(time:time_t, tm_sec:pointer@of_int, tm_min:pointer@of_int, tm_hour:pointer@of_int, tm_mday:pointer@of_int, tm_mon:pointer@of_int, tm_year:pointer@of_int, tm_wday:pointer@of_int, tm_yday:pointer@of_int, tm_isdst:pointer@of_bool): static native throws Exception;

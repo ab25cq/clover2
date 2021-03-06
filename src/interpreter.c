@@ -2338,7 +2338,7 @@ static void compiler_final()
 
 int gARGC;
 char** gARGV;
-char* gVersion = "10.5.5";
+char* gVersion = "10.5.6";
 
 char gScriptDirPath[PATH_MAX];
 BOOL gRunningCompiler = FALSE;
@@ -2515,7 +2515,7 @@ int main(int argc, char** argv)
 
         char* line = readline(prompt);
 
-        if(line == NULL) {
+        if(line == NULL || strcmp(line, "exit") == 0) {
             compiler_final();
             break;
         }

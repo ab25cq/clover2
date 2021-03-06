@@ -42,7 +42,7 @@ toBoolAndOutput()メソッドで出力を画面に表示しながら実行結果
     /home/ab25cq
     true
 
-`write(path:STring, permission:mode_t):Command` と `write(path:String): Command` メソッドで出力をファイルに保存することができます。
+`write(path:String, permission:mode_t):Command` と `write(path:String): Command` メソッドで出力をファイルに保存することができます。
 
     > pwd().write("output_of_pwd")
     /home/ab25cq

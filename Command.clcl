@@ -599,6 +599,14 @@ dynamic_class Command
         }
     }
 
+    def set_fl(fd:int, flags:int):static {
+        value := fcntl(fd, F_GETFL, 0);
+
+        value |= flags;
+
+        fcntl(fd, F_SETFL, value);
+    }
+
     def executeCommandWithGettingStderr(method_name:String, params:List<String>, pipe_data:String?) : static Command throws Exception
     {
         child2parent_write_fd := 0;
@@ -657,23 +665,30 @@ dynamic_class Command
         close(parent2child_write_fd);
 
         child_output:Buffer = B"";
+
+        set_fl(child2parent_read_fd_err, O_NONBLOCK);
         
         while(true) {
             pipe_data := Buffer(8192.to_ulong);
 
             readed_byte := read(child2parent_read_fd, pipe_data, 8192.to_ulong);
 
-            child_output.append(pipe_data);
-
             pipe_data_err := Buffer(8192.to_ulong);
 
-            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
+            readed_byte_err := 0;
 
-            child_output.append(pipe_data_err);
+            try {
+                readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
+            } catch(e:Exception) {
+                readed_byte_err = 0;
+            }
 
-            if(readed_byte == 0 && readed_byte_err == 0) {
+            if(readed_byte <= 0 && readed_byte_err <= 0) {
                 break;
             }
+
+            child_output.append(pipe_data);
+            child_output.append(pipe_data_err);
         }
 
         close(child2parent_read_fd);
@@ -752,26 +767,29 @@ dynamic_class Command
 
         child_output := B"";
         child_output_error := B"";
-        
+
+        set_fl(child2parent_read_fd_err, O_NONBLOCK);
+
         while(true) {
             pipe_data := Buffer(8192.to_ulong);
             readed_byte := read(child2parent_read_fd, pipe_data, 8192.to_ulong);
 
-            if(readed_byte == 0) {
-                break;
-            }
-
-/*
             pipe_data_err := Buffer(8192.to_ulong);
-            readed_byte_err := read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
 
-            if(readed_byte == 0 && readed_byte_err == 0) {
+            readed_byte_err := 0;
+
+            try {
+                readed_byte_err = read(child2parent_read_fd_err, pipe_data_err, 8192.to_ulong);
+            } catch(e:Exception) {
+                readed_byte_err = 0;
+            }
+
+            if(readed_byte <= 0 && readed_byte_err <= 0) {
                 break;
             }
-*/
 
             child_output.append(pipe_data);
-#            child_output_error.append(pipe_data_err);
+            child_output_error.append(pipe_data_err);
         }
 
         close(child2parent_read_fd);

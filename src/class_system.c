@@ -1771,8 +1771,10 @@ BOOL System_initialize_file_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+75].mValue.mIntValue = BUFSIZ;
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+76].mValue.mIntValue = PATH_MAX;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+77].mValue.mIntValue = F_GETFL;
+    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+78].mValue.mIntValue = F_SETFL;
 
-#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+77)
+#define LAST_INITIALIZE_FIELD_NUM_ON_FILE_SYSTEM (LAST_INITIALIZE_FIELD_NUM_ON_STRING_SYSTEM+79)
 
     return TRUE;
 }
@@ -1853,6 +1855,31 @@ BOOL System_write(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     (*stack_ptr)->mULongValue = result;
+    (*stack_ptr)++;
+
+    return TRUE;
+}
+
+BOOL System_fcntl(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
+{
+    CLVALUE* fd = lvar;
+    CLVALUE* flag = lvar+1;
+    CLVALUE* val = lvar + 2;
+
+    /// Clover to c value ///
+    int fd_value = fd->mIntValue;
+    int flag_value = flag->mIntValue;
+    int val_value = val->mIntValue;
+
+    /// go ///
+    int result = fcntl(fd_value, flag_value, val_value);
+
+    if(result < 0) {
+        entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "fcntl(2) is faield. The error is %s. The errno is %d", strerror(errno), errno);
+        return FALSE;
+    }
+
+    (*stack_ptr)->mIntValue = result;
     (*stack_ptr)++;
 
     return TRUE;

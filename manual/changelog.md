@@ -1,5 +1,9 @@
 English page is here [>> English page](changelog-en)
 
+version 10.5.6
+
+    Fixed getting command error bug. 
+
 version 10.5.5
 
     Fixed shell mode bug. This can be runned. > neo\-c a.nc;
