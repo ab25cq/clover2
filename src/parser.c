@@ -1510,7 +1510,7 @@ static BOOL when_expression(unsigned int* node, sParserInfo* info)
 
     memset(when_types, 0, sizeof(sNodeType*)*WHEN_BLOCK_MAX);
     memset(when_types2, 0, sizeof(sNodeType*)*WHEN_BLOCK_MAX);
-    memset(when_match, 0, sizeof(BOOL*)*WHEN_BLOCK_MAX);
+    memset(when_match, 0, sizeof(BOOL)*WHEN_BLOCK_MAX);
 
     /// value1 ///
     while(1) {
