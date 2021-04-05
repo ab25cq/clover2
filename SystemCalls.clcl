@@ -69,7 +69,7 @@ inherit System
 {
     def alarm(seconads: uint): static native uint;
     def dup(old_fd:int): static native throws Exception;
-    def dup3(old_fd:int, new_fd:int, flags:int): static native throws Exception;
+#    def dup3(old_fd:int, new_fd:int, flags:int): static native throws Exception;
     def execvpe(path:String, argv:List<String>, envp:List<String>):static native throws Exception;
     
     def initialize_system_calls_system():static native;
@@ -431,9 +431,9 @@ inherit System
     def is_leaveok(win:pointer@WINDOW): native bool;
     def is_nodelay(win:pointer@WINDOW): native bool;
     def is_notimeout(win:pointer@WINDOW): native bool;
-    def is_pad(win:pointer@WINDOW): native bool;
+#    def is_pad(win:pointer@WINDOW): native bool;
     def is_scrolok(win:pointer@WINDOW): native bool;
-    def is_subwin(win:pointer@WINDOW): native bool;
+#    def is_subwin(win:pointer@WINDOW): native bool;
     def is_syncok(win:pointer@WINDOW): native bool;
     def wgetparent(win:pointer@WINDOW): native pointer@WINDOW;
 #    def wgetdelay(win:pointer@WINDOW): native int;

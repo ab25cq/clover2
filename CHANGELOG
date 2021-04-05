@@ -1,4 +1,8 @@
 
+version 10.6.0
+
+    Correspond OSX(Intel, Homebrew)
+
 version 10.5.7
 
     Fixed String.insert(int, char) bug

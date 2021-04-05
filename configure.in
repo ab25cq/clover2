@@ -100,9 +100,9 @@ if test `uname -s` = "Darwin"; then
     AC_DEFINE(__DARWIN__, 1)
 
     if test $myprefix = /usr/local; then
-        CFLAGS="-Isrc/ -I. -L . $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L/usr/local/opt/ncurses/lib -L/usr/local/opt/readline/lib -I/usr/local/opt/readline/include $CFLAGS"
     else 
-        CFLAGS="-Isrc/ -I. -L . -I$myprefix/include -L$myprefix/lib $CFLAGS"
+        CFLAGS="-Isrc/ -I. -L . -L/usr/local/opt/ncurses/lib -L/usr/local/opt/readline/lib -I/usr/local/opt/readline/include -I$myprefix/include -L$myprefix/lib $CFLAGS"
     fi
 elif test `uname -s` = "FreeBSD"; then
     echo "FreeBSD"

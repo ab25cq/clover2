@@ -4119,6 +4119,7 @@ BOOL System_dup(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+/*
 BOOL System_dup3(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* old_fd = lvar;
@@ -4140,6 +4141,7 @@ BOOL System_dup3(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+*/
 
 BOOL System_execvpe(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -4941,7 +4943,7 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+35].mValue.mIntValue = SIGPROF;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+36].mValue.mIntValue = SIGWINCH;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+37].mValue.mIntValue = SIGIO;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+38].mValue.mIntValue = SIGPWR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+38].mValue.mIntValue = SIGPWR;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+39].mValue.mIntValue = SIGSYS;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+40].mValue.mIntValue = FD_SETSIZE;
 
@@ -4960,44 +4962,44 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
 #ifdef SIOCSIFLINK
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+45].mValue.mIntValue = SIOCSIFLINK;
 #endif
-#ifdef SIOCGIFCONF
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+46].mValue.mIntValue = SIOCGIFCONF;
-#endif
+//#ifdef SIOCGIFCONF
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+46].mValue.mIntValue = SIOCGIFCONF;
+//#endif
 #ifdef SIOCGIFFLAGS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+47].mValue.mIntValue = SIOCGIFFLAGS;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+47].mValue.mIntValue = SIOCGIFFLAGS;
 #endif
 #ifdef SIOCSIFFLAGS
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+48].mValue.mIntValue = SIOCSIFFLAGS;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+48].mValue.mIntValue = SIOCSIFFLAGS;
 #endif
 #ifdef SIOCGIFADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+49].mValue.mIntValue = SIOCGIFADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+49].mValue.mIntValue = SIOCGIFADDR;
 #endif
 #ifdef SIOCSIFADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+50].mValue.mIntValue = SIOCSIFADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+50].mValue.mIntValue = SIOCSIFADDR;
 #endif
 #ifdef SIOCGIFDSTADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+51].mValue.mIntValue = SIOCGIFDSTADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+51].mValue.mIntValue = SIOCGIFDSTADDR;
 #endif
 #ifdef SIOCSIFDSTADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+52].mValue.mIntValue = SIOCSIFDSTADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+52].mValue.mIntValue = SIOCSIFDSTADDR;
 #endif
 #ifdef SIOCGIFBRDADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+53].mValue.mIntValue = SIOCGIFBRDADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+53].mValue.mIntValue = SIOCGIFBRDADDR;
 #endif
 #ifdef SIOCSIFBRDADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+54].mValue.mIntValue = SIOCSIFBRDADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+54].mValue.mIntValue = SIOCSIFBRDADDR;
 #endif
 #ifdef SIOCGIFNETMASK
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+55].mValue.mIntValue = SIOCGIFNETMASK;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+55].mValue.mIntValue = SIOCGIFNETMASK;
 #endif
 #ifdef SIOCSIFNETMASK
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+56].mValue.mIntValue = SIOCSIFNETMASK;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+56].mValue.mIntValue = SIOCSIFNETMASK;
 #endif
 #ifdef SIOCGIFMETRIC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+57].mValue.mIntValue = SIOCGIFMETRIC;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+57].mValue.mIntValue = SIOCGIFMETRIC;
 #endif
 #ifdef SIOCSIFMETRIC
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+58].mValue.mIntValue = SIOCSIFMETRIC;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+58].mValue.mIntValue = SIOCSIFMETRIC;
 #endif
 #ifdef SIOCGIFMEM
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+59].mValue.mIntValue = SIOCGIFMEM;
@@ -5006,10 +5008,10 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+60].mValue.mIntValue = SIOCSIFMEM;
 #endif
 #ifdef SIOCGIFMTU
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+61].mValue.mIntValue = SIOCGIFMTU;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+61].mValue.mIntValue = SIOCGIFMTU;
 #endif
 #ifdef SIOCSIFMTU
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+62].mValue.mIntValue = SIOCSIFMTU;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+62].mValue.mIntValue = SIOCSIFMTU;
 #endif
 #ifdef SIOCSIFNAME
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+63].mValue.mIntValue = SIOCSIFNAME;
@@ -5033,10 +5035,10 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+69].mValue.mIntValue = SIOCSIFSLAVE;
 #endif
 #ifdef SIOCADDMULTI
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+70].mValue.mIntValue = SIOCADDMULTI;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+70].mValue.mIntValue = SIOCADDMULTI;
 #endif
 #ifdef SIOCDELMULTI
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+71].mValue.mIntValue = SIOCDELMULTI;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+71].mValue.mIntValue = SIOCDELMULTI;
 #endif
 #ifdef SIOCGIFINDEX
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+72].mValue.mIntValue = SIOCGIFINDEX;
@@ -5051,7 +5053,7 @@ BOOL System_initialize_system_calls_system(CLVALUE** stack_ptr, CLVALUE* lvar, s
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+75].mValue.mIntValue = SIOCGIFPFLAGS;
 #endif
 #ifdef SIOCDIFADDR
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+76].mValue.mIntValue = SIOCDIFADDR;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+76].mValue.mIntValue = SIOCDIFADDR;
 #endif
 #ifdef SIOCSIFHWBROADCAST
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_COMMAND_SYSTEM+77].mValue.mIntValue = SIOCSIFHWBROADCAST;
@@ -5934,17 +5936,17 @@ BOOL System_initialize_cgi_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* i
     sCLClass* system = get_class("System", FALSE);
 
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+0].mValue.mIntValue = LC_ALL;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+1].mValue.mIntValue = LC_ADDRESS;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+1].mValue.mIntValue = LC_ADDRESS;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+2].mValue.mIntValue = LC_COLLATE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+3].mValue.mIntValue = LC_CTYPE;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+4].mValue.mIntValue = LC_IDENTIFICATION;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+5].mValue.mIntValue = LC_MEASUREMENT;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+4].mValue.mIntValue = LC_IDENTIFICATION;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+5].mValue.mIntValue = LC_MEASUREMENT;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+6].mValue.mIntValue = LC_MESSAGES;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+7].mValue.mIntValue = LC_MONETARY;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+8].mValue.mIntValue = LC_NAME;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+8].mValue.mIntValue = LC_NAME;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+9].mValue.mIntValue = LC_NUMERIC;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+10].mValue.mIntValue = LC_PAPER;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+11].mValue.mIntValue = LC_TELEPHONE;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+10].mValue.mIntValue = LC_PAPER;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+11].mValue.mIntValue = LC_TELEPHONE;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+12].mValue.mIntValue = LC_TIME;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+13].mValue.mIntValue = LOCK_SH;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_SYSTEM_CALLS+14].mValue.mIntValue = LOCK_EX;
@@ -6304,12 +6306,12 @@ BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+2].mValue.mIntValue = AF_INET;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+3].mValue.mIntValue = AF_INET6;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+4].mValue.mIntValue = AF_IPX;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+5].mValue.mIntValue = AF_NETLINK;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+6].mValue.mIntValue = AF_X25;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+7].mValue.mIntValue = AF_AX25;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+8].mValue.mIntValue = AF_ATMPVC;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+5].mValue.mIntValue = AF_NETLINK;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+6].mValue.mIntValue = AF_X25;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+7].mValue.mIntValue = AF_AX25;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+8].mValue.mIntValue = AF_ATMPVC;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+9].mValue.mIntValue = AF_APPLETALK;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+10].mValue.mIntValue = AF_PACKET;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+10].mValue.mIntValue = AF_PACKET;
 #ifdef AF_ALG
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+11].mValue.mIntValue = AF_ALG;
 #endif
@@ -6318,9 +6320,9 @@ BOOL System_initialize_socket_system(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+14].mValue.mIntValue = SOCK_SEQPACKET;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+15].mValue.mIntValue = SOCK_RAW;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+16].mValue.mIntValue = SOCK_RDM;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+17].mValue.mIntValue = SOCK_PACKET;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+18].mValue.mIntValue = SOCK_NONBLOCK;
-    system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+19].mValue.mIntValue = SOCK_CLOEXEC;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+17].mValue.mIntValue = SOCK_PACKET;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+18].mValue.mIntValue = SOCK_NONBLOCK;
+    //system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+19].mValue.mIntValue = SOCK_CLOEXEC;
     system->mClassFields[LAST_INITIALIZE_FIELD_NUM_ON_CGI+20].mValue.mIntValue = SOCK_STREAM;
 
 #define LAST_INITIALIZE_FIELD_NUM_ON_SOCKET (LAST_INITIALIZE_FIELD_NUM_ON_CGI+21)
@@ -7009,10 +7011,18 @@ BOOL System_signal(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     /// Clover to C ///
     int signum_value = signum->mIntValue;
+#ifdef __DARWIN__
+    sig_t handler_value = (sig_t)handler->mPointerValue;
+#else
     sighandler_t handler_value = (sighandler_t)handler->mPointerValue;
+#endif
 
     /// go ///
+#ifdef __DARWIN__
+    sig_t result = signal(signum_value, handler_value);
+#else
     sighandler_t result = signal(signum_value, handler_value);
+#endif
 
     if(result == SIG_ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "signal(2) is faield. The error is %s. The errno is %d", strerror(errno), errno);
@@ -7074,7 +7084,11 @@ BOOL System_signal2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     int signum_value = signum->mIntValue;
     CLObject handler_object = handler->mObjectValue;
     
+#ifdef __DARWIN__
+    sig_t handler_value = signal_user_handler;
+#else
     sighandler_t handler_value = signal_user_handler;
+#endif
 
     sBlockObject* object_data = CLBLOCK(handler_object);
 
@@ -7084,7 +7098,11 @@ BOOL System_signal2(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     }
 
     /// go ///
+#ifdef __DARWIN__
+    sig_t result = signal(signum_value, handler_value);
+#else
     sighandler_t result = signal(signum_value, handler_value);
+#endif
 
     if(result == SIG_ERR) {
         entry_exception_object_with_class_name(stack_ptr, info->current_stack, info->current_var_num, info, "Exception", "signal(2) is faield. The error is %s. The errno is %d", strerror(errno), errno);
@@ -7627,6 +7645,7 @@ BOOL System_is_notimeout(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+/*
 BOOL System_is_pad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* win = lvar;
@@ -7642,6 +7661,7 @@ BOOL System_is_pad(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+*/
 
 BOOL System_is_scrollok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
@@ -7659,6 +7679,7 @@ BOOL System_is_scrollok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
     return TRUE;
 }
 
+/*
 BOOL System_is_subwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
     CLVALUE* win = lvar;
@@ -7674,6 +7695,7 @@ BOOL System_is_subwin(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 
     return TRUE;
 }
+*/
 
 BOOL System_is_syncok(CLVALUE** stack_ptr, CLVALUE* lvar, sVMInfo* info)
 {
