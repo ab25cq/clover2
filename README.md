@@ -2,7 +2,7 @@
 
 この言語はアプリケーションを作るタイプの言語ではないかもしれません。iclover2を使ってシェルとして使うといいと思います。
 
-version 10.6.0
+version 11.0.0
 
 サポートしている機能
 
@@ -23,8 +23,6 @@ version 10.6.0
     m+a+i+n+.+c
 
     とless外部コマンドで表示される。 メソッド名や外部コマンド名、ファイル名の補完もされます。JavaのIDEやPowerShellと同じく文脈に沿った補完を行います。
-
-    7.--with-jit指定を./configureにつけるとLLVMによるJITが有効になります。処理速度が向上します。大体3倍速くらいです。内部的にはClover2のソースファイルのコンパイル時にJITコンパイルしてダイナミックライブラリを作っているのでJITというよりネイティブコードコンパイラと言っても良いかもしれません。
 
     8. シェルのような記述もできREPLをシェルの代わりに使うことができます。補完もシェルと同等の機能があります。ジョブコントロールも行うためfgやjobsなども動きます。ただしシェルよりは機能は限定的です。
 
@@ -154,8 +152,6 @@ FEATURES
 ```
     And less displayed with an external command. Method names, external command names, file names are also supplemented. Just like Java IDE and PowerShell, we will complement the context.
 
-    7. If you attach with-jit specification to ./configure, JIT by LLVM will be effective. Processing speed improves. It is about 3 times faster. Internally, it is good to say that it is a native code compiler rather than J IT because we are JIT compiled and compiled dynamic libraries when compiling Clover 2 source files.
-
     8. You can write like a shell and REPL can be used instead of shell. Complementation also has the same function as shell. Since job control is also performed, fg and jobs etc. also move. However, the function is more limited than the shell.
 
     ls -al | less
@@ -217,16 +213,6 @@ FEATURES
         }
         """
     );
-
-    13. FFI to C Language
-
-    class System
-    {
-        R_OK: static int from unistd.h
-        def strcmp(x:pointer, y:pointer): int from libc.so.6
-    }
-
-    You can use C language libraries without creating extension libraries etc.
 
     14. Memory safe pointer
 
