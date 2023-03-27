@@ -2,3 +2,9 @@
 *.clcl linguist-language=C
 *.sh linguist-language=C
 *.jscl linguist-language=C
+*.txt linguist-language=C
+*.md linguist-language=C
+*.gz linguist-language=C
+*.csv linguist-language=C
+*.log linguist-language=C
+*.ex linguist-language=C
