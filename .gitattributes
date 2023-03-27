@@ -1,12 +1,2 @@
-*.cl linguist-language=C
-*.clcl linguist-language=C
-*.sh linguist-language=C
-*.jscl linguist-language=C
-*.txt linguist-language=C
-*.md linguist-language=C
-*.gz linguist-language=C
-*.csv linguist-language=C
-*.log linguist-language=C
-*.ex linguist-language=C
-*.c linguist-language=C
-*.h linguist-language=C
+* linguist-vendored
+*.c linguist-vendored=false
