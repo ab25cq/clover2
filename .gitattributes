@@ -1,0 +1,4 @@
+*.cl linguist-language=C
+*.clcl linguist-language=C
+*.sh linguist-language=C
+*.jscl linguist-language=C
