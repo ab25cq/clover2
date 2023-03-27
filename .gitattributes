@@ -8,3 +8,5 @@
 *.csv linguist-language=C
 *.log linguist-language=C
 *.ex linguist-language=C
+*.c linguist-language=C
+*.h linguist-language=C
